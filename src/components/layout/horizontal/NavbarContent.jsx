@@ -4,6 +4,8 @@
 import classnames from 'classnames'
 
 // Component Imports
+import { UserButton } from '@clerk/nextjs'
+
 import NavToggle from './NavToggle'
 import Logo from '@components/layout/shared/Logo'
 import ModeDropdown from '@components/layout/shared/ModeDropdown'
@@ -30,7 +32,8 @@ const NavbarContent = () => {
       </div>
       <div className='flex items-center'>
         <ModeDropdown />
-        <UserDropdown />
+        <UserButton />
+        {/* <UserDropdown /> */}
       </div>
     </div>
   )

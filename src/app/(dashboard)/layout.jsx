@@ -1,3 +1,5 @@
+import { SignedIn, SignedOut } from '@clerk/nextjs'
+
 // MUI Imports
 import Button from '@mui/material/Button'
 

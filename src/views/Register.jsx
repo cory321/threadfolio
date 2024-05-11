@@ -5,7 +5,7 @@ import { useState } from 'react'
 
 import Link from 'next/link'
 
-import { SignIn } from '@clerk/nextjs'
+import { SignUp } from '@clerk/nextjs'
 
 // Next Imports
 
@@ -51,7 +51,7 @@ const LoginV1 = ({ mode }) => {
 
   return (
     <div className='flex flex-col justify-center items-center min-bs-[100dvh] relative p-6'>
-      <SignIn path='/login' />
+      <SignUp path='/register' />
       {/* <Card className='flex flex-col sm:is-[450px]'>
         <CardContent className='!p-12'>
           <div className='flex justify-center items-center gap-3 mbe-6'>
