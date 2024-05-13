@@ -32,7 +32,7 @@
     "eslint-config-next": "14.0.4",
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-import": "2.29.1",
-    "next": "14.0.4",
+    "next": "^14.2.3",
     "postcss": "8.4.33",
     "postcss-styled-syntax": "0.6.4",
     "prettier": "3.1.1",
