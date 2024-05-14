@@ -12,7 +12,7 @@ import calendarReducer from '@reducers/calendarReducer'
 // View Imports
 import Calendar from '@views/apps/calendar/Calendar'
 import SidebarLeft from '@views/apps/calendar/SidebarLeft'
-import AddEventSidebar from '@views/apps/calendar/AddEventSidebar'
+import AddEventModal from '@views/apps/calendar/AddEventModal'
 
 // CalendarColors Object
 const calendarsColor = {
@@ -27,7 +27,7 @@ const AppCalendar = ({ events }) => {
   // States
   const [calendarApi, setCalendarApi] = useState(null)
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false)
-  const [addEventSidebarOpen, setAddEventSidebarOpen] = useState(false)
+  const [addEventModalOpen, setAddEventModalOpen] = useState(false)
 
   // Vars
   const initialState = {
@@ -40,7 +40,7 @@ const AppCalendar = ({ events }) => {
   const [calendars, dispatch] = useReducer(calendarReducer, initialState)
   const mdAbove = useMediaQuery(theme => theme.breakpoints.up('md'))
   const handleLeftSidebarToggle = () => setLeftSidebarOpen(!leftSidebarOpen)
-  const handleAddEventSidebarToggle = () => setAddEventSidebarOpen(!addEventSidebarOpen)
+  const handleAddEventModalToggle = () => setAddEventModalOpen(!addEventModalOpen)
 
   // Add event handler
   const handleAddEvent = async event => {
@@ -116,7 +116,7 @@ const AppCalendar = ({ events }) => {
         handleAllCalendars={handleAllCalendars}
         handleCalendarsUpdate={handleCalendarsUpdate}
         handleLeftSidebarToggle={handleLeftSidebarToggle}
-        handleAddEventSidebarToggle={handleAddEventSidebarToggle}
+        handleAddEventModalToggle={handleAddEventModalToggle}
       />
       <div className='p-5 pbe-0 flex-grow overflow-visible bg-backgroundPaper'>
         <Calendar
@@ -128,17 +128,17 @@ const AppCalendar = ({ events }) => {
           handleUpdateEvent={handleUpdateEvent}
           handleSelectEvent={handleSelectEvent}
           handleLeftSidebarToggle={handleLeftSidebarToggle}
-          handleAddEventSidebarToggle={handleAddEventSidebarToggle}
+          handleAddEventModalToggle={handleAddEventModalToggle}
         />
       </div>
-      <AddEventSidebar
+      <AddEventModal
         calendars={calendars}
         calendarApi={calendarApi}
         handleAddEvent={handleAddEvent}
         handleUpdateEvent={handleUpdateEvent}
         handleDeleteEvent={handleDeleteEvent}
-        addEventSidebarOpen={addEventSidebarOpen}
-        handleAddEventSidebarToggle={handleAddEventSidebarToggle}
+        addEventModalOpen={addEventModalOpen}
+        handleAddEventModalToggle={handleAddEventModalToggle}
         handleSelectEvent={handleSelectEvent}
       />
     </>

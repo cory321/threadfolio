@@ -1,7 +1,7 @@
 // MUI Imports
 import Card from '@mui/material/Card'
 
-import events from './events.js'
+import { events } from './events.js'
 
 // Component Imports
 import CalendarWrapper from '@views/apps/calendar/CalendarWrapper'

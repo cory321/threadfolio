@@ -37,7 +37,7 @@ const Calendar = props => {
     calendarsColor,
     handleSelectEvent,
     handleUpdateEvent,
-    handleAddEventSidebarToggle,
+    handleAddEventModalToggle, // Changed from handleAddEventSidebarToggle
     handleLeftSidebarToggle
   } = props
 
@@ -60,7 +60,7 @@ const Calendar = props => {
     plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
     initialView: 'dayGridMonth',
     headerToolbar: {
-      start: 'sidebarToggle, prev, next, title',
+      start: 'sidebarToggle, prev, next, today, title',
       end: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
     },
     views: {
@@ -110,7 +110,7 @@ const Calendar = props => {
     eventClick({ event: clickedEvent, jsEvent }) {
       jsEvent.preventDefault()
       handleSelectEvent(clickedEvent)
-      handleAddEventSidebarToggle()
+      handleAddEventModalToggle() // Changed from handleAddEventSidebarToggle
 
       if (clickedEvent.url) {
         // Open the URL in a new tab
@@ -128,6 +128,12 @@ const Calendar = props => {
         click() {
           handleLeftSidebarToggle()
         }
+      },
+      today: {
+        text: 'today',
+        click() {
+          calendarApi.today()
+        }
       }
     },
     dateClick(info) {
@@ -137,7 +143,7 @@ const Calendar = props => {
       ev.end = info.date
       ev.allDay = true
       handleSelectEvent(ev)
-      handleAddEventSidebarToggle()
+      handleAddEventModalToggle() // Changed from handleAddEventSidebarToggle
     },
 
     /*
