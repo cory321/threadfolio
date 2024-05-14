@@ -51,6 +51,9 @@
       ],
       "@reducers/*": [
         "./src/reducers/*"
+      ],
+      "@actions/*": [
+        "./src/libs/actions/*"
       ]
     }
   },
@@ -63,7 +66,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "src/middleware.js"
+    "src/middleware.js",
+    "src/components/todo/TodoList.jsx"
   ],
   "exclude": [
     "node_modules"

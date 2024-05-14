@@ -170,7 +170,7 @@ const AddEventModal = props => {
       aria-labelledby='form-dialog-title'
     >
       <DialogTitle id='form-dialog-title'>
-        {calendars.selectedEvent && calendars.selectedEvent.title.length ? 'Update Event' : 'Add Event'}
+        {calendars.selectedEvent && calendars.selectedEvent.title.length ? 'Update Appointment' : 'Add Appointment'}
         {calendars.selectedEvent && calendars.selectedEvent.title.length && (
           <IconButton onClick={handleDeleteButtonClick} size='small'>
             <i className='ri-delete-bin-7-line text-xl' />

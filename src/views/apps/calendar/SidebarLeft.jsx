@@ -26,7 +26,7 @@ const SidebarLeft = props => {
     handleAllCalendars,
     handleCalendarsUpdate,
     handleLeftSidebarToggle,
-    handleAddEventSidebarToggle
+    handleAddEventModalToggle // Updated
   } = props
 
   // Vars
@@ -51,9 +51,10 @@ const SidebarLeft = props => {
       })
     : null
 
-  const handleSidebarToggleSidebar = () => {
+  const handleSidebarToggleModal = () => {
+    // Updated
     handleSelectEvent(null)
-    handleAddEventSidebarToggle()
+    handleAddEventModalToggle() // Updated
   }
 
   if (renderFilters) {
@@ -92,10 +93,10 @@ const SidebarLeft = props => {
           <Button
             fullWidth
             variant='contained'
-            onClick={handleSidebarToggleSidebar}
+            onClick={handleSidebarToggleModal} // Updated
             startIcon={<i className='ri-add-line' />}
           >
-            Add Event
+            Add Appointment
           </Button>
         </div>
         <Divider className='is-full' />

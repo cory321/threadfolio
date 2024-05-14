@@ -45,6 +45,9 @@
       ],
       "@reducers/*": [
         "./src/reducers/*"
+      ],
+      "@actions/*": [
+        "./src/libs/actions/*"
       ]
     }
   },

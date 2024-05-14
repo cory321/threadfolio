@@ -198,7 +198,7 @@ const AddEventSidebar = props => {
     >
       <Box className='flex justify-between items-center sidebar-header p-3 pis-[1.31375rem] pie-[0.81375rem] border-be'>
         <Typography variant='h5'>
-          {calendars.selectedEvent && calendars.selectedEvent.title.length ? 'Update Event' : 'Add Event'}
+          {calendars.selectedEvent && calendars.selectedEvent.title.length ? 'Update Appointment' : 'Add Appointment'}
         </Typography>
         {calendars.selectedEvent && calendars.selectedEvent.title.length ? (
           <Box className='flex items-center' sx={{ gap: calendars.selectedEvent !== null ? 1 : 0 }}>
