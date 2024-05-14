@@ -326,6 +326,14 @@ const AppFullCalendar = styled('div')(({ theme }) => ({
       backgroundColor: 'var(--mui-palette-action-hover)'
     },
 
+    // Hover effect for dates
+    '& .fc-daygrid-day': {
+      '&:hover': {
+        backgroundColor: 'rgba(0, 0, 255, 0.1)', // Change to your desired hover color
+        cursor: 'pointer'
+      }
+    },
+
     // WeekView
     '& .fc-timegrid': {
       '& .fc-scrollgrid-section': {
