@@ -7,7 +7,6 @@ import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Cancel'
-
 import { useAuth } from '@clerk/nextjs'
 
 import { deleteTodoAction, editTodoAction, loadTodosAction } from '@actions/todo'
@@ -15,7 +14,6 @@ import { deleteTodoAction, editTodoAction, loadTodosAction } from '@actions/todo
 const TodoListContent = ({ todos, setTodos }) => {
   const { getToken } = useAuth()
   const [loading, setLoading] = useState(true)
-  const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
     const loadTodos = async () => {
@@ -38,28 +36,24 @@ const TodoListContent = ({ todos, setTodos }) => {
   const handleDelete = async id => {
     const token = await getToken({ template: 'supabase' })
 
-    startTransition(async () => {
-      try {
-        await deleteTodoAction(id, token)
-        setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id))
-      } catch (error) {
-        console.error('Error deleting todo:', error)
-      }
-    })
+    try {
+      await deleteTodoAction(id, token)
+      setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id))
+    } catch (error) {
+      console.error('Error deleting todo:', error)
+    }
   }
 
   const handleEdit = async (id, newTitle) => {
     const token = await getToken({ template: 'supabase' })
 
-    startTransition(async () => {
-      try {
-        const updatedTodo = await editTodoAction(id, newTitle, token)
+    try {
+      const updatedTodo = await editTodoAction(id, newTitle, token)
 
-        setTodos(prevTodos => prevTodos.map(todo => (todo.id === id ? updatedTodo : todo)))
-      } catch (error) {
-        console.error('Error editing todo:', error)
-      }
-    })
+      setTodos(prevTodos => prevTodos.map(todo => (todo.id === id ? updatedTodo : todo)))
+    } catch (error) {
+      console.error('Error editing todo:', error)
+    }
   }
 
   if (loading) {
@@ -86,13 +80,16 @@ const TodoListContent = ({ todos, setTodos }) => {
 const TodoItem = ({ todo, onDelete, onEdit }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [newTitle, setNewTitle] = useState(todo.title)
+  const [loading, setLoading] = useState(false)
 
   const handleEdit = () => {
     setIsEditing(true)
   }
 
-  const handleSave = () => {
-    onEdit(todo.id, newTitle)
+  const handleSave = async () => {
+    setLoading(true)
+    await onEdit(todo.id, newTitle)
+    setLoading(false)
     setIsEditing(false)
   }
 
@@ -101,26 +98,32 @@ const TodoItem = ({ todo, onDelete, onEdit }) => {
     setNewTitle(todo.title)
   }
 
+  const handleDelete = async () => {
+    setLoading(true)
+    await onDelete(todo.id)
+    setLoading(false)
+  }
+
   return (
     <Box display='flex' alignItems='center' justifyContent='space-between'>
       {isEditing ? (
         <>
-          <TextField value={newTitle} onChange={e => setNewTitle(e.target.value)} />
-          <IconButton onClick={handleSave}>
-            <SaveIcon />
+          <TextField value={newTitle} onChange={e => setNewTitle(e.target.value)} disabled={loading} />
+          <IconButton onClick={handleSave} disabled={loading}>
+            {loading ? <CircularProgress size={24} /> : <SaveIcon />}
           </IconButton>
-          <IconButton onClick={handleCancel}>
+          <IconButton onClick={handleCancel} disabled={loading}>
             <CancelIcon />
           </IconButton>
         </>
       ) : (
         <>
           <Box>{todo.title}</Box>
-          <IconButton onClick={handleEdit}>
+          <IconButton onClick={handleEdit} disabled={loading}>
             <EditIcon />
           </IconButton>
-          <IconButton onClick={() => onDelete(todo.id)}>
-            <DeleteIcon />
+          <IconButton onClick={handleDelete} disabled={loading}>
+            {loading ? <CircularProgress size={24} /> : <DeleteIcon />}
           </IconButton>
         </>
       )}
