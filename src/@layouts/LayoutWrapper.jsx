@@ -1,8 +1,14 @@
 'use client'
 
 // Hook Imports
-import { useSettings } from '@core/hooks/useSettings'
+import { useState, useEffect } from 'react'
+
+import { useUser } from '@clerk/nextjs'
+import CircularProgress from '@mui/material/CircularProgress'
+import Box from '@mui/material/Box'
+
 import useLayoutInit from '@core/hooks/useLayoutInit'
+import { useSettings } from '@core/hooks/useSettings'
 
 const LayoutWrapper = props => {
   // Props
@@ -10,10 +16,29 @@ const LayoutWrapper = props => {
 
   // Hooks
   const { settings } = useSettings()
+  const { isSignedIn, isLoading, user } = useUser()
+  const [authLoading, setAuthLoading] = useState(true)
 
   useLayoutInit(systemMode)
 
-  // Return the layout based on the layout context
+  useEffect(() => {
+    if (!isLoading) {
+      setAuthLoading(false)
+    }
+  }, [isLoading])
+
+  if (authLoading) {
+    return (
+      <Box display='flex' justifyContent='center' alignItems='center' height='100vh'>
+        <CircularProgress />
+      </Box>
+    )
+  }
+
+  if (!isSignedIn) {
+    return null // or you can redirect to sign-in page or show a message
+  }
+
   return (
     <div className='flex flex-col flex-auto' data-skin={settings.skin}>
       {settings.layout === 'horizontal' ? horizontalLayout : verticalLayout}
