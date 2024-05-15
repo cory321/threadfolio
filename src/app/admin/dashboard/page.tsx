@@ -2,8 +2,6 @@ import { redirect } from 'next/navigation'
 
 import { clerkClient } from '@clerk/nextjs/server'
 
-import { Box, Typography } from '@mui/material'
-
 import { checkRole } from '@/utils/roles'
 import UserList from './UserList'
 
@@ -40,15 +38,11 @@ export default async function AdminDashboard() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant='h4' component='h1' gutterBottom>
-        This is the admin dashboard
-      </Typography>
-      <Typography variant='body1' gutterBottom>
-        This page is restricted to users with the admin role.
-      </Typography>
+    <>
+      <h1>This is the admin dashboard</h1>
+      <p>This page is restricted to users with the admin role.</p>
 
       <UserList users={users} />
-    </Box>
+    </>
   )
 }

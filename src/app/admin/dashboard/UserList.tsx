@@ -24,14 +24,14 @@ export default function UserList({ users }) {
               </Typography>
             </CardContent>
             <CardActions>
-              <form action={setRole} method='POST' style={{ display: 'inline' }}>
+              <form action={setRole} style={{ display: 'inline' }}>
                 <input type='hidden' value={user.id} name='id' />
                 <input type='hidden' value='admin' name='role' />
                 <Button type='submit' size='small' variant='contained' color='primary'>
                   Make Admin
                 </Button>
               </form>
-              <form action={setRole} method='POST' style={{ display: 'inline', marginLeft: '8px' }}>
+              <form action={setRole} style={{ display: 'inline', marginLeft: '8px' }}>
                 <input type='hidden' value={user.id} name='id' />
                 <input type='hidden' value='moderator' name='role' />
                 <Button type='submit' size='small' variant='contained' color='secondary'>
