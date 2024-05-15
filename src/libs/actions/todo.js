@@ -1,5 +1,7 @@
 'use server'
 
+import { unstable_noStore as noStore } from 'next/cache'
+
 import { createClient } from '@supabase/supabase-js'
 
 export async function getSupabaseClient(token) {
@@ -9,6 +11,7 @@ export async function getSupabaseClient(token) {
 }
 
 export async function addTodoAction(userId, title, token) {
+  noStore()
   const supabase = await getSupabaseClient(token)
   const { data, error } = await supabase.from('todos').insert({ title, user_id: userId }).select().single()
 
@@ -20,6 +23,7 @@ export async function addTodoAction(userId, title, token) {
 }
 
 export async function editTodoAction(id, title, token) {
+  noStore()
   const supabase = await getSupabaseClient(token)
   const { data, error } = await supabase.from('todos').update({ title }).eq('id', id).select().single()
 
@@ -31,6 +35,7 @@ export async function editTodoAction(id, title, token) {
 }
 
 export async function deleteTodoAction(id, token) {
+  noStore()
   const supabase = await getSupabaseClient(token)
   const { error } = await supabase.from('todos').delete().eq('id', id)
 
@@ -42,6 +47,7 @@ export async function deleteTodoAction(id, token) {
 }
 
 export async function loadTodosAction(token) {
+  noStore()
   const supabase = await getSupabaseClient(token)
   const { data: todos, error } = await supabase.from('todos').select('*')
 
