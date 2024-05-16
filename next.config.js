@@ -5,7 +5,18 @@ const nextConfig = {
   basePath: process.env.BASEPATH,
 
   // TODO: below line is added to resolve twice event dispatch in the calendar reducer
-  reactStrictMode: false
+  reactStrictMode: false,
+
+  webpack: (config, { isServer }) => {
+    if (isServer && process.env.NETLIFY) {
+      config.externals = {
+        ...config.externals,
+        '.supabase': 'commonjs .supabase'
+      }
+    }
+
+    return config
+  }
 }
 
 module.exports = nextConfig
