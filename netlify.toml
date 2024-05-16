@@ -1,0 +1,6 @@
+[build]
+  command = "mv .supabase .supabase_bak && next build && mv .supabase_bak .supabase"
+  ignore = "find . -name .supabase -type d -prune -o -print"
+
+[build.environment]
+  NODE_ENV = "production"
