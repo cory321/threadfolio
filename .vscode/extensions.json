@@ -1,5 +1,6 @@
 {
   "recommendations": [
+    "denoland.vscode-deno",
     "formulahendry.auto-close-tag",
     "steoates.autoimport",
     "mgmcdermott.vscode-language-babel",
