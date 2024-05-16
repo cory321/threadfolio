@@ -4,7 +4,27 @@ import { Card, CardContent, CardActions, Typography, Button, Box } from '@mui/ma
 
 import { setRole } from './_actions'
 
-export default function UserList({ users }) {
+interface EmailAddress {
+  id: string
+  emailAddress: string
+}
+
+interface User {
+  id: string
+  firstName: string
+  lastName: string
+  emailAddresses: EmailAddress[]
+  primaryEmailAddressId: string
+  publicMetadata: {
+    role: 'admin' | 'moderator' | 'user'
+  }
+}
+
+interface UserListProps {
+  users: User[]
+}
+
+export default function UserList({ users }: UserListProps) {
   return (
     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', mt: 4 }}>
       {users.length > 0 ? (
@@ -18,7 +38,7 @@ export default function UserList({ users }) {
                 {user.emailAddresses.find(email => email.id === user.primaryEmailAddressId)?.emailAddress}
               </Typography>
               <Typography variant='body2' sx={{ mt: 1 }}>
-                Role: {user.publicMetadata.role as string}
+                Role: {user.publicMetadata.role}
               </Typography>
             </CardContent>
             <CardActions>
