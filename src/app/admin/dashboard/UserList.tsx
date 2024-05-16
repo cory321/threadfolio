@@ -1,5 +1,3 @@
-'use client'
-
 import React from 'react'
 
 import { Card, CardContent, CardActions, Typography, Button, Box } from '@mui/material'
@@ -31,11 +29,20 @@ export default function UserList({ users }) {
                   Make Admin
                 </Button>
               </form>
+
               <form action={setRole} style={{ display: 'inline', marginLeft: '8px' }}>
                 <input type='hidden' value={user.id} name='id' />
                 <input type='hidden' value='moderator' name='role' />
                 <Button type='submit' size='small' variant='contained' color='secondary'>
                   Make Moderator
+                </Button>
+              </form>
+
+              <form action={setRole} style={{ display: 'inline', marginLeft: '8px' }}>
+                <input type='hidden' value={user.id} name='id' />
+                <input type='hidden' value='user' name='role' />
+                <Button type='submit' size='small' variant='contained' color='secondary'>
+                  Make User
                 </Button>
               </form>
             </CardActions>

@@ -1,11 +1,14 @@
 'use server'
 
+import { unstable_noStore as noStore } from 'next/cache'
+
 import { clerkClient } from '@clerk/nextjs/server'
 
 import { checkRole } from '@/utils/roles'
 
 export async function setRole(formData: FormData) {
-  // Check that the user trying to set the role is an admin
+  noStore()
+
   if (!checkRole('admin')) {
     return { message: 'Not Authorized' }
   }
