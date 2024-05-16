@@ -34,6 +34,8 @@
     "@mui/lab": "5.0.0-alpha.160",
     "@mui/material": "5.15.4",
     "@mui/material-nextjs": "5.15.3",
+    "@mui/x-date-pickers": "^7.4.0",
+    "@mui/x-date-pickers-pro": "^7.4.0",
     "@supabase/supabase-js": "^2.43.1",
     "autoprefixer": "10.4.16",
     "bootstrap-icons": "1.11.3",
