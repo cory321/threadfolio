@@ -3,22 +3,7 @@ import React from 'react'
 import { Card, CardContent, CardActions, Typography, Button, Box } from '@mui/material'
 
 import { setRole } from './_actions'
-
-interface EmailAddress {
-  id: string
-  emailAddress: string
-}
-
-interface User {
-  id: string
-  firstName: string
-  lastName: string
-  emailAddresses: EmailAddress[]
-  primaryEmailAddressId: string
-  publicMetadata: {
-    role: 'admin' | 'moderator' | 'user'
-  }
-}
+import { User } from './types'
 
 interface UserListProps {
   users: User[]

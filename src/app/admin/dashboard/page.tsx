@@ -4,6 +4,7 @@ import { clerkClient } from '@clerk/nextjs/server'
 
 import { checkRole } from '@/utils/roles'
 import UserList from './UserList'
+import { User } from './types'
 
 export default async function AdminDashboard() {
   if (!checkRole('admin')) {
@@ -12,7 +13,7 @@ export default async function AdminDashboard() {
     return null
   }
 
-  let users = []
+  let users: User[] = []
 
   try {
     const response = await clerkClient.users.getUserList({})
@@ -28,7 +29,7 @@ export default async function AdminDashboard() {
           emailAddress: email.emailAddress
         })),
         publicMetadata: user.publicMetadata
-      }))
+      })) as User[]
     } else {
       console.error('Unexpected response format:', response)
     }
@@ -41,7 +42,6 @@ export default async function AdminDashboard() {
     <>
       <h1>This is the admin dashboard</h1>
       <p>This page is restricted to users with the admin role.</p>
-
       <UserList users={users} />
     </>
   )
