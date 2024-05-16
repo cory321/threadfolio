@@ -1,7 +1,0 @@
-[build]
-  command = "next build"
-  publish = "out"
-  ignore = "find .supabase | grep supabase > /dev/null 2>&1 && echo 'Ignoring build due to .supabase presence' && exit 0 || echo 'Proceeding with build'"
-
-[build.environment]
-  NODE_ENV = "production"
