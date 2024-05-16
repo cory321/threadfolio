@@ -25,6 +25,9 @@ import axios from 'axios'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 import DatePickerInput from './DatePickerInput' // Custom Input Component
 
+// Custom Vertical Radio Icon Component
+import AppointmentTypeRadioIcons from './AppointmentTypeRadioIcons' // Import the custom vertical radio icon component
+
 // Default State
 const defaultState = {
   clientName: '',
@@ -32,8 +35,8 @@ const defaultState = {
   appointmentDate: new Date(), // Initialize with a Date object
   startTime: new Date(), // Initialize with a Date object
   endTime: new Date(), // Initialize with a Date object
-  location: 'Default Seamstress Shop Location',
-  appointmentType: 'general',
+  location: '1234 Seamstress Shop Ave. Paso Robles, CA 93446',
+  appointmentType: 'starter', // Default value for the custom radio buttons
   notes: '',
   sendConfirmation: false
 }
@@ -91,6 +94,10 @@ const AddAppointmentModal = props => {
 
     handleAddAppointment(newAppointment)
     handleModalClose()
+  }
+
+  const handleAppointmentTypeChange = selectedType => {
+    setValues({ ...values, appointmentType: selectedType })
   }
 
   return (
@@ -179,15 +186,7 @@ const AddAppointmentModal = props => {
 
           {/* Appointment Type Selection */}
           <FormControl fullWidth margin='normal'>
-            <InputLabel>Appointment Type</InputLabel>
-            <Select
-              value={values.appointmentType}
-              onChange={e => setValues({ ...values, appointmentType: e.target.value })}
-            >
-              <MenuItem value='initial consultation'>Initial Consultation</MenuItem>
-              <MenuItem value='order pickup'>Order Pickup</MenuItem>
-              <MenuItem value='general'>General</MenuItem>
-            </Select>
+            <AppointmentTypeRadioIcons onChange={handleAppointmentTypeChange} />
           </FormControl>
 
           {/* Notes Section */}
