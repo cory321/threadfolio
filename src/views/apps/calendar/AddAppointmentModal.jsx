@@ -1,5 +1,3 @@
-'use client'
-
 import React, { useState } from 'react'
 
 import {
@@ -22,20 +20,20 @@ import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 import DatePickerInput from './DatePickerInput'
 import AppointmentTypeRadioIcons from './AppointmentTypeRadioIcons'
 
-const defaultState = {
-  clientId: '71cd77e6-34b5-43ee-994a-aa5d471a00e5',
-  appointmentDate: new Date(),
-  startTime: new Date(),
-  endTime: new Date(),
-  location: '1234 Seamstress Shop Ave. Paso Robles, CA 93446',
-  appointmentType: 'general',
-  notes: '',
-  sendConfirmation: false
-}
-
 const AddAppointmentModal = props => {
-  const { addEventModalOpen, handleAddEventModalToggle, handleAddAppointment, dispatch } = props
+  const { addEventModalOpen, handleAddEventModalToggle, selectedDate, dispatch } = props
   const { userId, getToken } = useAuth()
+
+  const defaultState = {
+    clientId: '71cd77e6-34b5-43ee-994a-aa5d471a00e5',
+    appointmentDate: selectedDate || new Date(),
+    startTime: new Date(),
+    endTime: new Date(),
+    location: '1234 Seamstress Shop Ave. Paso Robles, CA 93446',
+    appointmentType: 'general',
+    notes: '',
+    sendConfirmation: false
+  }
 
   const [values, setValues] = useState(defaultState)
   const [isLoading, setIsLoading] = useState(false)
@@ -43,7 +41,10 @@ const AddAppointmentModal = props => {
   const { handleSubmit } = useForm()
 
   const handleModalClose = () => {
-    setValues(defaultState)
+    setValues({
+      ...defaultState,
+      appointmentDate: selectedDate || new Date()
+    })
     handleAddEventModalToggle()
   }
 
@@ -64,7 +65,6 @@ const AddAppointmentModal = props => {
   }
 
   const onSubmit = async () => {
-    console.log('onSubmit called')
     setIsLoading(true)
 
     const appointmentDate = formatDateToLocalMidnight(values.appointmentDate)
@@ -129,7 +129,6 @@ const AddAppointmentModal = props => {
         token
       )
 
-      // Transform the appointment data before dispatching the action
       const transformedAppointment = {
         id: data.id,
         title: appointmentTitle,

@@ -28,6 +28,7 @@ const AppCalendar = ({ events }) => {
   const [calendarApi, setCalendarApi] = useState(null)
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false)
   const [addEventModalOpen, setAddEventModalOpen] = useState(false)
+  const [selectedDate, setSelectedDate] = useState(null)
 
   // Vars
   const initialState = {
@@ -103,8 +104,9 @@ const AppCalendar = ({ events }) => {
   }
 
   // Dispatch Select Event Action
-  const handleSelectEvent = event => {
-    dispatch({ type: 'selected_event', event: event })
+  const handleSelectEvent = info => {
+    setSelectedDate(info.start)
+    dispatch({ type: 'selected_event', event: info.event })
   }
 
   // Dispatch Select Calendar Action
@@ -119,8 +121,6 @@ const AppCalendar = ({ events }) => {
   // Handle button click to add a default appointment
   const handleAddAppointmentClick = async () => {
     try {
-      const token = 'yourAuthToken' // Replace with the actual token
-
       const data = await addAppointmentAction(
         defaultAppointment.clientId,
         defaultAppointment.userId,
@@ -178,7 +178,8 @@ const AppCalendar = ({ events }) => {
         addEventModalOpen={addEventModalOpen}
         handleAddEventModalToggle={handleAddEventModalToggle}
         handleSelectEvent={handleSelectEvent}
-        dispatch={dispatch} // Pass the dispatch function
+        dispatch={dispatch}
+        selectedDate={selectedDate}
       />
     </>
   )
