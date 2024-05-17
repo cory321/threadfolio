@@ -17,7 +17,6 @@ import { useTheme } from '@mui/material/styles'
 
 import AddContactForm from '@/components/clients/AddContactForm'
 import ClientList from '@/components/clients/ClientList'
-import UserListTable from '@views/apps/clients/list/UserListTable'
 
 const ClientDashboard = () => {
   const [open, setOpen] = useState(false)

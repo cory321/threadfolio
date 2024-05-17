@@ -20,7 +20,7 @@ function isValidEmail(email) {
 
 // Function to validate phone number format
 function isValidPhoneNumber(phoneNumber) {
-  const phoneRegex = /\+?([\d|\(][\h|\(\d{3}\)|\.|\-|\d]{4,}\d)/
+  const phoneRegex = /(?:([+]\d{1,4})[-.\s]?)?(?:[(](\d{1,3})[)][-.\s]?)?(\d{1,4})[-.\s]?(\d{1,4})[-.\s]?(\d{1,9})/
 
   return phoneRegex.test(phoneNumber)
 }

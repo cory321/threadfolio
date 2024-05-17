@@ -15,7 +15,10 @@ const AddContactForm = ({ onClose }) => {
   const validationSchema = Yup.object({
     fullName: Yup.string().max(100, 'Full name must be less than 100 characters').required('Full name is required'),
     email: Yup.string().email('Invalid email address').required('Email is required'),
-    phoneNumber: Yup.string().matches(/^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/, 'Phone number is not valid'),
+    phoneNumber: Yup.string().matches(
+      /(?:([+]\d{1,4})[-.\s]?)?(?:[(](\d{1,3})[)][-.\s]?)?(\d{1,4})[-.\s]?(\d{1,4})[-.\s]?(\d{1,9})/g,
+      'Phone number is not valid'
+    ),
     mailingAddress: Yup.string(),
     notes: Yup.string().max(1000, 'Notes must be less than 1000 characters')
   })
