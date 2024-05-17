@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useReducer, useState } from 'react'
+import { useReducer, useState, useEffect } from 'react'
 
 // MUI Imports
 import { useMediaQuery, Button } from '@mui/material'
@@ -28,6 +28,7 @@ const AppCalendar = ({ events }) => {
   const [calendarApi, setCalendarApi] = useState(null)
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false)
   const [addEventModalOpen, setAddEventModalOpen] = useState(false)
+  const [selectedDate, setSelectedDate] = useState(null)
 
   // Vars
   const initialState = {
@@ -35,6 +36,15 @@ const AppCalendar = ({ events }) => {
     selectedEvent: null,
     selectedCalendars: ['Personal', 'Business', 'Family', 'Holiday', 'ETC']
   }
+
+  useEffect(() => {
+    console.log(events)
+    dispatch({ type: 'init', events })
+  }, [events])
+
+  // useEffect(() => {
+  //   console.log('Events state updated:', calendars.events)
+  // }, [calendars.events])
 
   // Hooks
   const [calendars, dispatch] = useReducer(calendarReducer, initialState)
@@ -94,8 +104,9 @@ const AppCalendar = ({ events }) => {
   }
 
   // Dispatch Select Event Action
-  const handleSelectEvent = event => {
-    dispatch({ type: 'selected_event', event: event })
+  const handleSelectEvent = info => {
+    setSelectedDate(info.start)
+    dispatch({ type: 'selected_event', event: info.event })
   }
 
   // Dispatch Select Calendar Action
@@ -109,23 +120,7 @@ const AppCalendar = ({ events }) => {
 
   // Handle button click to add a default appointment
   const handleAddAppointmentClick = async () => {
-    const defaultAppointment = {
-      clientId: '71cd77e6-34b5-43ee-994a-aa5d471a00e5',
-      userId: 'yourUserId', // Replace with the actual user ID
-      appointmentDate: new Date().toISOString().split('T')[0],
-      startTime: new Date().toISOString(),
-      endTime: new Date(new Date().getTime() + 30 * 60 * 1000).toISOString(), // 30 minutes later
-      location: '1234 Seamstress Shop Ave. Paso Robles, CA 93446',
-      status: 'scheduled',
-      type: 'initial_consultation',
-      sendEmail: false,
-      sendSms: false,
-      notes: ''
-    }
-
     try {
-      const token = 'yourAuthToken' // Replace with the actual token
-
       const data = await addAppointmentAction(
         defaultAppointment.clientId,
         defaultAppointment.userId,
@@ -173,9 +168,6 @@ const AppCalendar = ({ events }) => {
           handleLeftSidebarToggle={handleLeftSidebarToggle}
           handleAddEventModalToggle={handleAddEventModalToggle}
         />
-        <Button variant='contained' color='primary' onClick={handleAddAppointmentClick}>
-          Add Default Appointment
-        </Button>
       </div>
       <AddAppointmentModal
         calendars={calendars}
@@ -186,6 +178,8 @@ const AppCalendar = ({ events }) => {
         addEventModalOpen={addEventModalOpen}
         handleAddEventModalToggle={handleAddEventModalToggle}
         handleSelectEvent={handleSelectEvent}
+        dispatch={dispatch}
+        selectedDate={selectedDate}
       />
     </>
   )

@@ -1,7 +1,14 @@
-import { events } from '../app/apps/calendar/events'
-
 export default function calendarReducer(calendars, action) {
   switch (action.type) {
+    case 'init': {
+      return {
+        ...calendars,
+        events: action.events,
+        selectedEvent: null,
+        selectedCalendars: ['Personal', 'Business', 'Family', 'Holiday', 'ETC']
+      }
+    }
+
     case 'added': {
       return {
         ...calendars,
@@ -18,19 +25,13 @@ export default function calendarReducer(calendars, action) {
         }
       })
 
-      return {
-        ...calendars,
-        events
-      }
+      return { ...calendars, events }
     }
 
     case 'deleted': {
       const events = calendars.events.filter(event => event.id !== action.eventId)
 
-      return {
-        ...calendars,
-        events
-      }
+      return { ...calendars, events }
     }
 
     case 'selected_event': {
@@ -38,31 +39,30 @@ export default function calendarReducer(calendars, action) {
     }
 
     case 'selected_calendars': {
-      const selected_calendars = calendars.selectedCalendars
-      const index = calendars.selectedCalendars.indexOf(action.calendar)
+      const selectedCalendars = [...calendars.selectedCalendars]
+      const index = selectedCalendars.indexOf(action.calendar)
 
       if (index !== -1) {
-        selected_calendars.splice(index, 1)
+        selectedCalendars.splice(index, 1)
       } else {
-        selected_calendars.push(action.calendar)
+        selectedCalendars.push(action.calendar)
       }
 
-      // Filter events based on the updated selected_calendars
-      const selected_events = events.filter(event => selected_calendars.includes(event.extendedProps.calendar))
+      const selectedEvents = calendars.events.filter(event => selectedCalendars.includes(event.extendedProps.calendar))
 
-      return { ...calendars, events: selected_events, selectedCalendars: selected_calendars }
+      return { ...calendars, events: selectedEvents, selectedCalendars }
     }
 
     case 'selected_all_calendars': {
-      let selected_calendars = ['Personal', 'Business', 'Family', 'Holiday', 'ETC']
-      let calendar_events = events
+      let selectedCalendars = ['Personal', 'Business', 'Family', 'Holiday', 'ETC']
+      let events = calendars.events
 
       if (!action.view_all) {
-        selected_calendars = []
-        calendar_events = []
+        selectedCalendars = []
+        events = []
       }
 
-      return { ...calendars, events: calendar_events, selectedCalendars: selected_calendars }
+      return { ...calendars, events, selectedCalendars }
     }
 
     default: {
