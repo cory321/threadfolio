@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import {
   Dialog,
@@ -24,11 +24,21 @@ const AddAppointmentModal = props => {
   const { addEventModalOpen, handleAddEventModalToggle, selectedDate, dispatch } = props
   const { userId, getToken } = useAuth()
 
+  // Function to get the next nearest hour
+  const getNextNearestHour = () => {
+    const now = new Date()
+
+    now.setMinutes(0, 0, 0)
+    now.setHours(now.getHours() + 1)
+
+    return now
+  }
+
   const defaultState = {
     clientId: '71cd77e6-34b5-43ee-994a-aa5d471a00e5',
     appointmentDate: selectedDate || new Date(),
-    startTime: new Date(),
-    endTime: new Date(),
+    startTime: getNextNearestHour(),
+    endTime: new Date(getNextNearestHour().getTime() + 60 * 60 * 1000), // 1 hour later
     location: '1234 Seamstress Shop Ave. Paso Robles, CA 93446',
     appointmentType: 'general',
     notes: '',
@@ -39,6 +49,13 @@ const AddAppointmentModal = props => {
   const [isLoading, setIsLoading] = useState(false)
 
   const { handleSubmit } = useForm()
+
+  useEffect(() => {
+    setValues(prevValues => ({
+      ...prevValues,
+      appointmentDate: selectedDate || new Date()
+    }))
+  }, [selectedDate])
 
   const handleModalClose = () => {
     setValues({
@@ -214,7 +231,7 @@ const AddAppointmentModal = props => {
                   timeCaption='Start Time'
                   customInput={<DatePickerInput label='Start Time' dateFormat='h:mm aa' />}
                 />
-              </FormControl>{' '}
+              </FormControl>
             </Grid>
 
             <Grid item xs={6}>
