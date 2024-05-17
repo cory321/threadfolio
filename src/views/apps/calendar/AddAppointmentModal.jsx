@@ -11,7 +11,8 @@ import {
   TextField,
   FormControl,
   FormControlLabel,
-  Switch
+  Switch,
+  Grid
 } from '@mui/material'
 import { useForm } from 'react-hook-form'
 import { useAuth } from '@clerk/nextjs'
@@ -123,37 +124,45 @@ const AddAppointmentModal = props => {
       <DialogTitle id='form-dialog-title'>Add Appointment</DialogTitle>
       <DialogContent dividers>
         <form onSubmit={handleSubmit(onSubmit)} autoComplete='off'>
-          <FormControl fullWidth margin='normal'>
+          <FormControl fullWidth margin='normal' style={{ marginBottom: '8px' }}>
             <AppReactDatepicker
               selected={values.appointmentDate}
               onChange={date => setValues({ ...values, appointmentDate: date })}
               customInput={<DatePickerInput label='Appointment Date' dateFormat='EEEE, MMMM d, yyyy' />}
             />
           </FormControl>
-          <FormControl fullWidth margin='normal'>
-            <AppReactDatepicker
-              selected={values.startTime}
-              onChange={date => setValues({ ...values, startTime: date })}
-              showTimeSelect
-              showTimeSelectOnly
-              timeIntervals={15}
-              dateFormat='h:mm aa'
-              timeCaption='Start Time'
-              customInput={<DatePickerInput label='Start Time' dateFormat='h:mm aa' />}
-            />
-          </FormControl>
-          <FormControl fullWidth margin='normal'>
-            <AppReactDatepicker
-              selected={values.endTime}
-              onChange={date => setValues({ ...values, endTime: date })}
-              showTimeSelect
-              showTimeSelectOnly
-              timeIntervals={15}
-              dateFormat='h:mm aa'
-              timeCaption='End Time'
-              customInput={<DatePickerInput label='End Time' dateFormat='h:mm aa' />}
-            />
-          </FormControl>
+
+          <Grid container spacing={2} style={{ marginTop: '0' }}>
+            <Grid item xs={6}>
+              <FormControl fullWidth>
+                <AppReactDatepicker
+                  selected={values.startTime}
+                  onChange={date => setValues({ ...values, startTime: date })}
+                  showTimeSelect
+                  showTimeSelectOnly
+                  timeIntervals={15}
+                  dateFormat='h:mm aa'
+                  timeCaption='Start Time'
+                  customInput={<DatePickerInput label='Start Time' dateFormat='h:mm aa' />}
+                />
+              </FormControl>{' '}
+            </Grid>
+
+            <Grid item xs={6}>
+              <FormControl fullWidth>
+                <AppReactDatepicker
+                  selected={values.endTime}
+                  onChange={date => setValues({ ...values, endTime: date })}
+                  showTimeSelect
+                  showTimeSelectOnly
+                  timeIntervals={15}
+                  dateFormat='h:mm aa'
+                  timeCaption='End Time'
+                  customInput={<DatePickerInput label='End Time' dateFormat='h:mm aa' />}
+                />
+              </FormControl>
+            </Grid>
+          </Grid>
 
           <FormControl fullWidth margin='normal'>
             <TextField
