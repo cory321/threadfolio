@@ -18,9 +18,8 @@ import { useAuth } from '@clerk/nextjs'
 
 import { fetchClients } from '@actions/clients'
 
-const ClientList = () => {
+const ClientList = ({ clients, setClients }) => {
   const { getToken } = useAuth()
-  const [clients, setClients] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -44,7 +43,7 @@ const ClientList = () => {
     }
 
     loadClients()
-  }, [getToken])
+  }, [getToken, setClients])
 
   if (isLoading) {
     return <CircularProgress />

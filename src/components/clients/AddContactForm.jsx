@@ -9,7 +9,7 @@ import { useAuth } from '@clerk/nextjs'
 
 import { addClientAction } from '@actions/clients'
 
-const AddContactForm = ({ onClose }) => {
+const AddContactForm = ({ onClose, setClients }) => {
   const { userId, getToken } = useAuth()
 
   const validationSchema = Yup.object({
@@ -44,12 +44,17 @@ const AddContactForm = ({ onClose }) => {
           token
         })
 
-        console.log('Client added successfully:', newClient)
+        setClients(prevClients => (prevClients ? [...prevClients, newClient] : [newClient]))
         resetForm()
         onClose() // Close the modal on successful submission
       } catch (err) {
         console.error('Error adding client:', err)
-        setFieldError('general', err.message)
+
+        if (err.message === 'Email is used by an existing client.') {
+          setFieldError('email', err.message)
+        } else {
+          setFieldError('general', err.message)
+        }
       } finally {
         setSubmitting(false)
       }
