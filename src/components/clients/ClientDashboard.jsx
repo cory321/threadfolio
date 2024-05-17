@@ -10,7 +10,8 @@ import {
   DialogActions,
   Button,
   Typography,
-  useMediaQuery
+  useMediaQuery,
+  Grid
 } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 
@@ -28,11 +29,19 @@ const ClientDashboard = () => {
 
   return (
     <div>
-      <Typography variant='h1'>Clients</Typography>
-      <Button variant='contained' color='primary' onClick={handleOpen}>
-        Add Client
-      </Button>
-      <ClientList />
+      <Grid container justifyContent='space-between' alignItems='center'>
+        <Grid item>
+          <h1>Clients</h1>
+        </Grid>
+        <Grid item>
+          <Button variant='contained' color='primary' onClick={handleOpen}>
+            Add Client
+          </Button>
+        </Grid>
+      </Grid>
+      <Box pt={6}>
+        <ClientList />
+      </Box>
       <Dialog
         fullScreen={fullScreen}
         open={open}
