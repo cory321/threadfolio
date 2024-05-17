@@ -1,3 +1,11 @@
+import React from 'react'
+
+import ClientDashboard from '@/components/clients/ClientDashboard'
+
 export default function Page() {
-  return <h1>Clients</h1>
+  return (
+    <div>
+      <ClientDashboard />
+    </div>
+  )
 }
