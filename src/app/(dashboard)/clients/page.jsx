@@ -1,10 +1,11 @@
-import AddContactForm from '@/components/clients/AddContactForm'
+import React from 'react'
+
+import ClientDashboard from '@/components/clients/ClientDashboard'
 
 export default function Page() {
   return (
     <div>
-      <h1>Clients</h1>
-      <AddContactForm />
+      <ClientDashboard />
     </div>
   )
 }

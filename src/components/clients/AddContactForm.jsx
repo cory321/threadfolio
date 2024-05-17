@@ -1,65 +1,57 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 
+import { useFormik } from 'formik'
+import * as Yup from 'yup'
 import { TextField, Button, Typography, Box } from '@mui/material'
 import { useAuth } from '@clerk/nextjs'
 
 import { addClientAction } from '@actions/clients'
 
-const AddContactForm = () => {
+const AddContactForm = ({ onClose }) => {
   const { userId, getToken } = useAuth()
 
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    phoneNumber: '',
-    mailingAddress: '',
-    notes: ''
+  const validationSchema = Yup.object({
+    fullName: Yup.string().max(100, 'Full name must be less than 100 characters').required('Full name is required'),
+    email: Yup.string().email('Invalid email address').required('Email is required'),
+    phoneNumber: Yup.string().matches(/^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/, 'Phone number is not valid'),
+    mailingAddress: Yup.string(),
+    notes: Yup.string().max(1000, 'Notes must be less than 1000 characters')
   })
 
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const formik = useFormik({
+    initialValues: {
+      fullName: '',
+      email: '',
+      phoneNumber: '',
+      mailingAddress: '',
+      notes: ''
+    },
+    validationSchema,
+    onSubmit: async (values, { setSubmitting, resetForm, setFieldError }) => {
+      const token = await getToken({ template: 'supabase' })
 
-  const handleChange = e => {
-    const { id, value } = e.target
+      setSubmitting(true)
 
-    setFormData(prevFormData => ({
-      ...prevFormData,
-      [id]: value
-    }))
-  }
+      try {
+        const newClient = await addClientAction({
+          userId,
+          ...values,
+          token
+        })
 
-  const handleSubmit = async e => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError(null)
-    const token = await getToken({ template: 'supabase' })
-
-    try {
-      const newClient = await addClientAction({
-        userId,
-        ...formData,
-        token
-      })
-
-      console.log('Client added successfully:', newClient)
-
-      // Clear the form
-      setFormData({
-        fullName: '',
-        email: '',
-        phoneNumber: '',
-        mailingAddress: '',
-        notes: ''
-      })
-    } catch (err) {
-      console.error('Error adding client:', err)
-      setError(err.message)
-    } finally {
-      setIsLoading(false)
+        console.log('Client added successfully:', newClient)
+        resetForm()
+        onClose() // Close the modal on successful submission
+      } catch (err) {
+        console.error('Error adding client:', err)
+        setFieldError('general', err.message)
+      } finally {
+        setSubmitting(false)
+      }
     }
-  }
+  })
 
   return (
     <Box
@@ -68,73 +60,82 @@ const AddContactForm = () => {
         display: 'flex',
         flexDirection: 'column',
         gap: 2,
-        width: '100%',
-        maxWidth: 500,
-        mx: 'auto',
-        mt: 4,
-        p: 2,
-        border: '1px solid #ccc',
-        borderRadius: 1
+        width: '100%'
       }}
       noValidate
       autoComplete='off'
-      onSubmit={handleSubmit}
+      onSubmit={formik.handleSubmit}
     >
-      <Typography variant='h5' component='div' sx={{ mb: 2 }}>
-        Add Contact
-      </Typography>
-      {error && <Typography color='error'>{error}</Typography>}
+      {formik.errors.general && <Typography color='error'>{formik.errors.general}</Typography>}
       <TextField
         required
         id='fullName'
+        name='fullName'
         label='Full name'
         placeholder='Add full name'
         inputProps={{ maxLength: 100 }}
         fullWidth
-        value={formData.fullName}
-        onChange={handleChange}
+        value={formik.values.fullName}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.fullName && Boolean(formik.errors.fullName)}
+        helperText={formik.touched.fullName && formik.errors.fullName}
+        sx={{ mt: 1 }} // Add slight padding to the top
       />
       <TextField
         required
         id='email'
+        name='email'
         label='Email address'
         placeholder='Add email address'
         fullWidth
-        value={formData.email}
-        onChange={handleChange}
+        value={formik.values.email}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.email && Boolean(formik.errors.email)}
+        helperText={formik.touched.email && formik.errors.email}
       />
       <TextField
         id='phoneNumber'
+        name='phoneNumber'
         label='Phone number'
         placeholder='Add phone number'
         fullWidth
-        value={formData.phoneNumber}
-        onChange={handleChange}
+        value={formik.values.phoneNumber}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.phoneNumber && Boolean(formik.errors.phoneNumber)}
+        helperText={formik.touched.phoneNumber && formik.errors.phoneNumber}
       />
-      <Typography variant='h6' component='div' sx={{ mt: 2 }}>
-        More details
-      </Typography>
       <TextField
         id='mailingAddress'
+        name='mailingAddress'
         label='Mailing address'
         placeholder='Add mailing address'
         fullWidth
-        value={formData.mailingAddress}
-        onChange={handleChange}
+        value={formik.values.mailingAddress}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.mailingAddress && Boolean(formik.errors.mailingAddress)}
+        helperText={formik.touched.mailingAddress && formik.errors.mailingAddress}
       />
       <TextField
         id='notes'
+        name='notes'
         label='Private comments (only visible to you)'
         placeholder='Add some noteworthy info.'
         inputProps={{ maxLength: 1000 }}
         multiline
         rows={4}
         fullWidth
-        value={formData.notes}
-        onChange={handleChange}
+        value={formik.values.notes}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.touched.notes && Boolean(formik.errors.notes)}
+        helperText={formik.touched.notes && formik.errors.notes}
       />
-      <Button variant='contained' color='primary' sx={{ mt: 2 }} type='submit' disabled={isLoading}>
-        {isLoading ? 'Adding...' : 'Add Contact'}
+      <Button variant='contained' color='primary' sx={{ mt: 2 }} type='submit' disabled={formik.isSubmitting}>
+        {formik.isSubmitting ? 'Adding...' : 'Add Contact'}
       </Button>
     </Box>
   )
