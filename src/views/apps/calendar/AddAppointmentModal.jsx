@@ -116,10 +116,10 @@ const AddAppointmentModal = props => {
 
     const newAppointment = {
       clientId: values.clientId,
-      userId: userId,
-      appointmentDate: appointmentDate,
-      startTime: startTime,
-      endTime: endTime,
+      userId,
+      appointmentDate,
+      startTime,
+      endTime,
       location: values.location,
       status: 'scheduled',
       type: values.appointmentType,

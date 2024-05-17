@@ -11,8 +11,8 @@ export async function getSupabaseClient(token) {
 }
 
 export async function addAppointmentAction(
-  userId,
   clientId,
+  userId,
   appointmentDate,
   startTime,
   endTime,
@@ -30,8 +30,8 @@ export async function addAppointmentAction(
   const { data, error } = await supabase
     .from('appointments')
     .insert({
-      user_id: userId,
       client_id: clientId,
+      user_id: userId,
       appointment_date: appointmentDate,
       start_time: startTime,
       end_time: endTime,
