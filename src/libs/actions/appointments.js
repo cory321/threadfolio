@@ -1,19 +1,18 @@
 'use server'
+
 import { unstable_noStore as noStore } from 'next/cache'
 
 import { createClient } from '@supabase/supabase-js'
 
 export async function getSupabaseClient(token) {
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_KEY, {
-    global: {
-      headers: { Authorization: `Bearer ${token}` }
-    }
+    global: { headers: { Authorization: `Bearer ${token}` } }
   })
 }
 
 export async function addAppointmentAction(
-  clientId,
   userId,
+  clientId,
   appointmentDate,
   startTime,
   endTime,
@@ -31,8 +30,8 @@ export async function addAppointmentAction(
   const { data, error } = await supabase
     .from('appointments')
     .insert({
-      client_id: clientId,
       user_id: userId,
+      client_id: clientId,
       appointment_date: appointmentDate,
       start_time: startTime,
       end_time: endTime,
@@ -53,10 +52,11 @@ export async function addAppointmentAction(
   return data
 }
 
-export async function getAppointmentsAction(token) {
+export async function getAppointmentsAction(userId, token) {
   noStore()
   const supabase = await getSupabaseClient(token)
-  const { data: appointments, error } = await supabase.from('appointments').select('*')
+
+  const { data: appointments, error } = await supabase.from('appointments').select('*').eq('user_id', userId)
 
   if (error) {
     throw new Error(error.message)
