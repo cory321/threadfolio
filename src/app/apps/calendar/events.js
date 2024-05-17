@@ -9,114 +9,34 @@ const prevMonth =
   date.getMonth() === 11 ? new Date(date.getFullYear() - 1, 0, 1) : new Date(date.getFullYear(), date.getMonth() - 1, 1)
 
 export const events = [
-  {
-    id: 1,
-    url: '',
-    title: 'Design Review',
-    start: date,
-    end: nextDay,
-    allDay: false,
-    extendedProps: {
-      calendar: 'Business'
-    }
-  },
-  {
-    id: 2,
-    url: '',
-    title: 'Meeting With Client',
-    start: new Date(date.getFullYear(), date.getMonth() + 1, -11),
-    end: new Date(date.getFullYear(), date.getMonth() + 1, -10),
-    allDay: true,
-    extendedProps: {
-      calendar: 'Business'
-    }
-  },
-  {
-    id: 3,
-    url: '',
-    title: 'Family Trip',
-    allDay: true,
-    start: new Date(date.getFullYear(), date.getMonth() + 1, -9),
-    end: new Date(date.getFullYear(), date.getMonth() + 1, -7),
-    extendedProps: {
-      calendar: 'Holiday'
-    }
-  },
-  {
-    id: 4,
-    url: '',
-    title: "Doctor's Appointment",
-    start: new Date(date.getFullYear(), date.getMonth() + 1, -11),
-    end: new Date(date.getFullYear(), date.getMonth() + 1, -10),
-    allDay: true,
-    extendedProps: {
-      calendar: 'Personal'
-    }
-  },
-  {
-    id: 5,
-    url: '',
-    title: 'Dart Game?',
-    start: new Date(date.getFullYear(), date.getMonth() + 1, -13),
-    end: new Date(date.getFullYear(), date.getMonth() + 1, -12),
-    allDay: true,
-    extendedProps: {
-      calendar: 'ETC'
-    }
-  },
-  {
-    id: 6,
-    url: '',
-    title: 'Meditation',
-    start: new Date(date.getFullYear(), date.getMonth() + 1, -13),
-    end: new Date(date.getFullYear(), date.getMonth() + 1, -12),
-    allDay: true,
-    extendedProps: {
-      calendar: 'Personal'
-    }
-  },
-  {
-    id: 7,
-    url: '',
-    title: 'Dinner',
-    start: new Date(date.getFullYear(), date.getMonth() + 1, -13),
-    end: new Date(date.getFullYear(), date.getMonth() + 1, -12),
-    allDay: true,
-    extendedProps: {
-      calendar: 'Family'
-    }
-  },
-  {
-    id: 8,
-    url: '',
-    title: 'Product Review',
-    start: new Date(date.getFullYear(), date.getMonth() + 1, -13),
-    end: new Date(date.getFullYear(), date.getMonth() + 1, -12),
-    allDay: true,
-    extendedProps: {
-      calendar: 'Business'
-    }
-  },
-  {
-    id: 9,
-    url: '',
-    title: 'Monthly Meeting',
-    start: nextMonth,
-    end: nextMonth,
-    allDay: true,
-    extendedProps: {
-      calendar: 'Business'
-    }
-  },
-  {
-    id: 10,
-    url: '',
-    title: 'Monthly Checkup',
-    start: prevMonth,
-    end: prevMonth,
-    allDay: true,
-    extendedProps: {
-      calendar: 'Personal'
-    }
-  }
+  //   {
+  //     id: '5a2fedb5-c8c9-47ee-b4d0-22974039d147',
+  //     title: 'Order Pickup',
+  //     start: '2024-05-22T23:30:00.000Z',
+  //     end: '2024-05-23T03:00:00.000Z',
+  //     allDay: false,
+  //     extendedProps: {
+  //       location: '1234 Seamstress Shop Ave. Paso Robles, CA 93446',
+  //       status: 'scheduled',
+  //       type: 'order_pickup',
+  //       sendEmail: false,
+  //       sendSms: false,
+  //       notes: ''
+  //     }
+  //   },
+  //   {
+  //     id: 'ec02a1a5-baf5-4a08-a140-982a5832ba01',
+  //     title: 'General Appointment',
+  //     start: '2024-05-18T07:49:30.000Z',
+  //     end: '2024-05-18T07:49:30.000Z',
+  //     allDay: false,
+  //     extendedProps: {
+  //       location: '1234 Seamstress Shop Ave. Paso Robles, CA 93446',
+  //       status: 'scheduled',
+  //       type: 'general',
+  //       sendEmail: false,
+  //       sendSms: false,
+  //       notes: ''
+  //     }
+  //   }
 ]
