@@ -63,6 +63,8 @@ const AddAppointmentModal = props => {
   }
 
   const onSubmit = async () => {
+    setIsLoading(true)
+
     const newAppointment = {
       clientId: values.clientId,
       userId: userId, // Use Clerk's userId
@@ -78,7 +80,6 @@ const AddAppointmentModal = props => {
     }
 
     try {
-      setIsLoading(true)
       const token = await getToken({ template: 'supabase' }) // Get the token using Clerk
 
       const data = await addAppointmentAction(
@@ -97,11 +98,13 @@ const AddAppointmentModal = props => {
       )
 
       handleAddAppointment(data)
-      handleModalClose()
+
+      // Close the modal upon successful submission
     } catch (error) {
       console.error('Failed to add appointment:', error)
     } finally {
       setIsLoading(false)
+      handleModalClose()
     }
   }
 
@@ -183,16 +186,16 @@ const AddAppointmentModal = props => {
             }
             label='Send Confirmation Email'
           />
+          <DialogActions>
+            <Button type='submit' variant='contained' onClick={handleSubmit(onSubmit)} disabled={isLoading}>
+              {isLoading ? 'Scheduling...' : 'Schedule'}
+            </Button>
+            <Button variant='outlined' color='secondary' onClick={handleModalClose} disabled={isLoading}>
+              Cancel
+            </Button>
+          </DialogActions>
         </form>
       </DialogContent>
-      <DialogActions>
-        <Button type='submit' variant='contained' onClick={handleSubmit(onSubmit)} disabled={isLoading}>
-          {isLoading ? 'Scheduling...' : 'Schedule'}
-        </Button>
-        <Button variant='outlined' color='secondary' onClick={handleModalClose} disabled={isLoading}>
-          Cancel
-        </Button>
-      </DialogActions>
     </Dialog>
   )
 }
