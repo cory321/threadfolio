@@ -1,17 +1,14 @@
-// React Imports
 import { ChangeEvent, useState } from 'react'
 
-// MUI Imports
 import Grid from '@mui/material/Grid'
-
-// Third-party Imports
 import classnames from 'classnames'
 
-// Type Import
 import { CustomInputVerticalData } from '@core/components/custom-inputs/types'
-
-// Components Imports
 import CustomInputVertical from '@core/components/custom-inputs/Vertical'
+
+interface CustomVerticalRadioIconProps {
+  onChange: (value: string) => void
+}
 
 const data: CustomInputVerticalData[] = [
   {
@@ -35,7 +32,11 @@ const data: CustomInputVerticalData[] = [
   }
 ]
 
-const CustomVerticalRadioIcon = ({ onChange }) => {
+interface CustomVerticalRadioIconProps {
+  onChange: (value: string) => void
+}
+
+const CustomVerticalRadioIcon: React.FC<CustomVerticalRadioIconProps> = ({ onChange }) => {
   const initialSelected: string = data.filter(item => item.isSelected)[data.filter(item => item.isSelected).length - 1]
     .value
 
