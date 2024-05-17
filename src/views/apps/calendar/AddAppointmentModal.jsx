@@ -46,13 +46,29 @@ const AddAppointmentModal = props => {
     handleAddEventModalToggle()
   }
 
+  const formatDateToLocalMidnight = date => {
+    const localDate = new Date(date)
+
+    localDate.setHours(0, 0, 0, 0)
+
+    return localDate.toISOString().split('T')[0]
+  }
+
+  const formatTimeToHHMMSS = date => {
+    const hours = date.getHours().toString().padStart(2, '0')
+    const minutes = date.getMinutes().toString().padStart(2, '0')
+    const seconds = date.getSeconds().toString().padStart(2, '0')
+
+    return `${hours}:${minutes}:${seconds}`
+  }
+
   const onSubmit = async () => {
     const newAppointment = {
       clientId: values.clientId,
       userId: userId, // Use Clerk's userId
-      appointmentDate: values.appointmentDate,
-      startTime: values.startTime,
-      endTime: values.endTime,
+      appointmentDate: formatDateToLocalMidnight(values.appointmentDate), // Local midnight date
+      startTime: formatTimeToHHMMSS(values.startTime),
+      endTime: formatTimeToHHMMSS(values.endTime),
       location: values.location,
       status: 'scheduled', // Default status
       type: values.appointmentType,
