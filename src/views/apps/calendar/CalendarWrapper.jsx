@@ -4,15 +4,15 @@
 import { useReducer, useState } from 'react'
 
 // MUI Imports
-import { useMediaQuery } from '@mui/material'
+import { useMediaQuery, Button } from '@mui/material'
 
 // Reducer Imports
+import AddAppointmentModal from '@views/apps/calendar/AddAppointmentModal'
 import calendarReducer from '@reducers/calendarReducer'
 
 // View Imports
 import Calendar from '@views/apps/calendar/Calendar'
 import SidebarLeft from '@views/apps/calendar/SidebarLeft'
-import AddEventModal from '@views/apps/calendar/AddEventModal'
 
 // CalendarColors Object
 const calendarsColor = {
@@ -47,7 +47,10 @@ const AppCalendar = ({ events }) => {
     // Add event API
     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/apps/calendar-events`, {
       method: 'POST',
-      body: JSON.stringify(event)
+      body: JSON.stringify(event),
+      headers: {
+        'Content-Type': 'application/json'
+      }
     })
       .then(res => res.json())
       .then(data => {
@@ -104,6 +107,46 @@ const AppCalendar = ({ events }) => {
     dispatch({ type: 'selected_all_calendars', view_all })
   }
 
+  // Handle button click to add a default appointment
+  const handleAddAppointmentClick = async () => {
+    const defaultAppointment = {
+      clientId: '71cd77e6-34b5-43ee-994a-aa5d471a00e5',
+      userId: 'yourUserId', // Replace with the actual user ID
+      appointmentDate: new Date().toISOString().split('T')[0],
+      startTime: new Date().toISOString(),
+      endTime: new Date(new Date().getTime() + 30 * 60 * 1000).toISOString(), // 30 minutes later
+      location: '1234 Seamstress Shop Ave. Paso Robles, CA 93446',
+      status: 'scheduled',
+      type: 'initial_consultation',
+      sendEmail: false,
+      sendSms: false,
+      notes: ''
+    }
+
+    try {
+      const token = 'yourAuthToken' // Replace with the actual token
+
+      const data = await addAppointmentAction(
+        defaultAppointment.clientId,
+        defaultAppointment.userId,
+        defaultAppointment.appointmentDate,
+        defaultAppointment.startTime,
+        defaultAppointment.endTime,
+        defaultAppointment.location,
+        defaultAppointment.status,
+        defaultAppointment.type,
+        defaultAppointment.sendEmail,
+        defaultAppointment.sendSms,
+        defaultAppointment.notes,
+        token
+      )
+
+      handleAddEvent(data)
+    } catch (error) {
+      console.error('Failed to add appointment:', error)
+    }
+  }
+
   return (
     <>
       <SidebarLeft
@@ -130,8 +173,11 @@ const AppCalendar = ({ events }) => {
           handleLeftSidebarToggle={handleLeftSidebarToggle}
           handleAddEventModalToggle={handleAddEventModalToggle}
         />
+        <Button variant='contained' color='primary' onClick={handleAddAppointmentClick}>
+          Add Default Appointment
+        </Button>
       </div>
-      <AddEventModal
+      <AddAppointmentModal
         calendars={calendars}
         calendarApi={calendarApi}
         handleAddEvent={handleAddEvent}

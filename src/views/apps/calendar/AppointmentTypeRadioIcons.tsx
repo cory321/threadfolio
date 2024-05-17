@@ -12,7 +12,7 @@ interface CustomVerticalRadioIconProps {
 
 const data: CustomInputVerticalData[] = [
   {
-    value: 'initial_consultation',
+    value: 'initial',
     title: 'Initial Consultation',
     content: 'For first-time clients to discuss their needs.',
     asset: 'ri-discuss-line'

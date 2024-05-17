@@ -1,99 +1,92 @@
-import React, { useState, useEffect } from 'react'
+'use client'
 
-// MUI Imports
+import React, { useState } from 'react'
+
 import {
-  Box,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   Button,
   TextField,
-  InputLabel,
-  useMediaQuery,
   FormControl,
   FormControlLabel,
-  MenuItem,
-  Select,
-  Switch,
-  Grid
+  Switch
 } from '@mui/material'
-import { useForm, Controller } from 'react-hook-form'
-import axios from 'axios'
+import { useForm } from 'react-hook-form'
+import { useAuth } from '@clerk/nextjs'
 
-// Custom Datepicker Imports
+import { addAppointmentAction } from '@actions/appointments'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
-import DatePickerInput from './DatePickerInput' // Custom Input Component
+import DatePickerInput from './DatePickerInput'
+import AppointmentTypeRadioIcons from './AppointmentTypeRadioIcons'
 
-// Custom Vertical Radio Icon Component
-import AppointmentTypeRadioIcons from './AppointmentTypeRadioIcons' // Import the custom vertical radio icon component
-
-// Default State
 const defaultState = {
-  clientName: '',
-  clientId: null,
-  appointmentDate: new Date(), // Initialize with a Date object
-  startTime: new Date(), // Initialize with a Date object
-  endTime: new Date(), // Initialize with a Date object
+  clientId: '71cd77e6-34b5-43ee-994a-aa5d471a00e5',
+  appointmentDate: new Date(),
+  startTime: new Date(),
+  endTime: new Date(),
   location: '1234 Seamstress Shop Ave. Paso Robles, CA 93446',
-  appointmentType: 'starter', // Default value for the custom radio buttons
+  appointmentType: 'general',
   notes: '',
   sendConfirmation: false
 }
 
 const AddAppointmentModal = props => {
   const { addEventModalOpen, handleAddEventModalToggle, handleAddAppointment } = props
+  const { userId, getToken } = useAuth()
 
   const [values, setValues] = useState(defaultState)
-  const [clientList, setClientList] = useState([])
-  const [showNewClientPopup, setShowNewClientPopup] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
-  const {
-    control,
-    setValue,
-    handleSubmit,
-    formState: { errors }
-  } = useForm()
-
-  const isBelowSmScreen = useMediaQuery(theme => theme.breakpoints.down('sm'))
-
-  const fetchClients = clientName => {
-    if (clientName) {
-      axios.get(`/api/clients?search=${clientName}`).then(response => {
-        setClientList(response.data)
-      })
-    }
-  }
-
-  const handleClientSelect = client => {
-    setValues({ ...values, clientName: client.name, clientId: client.id })
-    setClientList([])
-  }
-
-  const handleAddNewClient = () => {
-    // Logic to add a new client
-    setShowNewClientPopup(true)
-  }
+  const { handleSubmit } = useForm()
 
   const handleModalClose = () => {
     setValues(defaultState)
     handleAddEventModalToggle()
   }
 
-  const onSubmit = data => {
+  const onSubmit = async () => {
     const newAppointment = {
-      ...values,
+      clientId: values.clientId,
+      userId: userId, // Use Clerk's userId
       appointmentDate: values.appointmentDate,
       startTime: values.startTime,
       endTime: values.endTime,
       location: values.location,
-      appointmentType: values.appointmentType,
-      notes: values.notes,
-      sendConfirmation: values.sendConfirmation
+      status: 'scheduled', // Default status
+      type: values.appointmentType,
+      sendEmail: values.sendConfirmation,
+      sendSms: values.sendConfirmation,
+      notes: values.notes
     }
 
-    handleAddAppointment(newAppointment)
-    handleModalClose()
+    try {
+      setIsLoading(true)
+      const token = await getToken({ template: 'supabase' }) // Get the token using Clerk
+
+      const data = await addAppointmentAction(
+        newAppointment.clientId,
+        newAppointment.userId,
+        newAppointment.appointmentDate,
+        newAppointment.startTime,
+        newAppointment.endTime,
+        newAppointment.location,
+        newAppointment.status,
+        newAppointment.type,
+        newAppointment.sendEmail,
+        newAppointment.sendSms,
+        newAppointment.notes,
+        token
+      )
+
+      handleAddAppointment(data)
+      handleModalClose()
+    } catch (error) {
+      console.error('Failed to add appointment:', error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleAppointmentTypeChange = selectedType => {
@@ -111,38 +104,6 @@ const AddAppointmentModal = props => {
       <DialogTitle id='form-dialog-title'>Add Appointment</DialogTitle>
       <DialogContent dividers>
         <form onSubmit={handleSubmit(onSubmit)} autoComplete='off'>
-          {/* Client Lookup */}
-          <FormControl fullWidth margin='normal'>
-            <InputLabel>Client Name</InputLabel>
-            <TextField
-              value={values.clientName}
-              onChange={e => {
-                setValues({ ...values, clientName: e.target.value })
-                fetchClients(e.target.value)
-              }}
-              onBlur={() => setClientList([])}
-            />
-            {clientList.length > 0 && (
-              <ul>
-                {clientList.map(client => (
-                  <li key={client.id} onClick={() => handleClientSelect(client)}>
-                    {client.name}
-                  </li>
-                ))}
-              </ul>
-            )}
-            <Button type='button' onClick={handleAddNewClient}>
-              Add New Client
-            </Button>
-            {showNewClientPopup && (
-              <div className='new-client-popup'>
-                {/* New Client Form or Popup Logic */}
-                <Button onClick={() => setShowNewClientPopup(false)}>Close</Button>
-              </div>
-            )}
-          </FormControl>
-
-          {/* Date and Time Selection */}
           <FormControl fullWidth margin='normal'>
             <AppReactDatepicker
               selected={values.appointmentDate}
@@ -175,7 +136,6 @@ const AddAppointmentModal = props => {
             />
           </FormControl>
 
-          {/* Location Field */}
           <FormControl fullWidth margin='normal'>
             <TextField
               label='Location'
@@ -184,12 +144,10 @@ const AddAppointmentModal = props => {
             />
           </FormControl>
 
-          {/* Appointment Type Selection */}
           <FormControl fullWidth margin='normal'>
             <AppointmentTypeRadioIcons onChange={handleAppointmentTypeChange} />
           </FormControl>
 
-          {/* Notes Section */}
           <FormControl fullWidth margin='normal'>
             <TextField
               label='Notes'
@@ -200,7 +158,6 @@ const AddAppointmentModal = props => {
             />
           </FormControl>
 
-          {/* Confirmation Email Option */}
           <FormControlLabel
             control={
               <Switch
@@ -213,10 +170,10 @@ const AddAppointmentModal = props => {
         </form>
       </DialogContent>
       <DialogActions>
-        <Button type='submit' variant='contained' onClick={handleSubmit(onSubmit)}>
-          Schedule
+        <Button type='submit' variant='contained' onClick={handleSubmit(onSubmit)} disabled={isLoading}>
+          {isLoading ? 'Scheduling...' : 'Schedule'}
         </Button>
-        <Button variant='outlined' color='secondary' onClick={handleModalClose}>
+        <Button variant='outlined' color='secondary' onClick={handleModalClose} disabled={isLoading}>
           Cancel
         </Button>
       </DialogActions>
