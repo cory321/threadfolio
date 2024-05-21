@@ -39,6 +39,20 @@ export async function fetchClients(token) {
   return data
 }
 
+// Fetch a client by ID from the clients table
+export async function fetchClientById(id, token) {
+  noStore()
+  const supabase = await getSupabaseClient(token)
+
+  const { data, error } = await supabase.from('clients').select('*').eq('id', id).single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  return data
+}
+
 // Main function to add a client
 export async function addClientAction({ userId, fullName, email, phoneNumber, mailingAddress, notes, token }) {
   noStore()

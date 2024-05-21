@@ -1,9 +1,8 @@
-'use client'
-
 import React, { useEffect, useState } from 'react'
 
+import Link from 'next/link'
+
 import {
-  Box,
   CircularProgress,
   Table,
   TableBody,
@@ -12,11 +11,18 @@ import {
   TableHead,
   TableRow,
   Typography,
-  Paper
+  Paper,
+  Avatar
 } from '@mui/material'
 import { useAuth } from '@clerk/nextjs'
 
 import { fetchClients } from '@actions/clients'
+
+const getInitials = string =>
+  string
+    .split(/\s+/)
+    .slice(0, 2)
+    .reduce((response, word) => response + word[0].toUpperCase(), '')
 
 const ClientList = ({ clients, setClients }) => {
   const { getToken } = useAuth()
@@ -58,6 +64,7 @@ const ClientList = ({ clients, setClients }) => {
       <Table>
         <TableHead>
           <TableRow>
+            <TableCell>Avatar</TableCell>
             <TableCell>Full Name</TableCell>
             <TableCell>Email</TableCell>
             <TableCell>Phone Number</TableCell>
@@ -68,7 +75,16 @@ const ClientList = ({ clients, setClients }) => {
         <TableBody>
           {clients.map(client => (
             <TableRow key={client.id}>
-              <TableCell>{client.full_name}</TableCell>
+              <TableCell>
+                <Avatar>{getInitials(client.full_name)}</Avatar>
+              </TableCell>
+              <TableCell>
+                <Link href={`/clients/${client.id}`} passHref>
+                  <Typography component='a' style={{ textDecoration: 'none', color: 'inherit' }}>
+                    {client.full_name}
+                  </Typography>
+                </Link>
+              </TableCell>
               <TableCell>{client.email}</TableCell>
               <TableCell>{client.phone_number}</TableCell>
               <TableCell>{client.mailing_address}</TableCell>
