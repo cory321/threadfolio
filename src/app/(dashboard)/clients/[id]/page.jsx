@@ -1,12 +1,39 @@
 'use client'
 
+// Next Imports
 import React, { useEffect, useState } from 'react'
 
-import { CircularProgress, Typography, Box } from '@mui/material'
+import dynamic from 'next/dynamic'
+
+// MUI Imports
+import Grid from '@mui/material/Grid'
+
+// Component Imports
+
+import { CircularProgress, Typography, Box, Card, Avatar } from '@mui/material'
 
 import { useAuth } from '@clerk/nextjs'
 
+import UserLeftOverview from '@/app/apps/user/view/user-left-overview/'
+import UserRight from '@/app/apps/user/view/user-right'
+
+import { getInitials } from '@/utils/getInitials'
+
 import { fetchClientById } from '@actions/clients'
+
+const OverViewTab = dynamic(() => import('@/app/apps/user/view/user-right/overview'))
+const SecurityTab = dynamic(() => import('@/app/apps/user/view/user-right/security'))
+const BillingPlans = dynamic(() => import('@/app/apps/user/view/user-right/billing-plans'))
+const NotificationsTab = dynamic(() => import('@/app/apps/user/view/user-right/notifications'))
+const ConnectionsTab = dynamic(() => import('@/app/apps/user/view/user-right/connections'))
+
+const tabContentList = () => ({
+  overview: <OverViewTab />,
+  security: <SecurityTab />,
+  'billing-plans': <BillingPlans />,
+  notifications: <NotificationsTab />,
+  connections: <ConnectionsTab />
+})
 
 const ClientProfile = ({ params }) => {
   const { id } = params
@@ -54,13 +81,14 @@ const ClientProfile = ({ params }) => {
   }
 
   return (
-    <Box>
-      <Typography variant='h4'>{client.full_name}</Typography>
-      <Typography>Email: {client.email}</Typography>
-      <Typography>Phone Number: {client.phone_number}</Typography>
-      <Typography>Mailing Address: {client.mailing_address}</Typography>
-      <Typography>Notes: {client.notes}</Typography>
-    </Box>
+    <Grid container spacing={6}>
+      <Grid item xs={12} lg={4} md={5}>
+        <UserLeftOverview userData={client} />
+      </Grid>
+      <Grid item xs={12} lg={8} md={7}>
+        <UserRight />
+      </Grid>
+    </Grid>
   )
 }
 
