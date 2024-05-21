@@ -17,18 +17,17 @@ import { useAuth } from '@clerk/nextjs'
 import UserLeftOverview from '@/app/apps/user/view/user-left-overview/'
 import UserRight from '@/app/apps/user/view/user-right'
 
-import { getInitials } from '@/utils/getInitials'
-
 import { fetchClientById } from '@actions/clients'
 
-const OverViewTab = dynamic(() => import('@/app/apps/user/view/user-right/overview'))
+const OrdersTab = dynamic(() => import('@/app/apps/user/view/user-right/orders'))
+
 const SecurityTab = dynamic(() => import('@/app/apps/user/view/user-right/security'))
 const BillingPlans = dynamic(() => import('@/app/apps/user/view/user-right/billing-plans'))
 const NotificationsTab = dynamic(() => import('@/app/apps/user/view/user-right/notifications'))
 const ConnectionsTab = dynamic(() => import('@/app/apps/user/view/user-right/connections'))
 
 const tabContentList = () => ({
-  overview: <OverViewTab />,
+  orders: <OrdersTab />,
   security: <SecurityTab />,
   'billing-plans': <BillingPlans />,
   notifications: <NotificationsTab />,
@@ -86,7 +85,7 @@ const ClientProfile = ({ params }) => {
         <UserLeftOverview userData={client} />
       </Grid>
       <Grid item xs={12} lg={8} md={7}>
-        <UserRight />
+        <UserRight tabContentList={tabContentList()} />
       </Grid>
     </Grid>
   )
