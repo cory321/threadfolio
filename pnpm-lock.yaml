@@ -56,6 +56,9 @@ importers:
       '@iconify/utils':
         specifier: 2.1.14
         version: 2.1.14
+      '@mobiscroll/react':
+        specifier: npm:@mobiscroll/react-trial@5.29.2
+        version: '@mobiscroll/react-trial@5.29.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0)'
       '@mui/icons-material':
         specifier: ^5.15.17
         version: 5.15.17(@mui/material@5.15.4(@emotion/react@11.11.3(@types/react@18.3.2)(react@18.2.0))(@emotion/styled@11.11.0(@emotion/react@11.11.3(@types/react@18.3.2)(react@18.2.0))(@types/react@18.3.2)(react@18.2.0))(@types/react@18.3.2)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@types/react@18.3.2)(react@18.2.0)
@@ -105,7 +108,7 @@ importers:
         specifier: ^2.4.6
         version: 2.4.6(react@18.2.0)
       next:
-        specifier: ^14.0.4
+        specifier: 14.0.4
         version: 14.0.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       postcss:
         specifier: 8.4.33
@@ -579,6 +582,12 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
+
+  '@mobiscroll/react-trial@5.29.2':
+    resolution: {integrity: sha512-pQ5ceMD/ymQ5YeT4Sz7GLi0J8G6mHbCZB0d3WGn6VqAh0KHmOoDES/LVOdTXJteGJa8QkKM0WmsHOlHptuKx7g==}
+    peerDependencies:
+      react: '>=15.3.0'
+      react-dom: '>=15.3.0'
 
   '@mui/base@5.0.0-beta.31':
     resolution: {integrity: sha512-+uNbP3OHJuZVI00WyMg7xfLZotaEY7LgvYXDfONVJbrS+K9wyjCIPNfjy8r9XJn4fbHo/5ibiZqjWnU9LMNv+A==}
@@ -3431,6 +3440,11 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.4.15
+
+  '@mobiscroll/react-trial@5.29.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
 
   '@mui/base@5.0.0-beta.31(@types/react@18.3.2)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:

@@ -30,6 +30,7 @@
     "@iconify/json": "2.2.167",
     "@iconify/tools": "4.0.0",
     "@iconify/utils": "2.1.14",
+    "@mobiscroll/react": "npm:@mobiscroll/react-trial@5.29.2",
     "@mui/icons-material": "^5.15.17",
     "@mui/lab": "5.0.0-alpha.160",
     "@mui/material": "5.15.4",
