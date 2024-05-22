@@ -2,7 +2,20 @@
 
 import { useState, Suspense } from 'react'
 
-import { Box, CircularProgress, IconButton, List, ListItem, TextField, MenuItem } from '@mui/material'
+import {
+  Box,
+  CircularProgress,
+  List,
+  ListItem,
+  Card,
+  CardContent,
+  CardActions,
+  IconButton,
+  Grid,
+  Typography,
+  TextField,
+  MenuItem
+} from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SaveIcon from '@mui/icons-material/Save'
@@ -50,7 +63,7 @@ const ServiceListContent = ({ services, setServices }) => {
           ))}
         </List>
       ) : (
-        <Box>No services available!</Box>
+        <Typography>No services available!</Typography>
       )}
     </Box>
   )
@@ -89,53 +102,107 @@ const ServiceItem = ({ service, onDelete, onEdit }) => {
   }
 
   return (
-    <Box display='flex' alignItems='center' justifyContent='space-between'>
-      {isEditing ? (
-        <>
-          <TextField name='name' value={updatedService.name} onChange={handleChange} disabled={loading} />
-          <TextField name='description' value={updatedService.description} onChange={handleChange} disabled={loading} />
-          <TextField name='qty' type='number' value={updatedService.qty} onChange={handleChange} disabled={loading} />
-          <TextField select name='unit' value={updatedService.unit} onChange={handleChange} disabled={loading}>
-            {units.map(unit => (
-              <MenuItem key={unit} value={unit}>
-                {unit}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            name='unit_price'
-            type='number'
-            value={updatedService.unit_price}
-            onChange={handleChange}
-            disabled={loading}
-          />
-          <TextField name='image_url' value={updatedService.image_url} onChange={handleChange} disabled={loading} />
-          <IconButton onClick={handleSave} disabled={loading}>
-            {loading ? <CircularProgress size={24} /> : <SaveIcon />}
-          </IconButton>
-          <IconButton onClick={handleCancel} disabled={loading}>
-            <CancelIcon />
-          </IconButton>
-        </>
-      ) : (
-        <>
-          <Box>{service.name}</Box>
-          <Box>{service.description}</Box>
-          <Box>{service.qty}</Box>
-          <Box>{service.unit}</Box>
-          <Box>{service.unit_price}</Box>
-          <Box>
-            <img src={service.image_url} alt={service.name} width={50} />
-          </Box>
-          <IconButton onClick={() => setIsEditing(true)} disabled={loading}>
-            <EditIcon />
-          </IconButton>
-          <IconButton onClick={handleDelete} disabled={loading}>
-            {loading ? <CircularProgress size={24} /> : <DeleteIcon />}
-          </IconButton>
-        </>
-      )}
-    </Box>
+    <Card variant='outlined' sx={{ mb: 2, width: '100%' }}>
+      <CardContent>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={3}>
+            <Box display='flex' justifyContent='center' alignItems='center' height='100%'>
+              <img
+                src={service.image_url}
+                alt={service.name}
+                style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'contain' }}
+              />
+            </Box>
+          </Grid>
+          <Grid item xs={12} sm={9}>
+            {isEditing ? (
+              <Box display='flex' flexDirection='column' gap={2}>
+                <TextField
+                  name='name'
+                  label='Name'
+                  value={updatedService.name}
+                  onChange={handleChange}
+                  disabled={loading}
+                />
+                <TextField
+                  name='description'
+                  label='Description'
+                  value={updatedService.description}
+                  onChange={handleChange}
+                  disabled={loading}
+                />
+                <TextField
+                  name='qty'
+                  label='Quantity'
+                  type='number'
+                  value={updatedService.qty}
+                  onChange={handleChange}
+                  disabled={loading}
+                />
+                <TextField
+                  select
+                  name='unit'
+                  label='Unit'
+                  value={updatedService.unit}
+                  onChange={handleChange}
+                  disabled={loading}
+                >
+                  {units.map(unit => (
+                    <MenuItem key={unit} value={unit}>
+                      {unit}
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <TextField
+                  name='unit_price'
+                  label='Unit Price'
+                  type='number'
+                  value={updatedService.unit_price}
+                  onChange={handleChange}
+                  disabled={loading}
+                />
+                <TextField
+                  name='image_url'
+                  label='Image URL'
+                  value={updatedService.image_url}
+                  onChange={handleChange}
+                  disabled={loading}
+                />
+              </Box>
+            ) : (
+              <Box display='flex' flexDirection='column' gap={2}>
+                <Typography variant='h6'>{service.name}</Typography>
+                <Typography>{service.description}</Typography>
+                <Typography>Quantity: {service.qty}</Typography>
+                <Typography>Unit: {service.unit}</Typography>
+                <Typography>Unit Price: {service.unit_price}</Typography>
+              </Box>
+            )}
+          </Grid>
+        </Grid>
+      </CardContent>
+      <CardActions>
+        {isEditing ? (
+          <>
+            <IconButton onClick={handleSave} disabled={loading}>
+              {loading ? <CircularProgress size={24} /> : <SaveIcon />}
+            </IconButton>
+            <IconButton onClick={handleCancel} disabled={loading}>
+              <CancelIcon />
+            </IconButton>
+          </>
+        ) : (
+          <>
+            <IconButton onClick={() => setIsEditing(true)} disabled={loading}>
+              <EditIcon />
+            </IconButton>
+            <IconButton onClick={handleDelete} disabled={loading}>
+              {loading ? <CircularProgress size={24} /> : <DeleteIcon />}
+            </IconButton>
+          </>
+        )}
+      </CardActions>
+    </Card>
   )
 }
 

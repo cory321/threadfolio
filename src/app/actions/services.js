@@ -67,6 +67,7 @@ export async function deleteService(id, token) {
 }
 
 export async function fetchAllServices(token) {
+  noStore()
   const supabase = await getSupabaseClient(token)
   const { data: services, error } = await supabase.from('services').select('*')
 
