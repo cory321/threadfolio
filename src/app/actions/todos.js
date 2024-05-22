@@ -41,7 +41,6 @@ export async function deleteTodo(id, token) {
 }
 
 export async function loadTodosAction(token) {
-  noStore()
   const supabase = await getSupabaseClient(token)
   const { data: todos, error } = await supabase.from('todos').select('*')
 
