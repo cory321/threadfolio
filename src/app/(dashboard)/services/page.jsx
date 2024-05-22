@@ -5,7 +5,6 @@ import { useState, useEffect, Suspense } from 'react'
 import { CircularProgress } from '@mui/material'
 import { useAuth } from '@clerk/nextjs'
 
-import Greeting from '@/components/todo/Greeting'
 import AddServiceForm from '@/components/services/AddServiceForm'
 import ServiceList from '@/components/services/ServiceList'
 import { fetchAllServices } from '@/app/actions/services'
@@ -35,8 +34,6 @@ export default function Home() {
   return (
     <main>
       <div>
-        <Greeting />
-        <br />
         <h2>Service Catalog</h2>
         <AddServiceForm setServices={setServices} />
         {loading ? (

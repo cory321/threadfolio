@@ -20,6 +20,7 @@ import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Cancel'
+import BrokenImageIcon from '@mui/icons-material/BrokenImage'
 import { useAuth } from '@clerk/nextjs'
 
 import { deleteService, editService } from '@/app/actions/services'
@@ -73,6 +74,7 @@ const ServiceItem = ({ service, onDelete, onEdit }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [updatedService, setUpdatedService] = useState(service)
   const [loading, setLoading] = useState(false)
+  const [imageError, setImageError] = useState(false)
 
   const handleChange = e => {
     const { name, value } = e.target
@@ -101,17 +103,26 @@ const ServiceItem = ({ service, onDelete, onEdit }) => {
     setLoading(false)
   }
 
+  const handleImageError = () => {
+    setImageError(true)
+  }
+
   return (
     <Card variant='outlined' sx={{ mb: 2, width: '100%' }}>
       <CardContent>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={3}>
             <Box display='flex' justifyContent='center' alignItems='center' height='100%'>
-              <img
-                src={service.image_url}
-                alt={service.name}
-                style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'contain' }}
-              />
+              {imageError ? (
+                <BrokenImageIcon style={{ fontSize: 50 }} />
+              ) : (
+                <img
+                  src={service.image_url}
+                  alt={service.name}
+                  style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'contain' }}
+                  onError={handleImageError}
+                />
+              )}
             </Box>
           </Grid>
           <Grid item xs={12} sm={9}>
