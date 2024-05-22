@@ -1,9 +1,10 @@
 export const handleChange = (e, setServiceState) => {
   const { name, value } = e.target
+  const formattedValue = name === 'qty' ? parseFloat(value) : value
 
   setServiceState(prevService => ({
     ...prevService,
-    [name]: value
+    [name]: formattedValue
   }))
 }
 

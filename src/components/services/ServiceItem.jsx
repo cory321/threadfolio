@@ -90,8 +90,8 @@ const ServiceItem = ({ service, onDelete, onEdit }) => {
                   name='qty'
                   label='Quantity'
                   type='number'
-                  value={updatedService.qty}
                   onChange={e => handleChange(e, setUpdatedService)}
+                  value={updatedService.qty}
                   disabled={loading}
                 />
                 <TextField
