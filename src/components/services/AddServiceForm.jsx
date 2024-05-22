@@ -3,7 +3,7 @@
 import { useState } from 'react'
 
 import { useAuth } from '@clerk/nextjs'
-import { Box, Button, TextField, MenuItem } from '@mui/material'
+import { Box, Button, TextField, MenuItem, InputAdornment, Typography } from '@mui/material'
 
 import { addService } from '@/app/actions/services'
 
@@ -30,6 +30,27 @@ const AddServiceForm = ({ setServices, onClose }) => {
       ...prevService,
       [name]: value
     }))
+  }
+
+  const handleUnitPriceBlur = () => {
+    const formattedValue = parseFloat(newService.unit_price).toFixed(2)
+
+    if (!isNaN(formattedValue)) {
+      setNewService(prevService => ({
+        ...prevService,
+        unit_price: formattedValue
+      }))
+    }
+  }
+
+  const calculateTotalPrice = () => {
+    const qty = parseFloat(newService.qty) || 0
+    const unitPrice = parseFloat(newService.unit_price) || 0
+
+    return (qty * unitPrice).toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    })
   }
 
   const handleSubmit = async e => {
@@ -94,8 +115,13 @@ const AddServiceForm = ({ setServices, onClose }) => {
         name='unit_price'
         type='number'
         onChange={handleChange}
+        onBlur={handleUnitPriceBlur}
         value={newService.unit_price}
         disabled={isLoading}
+        inputProps={{ step: '0.01' }}
+        InputProps={{
+          startAdornment: <InputAdornment position='start'>$</InputAdornment>
+        }}
       />
       <TextField
         label='Image URL'
@@ -104,6 +130,7 @@ const AddServiceForm = ({ setServices, onClose }) => {
         value={newService.image_url}
         disabled={isLoading}
       />
+      <Typography variant='h6'>Total: {calculateTotalPrice()}</Typography>
       <Button type='submit' disabled={isLoading}>
         {isLoading ? 'Adding...' : 'Add Service'}
       </Button>

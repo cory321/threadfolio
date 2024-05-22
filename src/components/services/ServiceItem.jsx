@@ -10,7 +10,8 @@ import {
   Typography,
   TextField,
   MenuItem,
-  CircularProgress
+  CircularProgress,
+  InputAdornment
 } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -35,6 +36,17 @@ const ServiceItem = ({ service, onDelete, onEdit }) => {
     }))
   }
 
+  const handleUnitPriceBlur = () => {
+    const formattedValue = parseFloat(updatedService.unit_price).toFixed(2)
+
+    if (!isNaN(formattedValue)) {
+      setUpdatedService(prevService => ({
+        ...prevService,
+        unit_price: formattedValue
+      }))
+    }
+  }
+
   const handleSave = async () => {
     setLoading(true)
     await onEdit(service.id, updatedService)
@@ -57,10 +69,15 @@ const ServiceItem = ({ service, onDelete, onEdit }) => {
     setImageError(true)
   }
 
-  const totalPrice = (service.qty * service.unit_price).toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD'
-  })
+  const calculateTotalPrice = () => {
+    const qty = parseFloat(updatedService.qty) || 0
+    const unitPrice = parseFloat(updatedService.unit_price) || 0
+
+    return (qty * unitPrice).toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    })
+  }
 
   return (
     <Card variant='outlined' sx={{ mb: 2, width: '100%' }}>
@@ -125,7 +142,12 @@ const ServiceItem = ({ service, onDelete, onEdit }) => {
                   type='number'
                   value={updatedService.unit_price}
                   onChange={handleChange}
+                  onBlur={handleUnitPriceBlur}
                   disabled={loading}
+                  inputProps={{ step: '0.01' }}
+                  InputProps={{
+                    startAdornment: <InputAdornment position='start'>$</InputAdornment>
+                  }}
                 />
                 <TextField
                   name='image_url'
@@ -134,12 +156,13 @@ const ServiceItem = ({ service, onDelete, onEdit }) => {
                   onChange={handleChange}
                   disabled={loading}
                 />
+                <Typography variant='h6'>Total: {calculateTotalPrice()}</Typography>
               </Box>
             ) : (
               <Box display='flex' flexDirection='column' gap={2}>
                 <Typography variant='h6'>{service.name}</Typography>
                 <Typography>{service.description}</Typography>
-                <Typography>Total: {totalPrice}</Typography>
+                <Typography>Total: {calculateTotalPrice()}</Typography>
               </Box>
             )}
           </Grid>
