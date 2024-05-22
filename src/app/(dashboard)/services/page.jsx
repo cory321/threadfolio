@@ -2,16 +2,17 @@
 
 import { useState, useEffect, Suspense } from 'react'
 
-import { CircularProgress } from '@mui/material'
+import { CircularProgress, Button, Grid, Box } from '@mui/material'
 import { useAuth } from '@clerk/nextjs'
 
-import AddServiceForm from '@/components/services/AddServiceForm'
+import AddServiceDialog from '@/components/dialogs/add-service'
 import ServiceList from '@/components/services/ServiceList'
 import { fetchAllServices } from '@/app/actions/services'
 
 export default function Home() {
   const [services, setServices] = useState([])
   const [loading, setLoading] = useState(true)
+  const [open, setOpen] = useState(false)
   const { getToken } = useAuth()
 
   useEffect(() => {
@@ -31,18 +32,32 @@ export default function Home() {
     loadServices()
   }, [getToken])
 
+  const handleOpen = () => setOpen(true)
+  const handleClose = () => setOpen(false)
+
   return (
     <main>
       <div>
-        <h2>Service Catalog</h2>
-        <AddServiceForm setServices={setServices} />
-        {loading ? (
-          <CircularProgress />
-        ) : (
-          <Suspense fallback={<CircularProgress />}>
-            <ServiceList services={services} setServices={setServices} />
-          </Suspense>
-        )}
+        <Grid container justifyContent='space-between' alignItems='center'>
+          <Grid item>
+            <h2>Service Catalog</h2>
+          </Grid>
+          <Grid item>
+            <Button variant='contained' color='primary' onClick={handleOpen}>
+              Add Service
+            </Button>
+          </Grid>
+        </Grid>
+        <Box pt={6}>
+          {loading ? (
+            <CircularProgress />
+          ) : (
+            <Suspense fallback={<CircularProgress />}>
+              <ServiceList services={services} setServices={setServices} />
+            </Suspense>
+          )}
+        </Box>
+        <AddServiceDialog open={open} handleClose={handleClose} setServices={setServices} />
       </div>
     </main>
   )

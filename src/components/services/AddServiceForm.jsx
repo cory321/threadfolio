@@ -9,7 +9,7 @@ import { addService } from '@/app/actions/services'
 
 const units = ['item', 'hour', 'day', 'week', 'month', 'none']
 
-const AddServiceForm = ({ setServices }) => {
+const AddServiceForm = ({ setServices, onClose }) => {
   const { userId, getToken } = useAuth()
 
   const [newService, setNewService] = useState({
@@ -45,6 +45,7 @@ const AddServiceForm = ({ setServices }) => {
 
       setServices(prevServices => (prevServices ? [...prevServices, newServiceItem] : [newServiceItem]))
       setNewService({ name: '', description: '', qty: 0, unit: 'item', unit_price: 0, image_url: '' })
+      onClose()
     } catch (error) {
       console.error('Error adding service:', error)
     } finally {
@@ -53,7 +54,18 @@ const AddServiceForm = ({ setServices }) => {
   }
 
   return (
-    <Box component='form' onSubmit={handleSubmit} display='flex' flexDirection='column' gap={2}>
+    <Box
+      component='form'
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 2,
+        width: '100%'
+      }}
+      noValidate
+      autoComplete='off'
+      onSubmit={handleSubmit}
+    >
       <TextField label='Name' name='name' onChange={handleChange} value={newService.name} disabled={isLoading} />
       <TextField
         label='Description'
