@@ -12,7 +12,7 @@ import { useAuth } from '@clerk/nextjs'
 import AppFullCalendar from '@/libs/styles/AppFullCalendar'
 
 // Server Action Import
-import { getAppointmentsAction } from '@actions/appointments'
+import { getAppointmentsAction } from '@/app/actions/appointments'
 
 // Calendar Wrapper Import
 import CalendarWrapper from '@views/apps/calendar/CalendarWrapper'

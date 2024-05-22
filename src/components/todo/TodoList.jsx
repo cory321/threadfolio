@@ -9,7 +9,7 @@ import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Cancel'
 import { useAuth } from '@clerk/nextjs'
 
-import { deleteTodoAction, editTodoAction, loadTodosAction } from '@actions/todo'
+import { deleteTodoAction, editTodoAction, loadTodosAction } from '@/app/actions/todo'
 
 const TodoListContent = ({ todos, setTodos }) => {
   const { getToken } = useAuth()

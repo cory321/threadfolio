@@ -65,7 +65,7 @@ const ClientProfile = ({ params }) => {
     if (id) {
       loadClient()
     }
-  }, [id])
+  }, [id, getToken])
 
   if (isLoading) {
     return <CircularProgress />

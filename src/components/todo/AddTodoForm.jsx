@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { useAuth } from '@clerk/nextjs'
 import { Box, Button, TextField } from '@mui/material'
 
-import { addTodoAction } from '@actions/todo'
+import { addTodoAction } from '@/app/actions/todo'
 
 const AddTodoForm = ({ setTodos }) => {
   const { userId, getToken } = useAuth()

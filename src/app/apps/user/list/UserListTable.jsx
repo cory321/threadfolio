@@ -44,7 +44,6 @@ import CustomAvatar from '@core/components/mui/Avatar'
 
 // Util Imports
 import { getInitials } from '@/utils/getInitials'
-import { getLocalizedUrl } from '@/utils/i18n'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
@@ -198,11 +197,7 @@ const UserListTable = ({ tableData }) => {
             <IconButton>
               <i className='ri-delete-bin-7-line text-[22px] text-textSecondary' />
             </IconButton>
-            <IconButton>
-              <Link href={getLocalizedUrl('apps/user/view', locale)} className='flex'>
-                <i className='ri-eye-line text-[22px] text-textSecondary' />
-              </Link>
-            </IconButton>
+            <IconButton></IconButton>
             <OptionMenu
               iconClassName='text-[22px] text-textSecondary'
               options={[

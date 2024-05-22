@@ -15,7 +15,7 @@ import {
 import { useForm } from 'react-hook-form'
 import { useAuth } from '@clerk/nextjs'
 
-import { addAppointmentAction } from '@actions/appointments'
+import { addAppointmentAction } from '@/app/actions/appointments'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 import DatePickerInput from './DatePickerInput'
 import AppointmentTypeRadioIcons from './AppointmentTypeRadioIcons'
