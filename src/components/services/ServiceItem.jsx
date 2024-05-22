@@ -19,6 +19,8 @@ import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Cancel'
 import BrokenImageIcon from '@mui/icons-material/BrokenImage'
 
+import { handleChange, handleUnitPriceBlur, calculateTotalPrice } from '@/utils/serviceUtils'
+
 const units = ['item', 'hour', 'day', 'week', 'month', 'none']
 
 const ServiceItem = ({ service, onDelete, onEdit }) => {
@@ -26,26 +28,6 @@ const ServiceItem = ({ service, onDelete, onEdit }) => {
   const [updatedService, setUpdatedService] = useState(service)
   const [loading, setLoading] = useState(false)
   const [imageError, setImageError] = useState(false)
-
-  const handleChange = e => {
-    const { name, value } = e.target
-
-    setUpdatedService(prevService => ({
-      ...prevService,
-      [name]: value
-    }))
-  }
-
-  const handleUnitPriceBlur = () => {
-    const formattedValue = parseFloat(updatedService.unit_price).toFixed(2)
-
-    if (!isNaN(formattedValue)) {
-      setUpdatedService(prevService => ({
-        ...prevService,
-        unit_price: formattedValue
-      }))
-    }
-  }
 
   const handleSave = async () => {
     setLoading(true)
@@ -67,16 +49,6 @@ const ServiceItem = ({ service, onDelete, onEdit }) => {
 
   const handleImageError = () => {
     setImageError(true)
-  }
-
-  const calculateTotalPrice = () => {
-    const qty = parseFloat(updatedService.qty) || 0
-    const unitPrice = parseFloat(updatedService.unit_price) || 0
-
-    return (qty * unitPrice).toLocaleString('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    })
   }
 
   return (
@@ -104,14 +76,14 @@ const ServiceItem = ({ service, onDelete, onEdit }) => {
                   name='name'
                   label='Name'
                   value={updatedService.name}
-                  onChange={handleChange}
+                  onChange={e => handleChange(e, setUpdatedService)}
                   disabled={loading}
                 />
                 <TextField
                   name='description'
                   label='Description'
                   value={updatedService.description}
-                  onChange={handleChange}
+                  onChange={e => handleChange(e, setUpdatedService)}
                   disabled={loading}
                 />
                 <TextField
@@ -119,7 +91,7 @@ const ServiceItem = ({ service, onDelete, onEdit }) => {
                   label='Quantity'
                   type='number'
                   value={updatedService.qty}
-                  onChange={handleChange}
+                  onChange={e => handleChange(e, setUpdatedService)}
                   disabled={loading}
                 />
                 <TextField
@@ -127,7 +99,7 @@ const ServiceItem = ({ service, onDelete, onEdit }) => {
                   name='unit'
                   label='Unit'
                   value={updatedService.unit}
-                  onChange={handleChange}
+                  onChange={e => handleChange(e, setUpdatedService)}
                   disabled={loading}
                 >
                   {units.map(unit => (
@@ -141,8 +113,8 @@ const ServiceItem = ({ service, onDelete, onEdit }) => {
                   label='Unit Price'
                   type='number'
                   value={updatedService.unit_price}
-                  onChange={handleChange}
-                  onBlur={handleUnitPriceBlur}
+                  onChange={e => handleChange(e, setUpdatedService)}
+                  onBlur={() => handleUnitPriceBlur(updatedService, setUpdatedService)}
                   disabled={loading}
                   inputProps={{ step: '0.01' }}
                   InputProps={{
@@ -153,16 +125,16 @@ const ServiceItem = ({ service, onDelete, onEdit }) => {
                   name='image_url'
                   label='Image URL'
                   value={updatedService.image_url}
-                  onChange={handleChange}
+                  onChange={e => handleChange(e, setUpdatedService)}
                   disabled={loading}
                 />
-                <Typography variant='h6'>Total: {calculateTotalPrice()}</Typography>
+                <Typography variant='h6'>Total: {calculateTotalPrice(updatedService)}</Typography>
               </Box>
             ) : (
               <Box display='flex' flexDirection='column' gap={2}>
                 <Typography variant='h6'>{service.name}</Typography>
                 <Typography>{service.description}</Typography>
-                <Typography>Total: {calculateTotalPrice()}</Typography>
+                <Typography>Total: {calculateTotalPrice(updatedService)}</Typography>
               </Box>
             )}
           </Grid>

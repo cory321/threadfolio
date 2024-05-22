@@ -6,6 +6,7 @@ import { useAuth } from '@clerk/nextjs'
 import { Box, Button, TextField, MenuItem, InputAdornment, Typography } from '@mui/material'
 
 import { addService } from '@/app/actions/services'
+import { handleChange, handleUnitPriceBlur, calculateTotalPrice } from '@/utils/serviceUtils'
 
 const units = ['item', 'hour', 'day', 'week', 'month', 'none']
 
@@ -22,36 +23,6 @@ const AddServiceForm = ({ setServices, onClose }) => {
   })
 
   const [isLoading, setIsLoading] = useState(false)
-
-  const handleChange = e => {
-    const { name, value } = e.target
-
-    setNewService(prevService => ({
-      ...prevService,
-      [name]: value
-    }))
-  }
-
-  const handleUnitPriceBlur = () => {
-    const formattedValue = parseFloat(newService.unit_price).toFixed(2)
-
-    if (!isNaN(formattedValue)) {
-      setNewService(prevService => ({
-        ...prevService,
-        unit_price: formattedValue
-      }))
-    }
-  }
-
-  const calculateTotalPrice = () => {
-    const qty = parseFloat(newService.qty) || 0
-    const unitPrice = parseFloat(newService.unit_price) || 0
-
-    return (qty * unitPrice).toLocaleString('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    })
-  }
 
   const handleSubmit = async e => {
     e.preventDefault()
@@ -87,11 +58,17 @@ const AddServiceForm = ({ setServices, onClose }) => {
       autoComplete='off'
       onSubmit={handleSubmit}
     >
-      <TextField label='Name' name='name' onChange={handleChange} value={newService.name} disabled={isLoading} />
+      <TextField
+        label='Name'
+        name='name'
+        onChange={e => handleChange(e, setNewService)}
+        value={newService.name}
+        disabled={isLoading}
+      />
       <TextField
         label='Description'
         name='description'
-        onChange={handleChange}
+        onChange={e => handleChange(e, setNewService)}
         value={newService.description}
         disabled={isLoading}
       />
@@ -99,11 +76,18 @@ const AddServiceForm = ({ setServices, onClose }) => {
         label='Quantity'
         name='qty'
         type='number'
-        onChange={handleChange}
+        onChange={e => handleChange(e, setNewService)}
         value={newService.qty}
         disabled={isLoading}
       />
-      <TextField select label='Unit' name='unit' onChange={handleChange} value={newService.unit} disabled={isLoading}>
+      <TextField
+        select
+        label='Unit'
+        name='unit'
+        onChange={e => handleChange(e, setNewService)}
+        value={newService.unit}
+        disabled={isLoading}
+      >
         {units.map(unit => (
           <MenuItem key={unit} value={unit}>
             {unit}
@@ -114,8 +98,8 @@ const AddServiceForm = ({ setServices, onClose }) => {
         label='Unit Price'
         name='unit_price'
         type='number'
-        onChange={handleChange}
-        onBlur={handleUnitPriceBlur}
+        onChange={e => handleChange(e, setNewService)}
+        onBlur={() => handleUnitPriceBlur(newService, setNewService)}
         value={newService.unit_price}
         disabled={isLoading}
         inputProps={{ step: '0.01' }}
@@ -126,11 +110,11 @@ const AddServiceForm = ({ setServices, onClose }) => {
       <TextField
         label='Image URL'
         name='image_url'
-        onChange={handleChange}
+        onChange={e => handleChange(e, setNewService)}
         value={newService.image_url}
         disabled={isLoading}
       />
-      <Typography variant='h6'>Total: {calculateTotalPrice()}</Typography>
+      <Typography variant='h6'>Total: {calculateTotalPrice(newService)}</Typography>
       <Button type='submit' disabled={isLoading}>
         {isLoading ? 'Adding...' : 'Add Service'}
       </Button>
