@@ -7,7 +7,7 @@ import * as Yup from 'yup'
 import { TextField, Button, Typography, Box } from '@mui/material'
 import { useAuth } from '@clerk/nextjs'
 
-import { addClientAction } from '@actions/clients'
+import { addClient } from '@actions/clients'
 
 const AddContactForm = ({ onClose, setClients }) => {
   const { userId, getToken } = useAuth()
@@ -38,7 +38,7 @@ const AddContactForm = ({ onClose, setClients }) => {
       setSubmitting(true)
 
       try {
-        const newClient = await addClientAction({
+        const newClient = await addClient({
           userId,
           ...values,
           token

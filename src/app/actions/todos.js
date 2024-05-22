@@ -2,15 +2,9 @@
 
 import { unstable_noStore as noStore } from 'next/cache'
 
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseClient } from './utils'
 
-export async function getSupabaseClient(token) {
-  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_KEY, {
-    global: { headers: { Authorization: `Bearer ${token}` } }
-  })
-}
-
-export async function addTodoAction(userId, title, token) {
+export async function addTodo(userId, title, token) {
   noStore()
   const supabase = await getSupabaseClient(token)
   const { data, error } = await supabase.from('todos').insert({ title, user_id: userId }).select().single()
@@ -22,7 +16,7 @@ export async function addTodoAction(userId, title, token) {
   return data
 }
 
-export async function editTodoAction(id, title, token) {
+export async function editTodo(id, title, token) {
   noStore()
   const supabase = await getSupabaseClient(token)
   const { data, error } = await supabase.from('todos').update({ title }).eq('id', id).select().single()
@@ -34,7 +28,7 @@ export async function editTodoAction(id, title, token) {
   return data
 }
 
-export async function deleteTodoAction(id, token) {
+export async function deleteTodo(id, token) {
   noStore()
   const supabase = await getSupabaseClient(token)
   const { error } = await supabase.from('todos').delete().eq('id', id)

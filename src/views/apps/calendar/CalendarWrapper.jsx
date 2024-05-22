@@ -121,7 +121,7 @@ const AppCalendar = ({ events }) => {
   // Handle button click to add a default appointment
   const handleAddAppointmentClick = async () => {
     try {
-      const data = await addAppointmentAction(
+      const data = await addAppointment(
         defaultAppointment.clientId,
         defaultAppointment.userId,
         defaultAppointment.appointmentDate,

@@ -9,7 +9,7 @@ import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Cancel'
 import { useAuth } from '@clerk/nextjs'
 
-import { deleteTodoAction, editTodoAction, loadTodosAction } from '@/app/actions/todo'
+import { deleteTodo, editTodo, loadTodosAction } from '@/app/actions/todos'
 
 const TodoListContent = ({ todos, setTodos }) => {
   const { getToken } = useAuth()
@@ -37,7 +37,7 @@ const TodoListContent = ({ todos, setTodos }) => {
     const token = await getToken({ template: 'supabase' })
 
     try {
-      await deleteTodoAction(id, token)
+      await deleteTodo(id, token)
       setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id))
     } catch (error) {
       console.error('Error deleting todo:', error)
@@ -48,7 +48,7 @@ const TodoListContent = ({ todos, setTodos }) => {
     const token = await getToken({ template: 'supabase' })
 
     try {
-      const updatedTodo = await editTodoAction(id, newTitle, token)
+      const updatedTodo = await editTodo(id, newTitle, token)
 
       setTodos(prevTodos => prevTodos.map(todo => (todo.id === id ? updatedTodo : todo)))
     } catch (error) {

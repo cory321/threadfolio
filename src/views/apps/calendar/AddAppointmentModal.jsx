@@ -15,7 +15,7 @@ import {
 import { useForm } from 'react-hook-form'
 import { useAuth } from '@clerk/nextjs'
 
-import { addAppointmentAction } from '@/app/actions/appointments'
+import { addAppointment } from '@/app/actions/appointments'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 import DatePickerInput from './DatePickerInput'
 import AppointmentTypeRadioIcons from './AppointmentTypeRadioIcons'
@@ -131,7 +131,7 @@ const AddAppointmentModal = props => {
     try {
       const token = await getToken({ template: 'supabase' })
 
-      const data = await addAppointmentAction(
+      const data = await addAppointment(
         newAppointment.clientId,
         newAppointment.userId,
         newAppointment.appointmentDate,

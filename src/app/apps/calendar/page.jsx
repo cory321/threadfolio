@@ -12,7 +12,7 @@ import { useAuth } from '@clerk/nextjs'
 import AppFullCalendar from '@/libs/styles/AppFullCalendar'
 
 // Server Action Import
-import { getAppointmentsAction } from '@/app/actions/appointments'
+import { getAppointments } from '@/app/actions/appointments'
 
 // Calendar Wrapper Import
 import CalendarWrapper from '@views/apps/calendar/CalendarWrapper'
@@ -31,7 +31,7 @@ const CalendarApp = () => {
         const token = await getToken({ template: 'supabase' })
 
         // Fetch and transform appointment data using the server action
-        const appointmentEvents = await getAppointmentsAction(userId, token)
+        const appointmentEvents = await getAppointments(userId, token)
 
         // Update the events state
         setEvents(appointmentEvents)

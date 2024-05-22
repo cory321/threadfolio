@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { useAuth } from '@clerk/nextjs'
 import { Box, Button, TextField } from '@mui/material'
 
-import { addTodoAction } from '@/app/actions/todo'
+import { addTodo } from '@/app/actions/todos'
 
 const AddTodoForm = ({ setTodos }) => {
   const { userId, getToken } = useAuth()
@@ -21,7 +21,7 @@ const AddTodoForm = ({ setTodos }) => {
     setIsLoading(true)
 
     try {
-      const newTodoItem = await addTodoAction(userId, newTodo, token)
+      const newTodoItem = await addTodo(userId, newTodo, token)
 
       setTodos(prevTodos => (prevTodos ? [...prevTodos, newTodoItem] : [newTodoItem]))
       setNewTodo('')

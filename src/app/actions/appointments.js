@@ -2,15 +2,9 @@
 
 import { unstable_noStore as noStore } from 'next/cache'
 
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseClient } from './utils'
 
-export async function getSupabaseClient(token) {
-  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_KEY, {
-    global: { headers: { Authorization: `Bearer ${token}` } }
-  })
-}
-
-export async function addAppointmentAction(
+export async function addAppointment(
   clientId,
   userId,
   appointmentDate,
@@ -52,7 +46,7 @@ export async function addAppointmentAction(
   return data
 }
 
-export async function getAppointmentsAction(userId, token) {
+export async function getAppointments(userId, token) {
   noStore()
   const supabase = await getSupabaseClient(token)
 
