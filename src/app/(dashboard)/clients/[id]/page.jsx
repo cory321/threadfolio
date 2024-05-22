@@ -10,7 +10,7 @@ import Grid from '@mui/material/Grid'
 
 // Component Imports
 
-import { CircularProgress, Typography, Box, Card, Avatar } from '@mui/material'
+import { CircularProgress, Typography } from '@mui/material'
 
 import { useAuth } from '@clerk/nextjs'
 
@@ -41,6 +41,7 @@ const ClientProfile = ({ params }) => {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  // TODO: remove useeffect
   useEffect(() => {
     const loadClient = async () => {
       setIsLoading(true)
