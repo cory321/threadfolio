@@ -51,7 +51,15 @@ const ServiceItem = ({ service, onDelete, onEdit }) => {
   }
 
   return (
-    <Card variant='outlined' sx={{ mb: 2, width: '100%' }}>
+    <Card
+      variant='outlined'
+      sx={{
+        mb: 2,
+        width: '100%',
+        cursor: isEditing ? 'default' : 'pointer'
+      }}
+      onClick={() => !isEditing && setIsEditing(true)}
+    >
       <CardContent>
         <Grid container spacing={2} alignItems='center'>
           <Grid item xs={12} sm={1} sx={{ textAlign: 'left' }}>
@@ -161,29 +169,21 @@ const ServiceItem = ({ service, onDelete, onEdit }) => {
               {calculateTotalPrice(updatedService)}
             </Typography>
           </Grid>
-          <Grid item xs={12} sm={1} sx={{ textAlign: 'left' }}>
-            <Box display='flex' justifyContent='space-between'>
-              {isEditing ? (
-                <>
-                  <IconButton onClick={handleSave} disabled={loading}>
-                    {loading ? <CircularProgress size={24} /> : <SaveIcon />}
-                  </IconButton>
-                  <IconButton onClick={handleCancel} disabled={loading}>
-                    <CancelIcon />
-                  </IconButton>
-                </>
-              ) : (
-                <>
-                  <IconButton onClick={() => setIsEditing(true)} disabled={loading}>
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton onClick={handleDelete} disabled={loading}>
-                    {loading ? <CircularProgress size={24} /> : <DeleteIcon />}
-                  </IconButton>
-                </>
-              )}
-            </Box>
-          </Grid>
+          {isEditing && (
+            <Grid item xs={12} sm={1} sx={{ textAlign: 'left' }}>
+              <Box display='flex' justifyContent='space-between'>
+                <IconButton onClick={handleSave} disabled={loading}>
+                  {loading ? <CircularProgress size={24} /> : <SaveIcon />}
+                </IconButton>
+                <IconButton onClick={handleCancel} disabled={loading}>
+                  <CancelIcon />
+                </IconButton>
+                <IconButton onClick={handleDelete} disabled={loading}>
+                  {loading ? <CircularProgress size={24} /> : <DeleteIcon />}
+                </IconButton>
+              </Box>
+            </Grid>
+          )}
         </Grid>
       </CardContent>
     </Card>
