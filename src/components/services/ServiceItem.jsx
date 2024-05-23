@@ -4,14 +4,13 @@ import {
   Box,
   Card,
   CardContent,
-  CardActions,
-  IconButton,
   Grid,
   Typography,
   TextField,
   MenuItem,
   CircularProgress,
-  InputAdornment
+  InputAdornment,
+  IconButton
 } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -54,22 +53,40 @@ const ServiceItem = ({ service, onDelete, onEdit }) => {
   return (
     <Card variant='outlined' sx={{ mb: 2, width: '100%' }}>
       <CardContent>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={3}>
-            <Box display='flex' justifyContent='center' alignItems='center' height='100%'>
+        <Grid container spacing={2} alignItems='center'>
+          <Grid item xs={12} sm={1} sx={{ textAlign: 'left' }}>
+            <Box
+              display='flex'
+              justifyContent='center'
+              alignItems='center'
+              height='100%'
+              width='100%'
+              sx={{
+                width: '100%',
+                height: '100px',
+                overflow: 'hidden',
+                borderRadius: '8px'
+              }}
+            >
               {imageError ? (
                 <BrokenImageIcon style={{ fontSize: 50 }} />
               ) : (
-                <img
+                <Box
+                  component='img'
                   src={service.image_url}
                   alt={service.name}
-                  style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'contain' }}
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    borderRadius: '8px'
+                  }}
                   onError={handleImageError}
                 />
               )}
             </Box>
           </Grid>
-          <Grid item xs={12} sm={9}>
+          <Grid item xs={12} sm={7} sx={{ textAlign: 'left' }}>
             {isEditing ? (
               <Box display='flex' flexDirection='column' gap={2}>
                 <TextField
@@ -128,39 +145,47 @@ const ServiceItem = ({ service, onDelete, onEdit }) => {
                   onChange={e => handleChange(e, setUpdatedService)}
                   disabled={loading}
                 />
-                <Typography variant='h6'>Total: {calculateTotalPrice(updatedService)}</Typography>
               </Box>
             ) : (
               <Box display='flex' flexDirection='column' gap={2}>
                 <Typography variant='h6'>{service.name}</Typography>
                 <Typography>{service.description}</Typography>
-                <Typography>Total: {calculateTotalPrice(updatedService)}</Typography>
               </Box>
             )}
           </Grid>
+          <Grid item xs={12} sm={3} sx={{ textAlign: 'left' }}>
+            <Typography variant='body2' color='textSecondary'>
+              Total Price
+            </Typography>
+            <Typography variant='h5' fontWeight='bold'>
+              {calculateTotalPrice(updatedService)}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sm={1} sx={{ textAlign: 'left' }}>
+            <Box display='flex' justifyContent='space-between'>
+              {isEditing ? (
+                <>
+                  <IconButton onClick={handleSave} disabled={loading}>
+                    {loading ? <CircularProgress size={24} /> : <SaveIcon />}
+                  </IconButton>
+                  <IconButton onClick={handleCancel} disabled={loading}>
+                    <CancelIcon />
+                  </IconButton>
+                </>
+              ) : (
+                <>
+                  <IconButton onClick={() => setIsEditing(true)} disabled={loading}>
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton onClick={handleDelete} disabled={loading}>
+                    {loading ? <CircularProgress size={24} /> : <DeleteIcon />}
+                  </IconButton>
+                </>
+              )}
+            </Box>
+          </Grid>
         </Grid>
       </CardContent>
-      <CardActions>
-        {isEditing ? (
-          <>
-            <IconButton onClick={handleSave} disabled={loading}>
-              {loading ? <CircularProgress size={24} /> : <SaveIcon />}
-            </IconButton>
-            <IconButton onClick={handleCancel} disabled={loading}>
-              <CancelIcon />
-            </IconButton>
-          </>
-        ) : (
-          <>
-            <IconButton onClick={() => setIsEditing(true)} disabled={loading}>
-              <EditIcon />
-            </IconButton>
-            <IconButton onClick={handleDelete} disabled={loading}>
-              {loading ? <CircularProgress size={24} /> : <DeleteIcon />}
-            </IconButton>
-          </>
-        )}
-      </CardActions>
     </Card>
   )
 }
