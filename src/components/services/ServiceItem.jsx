@@ -6,187 +6,171 @@ import {
   CardContent,
   Grid,
   Typography,
-  TextField,
+  IconButton,
+  Menu,
   MenuItem,
-  CircularProgress,
-  InputAdornment,
-  IconButton
+  ListItemIcon,
+  ListItemText,
+  CircularProgress
 } from '@mui/material'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
-import SaveIcon from '@mui/icons-material/Save'
-import CancelIcon from '@mui/icons-material/Cancel'
+import DuplicateIcon from '@mui/icons-material/FileCopy'
 import BrokenImageIcon from '@mui/icons-material/BrokenImage'
 
-import { handleChange, handleUnitPriceBlur, calculateTotalPrice } from '@/utils/serviceUtils'
+import EditServiceModal from '@/components/dialogs/edit-service/'
 
-const units = ['item', 'hour', 'day', 'week', 'month', 'none']
+import { calculateTotalPrice } from '@/utils/serviceUtils'
 
-const ServiceItem = ({ service, onDelete, onEdit }) => {
+const ServiceItem = ({ service, onDelete, onEdit, onDuplicate }) => {
   const [isEditing, setIsEditing] = useState(false)
-  const [updatedService, setUpdatedService] = useState(service)
-  const [loading, setLoading] = useState(false)
   const [imageError, setImageError] = useState(false)
-
-  const handleSave = async () => {
-    setLoading(true)
-    await onEdit(service.id, updatedService)
-    setLoading(false)
-    setIsEditing(false)
-  }
-
-  const handleCancel = () => {
-    setIsEditing(false)
-    setUpdatedService(service)
-  }
-
-  const handleDelete = async () => {
-    setLoading(true)
-    await onDelete(service.id)
-    setLoading(false)
-  }
+  const [loading, setLoading] = useState(false)
+  const [anchorEl, setAnchorEl] = useState(null)
 
   const handleImageError = () => {
     setImageError(true)
   }
 
+  const handleSave = async (id, updatedService) => {
+    setLoading(true)
+    await onEdit(id, updatedService)
+    setLoading(false)
+    setIsEditing(false)
+  }
+
+  const handleDelete = async id => {
+    setLoading(true)
+    await onDelete(id)
+    setLoading(false)
+    setIsEditing(false)
+  }
+
+  const handleDuplicate = async id => {
+    setLoading(true)
+    await onDuplicate(id)
+    setLoading(false)
+    setAnchorEl(null)
+  }
+
+  const handleMenuClick = event => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleMenuClose = () => {
+    setAnchorEl(null)
+  }
+
+  const handleEdit = () => {
+    setIsEditing(true)
+    handleMenuClose()
+  }
+
+  const open = Boolean(anchorEl)
+
   return (
-    <Card
-      variant='outlined'
-      sx={{
-        mb: 2,
-        width: '100%',
-        cursor: isEditing ? 'default' : 'pointer'
-      }}
-      onClick={() => !isEditing && setIsEditing(true)}
-    >
-      <CardContent>
-        <Grid container spacing={2} alignItems='center'>
-          <Grid item xs={12} sm={1} sx={{ textAlign: 'left' }}>
-            <Box
-              display='flex'
-              justifyContent='center'
-              alignItems='center'
-              height='100%'
-              width='100%'
-              sx={{
-                width: '100%',
-                height: '100px',
-                overflow: 'hidden',
-                borderRadius: '8px'
-              }}
-            >
-              {imageError ? (
-                <BrokenImageIcon style={{ fontSize: 50 }} />
-              ) : (
-                <Box
-                  component='img'
-                  src={service.image_url}
-                  alt={service.name}
-                  sx={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    borderRadius: '8px'
-                  }}
-                  onError={handleImageError}
-                />
-              )}
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={7} sx={{ textAlign: 'left' }}>
-            {isEditing ? (
-              <Box display='flex' flexDirection='column' gap={2}>
-                <TextField
-                  name='name'
-                  label='Name'
-                  value={updatedService.name}
-                  onChange={e => handleChange(e, setUpdatedService)}
-                  disabled={loading}
-                />
-                <TextField
-                  name='description'
-                  label='Description'
-                  value={updatedService.description}
-                  onChange={e => handleChange(e, setUpdatedService)}
-                  disabled={loading}
-                />
-                <TextField
-                  name='qty'
-                  label='Quantity'
-                  type='number'
-                  onChange={e => handleChange(e, setUpdatedService)}
-                  value={updatedService.qty}
-                  disabled={loading}
-                />
-                <TextField
-                  select
-                  name='unit'
-                  label='Unit'
-                  value={updatedService.unit}
-                  onChange={e => handleChange(e, setUpdatedService)}
-                  disabled={loading}
-                >
-                  {units.map(unit => (
-                    <MenuItem key={unit} value={unit}>
-                      {unit}
-                    </MenuItem>
-                  ))}
-                </TextField>
-                <TextField
-                  name='unit_price'
-                  label='Unit Price'
-                  type='number'
-                  value={updatedService.unit_price}
-                  onChange={e => handleChange(e, setUpdatedService)}
-                  onBlur={() => handleUnitPriceBlur(updatedService, setUpdatedService)}
-                  disabled={loading}
-                  inputProps={{ step: '0.01' }}
-                  InputProps={{
-                    startAdornment: <InputAdornment position='start'>$</InputAdornment>
-                  }}
-                />
-                <TextField
-                  name='image_url'
-                  label='Image URL'
-                  value={updatedService.image_url}
-                  onChange={e => handleChange(e, setUpdatedService)}
-                  disabled={loading}
-                />
+    <>
+      <Card variant='outlined' sx={{ mb: 2, width: '100%' }}>
+        <CardContent>
+          <Grid container spacing={2} alignItems='center'>
+            <Grid item xs={12} sm={3} sx={{ textAlign: 'left' }}>
+              <Box
+                display='flex'
+                justifyContent='center'
+                alignItems='center'
+                height='100%'
+                width='100%'
+                sx={{
+                  width: '100%',
+                  height: '100px',
+                  overflow: 'hidden',
+                  borderRadius: '8px'
+                }}
+              >
+                {imageError ? (
+                  <BrokenImageIcon style={{ fontSize: 50 }} />
+                ) : (
+                  <Box
+                    component='img'
+                    src={service.image_url}
+                    alt={service.name}
+                    sx={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      borderRadius: '8px'
+                    }}
+                    onError={handleImageError}
+                  />
+                )}
               </Box>
-            ) : (
+            </Grid>
+            <Grid item xs={12} sm={5} sx={{ textAlign: 'left' }}>
               <Box display='flex' flexDirection='column' gap={2}>
                 <Typography variant='h6'>{service.name}</Typography>
                 <Typography>{service.description}</Typography>
               </Box>
-            )}
-          </Grid>
-          <Grid item xs={12} sm={3} sx={{ textAlign: 'left' }}>
-            <Typography variant='body2' color='textSecondary'>
-              Total Price
-            </Typography>
-            <Typography variant='h5' fontWeight='bold'>
-              {calculateTotalPrice(updatedService)}
-            </Typography>
-          </Grid>
-          {isEditing && (
+            </Grid>
+            <Grid item xs={12} sm={3} sx={{ textAlign: 'left' }}>
+              <Typography variant='body2' color='textSecondary'>
+                Total Price
+              </Typography>
+              <Typography variant='h5' fontWeight='bold'>
+                {calculateTotalPrice(service)}
+              </Typography>
+            </Grid>
             <Grid item xs={12} sm={1} sx={{ textAlign: 'left' }}>
-              <Box display='flex' justifyContent='space-between'>
-                <IconButton onClick={handleSave} disabled={loading}>
-                  {loading ? <CircularProgress size={24} /> : <SaveIcon />}
+              <Box display='flex' justifyContent='flex-end'>
+                <IconButton onClick={handleMenuClick} disabled={loading}>
+                  <MoreVertIcon />
                 </IconButton>
-                <IconButton onClick={handleCancel} disabled={loading}>
-                  <CancelIcon />
-                </IconButton>
-                <IconButton onClick={handleDelete} disabled={loading}>
-                  {loading ? <CircularProgress size={24} /> : <DeleteIcon />}
-                </IconButton>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={open}
+                  onClose={handleMenuClose}
+                  anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right'
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right'
+                  }}
+                >
+                  <MenuItem onClick={handleEdit}>
+                    <ListItemIcon>
+                      <EditIcon fontSize='small' />
+                    </ListItemIcon>
+                    <ListItemText primary='Edit service' />
+                  </MenuItem>
+                  <MenuItem onClick={() => handleDuplicate(service.id)}>
+                    <ListItemIcon>
+                      <DuplicateIcon fontSize='small' />
+                    </ListItemIcon>
+                    <ListItemText primary='Duplicate' />
+                  </MenuItem>
+                  <MenuItem onClick={() => handleDelete(service.id)}>
+                    <ListItemIcon>
+                      <DeleteIcon fontSize='small' />
+                    </ListItemIcon>
+                    <ListItemText primary='Delete' />
+                  </MenuItem>
+                </Menu>
               </Box>
             </Grid>
-          )}
-        </Grid>
-      </CardContent>
-    </Card>
+          </Grid>
+        </CardContent>
+      </Card>
+      {isEditing && (
+        <EditServiceModal
+          service={service}
+          onClose={() => setIsEditing(false)}
+          onSave={handleSave}
+          onDelete={handleDelete}
+        />
+      )}
+    </>
   )
 }
 

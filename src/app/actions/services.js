@@ -77,3 +77,34 @@ export async function fetchAllServices(token) {
 
   return services
 }
+
+export async function duplicateService(id, token) {
+  noStore()
+  const supabase = await getSupabaseClient(token)
+
+  // Fetch the service by ID
+  const { data: service, error: fetchError } = await supabase.from('services').select('*').eq('id', id).single()
+
+  if (fetchError) {
+    throw new Error(fetchError.message)
+  }
+
+  // Remove the id field to allow the database to generate a new one
+  const { id: _, ...serviceData } = service
+
+  // Insert the duplicated service
+  const { data: duplicatedService, error: insertError } = await supabase
+    .from('services')
+    .insert({
+      ...serviceData,
+      name: `${service.name} (Copy)` // or any logic to make the name unique
+    })
+    .select()
+    .single()
+
+  if (insertError) {
+    throw new Error(insertError.message)
+  }
+
+  return duplicatedService
+}
