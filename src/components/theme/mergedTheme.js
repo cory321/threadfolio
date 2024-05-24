@@ -14,7 +14,33 @@ import coreTheme from '@core/theme'
 const mergedTheme = (settings, mode, direction) => {
   // Vars
   const userTheme = {
-    // Write your overrides here.
+    // colorSchemes: {
+    //   light: {
+    //     palette: {
+    //       secondary: {
+    //         main: '#BF2761',
+    //         light: '#FF9CF2',
+    //         dark: '#80004E'
+    //       }
+    //       action: {
+    //         hover: '#00FF00' // Green hover effect for testing
+    //       }
+    //     }
+    //   },
+    //   dark: {
+    //     palette: {
+    //       secondary: {
+    //         main: '#BF2761',
+    //         light: '#FF9CF2',
+    //         dark: '#80004E'
+    //       }
+    //       action: {
+    //         hover: '#00FF00' // Green hover effect for testing
+    //       }
+    //     }
+    //   }
+    // }
+    // Write your other overrides here.
   }
 
   return deepmerge(coreTheme(settings, mode, direction), userTheme)

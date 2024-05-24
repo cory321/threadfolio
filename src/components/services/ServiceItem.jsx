@@ -71,56 +71,71 @@ const ServiceItem = ({ service, onDelete, onEdit, onDuplicate }) => {
 
   return (
     <>
-      <Card variant='outlined' sx={{ mb: 2, width: '100%' }}>
+      <Card
+        variant='outlined'
+        sx={{
+          mb: 2,
+          width: '100%',
+          cursor: 'pointer',
+          transition: 'box-shadow 0.1s',
+          '&:hover': {
+            boxShadow: 3
+          }
+        }}
+      >
         <CardContent>
           <Grid container spacing={2} alignItems='center'>
-            <Grid item xs={12} sm={3} sx={{ textAlign: 'left' }}>
-              <Box
-                display='flex'
-                justifyContent='center'
-                alignItems='center'
-                height='100%'
-                width='100%'
-                sx={{
-                  width: '100%',
-                  height: '100px',
-                  overflow: 'hidden',
-                  borderRadius: '8px'
-                }}
-              >
-                {imageError ? (
-                  <BrokenImageIcon style={{ fontSize: 50 }} />
-                ) : (
+            <Grid item xs={11.5} sx={{ textAlign: 'left' }} onClick={() => !loading && setIsEditing(true)}>
+              <Grid container spacing={2} alignItems='center'>
+                <Grid item xs={12} sm={3} sx={{ textAlign: 'left' }}>
                   <Box
-                    component='img'
-                    src={service.image_url}
-                    alt={service.name}
+                    display='flex'
+                    justifyContent='center'
+                    alignItems='center'
+                    height='100%'
+                    width='100%'
                     sx={{
                       width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
+                      height: '100px',
+                      overflow: 'hidden',
                       borderRadius: '8px'
                     }}
-                    onError={handleImageError}
-                  />
-                )}
-              </Box>
+                  >
+                    {imageError ? (
+                      <BrokenImageIcon style={{ fontSize: 50 }} />
+                    ) : (
+                      <Box
+                        component='img'
+                        src={service.image_url}
+                        alt={service.name}
+                        sx={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          borderRadius: '8px'
+                        }}
+                        onError={handleImageError}
+                      />
+                    )}
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={5} sx={{ textAlign: 'left' }}>
+                  <Box display='flex' flexDirection='column' gap={2}>
+                    <Typography variant='h6'>{service.name}</Typography>
+                    <Typography>{service.description}</Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={3} sx={{ textAlign: 'left' }}>
+                  <Typography variant='body2' color='textSecondary'>
+                    Total Price
+                  </Typography>
+                  <Typography variant='h5' fontWeight='bold'>
+                    {calculateTotalPrice(service)}
+                  </Typography>
+                </Grid>
+              </Grid>
             </Grid>
-            <Grid item xs={12} sm={5} sx={{ textAlign: 'left' }}>
-              <Box display='flex' flexDirection='column' gap={2}>
-                <Typography variant='h6'>{service.name}</Typography>
-                <Typography>{service.description}</Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={12} sm={3} sx={{ textAlign: 'left' }}>
-              <Typography variant='body2' color='textSecondary'>
-                Total Price
-              </Typography>
-              <Typography variant='h5' fontWeight='bold'>
-                {calculateTotalPrice(service)}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={1} sx={{ textAlign: 'left' }}>
+            <Grid item xs={0.5} sx={{ textAlign: 'left' }}>
               <Box display='flex' justifyContent='flex-end'>
                 <IconButton onClick={handleMenuClick} disabled={loading}>
                   <MoreVertIcon />

@@ -9,7 +9,7 @@ import AddServiceDialog from '@/components/dialogs/add-service'
 import ServiceList from '@/components/services/ServiceList'
 import { fetchAllServices } from '@/app/actions/services'
 
-export default function Home() {
+export default function ServicePage() {
   const [services, setServices] = useState([])
   const [loading, setLoading] = useState(true)
   const [open, setOpen] = useState(false)
@@ -40,7 +40,7 @@ export default function Home() {
       <div>
         <Grid container justifyContent='space-between' alignItems='center'>
           <Grid item>
-            <h2>Service Catalog</h2>
+            <h1>Service Catalog</h1>
           </Grid>
           <Grid item>
             <Button variant='contained' color='primary' onClick={handleOpen}>
