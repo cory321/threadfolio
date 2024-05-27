@@ -15,14 +15,11 @@ const ClientSearch = ({ userId }) => {
   const [isPending, startTransition] = useTransition()
   const { getToken } = useAuth()
   const [loading, setLoading] = useState(false)
-  const [tokenError, setTokenError] = useState(false)
 
   const handleSearch = useCallback(
     debounce(async query => {
       try {
         const token = await getToken({ template: 'supabase' })
-
-        console.log('JWT Token:', token) // Log the token to the console
 
         if (token) {
           setLoading(true)
@@ -31,21 +28,17 @@ const ClientSearch = ({ userId }) => {
           setResults(
             data.length > 0 ? data : [{ id: 'no-results', full_name: 'No results found', email: '', noResults: true }]
           )
-          setLoading(false)
         }
       } catch (error) {
-        if (error.message.includes('JWT expired')) {
-          setTokenError(true)
-        }
-
-        setLoading(false)
         console.error('Error fetching clients:', error)
+      } finally {
+        setLoading(false)
       }
     }, 300),
     [getToken, userId]
   )
 
-  const handleChange = (e, newValue) => {
+  const handleChange = e => {
     const newQuery = e.target.value || ''
 
     setQuery(newQuery)
@@ -67,10 +60,6 @@ const ClientSearch = ({ userId }) => {
     }
   }
 
-  if (tokenError) {
-    return <p>Error fetching token. Please try again later.</p>
-  }
-
   return (
     <>
       <Autocomplete
@@ -90,7 +79,7 @@ const ClientSearch = ({ userId }) => {
               ...params.InputProps,
               endAdornment: (
                 <>
-                  {loading ? <CircularProgress color='inherit' size={20} /> : null}
+                  {loading && <CircularProgress color='inherit' size={20} />}
                   {params.InputProps.endAdornment}
                 </>
               )
