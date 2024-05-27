@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition, useEffect, useCallback } from 'react'
+import { useState, useTransition, useCallback } from 'react'
 
 import debounce from 'lodash/debounce'
 import { useAuth } from '@clerk/nextjs'
@@ -11,6 +11,7 @@ import { searchClients } from '@actions/clients'
 const ClientSearch = ({ userId }) => {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
+  const [selectedClientId, setSelectedClientId] = useState(null)
   const [isPending, startTransition] = useTransition()
   const { getToken } = useAuth()
   const [loading, setLoading] = useState(false)
@@ -45,7 +46,7 @@ const ClientSearch = ({ userId }) => {
   )
 
   const handleChange = (e, newValue) => {
-    const newQuery = newValue
+    const newQuery = e.target.value || ''
 
     setQuery(newQuery)
     startTransition(() => {
@@ -60,6 +61,9 @@ const ClientSearch = ({ userId }) => {
   const handleSelect = (event, value) => {
     if (value && !value.noResults) {
       setQuery(value.full_name)
+      setSelectedClientId(value.id)
+    } else {
+      setSelectedClientId(null)
     }
   }
 
@@ -68,42 +72,45 @@ const ClientSearch = ({ userId }) => {
   }
 
   return (
-    <Autocomplete
-      freeSolo
-      options={results}
-      getOptionLabel={option => option.full_name}
-      onInputChange={handleChange}
-      onChange={handleSelect}
-      inputValue={query}
-      renderInput={params => (
-        <TextField
-          {...params}
-          label='Search clients'
-          variant='outlined'
-          fullWidth
-          InputProps={{
-            ...params.InputProps,
-            endAdornment: (
+    <>
+      <Autocomplete
+        freeSolo
+        options={results}
+        getOptionLabel={option => option.full_name}
+        onInputChange={handleChange}
+        onChange={handleSelect}
+        inputValue={query}
+        renderInput={params => (
+          <TextField
+            {...params}
+            label='Search clients'
+            variant='outlined'
+            fullWidth
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <>
+                  {loading ? <CircularProgress color='inherit' size={20} /> : null}
+                  {params.InputProps.endAdornment}
+                </>
+              )
+            }}
+          />
+        )}
+        renderOption={(props, option) => (
+          <li {...props} key={option.id}>
+            {option.noResults ? (
+              <em>{option.full_name}</em>
+            ) : (
               <>
-                {loading ? <CircularProgress color='inherit' size={20} /> : null}
-                {params.InputProps.endAdornment}
+                {option.full_name} ({option.email}) - ID: {option.id}
               </>
-            )
-          }}
-        />
-      )}
-      renderOption={(props, option) => (
-        <li {...props} key={option.id}>
-          {option.noResults ? (
-            <em>{option.full_name}</em>
-          ) : (
-            <>
-              {option.full_name} ({option.email}) - ID: {option.id}
-            </>
-          )}
-        </li>
-      )}
-    />
+            )}
+          </li>
+        )}
+      />
+      {selectedClientId && <p>Selected Client ID: {selectedClientId}</p>}
+    </>
   )
 }
 
