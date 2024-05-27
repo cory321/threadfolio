@@ -10,7 +10,7 @@ export async function searchClients(query, userId, token) {
 
   const { data, error } = await supabase
     .from('clients')
-    .select('full_name, email')
+    .select('id, full_name, email')
     .ilike('full_name', `%${query}%`)
     .eq('user_id', userId)
 
