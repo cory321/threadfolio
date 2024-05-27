@@ -1,15 +1,28 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 
 import debounce from 'lodash/debounce'
+import { useAuth } from '@clerk/nextjs'
 
 import { searchClients } from '@actions/clients'
 
-const ClientSearch = ({ userId, token }) => {
+const ClientSearch = ({ userId }) => {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [isPending, startTransition] = useTransition()
+  const { getToken } = useAuth()
+  const [token, setToken] = useState('')
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      const supabaseToken = await getToken({ template: 'supabase' })
+
+      setToken(supabaseToken)
+    }
+
+    fetchToken()
+  }, [getToken])
 
   const handleSearch = debounce(async query => {
     if (token) {

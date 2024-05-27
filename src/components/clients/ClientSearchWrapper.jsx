@@ -1,13 +1,15 @@
-import { getAuth } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 
 import ClientSearch from './ClientSearch'
 
 const ClientSearchWrapper = async () => {
-  const { session } = await getAuth()
-  const userId = session?.user?.id
-  const token = await session?.getToken()
+  const { userId } = auth()
 
-  return <ClientSearch userId={userId} token={token} />
+  if (!userId) {
+    return <p>You need to be signed in to search clients.</p>
+  }
+
+  return <ClientSearch userId={userId} />
 }
 
 export default ClientSearchWrapper
