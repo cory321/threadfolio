@@ -1,8 +1,7 @@
 'use client'
-
 import { useState, useTransition, useCallback } from 'react'
 
-import debounce from 'lodash/debounce'
+import throttle from 'lodash/throttle'
 import { useAuth } from '@clerk/nextjs'
 import { TextField, CircularProgress, Autocomplete } from '@mui/material'
 
@@ -17,12 +16,13 @@ const ClientSearch = ({ userId }) => {
   const [loading, setLoading] = useState(false)
 
   const handleSearch = useCallback(
-    debounce(async query => {
+    throttle(async query => {
+      setLoading(true)
+
       try {
         const token = await getToken({ template: 'supabase' })
 
         if (token) {
-          setLoading(true)
           const data = await searchClients(query, userId, token)
 
           setResults(
@@ -31,6 +31,7 @@ const ClientSearch = ({ userId }) => {
         }
       } catch (error) {
         console.error('Error fetching clients:', error)
+        setResults([{ id: 'error', full_name: 'Error fetching results', email: '', noResults: true }])
       } finally {
         setLoading(false)
       }
@@ -38,12 +39,12 @@ const ClientSearch = ({ userId }) => {
     [getToken, userId]
   )
 
-  const handleChange = e => {
-    const newQuery = e.target.value || ''
+  const handleChange = (event, newValue) => {
+    const newQuery = (event ? event.target.value : newValue) || ''
 
     setQuery(newQuery)
     startTransition(() => {
-      if (newQuery.length > 2) {
+      if (newQuery.length > 1) {
         handleSearch(newQuery)
       } else {
         setResults([])
@@ -65,10 +66,12 @@ const ClientSearch = ({ userId }) => {
       <Autocomplete
         freeSolo
         options={results}
-        getOptionLabel={option => option.full_name}
+        getOptionLabel={option => option.full_name || ''}
         onInputChange={handleChange}
         onChange={handleSelect}
         inputValue={query}
+        autoHighlight
+        filterOptions={x => x}
         renderInput={params => (
           <TextField
             {...params}
