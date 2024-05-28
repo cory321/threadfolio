@@ -5,16 +5,17 @@ import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
 import Button from '@mui/material/Button'
-import { Avatar, Box } from '@mui/material'
+import { Box } from '@mui/material'
 
 // Component Imports
 import { formatPhoneNumber } from '@/utils/formatPhoneNumber'
-import { getInitials } from '@/utils/getInitials'
 
+// Custom Components
 import EditUserInfo from '@components/dialogs/edit-user-info'
 import ConfirmationDialog from '@components/dialogs/confirmation-dialog'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 import CustomAvatar from '@core/components/mui/Avatar'
+import InitialsAvatar from '@/components/InitialsAvatar'
 
 // Component definition
 const UserDetails = ({ userData }) => {
@@ -32,7 +33,7 @@ const UserDetails = ({ userData }) => {
             <div className='flex items-center justify-center flex-col gap-4'>
               <div className='flex flex-col items-center gap-4'>
                 {userData.full_name && (
-                  <Avatar sx={{ width: 120, height: 120, fontSize: 48 }}>{getInitials(userData.full_name)}</Avatar>
+                  <InitialsAvatar fullName={userData.full_name} sx={{ width: 120, height: 120, fontSize: 48 }} />
                 )}
                 <Typography variant='h3'>{userData.full_name}</Typography>
               </div>

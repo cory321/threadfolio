@@ -4,9 +4,10 @@ import React, { useState, useCallback, useTransition } from 'react'
 
 import throttle from 'lodash/throttle'
 import { useAuth } from '@clerk/nextjs'
-import { TextField, CircularProgress, Autocomplete } from '@mui/material'
+import { TextField, CircularProgress, Autocomplete, Typography, Box } from '@mui/material'
 
 import { searchClients } from '@actions/clients'
+import InitialsAvatar from '@/components/InitialsAvatar'
 
 const ClientSearch = ({ userId }) => {
   const [query, setQuery] = useState('')
@@ -94,7 +95,17 @@ const ClientSearch = ({ userId }) => {
         )}
         renderOption={(props, option) => (
           <li {...props} key={option.id}>
-            {option.full_name} ({option.email}) - ID: {option.id}
+            <Box display='flex' alignItems='center'>
+              <InitialsAvatar fullName={option.full_name} />
+              <Box ml={2}>
+                <Typography variant='body1' component='div' fontWeight='bold'>
+                  {option.full_name}
+                </Typography>
+                <Typography variant='body2' color='textSecondary'>
+                  {option.email}
+                </Typography>
+              </Box>
+            </Box>
           </li>
         )}
       />
