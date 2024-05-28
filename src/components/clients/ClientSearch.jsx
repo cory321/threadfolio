@@ -1,5 +1,5 @@
 'use client'
-import { useState, useTransition, useCallback } from 'react'
+import React, { useState, useCallback, useTransition } from 'react'
 
 import throttle from 'lodash/throttle'
 import { useAuth } from '@clerk/nextjs'
@@ -11,9 +11,9 @@ const ClientSearch = ({ userId }) => {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [selectedClientId, setSelectedClientId] = useState(null)
-  const [isPending, startTransition] = useTransition()
   const { getToken } = useAuth()
   const [loading, setLoading] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
   const handleSearch = useCallback(
     throttle(async query => {
@@ -25,13 +25,11 @@ const ClientSearch = ({ userId }) => {
         if (token) {
           const data = await searchClients(query, userId, token)
 
-          setResults(
-            data.length > 0 ? data : [{ id: 'no-results', full_name: 'No results found', email: '', noResults: true }]
-          )
+          setResults(data.length > 0 ? data : [])
         }
       } catch (error) {
         console.error('Error fetching clients:', error)
-        setResults([{ id: 'error', full_name: 'Error fetching results', email: '', noResults: true }])
+        setResults([])
       } finally {
         setLoading(false)
       }
@@ -53,7 +51,7 @@ const ClientSearch = ({ userId }) => {
   }
 
   const handleSelect = (event, value) => {
-    if (value && !value.noResults) {
+    if (value) {
       setQuery(value.full_name)
       setSelectedClientId(value.id)
     } else {
@@ -64,14 +62,16 @@ const ClientSearch = ({ userId }) => {
   return (
     <>
       <Autocomplete
-        freeSolo
         options={results}
         getOptionLabel={option => option.full_name || ''}
+        isOptionEqualToValue={(option, value) => option.id === value.id}
         onInputChange={handleChange}
         onChange={handleSelect}
         inputValue={query}
         autoHighlight
         filterOptions={x => x}
+        loading={loading}
+        noOptionsText={query && query.length > 1 ? 'No results found' : 'Type more to search'}
         renderInput={params => (
           <TextField
             {...params}
@@ -91,13 +91,7 @@ const ClientSearch = ({ userId }) => {
         )}
         renderOption={(props, option) => (
           <li {...props} key={option.id}>
-            {option.noResults ? (
-              <em>{option.full_name}</em>
-            ) : (
-              <>
-                {option.full_name} ({option.email}) - ID: {option.id}
-              </>
-            )}
+            {option.full_name} ({option.email}) - ID: {option.id}
           </li>
         )}
       />
