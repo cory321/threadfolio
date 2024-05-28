@@ -1,4 +1,5 @@
 'use client'
+
 import React, { useState, useCallback, useTransition } from 'react'
 
 import throttle from 'lodash/throttle'
@@ -15,8 +16,8 @@ const ClientSearch = ({ userId }) => {
   const [loading, setLoading] = useState(false)
   const [isPending, startTransition] = useTransition()
 
-  const handleSearch = useCallback(
-    throttle(async query => {
+  const fetchClients = useCallback(
+    async query => {
       setLoading(true)
 
       try {
@@ -33,9 +34,11 @@ const ClientSearch = ({ userId }) => {
       } finally {
         setLoading(false)
       }
-    }, 300),
+    },
     [getToken, userId]
   )
+
+  const handleSearch = useCallback(throttle(fetchClients, 300), [fetchClients])
 
   const handleChange = (event, newValue) => {
     const newQuery = (event ? event.target.value : newValue) || ''
@@ -71,7 +74,7 @@ const ClientSearch = ({ userId }) => {
         autoHighlight
         filterOptions={x => x}
         loading={loading}
-        noOptionsText={query && query.length > 1 ? 'No results found' : 'Type more to search'}
+        noOptionsText={'No clients found'}
         renderInput={params => (
           <TextField
             {...params}
