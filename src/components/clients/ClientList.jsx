@@ -11,18 +11,12 @@ import {
   TableHead,
   TableRow,
   Typography,
-  Paper,
-  Avatar
+  Paper
 } from '@mui/material'
 import { useAuth } from '@clerk/nextjs'
 
 import { fetchClients } from '@actions/clients'
-
-const getInitials = string =>
-  string
-    .split(/\s+/)
-    .slice(0, 2)
-    .reduce((response, word) => response + word[0].toUpperCase(), '')
+import InitialsAvatar from '@/components/InitialsAvatar'
 
 const ClientList = ({ clients, setClients }) => {
   const { getToken } = useAuth()
@@ -76,7 +70,7 @@ const ClientList = ({ clients, setClients }) => {
           {clients.map(client => (
             <TableRow key={client.id}>
               <TableCell>
-                <Avatar>{getInitials(client.full_name)}</Avatar>
+                <InitialsAvatar fullName={client.full_name} />
               </TableCell>
               <TableCell>
                 <Link href={`/clients/${client.id}`} passHref>

@@ -4,6 +4,23 @@ import { unstable_noStore as noStore } from 'next/cache'
 
 import { getSupabaseClient, isValidEmail, isValidPhoneNumber } from './utils'
 
+export async function searchClients(query, userId, token) {
+  noStore()
+  const supabase = await getSupabaseClient(token)
+
+  const { data, error } = await supabase
+    .from('clients')
+    .select('id, full_name, email')
+    .ilike('full_name', `%${query}%`)
+    .eq('user_id', userId)
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  return data
+}
+
 export async function fetchClients(token) {
   noStore()
   const supabase = await getSupabaseClient(token)
