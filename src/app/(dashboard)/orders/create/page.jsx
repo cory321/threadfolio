@@ -1,16 +1,21 @@
-'use client'
+import { auth } from '@clerk/nextjs/server'
 
+import GarmentClientLookup from '@components/garments/GarmentClientLookup'
 import GarmentEntryForm from '@components/garments/GarmentEntryForm'
+import StepperLinearWithValidation from '@views/form-wizard/StepperLinearWithValidation'
 
-export default function CreateServiceOrderPage() {
+import ClientSearch from '@components/clients/ClientSearch'
+
+const CreateServiceOrderPage = async () => {
+  const { userId } = auth()
+
   return (
     <>
       <h1>Create Service Order</h1>
-      <br />
-      <br />
-      <br />
       <h2>Client lookup</h2>
-      <p>client lookup or add new client</p>
+      <StepperLinearWithValidation />
+      <ClientSearch userId={userId} />
+      <GarmentClientLookup />
       <br />
       <br />
       <br />
@@ -30,3 +35,5 @@ export default function CreateServiceOrderPage() {
     </>
   )
 }
+
+export default CreateServiceOrderPage

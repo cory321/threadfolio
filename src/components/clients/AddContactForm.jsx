@@ -9,7 +9,7 @@ import { useAuth } from '@clerk/nextjs'
 
 import { addClient } from '@actions/clients'
 
-const AddContactForm = ({ onClose, setClients }) => {
+const AddContactForm = ({ onClose = () => {}, setClients = () => {} }) => {
   const { userId, getToken } = useAuth()
 
   const validationSchema = Yup.object({
