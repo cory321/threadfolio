@@ -4,6 +4,8 @@ import { useEffect, useRef } from 'react'
 // Next Imports
 import Link from 'next/link'
 
+import localFont from 'next/font/local'
+
 // Third-party Imports
 import styled from '@emotion/styled'
 
@@ -17,12 +19,18 @@ import themeConfig from '@configs/themeConfig'
 import useVerticalNav from '@menu/hooks/useVerticalNav'
 import { useSettings } from '@core/hooks/useSettings'
 
+// Font Import
+
+const dillan = localFont({
+  src: '../../../fonts/Dillan.otf'
+})
+
 const LogoText = styled.span`
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   line-height: 1.2;
   font-weight: 600;
-  letter-spacing: 0.15px;
-  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  font-family: ${dillan.style.fontFamily};
   transition: ${({ transitionDuration }) =>
     `margin-inline-start ${transitionDuration}ms ease-in-out, opacity ${transitionDuration}ms ease-in-out`};
 
