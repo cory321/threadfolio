@@ -3,6 +3,8 @@
 import { useState } from 'react'
 
 import {
+  useMediaQuery,
+  useTheme,
   Box,
   Typography,
   Grid,
@@ -12,64 +14,68 @@ import {
   List,
   ListItem,
   ListItemIcon,
-  ListItemText
+  ListItemText,
+  Button
 } from '@mui/material'
 
 import AddTodoForm from '@/components/todo/AddTodoForm'
 import TodoList from '@/components/todo/TodoList'
 import Greeting from '@/components/todo/Greeting'
 import BlendedImage from '@/components/ui/BlendedImage'
+import { defaultBreakpoints } from '@menu/defaultConfigs'
 
-const ActionsList = () => {
+const ActionsList = ({ isMobile }) => {
+  const actions = [
+    { icon: 'ri-file-add-line', text: 'New Order' },
+    { icon: 'ri-user-add-line', text: 'New Client' },
+    { icon: 'ri-calendar-line', text: 'New Appointment' },
+    { icon: 'ri-service-line', text: 'New Service' },
+    { icon: 'ri-file-list-line', text: 'New Invoice' }
+  ]
+
   return (
     <Card>
       <CardContent>
         <Grid container spacing={2}>
-          <Grid item xs={5}>
+          <Grid item xs={12} sm={5}>
             <Typography variant='h6' gutterBottom>
               Start from
             </Typography>
-            <List>
-              <ListItem button>
-                <ListItemIcon>
-                  <i className='ri-file-add-line' />
-                </ListItemIcon>
-                <ListItemText primary='New Order' />
-              </ListItem>
-              <ListItem button>
-                <ListItemIcon>
-                  <i className='ri-user-add-line' />
-                </ListItemIcon>
-                <ListItemText primary='New Client' />
-              </ListItem>
-              <ListItem button>
-                <ListItemIcon>
-                  <i className='ri-calendar-line' />
-                </ListItemIcon>
-                <ListItemText primary='New Appointment' />
-              </ListItem>
-              <ListItem button>
-                <ListItemIcon>
-                  <i className='ri-service-line' />
-                </ListItemIcon>
-                <ListItemText primary='New Service' />
-              </ListItem>
-              <ListItem button>
-                <ListItemIcon>
-                  <i className='ri-file-list-line' />
-                </ListItemIcon>
-                <ListItemText primary='New Invoice' />
-              </ListItem>
-            </List>
+            {isMobile ? (
+              actions.map((action, index) => (
+                <Button
+                  key={index}
+                  fullWidth
+                  variant='contained'
+                  startIcon={<i className={action.icon} />}
+                  sx={{ marginBottom: 5, padding: '18px', fontSize: '1.1rem' }}
+                >
+                  {action.text}
+                </Button>
+              ))
+            ) : (
+              <List>
+                {actions.map((action, index) => (
+                  <ListItem button key={index}>
+                    <ListItemIcon>
+                      <i className={action.icon} />
+                    </ListItemIcon>
+                    <ListItemText primary={action.text} />
+                  </ListItem>
+                ))}
+              </List>
+            )}
           </Grid>
-          <Grid item xs={4}>
-            <BlendedImage
-              src='/images/illustrations/seamstress-organizing-clothes.webp'
-              alt='Seamstress organizing clothes'
-              width={400}
-              height={400}
-            />
-          </Grid>
+          {!isMobile && (
+            <Grid item sm={7}>
+              <BlendedImage
+                src='/images/illustrations/seamstress-organizing-clothes.webp'
+                alt='Seamstress organizing clothes'
+                width={400}
+                height={400}
+              />
+            </Grid>
+          )}
         </Grid>
       </CardContent>
     </Card>
@@ -78,6 +84,9 @@ const ActionsList = () => {
 
 export default function Home() {
   const [todos, setTodos] = useState(null)
+  const theme = useTheme()
+  const isMobile = useMediaQuery(`(max-width: ${defaultBreakpoints.sm})`)
+  const isStacked = useMediaQuery(`(max-width: ${defaultBreakpoints.lg})`)
 
   return (
     <Box>
@@ -85,18 +94,37 @@ export default function Home() {
         <Grid item xs={12}>
           <Greeting />
         </Grid>
-        <Grid item xs={7}>
-          <ActionsList />
-        </Grid>
-        <Grid item xs={5}>
-          <Card>
-            <CardHeader title='To do list' />
-            <CardContent>
-              <AddTodoForm todos={todos} setTodos={setTodos} />
-              <TodoList todos={todos} setTodos={setTodos} />
-            </CardContent>
-          </Card>
-        </Grid>
+        {isMobile || isStacked ? (
+          <>
+            <Grid item xs={12}>
+              <ActionsList isMobile={isMobile} />
+            </Grid>
+            <Grid item xs={12}>
+              <Card>
+                <CardHeader title='To do list' />
+                <CardContent>
+                  <AddTodoForm todos={todos} setTodos={setTodos} />
+                  <TodoList todos={todos} setTodos={setTodos} />
+                </CardContent>
+              </Card>
+            </Grid>
+          </>
+        ) : (
+          <>
+            <Grid item xs={7}>
+              <ActionsList isMobile={isMobile} />
+            </Grid>
+            <Grid item xs={5}>
+              <Card>
+                <CardHeader title='To do list' />
+                <CardContent>
+                  <AddTodoForm todos={todos} setTodos={setTodos} />
+                  <TodoList todos={todos} setTodos={setTodos} />
+                </CardContent>
+              </Card>
+            </Grid>
+          </>
+        )}
       </Grid>
     </Box>
   )
