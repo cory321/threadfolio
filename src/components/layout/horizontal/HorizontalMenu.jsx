@@ -52,7 +52,8 @@ const HorizontalMenu = () => {
       verticalNavProps={{
         customStyles: verticalNavigationCustomStyles(verticalNavOptions, theme),
         backgroundColor:
-          skin === 'bordered' ? 'var(--mui-palette-background-paper)' : 'var(--mui-palette-background-default)'
+          skin === 'bordered' ? 'var(--mui-palette-background-paper)' : 'var(--mui-palette-background-default)',
+        transitionDuration: 0
       }}
     >
       <Menu
@@ -73,11 +74,29 @@ const HorizontalMenu = () => {
           menuSectionStyles: verticalMenuSectionStyles(verticalNavOptions, theme)
         }}
       >
-        <MenuItem href='/' icon={<i className='ri-home-smile-line' />}>
+        <MenuItem href='/home' icon={<i className='ri-home-smile-line' />}>
           Home
         </MenuItem>
-        <MenuItem href='/about' icon={<i className='ri-information-line' />}>
-          About
+        <MenuItem href='/clients' icon={<i className='ri-group-line' />}>
+          Clients
+        </MenuItem>
+        <MenuItem href='/orders' icon={<i className='ri-shopping-bag-3-line' />}>
+          Orders
+        </MenuItem>
+        <MenuItem href='/appointments' icon={<i className='ri-calendar-2-line' />}>
+          Appointments
+        </MenuItem>
+        <MenuItem href='/services' icon={<i className='ri-pencil-ruler-line' />}>
+          Services
+        </MenuItem>
+        <MenuItem href='/finance' icon={<i className='ri-bar-chart-2-line' />}>
+          Finance
+        </MenuItem>
+        <MenuItem href='/reports' icon={<i className='ri-shopping-bag-3-line' />}>
+          Reports
+        </MenuItem>
+        <MenuItem href='/settings' icon={<i className='ri-settings-5-line' />}>
+          Settings
         </MenuItem>
       </Menu>
 
