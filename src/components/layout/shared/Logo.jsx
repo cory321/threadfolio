@@ -3,8 +3,7 @@ import { useEffect, useRef } from 'react'
 
 // Next Imports
 import Link from 'next/link'
-
-import localFont from 'next/font/local'
+import { Merriweather_Sans } from 'next/font/google'
 
 // Third-party Imports
 import styled from '@emotion/styled'
@@ -20,17 +19,17 @@ import useVerticalNav from '@menu/hooks/useVerticalNav'
 import { useSettings } from '@core/hooks/useSettings'
 
 // Font Import
-
-const dillan = localFont({
-  src: '../../../fonts/Dillan.otf'
+const merriweatherSans = Merriweather_Sans({
+  weight: '800',
+  style: 'italic',
+  subsets: ['latin']
 })
 
 const LogoText = styled.span`
-  font-size: 1.4rem;
-  line-height: 1.2;
-  font-weight: 600;
-  letter-spacing: 0.1rem;
-  font-family: ${dillan.style.fontFamily};
+  font-size: 1.5rem;
+  padding-top: 4px;
+  font-family: ${merriweatherSans.style.fontFamily};
+  font-style: ${merriweatherSans.style.fontStyle};
   transition: ${({ transitionDuration }) =>
     `margin-inline-start ${transitionDuration}ms ease-in-out, opacity ${transitionDuration}ms ease-in-out`};
 
@@ -68,7 +67,7 @@ const Logo = () => {
   // return <Img src='/next.svg' width={100} height={25} alt='logo' /> // for example
   return (
     <Link href='/' className='flex items-center min-bs-[24px]'>
-      <MaterioLogo className='text-[22px] text-primary' />
+      <MaterioLogo />
       <LogoText
         ref={logoTextRef}
         isHovered={isHovered}
