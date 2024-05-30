@@ -5,21 +5,6 @@
  * The userTheme object is merged with the coreTheme object within this file.
  * Export this file and import it in the `@components/theme/index.tsx` file to use the merged theme.
  */
-
-import localFont from 'next/font/local'
-
-const dillan = localFont({
-  src: '../../fonts/Dillan.otf',
-  variable: '--font-dillan'
-})
-
-import { Inter } from 'next/font/google'
-
-const inter = Inter({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800', '900']
-})
-
 // MUI Imports
 import { deepmerge } from '@mui/utils'
 
@@ -29,19 +14,33 @@ import coreTheme from '@core/theme'
 const mergedTheme = (settings, mode, direction) => {
   // Vars
   const userTheme = {
-    typography: {
-      fontFamily: inter.style.fontFamily, // Default font family
-      h1: {
-        fontFamily: dillan.style.fontFamily
-      },
-
-      // You can define other heading styles similarly
-      h2: {
-        fontFamily: dillan.style.fontFamily
-      }
-
-      // Add more typography styles as needed
-    }
+    // colorSchemes: {
+    //   light: {
+    //     palette: {
+    //       secondary: {
+    //         main: '#BF2761',
+    //         light: '#FF9CF2',
+    //         dark: '#80004E'
+    //       }
+    //       action: {
+    //         hover: '#00FF00' // Green hover effect for testing
+    //       }
+    //     }
+    //   },
+    //   dark: {
+    //     palette: {
+    //       secondary: {
+    //         main: '#BF2761',
+    //         light: '#FF9CF2',
+    //         dark: '#80004E'
+    //       }
+    //       action: {
+    //         hover: '#00FF00' // Green hover effect for testing
+    //       }
+    //     }
+    //   }
+    // }
+    // Write your other overrides here.
   }
 
   return deepmerge(coreTheme(settings, mode, direction), userTheme)
