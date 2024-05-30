@@ -17,11 +17,11 @@
  */
 const themeConfig = {
   templateName: 'Threadfolio',
-  settingsCookieName: 'materio-mui-next-demo-1',
-  mode: 'system',
+  settingsCookieName: 'threadfolio-theme-settings',
+  mode: 'light',
   skin: 'default',
   semiDark: false,
-  layout: 'vertical',
+  layout: 'horizontal',
   layoutPadding: 24,
   compactContentWidth: 1440,
   navbar: {
