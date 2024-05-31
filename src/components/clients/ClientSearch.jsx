@@ -1,10 +1,9 @@
-'use client'
-
 import React, { useState, useCallback, useTransition } from 'react'
 
 import throttle from 'lodash/throttle'
 import { useAuth } from '@clerk/nextjs'
-import { TextField, CircularProgress, Autocomplete, Typography, Box } from '@mui/material'
+import { TextField, CircularProgress, Autocomplete, Typography, Box, InputAdornment } from '@mui/material'
+import SearchIcon from '@mui/icons-material/Search'
 
 import { searchClients } from '@actions/clients'
 import InitialsAvatar from '@/components/InitialsAvatar'
@@ -79,11 +78,16 @@ const ClientSearch = ({ userId }) => {
         renderInput={params => (
           <TextField
             {...params}
-            label='Search clients'
+            label='Find Client'
             variant='outlined'
             fullWidth
             InputProps={{
               ...params.InputProps,
+              startAdornment: (
+                <InputAdornment position='start'>
+                  <SearchIcon />
+                </InputAdornment>
+              ),
               endAdornment: (
                 <>
                   {loading && <CircularProgress color='inherit' size={20} />}

@@ -7,6 +7,8 @@ import * as Yup from 'yup'
 import { TextField, Button, Typography, Box } from '@mui/material'
 import { useAuth } from '@clerk/nextjs'
 
+import { toast } from 'react-toastify'
+
 import { addClient } from '@actions/clients'
 
 const AddContactForm = ({ onClose = () => {}, setClients = () => {} }) => {
@@ -47,7 +49,9 @@ const AddContactForm = ({ onClose = () => {}, setClients = () => {} }) => {
         setClients(prevClients => (prevClients ? [...prevClients, newClient] : [newClient]))
         resetForm()
         onClose() // Close the modal on successful submission
+        toast.success(`${newClient.full_name} has been added!`)
       } catch (err) {
+        toast.error(`Error adding client: ${err}`)
         console.error('Error adding client:', err)
 
         if (err.message === 'Email is used by an existing client.') {

@@ -5,6 +5,8 @@ import { useState } from 'react'
 import { useAuth } from '@clerk/nextjs'
 import { Box, Button, TextField, MenuItem, InputAdornment, Typography } from '@mui/material'
 
+import { toast } from 'react-toastify'
+
 import { addService } from '@/app/actions/services'
 import { handleChange, handleUnitPriceBlur, calculateTotalPrice } from '@/utils/serviceUtils'
 
@@ -38,7 +40,9 @@ const AddServiceForm = ({ setServices, onClose }) => {
       setServices(prevServices => (prevServices ? [...prevServices, newServiceItem] : [newServiceItem]))
       setNewService({ name: '', description: '', qty: 0, unit: 'item', unit_price: 0, image_url: '' })
       onClose()
+      toast.success(`${newServiceItem.name} has been added!`)
     } catch (error) {
+      toast.error(`Error adding service: ${err}`)
       console.error('Error adding service:', error)
     } finally {
       setIsLoading(false)
