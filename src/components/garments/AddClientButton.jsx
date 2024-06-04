@@ -1,9 +1,10 @@
 import { Card, CardContent, Typography, Box } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 
-const AddClientCard = () => {
+const AddClientButton = ({ onClick }) => {
   return (
     <Card
+      onClick={onClick}
       sx={{
         border: '2px dashed grey',
         display: 'flex',
@@ -35,4 +36,4 @@ const AddClientCard = () => {
   )
 }
 
-export default AddClientCard
+export default AddClientButton

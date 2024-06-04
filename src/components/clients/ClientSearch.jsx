@@ -8,7 +8,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import { searchClients } from '@actions/clients'
 import InitialsAvatar from '@/components/InitialsAvatar'
 
-const ClientSearch = ({ userId }) => {
+const ClientSearch = ({ userId, onClientSelect }) => {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [selectedClientId, setSelectedClientId] = useState(null)
@@ -57,8 +57,10 @@ const ClientSearch = ({ userId }) => {
     if (value) {
       setQuery(value.full_name)
       setSelectedClientId(value.id)
+      onClientSelect(value) // Pass the selected client object to the parent
     } else {
       setSelectedClientId(null)
+      onClientSelect(null) // Clear the selected client in the parent
     }
   }
 

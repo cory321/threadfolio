@@ -40,7 +40,10 @@ export async function fetchClientById(id, token) {
 
   const { data, error } = await supabase.from('clients').select('*').eq('id', id).single()
 
-  if (error) {
+  if (error && error.code === 'PGRST116') {
+    // Assuming 'PGRST116' is the code for no rows found
+    throw new Error('Client not found')
+  } else if (error) {
     throw new Error(error.message)
   }
 

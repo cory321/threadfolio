@@ -84,18 +84,18 @@ const UserDetails = ({ userData }) => {
             </div>
           </div>
           <div className='flex gap-4 justify-center'>
-            <OpenDialogOnElementClick
+            {/* <OpenDialogOnElementClick
               element={Button}
               elementProps={buttonProps('Edit', 'primary', 'contained')}
               dialog={EditUserInfo}
               dialogProps={{ data: userData }}
-            />
-            <OpenDialogOnElementClick
+            /> */}
+            {/* <OpenDialogOnElementClick
               element={Button}
               elementProps={buttonProps('Suspend', 'error', 'outlined')}
               dialog={ConfirmationDialog}
               dialogProps={{ type: 'suspend-account' }}
-            />
+            /> */}
           </div>
         </CardContent>
       </Card>

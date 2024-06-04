@@ -48,7 +48,7 @@ const steps = [
     subtitle: 'Upload photos and add details'
   },
   {
-    title: 'Finalize Order',
+    title: 'Order Summary',
     subtitle: 'Generate invoice and send to client'
   }
 ]
@@ -88,8 +88,6 @@ const socialSchema = object({
 const GarmentServiceOrderStepper = ({ userId }) => {
   // States
   const [activeStep, setActiveStep] = useState(0)
-  const [isPasswordShown, setIsPasswordShown] = useState(false)
-  const [isConfirmPasswordShown, setIsConfirmPasswordShown] = useState(false)
 
   // Vars
   const Languages = ['English', 'French', 'Spanish', 'Portuguese', 'Italian', 'German', 'Arabic']
@@ -139,9 +137,6 @@ const GarmentServiceOrderStepper = ({ userId }) => {
       linkedIn: ''
     }
   })
-
-  const handleClickShowPassword = () => setIsPasswordShown(show => !show)
-  const handleClickShowConfirmPassword = () => setIsConfirmPasswordShown(show => !show)
 
   const onSubmit = () => {
     setActiveStep(prevActiveStep => prevActiveStep + 1)
