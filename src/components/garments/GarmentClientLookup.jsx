@@ -9,10 +9,15 @@ import DialogTitle from '@mui/material/DialogTitle'
 import IconButton from '@mui/material/IconButton'
 import Button from '@mui/material/Button'
 import DialogActions from '@mui/material/DialogActions'
-import Divider from '@mui/material/Divider'
+import Radio from '@mui/material/Radio'
+import RadioGroup from '@mui/material/RadioGroup'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import FormControl from '@mui/material/FormControl'
+import FormLabel from '@mui/material/FormLabel'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import CloseIcon from '@mui/icons-material/Close'
+import { visuallyHidden } from '@mui/utils'
 
 // Component Imports
 import AddClientButton from '@components/garments/AddClientButton'
@@ -22,6 +27,7 @@ import ClientSearch from '@components/clients/ClientSearch'
 const GarmentClientLookup = ({ userId }) => {
   const [open, setOpen] = useState(false)
   const [selectedClient, setSelectedClient] = useState(null)
+  const [clientType, setClientType] = useState('new') // new or existing
   const theme = useTheme()
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'))
 
@@ -35,6 +41,10 @@ const GarmentClientLookup = ({ userId }) => {
 
   const handleClientSelect = client => {
     setSelectedClient(client)
+  }
+
+  const handleClientTypeChange = event => {
+    setClientType(event.target.value)
   }
 
   return (
@@ -68,11 +78,36 @@ const GarmentClientLookup = ({ userId }) => {
           </IconButton>
         </DialogTitle>
         <DialogContent>
-          <h2>Find Existing Client</h2>
-          <ClientSearch userId={userId} onClientSelect={handleClientSelect} />
-          <Divider textAlign='center'>or</Divider>
-          <h2>Add a New Client</h2>
-          <AddContactForm />
+          <FormControl component='fieldset'>
+            <FormLabel component='legend' sx={visuallyHidden}>
+              Select Client Type
+            </FormLabel>
+            <RadioGroup
+              row
+              aria-label='clientType'
+              name='clientType'
+              value={clientType}
+              onChange={handleClientTypeChange}
+            >
+              <FormControlLabel
+                value='new'
+                control={<Radio sx={{ transform: 'scale(1.5)' }} />}
+                label='Create new client'
+                sx={{ my: 2, mb: 5 }} // Add top and bottom margin
+              />
+              <FormControlLabel
+                value='existing'
+                control={<Radio sx={{ transform: 'scale(1.5)' }} />}
+                label='Existing client'
+                sx={{ my: 2, mb: 5 }} // Add top and bottom margin
+              />
+            </RadioGroup>
+          </FormControl>
+          {clientType === 'new' ? (
+            <AddContactForm />
+          ) : (
+            <ClientSearch userId={userId} onClientSelect={handleClientSelect} />
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color='primary'>

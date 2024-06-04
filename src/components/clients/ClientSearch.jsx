@@ -4,11 +4,22 @@ import throttle from 'lodash/throttle'
 import { useAuth } from '@clerk/nextjs'
 import { TextField, CircularProgress, Autocomplete, Typography, Box, InputAdornment } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
+import { styled } from '@mui/material/styles'
 
 import { searchClients } from '@actions/clients'
 import InitialsAvatar from '@/components/InitialsAvatar'
 
-const ClientSearch = ({ userId, onClientSelect }) => {
+const CustomTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiInputLabel-root': {
+    display: 'flex',
+    alignItems: 'center'
+  },
+  '& .MuiInputLabel-root svg': {
+    marginRight: theme.spacing(1)
+  }
+}))
+
+const ClientSearch = ({ userId, onClientSelect = () => {} }) => {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [selectedClientId, setSelectedClientId] = useState(null)
@@ -78,18 +89,18 @@ const ClientSearch = ({ userId, onClientSelect }) => {
         loading={loading}
         noOptionsText={'No clients found'}
         renderInput={params => (
-          <TextField
+          <CustomTextField
             {...params}
-            label='Find Client'
+            label={
+              <>
+                <SearchIcon />
+                Type to search client
+              </>
+            }
             variant='outlined'
             fullWidth
             InputProps={{
               ...params.InputProps,
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <SearchIcon />
-                </InputAdornment>
-              ),
               endAdornment: (
                 <>
                   {loading && <CircularProgress color='inherit' size={20} />}
@@ -115,7 +126,6 @@ const ClientSearch = ({ userId, onClientSelect }) => {
           </li>
         )}
       />
-      {selectedClientId && <p>Selected Client ID: {selectedClientId}</p>}
     </>
   )
 }
