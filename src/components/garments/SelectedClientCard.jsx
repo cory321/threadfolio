@@ -2,7 +2,6 @@
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
-import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
@@ -14,11 +13,20 @@ import { formatPhoneNumber } from '@/utils/formatPhoneNumber'
 
 const SelectedClientCard = ({ client, onChangeClient }) => {
   return (
-    <Card>
+    <Card
+      sx={{
+        border: '2px solid',
+        borderColor: 'primary.main',
+        borderRadius: '10px'
+      }}
+    >
       <CardContent className='flex flex-row gap-6'>
         <Box display='flex' flexDirection='column' alignItems='center' justifyContent='center' p={2}>
           {client.full_name && (
-            <InitialsAvatar fullName={client.full_name} sx={{ width: 100, height: 100, fontSize: 36 }} />
+            <InitialsAvatar
+              fullName={client.full_name}
+              sx={{ bgcolor: 'primary.main', color: 'white', width: 100, height: 100, fontSize: 36 }}
+            />
           )}
           <Typography variant='h5' mt={1}>
             {client.full_name}

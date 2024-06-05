@@ -165,6 +165,9 @@ const GarmentServiceOrderStepper = ({ userId }) => {
         return (
           <form key={0} onSubmit={handleAccountSubmit(onSubmit)}>
             <Grid container spacing={5}>
+              <Grid item xs={12} sm={12}>
+                <GarmentClientLookup userId={userId} />
+              </Grid>
               <Grid item xs={12} className='flex justify-between'>
                 <Button variant='outlined' disabled color='secondary'>
                   Back
@@ -173,16 +176,6 @@ const GarmentServiceOrderStepper = ({ userId }) => {
                   Next
                 </Button>
               </Grid>
-              {/* <Grid item xs={12}>
-                <Typography className='font-medium' color='text.primary'>
-                  {steps[0].title}
-                </Typography>
-                <Typography variant='body2'>{steps[0].subtitle}</Typography>
-              </Grid> */}
-
-              <Grid item xs={12} sm={12}>
-                <GarmentClientLookup userId={userId} />
-              </Grid>
             </Grid>
           </form>
         )
@@ -190,17 +183,6 @@ const GarmentServiceOrderStepper = ({ userId }) => {
         return (
           <form key={1} onSubmit={handlePersonalSubmit(onSubmit)}>
             <Grid container spacing={3}>
-              <Grid item xs={6}>
-                <Button variant='outlined' onClick={handleBack} color='secondary'>
-                  Back
-                </Button>
-              </Grid>
-
-              <Grid item xs={6} className='flex justify-end'>
-                <Button variant='contained' type='submit'>
-                  Next
-                </Button>
-              </Grid>
               <Grid item xs={6}>
                 <h2>Add garments needing service</h2>
                 <AddGarmentCard />
@@ -224,12 +206,29 @@ const GarmentServiceOrderStepper = ({ userId }) => {
                 <GarmentEntryForm />
               </Grid>
             </Grid>
+            <Grid item xs={6}>
+              <Button variant='outlined' onClick={handleBack} color='secondary'>
+                Back
+              </Button>
+            </Grid>
+
+            <Grid item xs={6} className='flex justify-end'>
+              <Button variant='contained' type='submit'>
+                Next
+              </Button>
+            </Grid>
           </form>
         )
       case 2:
         return (
           <form key={2} onSubmit={handleSocialSubmit(onSubmit)}>
             <Grid container spacing={5}>
+              <Grid item xs={12}>
+                <Typography className='font-medium' color='text.primary'>
+                  {steps[2].title}
+                </Typography>
+                <Typography variant='body2'>{steps[2].subtitle}</Typography>
+              </Grid>
               <Grid item xs={12} className='flex justify-between'>
                 <Button variant='outlined' onClick={handleBack} color='secondary'>
                   Back
@@ -237,12 +236,6 @@ const GarmentServiceOrderStepper = ({ userId }) => {
                 <Button variant='contained' type='submit'>
                   Submit
                 </Button>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography className='font-medium' color='text.primary'>
-                  {steps[2].title}
-                </Typography>
-                <Typography variant='body2'>{steps[2].subtitle}</Typography>
               </Grid>
             </Grid>
           </form>
