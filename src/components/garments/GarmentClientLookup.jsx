@@ -14,6 +14,8 @@ import RadioGroup from '@mui/material/RadioGroup'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormControl from '@mui/material/FormControl'
 import FormLabel from '@mui/material/FormLabel'
+import Typography from '@mui/material/Typography'
+import Box from '@mui/material/Box'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import CloseIcon from '@mui/icons-material/Close'
@@ -22,7 +24,7 @@ import { visuallyHidden } from '@mui/utils'
 // Component Imports
 import AddClientButton from '@components/garments/AddClientButton'
 import AddClientForm from '@/components/clients/AddClientForm'
-import ClientSearch from '@components/clients/ClientSearch'
+import ClientSearch from '@/components/clients/ClientSearch'
 
 const GarmentClientLookup = ({ userId }) => {
   const [open, setOpen] = useState(false)
@@ -50,15 +52,17 @@ const GarmentClientLookup = ({ userId }) => {
   return (
     <Grid container spacing={12}>
       <Grid item xs={12} container justifyContent='center' alignItems='center'>
-        <AddClientButton onClick={handleOpen} />
-      </Grid>
-      <Grid item xs={12} container justifyContent='center' alignItems='center'>
-        {selectedClient && (
-          <div>
-            <p>Selected Client ID: {selectedClient.id}</p>
-            <p>Selected Client Name: {selectedClient.full_name}</p>
-            <p>Selected Client Email: {selectedClient.email}</p>
-          </div>
+        {selectedClient ? (
+          <Box display='flex' flexDirection='column' alignItems='center' textAlign='center'>
+            <Typography variant='body1'>Selected Client ID: {selectedClient.id}</Typography>
+            <Typography variant='body1'>Selected Client Name: {selectedClient.full_name}</Typography>
+            <Typography variant='body1'>Selected Client Email: {selectedClient.email}</Typography>
+            <Button variant='outlined' color='primary' onClick={handleOpen} sx={{ mt: 2 }}>
+              Change Client
+            </Button>
+          </Box>
+        ) : (
+          <AddClientButton onClick={handleOpen} />
         )}
       </Grid>
       <Dialog open={open} onClose={handleClose} fullScreen={fullScreen} fullWidth maxWidth='sm'>
@@ -104,7 +108,7 @@ const GarmentClientLookup = ({ userId }) => {
             </RadioGroup>
           </FormControl>
           {clientType === 'new' ? (
-            <AddClientForm />
+            <AddClientForm onClientSelect={handleClientSelect} onClose={handleClose} />
           ) : (
             <ClientSearch userId={userId} onClientSelect={handleClientSelect} onClose={handleClose} />
           )}

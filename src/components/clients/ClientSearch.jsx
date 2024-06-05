@@ -134,7 +134,7 @@ const ClientSearch = ({ userId, onClientSelect = () => {}, onClose = () => {} })
       />
       <Box mt={2} display='flex' justifyContent='flex-end'>
         <Button variant='contained' color='primary' onClick={handleConfirmSelection} disabled={!selectedClient}>
-          Add Client
+          Select Client
         </Button>
       </Box>
     </>

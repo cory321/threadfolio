@@ -6,12 +6,11 @@ import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { TextField, Button, Typography, Box } from '@mui/material'
 import { useAuth } from '@clerk/nextjs'
-
 import { toast } from 'react-toastify'
 
 import { addClient } from '@actions/clients'
 
-const AddClientForm = ({ onClose = () => {}, setClients = () => {} }) => {
+const AddClientForm = ({ onClose = () => {}, setClients = () => {}, onClientSelect = null }) => {
   const { userId, getToken } = useAuth()
 
   const validationSchema = Yup.object({
@@ -48,6 +47,11 @@ const AddClientForm = ({ onClose = () => {}, setClients = () => {} }) => {
 
         setClients(prevClients => (prevClients ? [...prevClients, newClient] : [newClient]))
         resetForm()
+
+        if (onClientSelect) {
+          onClientSelect(newClient) // Pass the new client object to the parent
+        }
+
         onClose() // Close the modal on successful submission
         toast.success(`${newClient.full_name} has been added!`)
       } catch (err) {
