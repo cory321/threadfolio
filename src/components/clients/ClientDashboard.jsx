@@ -1,13 +1,36 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 
-import { Box, Dialog, DialogTitle, DialogContent, Grid, Button, IconButton, useMediaQuery, Card } from '@mui/material'
+import dynamic from 'next/dynamic'
+
+import {
+  Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Grid,
+  Button,
+  IconButton,
+  useMediaQuery,
+  Card,
+  CircularProgress
+} from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import CloseIcon from '@mui/icons-material/Close'
 
-import AddClientForm from '@/components/clients/AddClientForm'
-import ClientList from '@/components/clients/ClientList'
+import LoadingSpinner from '@/components/ui/LoadingSpinner'
+
+// Dynamically import AddClientForm and ClientList components with loading spinner
+const AddClientForm = dynamic(() => import('@/components/clients/AddClientForm'), {
+  ssr: false,
+  loading: LoadingSpinner
+})
+
+const ClientList = dynamic(() => import('@/components/clients/ClientList'), {
+  ssr: false,
+  loading: LoadingSpinner
+})
 
 const ClientDashboard = () => {
   const [open, setOpen] = useState(false)
@@ -15,8 +38,8 @@ const ClientDashboard = () => {
   const theme = useTheme()
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'))
 
-  const handleOpen = () => setOpen(true)
-  const handleClose = () => setOpen(false)
+  const handleOpen = useCallback(() => setOpen(true), [])
+  const handleClose = useCallback(() => setOpen(false), [])
 
   return (
     <div>

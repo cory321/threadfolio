@@ -2,90 +2,30 @@
 
 import { useState } from 'react'
 
-import { useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
 
-import {
-  useMediaQuery,
-  useTheme,
-  Box,
-  Typography,
-  Grid,
-  Card,
-  CardContent,
-  CardHeader,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Button
-} from '@mui/material'
+import { useMediaQuery, useTheme, Box, Grid, Card, CardContent, CardHeader, CircularProgress } from '@mui/material'
 
-import AddTodoForm from '@/components/todo/AddTodoForm'
-import TodoList from '@/components/todo/TodoList'
-import Greeting from '@/components/todo/Greeting'
-import BlendedImage from '@/components/ui/BlendedImage'
+import Greeting from '@components/todo/Greeting'
 import { defaultBreakpoints } from '@menu/defaultConfigs'
 
-const ActionsList = ({ isMobile }) => {
-  const router = useRouter()
+import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
-  const actions = [
-    { icon: 'ri-file-add-line', text: 'New Order', link: '/orders/create' },
-    { icon: 'ri-user-add-line', text: 'New Client', link: '/clients' },
-    { icon: 'ri-calendar-line', text: 'New Appointment', link: '/appointments' },
-    { icon: 'ri-service-line', text: 'New Service', link: '/services' },
-    { icon: 'ri-file-list-line', text: 'New Invoice', link: '/finance' }
-  ]
+// Dynamically import components with loading spinner
+const AddTodoForm = dynamic(() => import('@components/todo/AddTodoForm'), {
+  ssr: false,
+  loading: LoadingSpinner
+})
 
-  return (
-    <Card>
-      <CardContent>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={5}>
-            <Typography variant='h6' gutterBottom>
-              Start from
-            </Typography>
-            {isMobile ? (
-              actions.map((action, index) => (
-                <Button
-                  key={index}
-                  fullWidth
-                  variant='contained'
-                  startIcon={<i className={action.icon} />}
-                  sx={{ marginBottom: 5, padding: '18px', fontSize: '1.1rem' }}
-                  onClick={() => router.push(action.link)}
-                >
-                  {action.text}
-                </Button>
-              ))
-            ) : (
-              <List>
-                {actions.map((action, index) => (
-                  <ListItem button key={index} onClick={() => router.push(action.link)}>
-                    <ListItemIcon>
-                      <i className={action.icon} />
-                    </ListItemIcon>
-                    <ListItemText primary={action.text} />
-                  </ListItem>
-                ))}
-              </List>
-            )}
-          </Grid>
-          {!isMobile && (
-            <Grid item sm={7}>
-              <BlendedImage
-                src='/images/illustrations/seamstress-organizing-clothes.webp'
-                alt='Seamstress organizing clothes'
-                width={400}
-                height={400}
-              />
-            </Grid>
-          )}
-        </Grid>
-      </CardContent>
-    </Card>
-  )
-}
+const TodoList = dynamic(() => import('@components/todo/TodoList'), {
+  ssr: false,
+  loading: LoadingSpinner
+})
+
+const ActionsList = dynamic(() => import('@components/home/ActionsList'), {
+  ssr: false,
+  loading: LoadingSpinner
+})
 
 export default function Home() {
   const [todos, setTodos] = useState(null)

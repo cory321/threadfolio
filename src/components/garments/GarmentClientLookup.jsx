@@ -1,50 +1,63 @@
-// React Imports
-import { useState } from 'react'
+'use client'
 
-// MUI Imports
-import Grid from '@mui/material/Grid'
-import Dialog from '@mui/material/Dialog'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
-import IconButton from '@mui/material/IconButton'
-import Radio from '@mui/material/Radio'
-import RadioGroup from '@mui/material/RadioGroup'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import FormControl from '@mui/material/FormControl'
-import FormLabel from '@mui/material/FormLabel'
-import { useTheme } from '@mui/material/styles'
-import useMediaQuery from '@mui/material/useMediaQuery'
+import React, { useState } from 'react'
+
+import dynamic from 'next/dynamic'
+
+import {
+  Grid,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
+  useTheme,
+  useMediaQuery
+} from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import { visuallyHidden } from '@mui/utils'
 
-// Component Imports
-import AddClientButton from '@components/garments/AddClientButton'
-import AddClientForm from '@components/clients/AddClientForm'
-import ClientSearch from '@components/clients/ClientSearch'
-import SelectedClientCard from '@components/garments/SelectedClientCard'
+import LoadingSpinner from '@/components/ui/LoadingSpinner'
+
+const AddClientButton = dynamic(() => import('@components/garments/AddClientButton'), {
+  ssr: false,
+  loading: LoadingSpinner
+})
+
+const AddClientForm = dynamic(() => import('@components/clients/AddClientForm'), {
+  ssr: false,
+  loading: LoadingSpinner
+})
+
+const ClientSearch = dynamic(() => import('@components/clients/ClientSearch'), {
+  ssr: false,
+  loading: LoadingSpinner
+})
+
+const SelectedClientCard = dynamic(() => import('@components/garments/SelectedClientCard'), {
+  ssr: false,
+  loading: LoadingSpinner
+})
 
 const GarmentClientLookup = ({ userId, onClientSelect, selectedClient }) => {
   const [open, setOpen] = useState(false)
-  const [clientType, setClientType] = useState('new') // new or existing
+  const [clientType, setClientType] = useState('new')
   const theme = useTheme()
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'))
 
-  const handleOpen = () => {
-    setOpen(true)
-  }
-
-  const handleClose = () => {
-    setOpen(false)
-  }
+  const handleOpen = () => setOpen(true)
+  const handleClose = () => setOpen(false)
 
   const handleClientSelect = client => {
-    onClientSelect(client) // Pass the selected client to the parent
+    onClientSelect(client)
     handleClose()
   }
 
-  const handleClientTypeChange = event => {
-    setClientType(event.target.value)
-  }
+  const handleClientTypeChange = event => setClientType(event.target.value)
 
   return (
     <Grid container spacing={12}>
@@ -87,13 +100,13 @@ const GarmentClientLookup = ({ userId, onClientSelect, selectedClient }) => {
                 value='new'
                 control={<Radio sx={{ transform: 'scale(1.5)' }} />}
                 label='Create new client'
-                sx={{ my: 2, mb: 5 }} // Add top and bottom margin
+                sx={{ my: 2, mb: 5 }}
               />
               <FormControlLabel
                 value='existing'
                 control={<Radio sx={{ transform: 'scale(1.5)' }} />}
                 label='Existing client'
-                sx={{ my: 2, mb: 5 }} // Add top and bottom margin
+                sx={{ my: 2, mb: 5 }}
               />
             </RadioGroup>
           </FormControl>

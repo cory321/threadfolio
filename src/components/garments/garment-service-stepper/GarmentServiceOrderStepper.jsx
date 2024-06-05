@@ -1,47 +1,39 @@
 'use client'
 
-// React Imports
-import { useState } from 'react'
+import React, { useState } from 'react'
 
-// MUI Imports
-import Grid from '@mui/material/Grid'
-import Card from '@mui/material/Card'
-import Step from '@mui/material/Step'
-import Button from '@mui/material/Button'
-import Divider from '@mui/material/Divider'
-import Stepper from '@mui/material/Stepper'
-import StepLabel from '@mui/material/StepLabel'
-import Typography from '@mui/material/Typography'
-import CardContent from '@mui/material/CardContent'
+import dynamic from 'next/dynamic'
 
-// Third-party Imports
+import { Grid, Card, Step, Button, Divider, Stepper, StepLabel, Typography, CardContent } from '@mui/material'
 import { toast } from 'react-toastify'
 import { useForm } from 'react-hook-form'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { email, object, minLength, string, array, forward, custom } from 'valibot'
 
-// Component Imports
-import GarmentClientLookup from '@components/garments/GarmentClientLookup'
-import GarmentEntryForm from '@components/garments/GarmentEntryForm'
-import AddGarmentCard from '@components/garments/AddGarmentCard'
+import LoadingSpinner from '@/components/ui/LoadingSpinner'
+
+const GarmentClientLookup = dynamic(() => import('@components/garments/GarmentClientLookup'), {
+  ssr: false,
+  loading: LoadingSpinner
+})
+
+const GarmentEntryForm = dynamic(() => import('@components/garments/GarmentEntryForm'), {
+  ssr: false,
+  loading: LoadingSpinner
+})
+
+const AddGarmentCard = dynamic(() => import('@components/garments/AddGarmentCard'), {
+  ssr: false,
+  loading: LoadingSpinner
+})
 
 import StepperWrapper from '@core/styles/stepper'
 import StepperCustomDot from './StepperCustomDot'
 
-// Vars
 const steps = [
-  {
-    title: 'Client Details',
-    subtitle: 'Add or find a client'
-  },
-  {
-    title: 'Add Garments and Services',
-    subtitle: 'Upload photos and add details'
-  },
-  {
-    title: 'Order Summary',
-    subtitle: 'Generate invoice and send to client'
-  }
+  { title: 'Client Details', subtitle: 'Add or find a client' },
+  { title: 'Add Garments and Services', subtitle: 'Upload photos and add details' },
+  { title: 'Order Summary', subtitle: 'Generate invoice and send to client' }
 ]
 
 const accountSchema = object(
@@ -77,14 +69,9 @@ const socialSchema = object({
 })
 
 const GarmentServiceOrderStepper = ({ userId }) => {
-  // States
   const [activeStep, setActiveStep] = useState(0)
   const [selectedClient, setSelectedClient] = useState(null)
 
-  // Vars
-  const Languages = ['English', 'French', 'Spanish', 'Portuguese', 'Italian', 'German', 'Arabic']
-
-  // Hooks
   const {
     reset: accountReset,
     control: accountControl,
@@ -92,12 +79,7 @@ const GarmentServiceOrderStepper = ({ userId }) => {
     formState: { errors: accountErrors }
   } = useForm({
     resolver: valibotResolver(accountSchema),
-    defaultValues: {
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: ''
-    }
+    defaultValues: { username: '', email: '', password: '', confirmPassword: '' }
   })
 
   const {
@@ -107,12 +89,7 @@ const GarmentServiceOrderStepper = ({ userId }) => {
     formState: { errors: personalErrors }
   } = useForm({
     resolver: valibotResolver(personalSchema),
-    defaultValues: {
-      firstName: '',
-      lastName: '',
-      country: '',
-      language: []
-    }
+    defaultValues: { firstName: '', lastName: '', country: '', language: [] }
   })
 
   const {
@@ -122,12 +99,7 @@ const GarmentServiceOrderStepper = ({ userId }) => {
     formState: { errors: socialErrors }
   } = useForm({
     resolver: valibotResolver(socialSchema),
-    defaultValues: {
-      twitter: '',
-      facebook: '',
-      google: '',
-      linkedIn: ''
-    }
+    defaultValues: { twitter: '', facebook: '', google: '', linkedIn: '' }
   })
 
   const onSubmit = () => {
@@ -138,22 +110,16 @@ const GarmentServiceOrderStepper = ({ userId }) => {
     }
   }
 
-  const handleBack = () => {
-    setActiveStep(prevActiveStep => prevActiveStep - 1)
-  }
+  const handleBack = () => setActiveStep(prevActiveStep => prevActiveStep - 1)
 
   const handleReset = () => {
     setActiveStep(0)
     accountReset({ email: '', username: '', password: '', confirmPassword: '' })
     personalReset({ firstName: '', lastName: '', country: '', language: [] })
     socialReset({ twitter: '', facebook: '', google: '', linkedIn: '' })
-    setIsPasswordShown(false)
-    setIsConfirmPasswordShown(false)
   }
 
-  const getFirstName = fullName => {
-    return fullName ? fullName.split(' ')[0] : ''
-  }
+  const getFirstName = fullName => (fullName ? fullName.split(' ')[0] : '')
 
   const renderStepContent = activeStep => {
     switch (activeStep) {
@@ -189,21 +155,9 @@ const GarmentServiceOrderStepper = ({ userId }) => {
               <Grid item xs={6}>
                 <AddGarmentCard />
               </Grid>
-
               <Grid item xs={6}>
-                {/* <ul>
-                  <li>Garment name</li>
-                  <li>Garment stage (hidden) [not started, working on it, done, stuck, archived]</li>
-                  <li>add garment image</li>
-                  <li>Add services to garment</li>
-                  <li>detailed instructions and notes</li>
-                  <li>due date</li>
-                  <li>is this garment for an event?</li>
-                  <li>if yes, add event date and event type</li>
-                  <li>add garment button</li>
-                </ul> */}
+                {/* Add garment form details */}
               </Grid>
-
               <Grid item xs={12}>
                 <GarmentEntryForm />
               </Grid>
@@ -213,7 +167,6 @@ const GarmentServiceOrderStepper = ({ userId }) => {
                 Back
               </Button>
             </Grid>
-
             <Grid item xs={6} className='flex justify-end'>
               <Button variant='contained' type='submit'>
                 Next
