@@ -16,7 +16,7 @@ import CardContent from '@mui/material/CardContent'
 
 // Third-party Imports
 import { toast } from 'react-toastify'
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { email, object, minLength, string, array, forward, custom } from 'valibot'
 
@@ -24,7 +24,6 @@ import { email, object, minLength, string, array, forward, custom } from 'valibo
 import GarmentClientLookup from '@components/garments/GarmentClientLookup'
 import GarmentEntryForm from '@components/garments/GarmentEntryForm'
 import AddGarmentCard from '@components/garments/AddGarmentCard'
-import SelectedClientCard from '@components/garments/SelectedClientCard'
 
 import StepperWrapper from '@core/styles/stepper'
 import StepperCustomDot from './StepperCustomDot'
@@ -152,6 +151,10 @@ const GarmentServiceOrderStepper = ({ userId }) => {
     setIsConfirmPasswordShown(false)
   }
 
+  const getFirstName = fullName => {
+    return fullName ? fullName.split(' ')[0] : ''
+  }
+
   const renderStepContent = activeStep => {
     switch (activeStep) {
       case 0:
@@ -169,7 +172,7 @@ const GarmentServiceOrderStepper = ({ userId }) => {
                 <Button variant='outlined' disabled color='secondary'>
                   Back
                 </Button>
-                <Button variant='contained' type='submit'>
+                <Button variant='contained' type='submit' disabled={!selectedClient}>
                   Next
                 </Button>
               </Grid>
@@ -180,8 +183,10 @@ const GarmentServiceOrderStepper = ({ userId }) => {
         return (
           <form key={1} onSubmit={handlePersonalSubmit(onSubmit)}>
             <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <h2>Add Garments for {selectedClient && getFirstName(selectedClient.full_name)}</h2>
+              </Grid>
               <Grid item xs={6}>
-                <h2>Add garments needing service</h2>
                 <AddGarmentCard />
               </Grid>
 
