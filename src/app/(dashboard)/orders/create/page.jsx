@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 
-import GarmentServiceOrderStepper from '@views/form-wizard/GarmentServiceOrderStepper'
+import GarmentServiceOrderStepper from '@components/garments/garment-service-stepper/GarmentServiceOrderStepper'
 
 const CreateServiceOrderPage = async () => {
   const { userId } = auth()
