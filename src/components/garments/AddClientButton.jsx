@@ -1,9 +1,13 @@
-import { Card, CardContent, Typography, Box } from '@mui/material'
+import { Card, CardContent, Typography, Box, useMediaQuery } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
+import { useTheme } from '@mui/material/styles'
 
 import colorSchemes from '@/@core/theme/colorSchemes'
 
 const AddClientButton = ({ onClick }) => {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+
   return (
     <Card
       onClick={onClick}
@@ -14,7 +18,7 @@ const AddClientButton = ({ onClick }) => {
         alignItems: 'center',
         justifyContent: 'center',
         height: 200,
-        width: 200,
+        width: isMobile ? '100%' : 200,
         cursor: 'pointer'
       }}
     >

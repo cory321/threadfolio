@@ -5,6 +5,8 @@ import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTheme } from '@mui/material/styles'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
@@ -12,15 +14,19 @@ import InitialsAvatar from '@/components/InitialsAvatar'
 import { formatPhoneNumber } from '@/utils/formatPhoneNumber'
 
 const SelectedClientCard = ({ client, onChangeClient }) => {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+
   return (
     <Card
       sx={{
         border: '2px solid',
         borderColor: 'primary.main',
-        borderRadius: '10px'
+        borderRadius: '10px',
+        width: isMobile ? '100%' : 'auto'
       }}
     >
-      <CardContent className='flex flex-row gap-6'>
+      <CardContent className={isMobile ? 'flex flex-col gap-4' : 'flex flex-row gap-6'}>
         <Box display='flex' flexDirection='column' alignItems='center' justifyContent='center' p={2}>
           {client.full_name && (
             <InitialsAvatar
@@ -32,7 +38,7 @@ const SelectedClientCard = ({ client, onChangeClient }) => {
             {client.full_name}
           </Typography>
         </Box>
-        <Divider orientation='vertical' flexItem />
+        {isMobile ? <Divider orientation='horizontal' flexItem /> : <Divider orientation='vertical' flexItem />}
         <Box flex={1} p={2} display='flex' flexDirection='column' justifyContent='space-between'>
           <Box>
             {client.email && (
@@ -56,7 +62,7 @@ const SelectedClientCard = ({ client, onChangeClient }) => {
               </Box>
             )}
           </Box>
-          <Button variant='outlined' color='primary' onClick={onChangeClient}>
+          <Button variant='outlined' color='primary' onClick={onChangeClient} sx={isMobile ? { mt: 2 } : {}}>
             Change Client
           </Button>
         </Box>

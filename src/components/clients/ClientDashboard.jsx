@@ -2,18 +2,9 @@
 
 import React, { useState } from 'react'
 
-import {
-  Box,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Grid,
-  useMediaQuery,
-  Card
-} from '@mui/material'
+import { Box, Dialog, DialogTitle, DialogContent, Grid, Button, IconButton, useMediaQuery, Card } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
+import CloseIcon from '@mui/icons-material/Close'
 
 import AddClientForm from '@/components/clients/AddClientForm'
 import ClientList from '@/components/clients/ClientList'
@@ -54,15 +45,24 @@ const ClientDashboard = () => {
         maxWidth='xs'
         fullWidth
       >
-        <DialogTitle id='add-client-dialog-title'>Add Client</DialogTitle>
+        <DialogTitle id='add-client-dialog-title'>
+          Add Client
+          <IconButton
+            aria-label='close'
+            onClick={handleClose}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: theme => theme.palette.grey[500]
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
         <DialogContent>
           <AddClientForm onClose={handleClose} setClients={setClients} />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color='primary'>
-            Cancel
-          </Button>
-        </DialogActions>
       </Dialog>
     </div>
   )
