@@ -10,7 +10,7 @@ export async function searchClients(query, userId, token) {
 
   const { data, error } = await supabase
     .from('clients')
-    .select('id, full_name, email')
+    .select('id, full_name, email, phone_number')
     .ilike('full_name', `%${query}%`)
     .eq('user_id', userId)
 
@@ -18,7 +18,13 @@ export async function searchClients(query, userId, token) {
     throw new Error(error.message)
   }
 
-  return data
+  // Ensure phone_number is null if it's not present
+  const clients = data.map(client => ({
+    ...client,
+    phone_number: client.phone_number || null
+  }))
+
+  return clients
 }
 
 export async function fetchClients(token) {

@@ -14,8 +14,6 @@ import RadioGroup from '@mui/material/RadioGroup'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormControl from '@mui/material/FormControl'
 import FormLabel from '@mui/material/FormLabel'
-import Typography from '@mui/material/Typography'
-import Box from '@mui/material/Box'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import CloseIcon from '@mui/icons-material/Close'
@@ -23,8 +21,9 @@ import { visuallyHidden } from '@mui/utils'
 
 // Component Imports
 import AddClientButton from '@components/garments/AddClientButton'
-import AddClientForm from '@/components/clients/AddClientForm'
-import ClientSearch from '@/components/clients/ClientSearch'
+import AddClientForm from '@components/clients/AddClientForm'
+import ClientSearch from '@components/clients/ClientSearch'
+import SelectedClientCard from '@components/garments/SelectedClientCard'
 
 const GarmentClientLookup = ({ userId }) => {
   const [open, setOpen] = useState(false)
@@ -43,6 +42,7 @@ const GarmentClientLookup = ({ userId }) => {
 
   const handleClientSelect = client => {
     setSelectedClient(client)
+    handleClose()
   }
 
   const handleClientTypeChange = event => {
@@ -53,14 +53,7 @@ const GarmentClientLookup = ({ userId }) => {
     <Grid container spacing={12}>
       <Grid item xs={12} container justifyContent='center' alignItems='center'>
         {selectedClient ? (
-          <Box display='flex' flexDirection='column' alignItems='center' textAlign='center'>
-            <Typography variant='body1'>Selected Client ID: {selectedClient.id}</Typography>
-            <Typography variant='body1'>Selected Client Name: {selectedClient.full_name}</Typography>
-            <Typography variant='body1'>Selected Client Email: {selectedClient.email}</Typography>
-            <Button variant='outlined' color='primary' onClick={handleOpen} sx={{ mt: 2 }}>
-              Change Client
-            </Button>
-          </Box>
+          <SelectedClientCard client={selectedClient} onChangeClient={handleOpen} />
         ) : (
           <AddClientButton onClick={handleOpen} />
         )}
