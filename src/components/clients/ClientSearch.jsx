@@ -2,7 +2,7 @@ import React, { useState, useCallback, useTransition } from 'react'
 
 import throttle from 'lodash/throttle'
 import { useAuth } from '@clerk/nextjs'
-import { TextField, CircularProgress, Autocomplete, Typography, Box, InputAdornment } from '@mui/material'
+import { TextField, CircularProgress, Autocomplete, Typography, Box, InputAdornment, Button } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import { styled } from '@mui/material/styles'
 
@@ -19,10 +19,10 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
   }
 }))
 
-const ClientSearch = ({ userId, onClientSelect = () => {} }) => {
+const ClientSearch = ({ userId, onClientSelect = () => {}, onClose = () => {} }) => {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
-  const [selectedClientId, setSelectedClientId] = useState(null)
+  const [selectedClient, setSelectedClient] = useState(null)
   const { getToken } = useAuth()
   const [loading, setLoading] = useState(false)
   const [isPending, startTransition] = useTransition()
@@ -67,11 +67,17 @@ const ClientSearch = ({ userId, onClientSelect = () => {} }) => {
   const handleSelect = (event, value) => {
     if (value) {
       setQuery(value.full_name)
-      setSelectedClientId(value.id)
-      onClientSelect(value) // Pass the selected client object to the parent
+      setSelectedClient(value) // Store the selected client
     } else {
-      setSelectedClientId(null)
-      onClientSelect(null) // Clear the selected client in the parent
+      setQuery('')
+      setSelectedClient(null)
+    }
+  }
+
+  const handleConfirmSelection = () => {
+    if (selectedClient) {
+      onClientSelect(selectedClient) // Call the callback with the selected client
+      onClose() // Close the modal
     }
   }
 
@@ -126,6 +132,11 @@ const ClientSearch = ({ userId, onClientSelect = () => {} }) => {
           </li>
         )}
       />
+      <Box mt={2} display='flex' justifyContent='flex-end'>
+        <Button variant='contained' color='primary' onClick={handleConfirmSelection} disabled={!selectedClient}>
+          Add Client
+        </Button>
+      </Box>
     </>
   )
 }

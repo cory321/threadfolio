@@ -15,7 +15,7 @@ import {
 } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 
-import AddContactForm from '@/components/clients/AddContactForm'
+import AddClientForm from '@/components/clients/AddClientForm'
 import ClientList from '@/components/clients/ClientList'
 
 const ClientDashboard = () => {
@@ -56,7 +56,7 @@ const ClientDashboard = () => {
       >
         <DialogTitle id='add-client-dialog-title'>Add Client</DialogTitle>
         <DialogContent>
-          <AddContactForm onClose={handleClose} setClients={setClients} />
+          <AddClientForm onClose={handleClose} setClients={setClients} />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color='primary'>

@@ -21,7 +21,7 @@ import { visuallyHidden } from '@mui/utils'
 
 // Component Imports
 import AddClientButton from '@components/garments/AddClientButton'
-import AddContactForm from '@/components/clients/AddContactForm'
+import AddClientForm from '@/components/clients/AddClientForm'
 import ClientSearch from '@components/clients/ClientSearch'
 
 const GarmentClientLookup = ({ userId }) => {
@@ -61,7 +61,7 @@ const GarmentClientLookup = ({ userId }) => {
           </div>
         )}
       </Grid>
-      <Dialog open={open} onClose={handleClose} fullScreen={fullScreen} fullWidth maxWidth='md'>
+      <Dialog open={open} onClose={handleClose} fullScreen={fullScreen} fullWidth maxWidth='sm'>
         <DialogTitle>
           Add Client
           <IconButton
@@ -104,16 +104,11 @@ const GarmentClientLookup = ({ userId }) => {
             </RadioGroup>
           </FormControl>
           {clientType === 'new' ? (
-            <AddContactForm />
+            <AddClientForm />
           ) : (
-            <ClientSearch userId={userId} onClientSelect={handleClientSelect} />
+            <ClientSearch userId={userId} onClientSelect={handleClientSelect} onClose={handleClose} />
           )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color='primary'>
-            Close
-          </Button>
-        </DialogActions>
       </Dialog>
     </Grid>
   )

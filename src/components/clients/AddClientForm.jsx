@@ -11,7 +11,7 @@ import { toast } from 'react-toastify'
 
 import { addClient } from '@actions/clients'
 
-const AddContactForm = ({ onClose = () => {}, setClients = () => {} }) => {
+const AddClientForm = ({ onClose = () => {}, setClients = () => {} }) => {
   const { userId, getToken } = useAuth()
 
   const validationSchema = Yup.object({
@@ -146,11 +146,13 @@ const AddContactForm = ({ onClose = () => {}, setClients = () => {} }) => {
         error={formik.touched.notes && Boolean(formik.errors.notes)}
         helperText={formik.touched.notes && formik.errors.notes}
       />
-      <Button variant='contained' color='primary' sx={{ mt: 2 }} type='submit' disabled={formik.isSubmitting}>
-        {formik.isSubmitting ? 'Adding...' : 'Add Contact'}
-      </Button>
+      <Box mt={2} display='flex' justifyContent='flex-end'>
+        <Button variant='contained' color='primary' sx={{ mt: 2 }} type='submit' disabled={formik.isSubmitting}>
+          {formik.isSubmitting ? 'Adding...' : 'Add Client'}
+        </Button>
+      </Box>
     </Box>
   )
 }
 
-export default AddContactForm
+export default AddClientForm
