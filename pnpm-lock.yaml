@@ -44,6 +44,9 @@ importers:
       '@fullcalendar/timegrid':
         specifier: 6.1.10
         version: 6.1.10(@fullcalendar/core@6.1.11)
+      '@hookform/resolvers':
+        specifier: ^3.4.2
+        version: 3.4.2(react-hook-form@7.49.3(react@18.2.0))
       '@iconify/iconify':
         specifier: 3.1.1
         version: 3.1.1
@@ -164,6 +167,9 @@ importers:
       tsx:
         specifier: 4.7.0
         version: 4.7.0
+      valibot:
+        specifier: 0.31.0-rc.6
+        version: 0.31.0-rc.6
       yup:
         specifier: ^1.4.0
         version: 1.4.0
@@ -533,6 +539,11 @@ packages:
     resolution: {integrity: sha512-hFKyQXJaPbNyq1reZmvkCmM64O99krHoIcJAbDS+dntCm3FzZUcDtAcRKIbMiantHrezCG/1MEYk3m9e3aKvIQ==}
     peerDependencies:
       '@fullcalendar/core': ~6.1.10
+
+  '@hookform/resolvers@3.4.2':
+    resolution: {integrity: sha512-1m9uAVIO8wVf7VCDAGsuGA0t6Z3m6jVGAN50HkV9vYLl0yixKK/Z1lr01vaRvYCkIKGoy1noVRxMzQYb4y/j1Q==}
+    peerDependencies:
+      react-hook-form: ^7.0.0
 
   '@humanwhocodes/config-array@0.11.14':
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
@@ -2947,6 +2958,9 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
+  valibot@0.31.0-rc.6:
+    resolution: {integrity: sha512-NW4mnZsSyLCj2TweTPBuo7jzhZywh3C2M0T5UU53po2jhg/0k7B63pQTt3hkcdZl2JkSZEYHliKzO/2OsLFqlQ==}
+
   warning@4.0.3:
     resolution: {integrity: sha512-rpJyN222KWIvHJ/F53XSZv0Zl/accqHR8et1kpaMTD/fLCRxtV8iX8czMzY7sVZupTI3zcUTg8eycS2kNF9l6w==}
 
@@ -3361,6 +3375,10 @@ snapshots:
     dependencies:
       '@fullcalendar/core': 6.1.11
       '@fullcalendar/daygrid': 6.1.10(@fullcalendar/core@6.1.11)
+
+  '@hookform/resolvers@3.4.2(react-hook-form@7.49.3(react@18.2.0))':
+    dependencies:
+      react-hook-form: 7.49.3(react@18.2.0)
 
   '@humanwhocodes/config-array@0.11.14':
     dependencies:
@@ -6095,6 +6113,8 @@ snapshots:
       react: 18.2.0
 
   util-deprecate@1.0.2: {}
+
+  valibot@0.31.0-rc.6: {}
 
   warning@4.0.3:
     dependencies:

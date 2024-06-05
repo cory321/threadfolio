@@ -4,15 +4,27 @@ import React, { useState, useCallback, useTransition } from 'react'
 
 import throttle from 'lodash/throttle'
 import { useAuth } from '@clerk/nextjs'
-import { TextField, CircularProgress, Autocomplete, Typography, Box } from '@mui/material'
+import { TextField, CircularProgress, Autocomplete, Typography, Box, InputAdornment, Button } from '@mui/material'
+import SearchIcon from '@mui/icons-material/Search'
+import { styled } from '@mui/material/styles'
 
 import { searchClients } from '@actions/clients'
 import InitialsAvatar from '@/components/InitialsAvatar'
 
-const ClientSearch = ({ userId }) => {
+const CustomTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiInputLabel-root': {
+    display: 'flex',
+    alignItems: 'center'
+  },
+  '& .MuiInputLabel-root svg': {
+    marginRight: theme.spacing(1)
+  }
+}))
+
+const ClientSearch = ({ userId, onClientSelect = () => {}, onClose = () => {} }) => {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
-  const [selectedClientId, setSelectedClientId] = useState(null)
+  const [selectedClient, setSelectedClient] = useState(null)
   const { getToken } = useAuth()
   const [loading, setLoading] = useState(false)
   const [isPending, startTransition] = useTransition()
@@ -57,9 +69,17 @@ const ClientSearch = ({ userId }) => {
   const handleSelect = (event, value) => {
     if (value) {
       setQuery(value.full_name)
-      setSelectedClientId(value.id)
+      setSelectedClient(value) // Store the selected client
     } else {
-      setSelectedClientId(null)
+      setQuery('')
+      setSelectedClient(null)
+    }
+  }
+
+  const handleConfirmSelection = () => {
+    if (selectedClient) {
+      onClientSelect(selectedClient) // Call the callback with the selected client
+      onClose() // Close the modal
     }
   }
 
@@ -77,9 +97,14 @@ const ClientSearch = ({ userId }) => {
         loading={loading}
         noOptionsText={'No clients found'}
         renderInput={params => (
-          <TextField
+          <CustomTextField
             {...params}
-            label='Search clients'
+            label={
+              <>
+                <SearchIcon />
+                Type to search client
+              </>
+            }
             variant='outlined'
             fullWidth
             InputProps={{
@@ -109,7 +134,11 @@ const ClientSearch = ({ userId }) => {
           </li>
         )}
       />
-      {selectedClientId && <p>Selected Client ID: {selectedClientId}</p>}
+      <Box mt={2} display='flex' justifyContent='flex-end'>
+        <Button variant='contained' color='primary' onClick={handleConfirmSelection} disabled={!selectedClient}>
+          Select Client
+        </Button>
+      </Box>
     </>
   )
 }

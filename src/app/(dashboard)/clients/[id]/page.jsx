@@ -7,20 +7,21 @@ import dynamic from 'next/dynamic'
 
 // MUI Imports
 import Grid from '@mui/material/Grid'
+import CircularProgress from '@mui/material/CircularProgress'
+import Typography from '@mui/material/Typography'
+import Alert from '@mui/material/Alert'
 
-// Component Imports
-
-import { CircularProgress, Typography } from '@mui/material'
-
+// Clerk Auth
 import { useAuth } from '@clerk/nextjs'
 
+// Component Imports
 import UserLeftOverview from '@/app/apps/user/view/user-left-overview/'
 import UserRight from '@/app/apps/user/view/user-right'
 
+// Action Imports
 import { fetchClientById } from '@actions/clients'
 
 const OrdersTab = dynamic(() => import('@/app/apps/user/view/user-right/orders'))
-
 const SecurityTab = dynamic(() => import('@/app/apps/user/view/user-right/security'))
 const BillingPlans = dynamic(() => import('@/app/apps/user/view/user-right/billing-plans'))
 const NotificationsTab = dynamic(() => import('@/app/apps/user/view/user-right/notifications'))
@@ -41,7 +42,6 @@ const ClientProfile = ({ params }) => {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // TODO: remove useeffect
   useEffect(() => {
     const loadClient = async () => {
       setIsLoading(true)
@@ -73,7 +73,11 @@ const ClientProfile = ({ params }) => {
   }
 
   if (error) {
-    return <Typography color='error'>{error}</Typography>
+    return (
+      <Alert severity='error' variant='standard'>
+        {error}
+      </Alert>
+    )
   }
 
   if (!client) {
