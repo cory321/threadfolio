@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 
+import { useRouter } from 'next/navigation'
+
 import {
   useMediaQuery,
   useTheme,
@@ -25,12 +27,14 @@ import BlendedImage from '@/components/ui/BlendedImage'
 import { defaultBreakpoints } from '@menu/defaultConfigs'
 
 const ActionsList = ({ isMobile }) => {
+  const router = useRouter()
+
   const actions = [
-    { icon: 'ri-file-add-line', text: 'New Order' },
-    { icon: 'ri-user-add-line', text: 'New Client' },
-    { icon: 'ri-calendar-line', text: 'New Appointment' },
-    { icon: 'ri-service-line', text: 'New Service' },
-    { icon: 'ri-file-list-line', text: 'New Invoice' }
+    { icon: 'ri-file-add-line', text: 'New Order', link: '/orders/create' },
+    { icon: 'ri-user-add-line', text: 'New Client', link: '/clients' },
+    { icon: 'ri-calendar-line', text: 'New Appointment', link: '/appointments' },
+    { icon: 'ri-service-line', text: 'New Service', link: '/services' },
+    { icon: 'ri-file-list-line', text: 'New Invoice', link: '/finance' }
   ]
 
   return (
@@ -49,6 +53,7 @@ const ActionsList = ({ isMobile }) => {
                   variant='contained'
                   startIcon={<i className={action.icon} />}
                   sx={{ marginBottom: 5, padding: '18px', fontSize: '1.1rem' }}
+                  onClick={() => router.push(action.link)}
                 >
                   {action.text}
                 </Button>
@@ -56,7 +61,7 @@ const ActionsList = ({ isMobile }) => {
             ) : (
               <List>
                 {actions.map((action, index) => (
-                  <ListItem button key={index}>
+                  <ListItem button key={index} onClick={() => router.push(action.link)}>
                     <ListItemIcon>
                       <i className={action.icon} />
                     </ListItemIcon>

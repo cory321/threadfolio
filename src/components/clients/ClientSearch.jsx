@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState, useCallback, useTransition } from 'react'
 
 import throttle from 'lodash/throttle'
