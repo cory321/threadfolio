@@ -7,8 +7,6 @@ import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import IconButton from '@mui/material/IconButton'
-import Button from '@mui/material/Button'
-import DialogActions from '@mui/material/DialogActions'
 import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -25,9 +23,8 @@ import AddClientForm from '@components/clients/AddClientForm'
 import ClientSearch from '@components/clients/ClientSearch'
 import SelectedClientCard from '@components/garments/SelectedClientCard'
 
-const GarmentClientLookup = ({ userId }) => {
+const GarmentClientLookup = ({ userId, onClientSelect, selectedClient }) => {
   const [open, setOpen] = useState(false)
-  const [selectedClient, setSelectedClient] = useState(null)
   const [clientType, setClientType] = useState('new') // new or existing
   const theme = useTheme()
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'))
@@ -41,7 +38,7 @@ const GarmentClientLookup = ({ userId }) => {
   }
 
   const handleClientSelect = client => {
-    setSelectedClient(client)
+    onClientSelect(client) // Pass the selected client to the parent
     handleClose()
   }
 

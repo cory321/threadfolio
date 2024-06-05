@@ -4,24 +4,15 @@
 import { useState } from 'react'
 
 // MUI Imports
-import Tab from '@mui/material/Tab'
 import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import Step from '@mui/material/Step'
-import TabPanel from '@mui/lab/TabPanel'
-import Select from '@mui/material/Select'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 import Stepper from '@mui/material/Stepper'
-import TabContext from '@mui/lab/TabContext'
-import MenuItem from '@mui/material/MenuItem'
-import TextField from '@mui/material/TextField'
 import StepLabel from '@mui/material/StepLabel'
 import Typography from '@mui/material/Typography'
-import InputLabel from '@mui/material/InputLabel'
 import CardContent from '@mui/material/CardContent'
-import FormControl from '@mui/material/FormControl'
-import FormHelperText from '@mui/material/FormHelperText'
 
 // Third-party Imports
 import { toast } from 'react-toastify'
@@ -33,6 +24,7 @@ import { email, object, minLength, string, array, forward, custom } from 'valibo
 import GarmentClientLookup from '@components/garments/GarmentClientLookup'
 import GarmentEntryForm from '@components/garments/GarmentEntryForm'
 import AddGarmentCard from '@components/garments/AddGarmentCard'
+import SelectedClientCard from '@components/garments/SelectedClientCard'
 
 import StepperWrapper from '@core/styles/stepper'
 import StepperCustomDot from './StepperCustomDot'
@@ -88,6 +80,7 @@ const socialSchema = object({
 const GarmentServiceOrderStepper = ({ userId }) => {
   // States
   const [activeStep, setActiveStep] = useState(0)
+  const [selectedClient, setSelectedClient] = useState(null)
 
   // Vars
   const Languages = ['English', 'French', 'Spanish', 'Portuguese', 'Italian', 'German', 'Arabic']
@@ -166,7 +159,11 @@ const GarmentServiceOrderStepper = ({ userId }) => {
           <form key={0} onSubmit={handleAccountSubmit(onSubmit)}>
             <Grid container spacing={5}>
               <Grid item xs={12} sm={12}>
-                <GarmentClientLookup userId={userId} />
+                <GarmentClientLookup
+                  userId={userId}
+                  onClientSelect={setSelectedClient}
+                  selectedClient={selectedClient}
+                />
               </Grid>
               <Grid item xs={12} className='flex justify-between'>
                 <Button variant='outlined' disabled color='secondary'>
