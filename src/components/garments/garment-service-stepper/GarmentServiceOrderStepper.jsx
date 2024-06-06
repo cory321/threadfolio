@@ -1,32 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 
-import dynamic from 'next/dynamic'
-
-import { Grid, Card, Button, Divider, Stepper, Step, StepLabel, Typography, CardContent } from '@mui/material'
+import { Box, Button, Card, CardContent, Divider, Stepper, Step, StepLabel, Typography } from '@mui/material'
 import { toast } from 'react-toastify'
 import { useForm } from 'react-hook-form'
 
-import LoadingSpinner from '@/components/ui/LoadingSpinner'
-
-const GarmentClientLookup = dynamic(() => import('@components/garments/GarmentClientLookup'), {
-  ssr: false,
-  loading: LoadingSpinner
-})
-
-const GarmentEntryForm = dynamic(() => import('@components/garments/GarmentEntryForm'), {
-  ssr: false,
-  loading: LoadingSpinner
-})
-
-const SingleFileUpload = dynamic(() => import('@components/media/SingleFileUpload'), {
-  ssr: false,
-  loading: LoadingSpinner
-})
-
 import StepperWrapper from '@core/styles/stepper'
 import StepperCustomDot from './StepperCustomDot'
+import StepContent from './StepContent'
 
 const steps = [
   { title: 'Client Details', subtitle: 'Add or find a client' },
@@ -83,85 +65,6 @@ const GarmentServiceOrderStepper = ({ userId }) => {
   }
 
   const getFirstName = fullName => (fullName ? fullName.split(' ')[0] : '')
-
-  const renderStepContent = activeStep => {
-    switch (activeStep) {
-      case 0:
-        return (
-          <form key={0} onSubmit={handleAccountSubmit(onSubmit)}>
-            <Grid container spacing={5}>
-              <Grid item xs={12} sm={12}>
-                <GarmentClientLookup
-                  userId={userId}
-                  onClientSelect={setSelectedClient}
-                  selectedClient={selectedClient}
-                />
-              </Grid>
-              <Grid item xs={12} className='flex justify-between'>
-                <Button variant='outlined' disabled color='secondary'>
-                  Back
-                </Button>
-                <Button variant='contained' type='submit' disabled={!selectedClient}>
-                  Next
-                </Button>
-              </Grid>
-            </Grid>
-          </form>
-        )
-      case 1:
-        return (
-          <form key={1} onSubmit={handlePersonalSubmit(onSubmit)}>
-            <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <h2>Add Garments for {selectedClient && getFirstName(selectedClient.full_name)}</h2>
-              </Grid>
-              <Grid item xs={6}>
-                <SingleFileUpload userId={userId} clientId={selectedClient.id} btnText='Upload Garment Photo' />
-              </Grid>
-              <Grid item xs={6}>
-                {/* Add garment form details */}
-              </Grid>
-              <Grid item xs={12}>
-                <GarmentEntryForm />
-              </Grid>
-            </Grid>
-            <Grid item xs={6}>
-              <Button variant='outlined' onClick={handleBack} color='secondary'>
-                Back
-              </Button>
-            </Grid>
-            <Grid item xs={6} className='flex justify-end'>
-              <Button variant='contained' type='submit'>
-                Next
-              </Button>
-            </Grid>
-          </form>
-        )
-      case 2:
-        return (
-          <form key={2} onSubmit={handleSocialSubmit(onSubmit)}>
-            <Grid container spacing={5}>
-              <Grid item xs={12}>
-                <Typography className='font-medium' color='text.primary'>
-                  {steps[2].title}
-                </Typography>
-                <Typography variant='body2'>{steps[2].subtitle}</Typography>
-              </Grid>
-              <Grid item xs={12} className='flex justify-between'>
-                <Button variant='outlined' onClick={handleBack} color='secondary'>
-                  Back
-                </Button>
-                <Button variant='contained' type='submit'>
-                  Submit
-                </Button>
-              </Grid>
-            </Grid>
-          </form>
-        )
-      default:
-        return <Typography color='text.primary'>Unknown stepIndex</Typography>
-    }
-  }
 
   return (
     <Card>
@@ -228,14 +131,26 @@ const GarmentServiceOrderStepper = ({ userId }) => {
             <Typography className='mlb-2 mli-1' color='text.primary'>
               All steps are completed!
             </Typography>
-            <div className='flex justify-end mt-4'>
+            <Box display='flex' justifyContent='flex-end' mt={4}>
               <Button variant='contained' onClick={handleReset}>
                 Reset
               </Button>
-            </div>
+            </Box>
           </>
         ) : (
-          renderStepContent(activeStep)
+          <StepContent
+            step={activeStep}
+            userId={userId}
+            selectedClient={selectedClient}
+            setSelectedClient={setSelectedClient}
+            handleAccountSubmit={handleAccountSubmit}
+            handlePersonalSubmit={handlePersonalSubmit}
+            handleSocialSubmit={handleSocialSubmit}
+            handleBack={handleBack}
+            onSubmit={onSubmit}
+            getFirstName={getFirstName}
+            steps={steps} // Pass steps as a prop
+          />
         )}
       </CardContent>
     </Card>
