@@ -55,7 +55,7 @@ const StepContent = ({
               </Button>
             </Grid>
             <Grid item xs={6} className='flex justify-end'>
-              <Button variant='contained' type='submit'>
+              <Button variant='contained' type='submit' disabled={!selectedClient}>
                 Next
               </Button>
             </Grid>
