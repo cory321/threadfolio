@@ -7,8 +7,6 @@ import dynamic from 'next/dynamic'
 import { Grid, Card, Step, Button, Divider, Stepper, StepLabel, Typography, CardContent } from '@mui/material'
 import { toast } from 'react-toastify'
 import { useForm } from 'react-hook-form'
-import { valibotResolver } from '@hookform/resolvers/valibot'
-import { email, object, minLength, string, array, forward, custom } from 'valibot'
 
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
@@ -36,38 +34,6 @@ const steps = [
   { title: 'Order Summary', subtitle: 'Generate invoice and send to client' }
 ]
 
-const accountSchema = object(
-  {
-    username: string([minLength(1, 'This field is required')]),
-    email: string([minLength(1, 'This field is required'), email()]),
-    password: string([
-      minLength(1, 'This field is required'),
-      minLength(8, 'Password must be at least 8 characters long')
-    ]),
-    confirmPassword: string([minLength(1, 'This field is required')])
-  },
-  [
-    forward(
-      custom(input => input.password === input.confirmPassword, 'Passwords do not match.'),
-      ['confirmPassword']
-    )
-  ]
-)
-
-const personalSchema = object({
-  firstName: string([minLength(1, 'This field is required')]),
-  lastName: string([minLength(1, 'This field is required')]),
-  country: string([minLength(1, 'This field is required')]),
-  language: array(string(), [minLength(1, 'This field is required')])
-})
-
-const socialSchema = object({
-  twitter: string([minLength(1, 'This field is required')]),
-  facebook: string([minLength(1, 'This field is required')]),
-  google: string([minLength(1, 'This field is required')]),
-  linkedIn: string([minLength(1, 'This field is required')])
-})
-
 const GarmentServiceOrderStepper = ({ userId }) => {
   const [activeStep, setActiveStep] = useState(0)
   const [selectedClient, setSelectedClient] = useState(null)
@@ -78,7 +44,6 @@ const GarmentServiceOrderStepper = ({ userId }) => {
     handleSubmit: handleAccountSubmit,
     formState: { errors: accountErrors }
   } = useForm({
-    resolver: valibotResolver(accountSchema),
     defaultValues: { username: '', email: '', password: '', confirmPassword: '' }
   })
 
@@ -88,7 +53,6 @@ const GarmentServiceOrderStepper = ({ userId }) => {
     handleSubmit: handlePersonalSubmit,
     formState: { errors: personalErrors }
   } = useForm({
-    resolver: valibotResolver(personalSchema),
     defaultValues: { firstName: '', lastName: '', country: '', language: [] }
   })
 
@@ -98,7 +62,6 @@ const GarmentServiceOrderStepper = ({ userId }) => {
     handleSubmit: handleSocialSubmit,
     formState: { errors: socialErrors }
   } = useForm({
-    resolver: valibotResolver(socialSchema),
     defaultValues: { twitter: '', facebook: '', google: '', linkedIn: '' }
   })
 
