@@ -2,7 +2,7 @@ import { v2 as cloudinary } from 'cloudinary'
 import { currentUser } from '@clerk/nextjs/server'
 
 import MediaGallery from '@/components/media/MediaGallery'
-import UploadButton from '@/components/media/UploadButton'
+import UploadDropzone from '@/components/media/UploadDropzone'
 
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -18,17 +18,20 @@ export default async function PhotoGallery() {
     return <p>Redirecting to login...</p>
   }
 
-  // Get resources by tag and filter by folder prefix
-  const { resources } = await cloudinary.api.resources_by_tag('my-cool-tag', {
+  const clientId = 'client123' // For testing purposes
+  const folderPath = `${user.id}/${clientId}/`
+
+  // Get resources by folder prefix
+  const { resources } = await cloudinary.api.resources({
     type: 'upload',
-    prefix: `${user.id}/`, // Use user.id as prefix
+    prefix: folderPath,
     max_results: 50
   })
 
   return (
     <>
       <h2>Upload Photos</h2>
-      <UploadButton userId={user.id} />
+      <UploadDropzone userId={user.id} clientId={clientId} />
       <h2>Photo Gallery</h2>
       <MediaGallery resources={resources} />
     </>
