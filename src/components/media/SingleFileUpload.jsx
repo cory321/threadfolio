@@ -31,7 +31,7 @@ const SingleFileUpload = ({ userId, clientId, btnText = 'Upload Photo' }) => {
       </StyledUploadButton>
       <Dialog fullScreen open={open} onClose={handleClose}>
         <DialogTitle>
-          Upload a single image
+          {btnText}
           <StyledCloseButton aria-label='close' onClick={handleClose}>
             <CloseIcon />
           </StyledCloseButton>
