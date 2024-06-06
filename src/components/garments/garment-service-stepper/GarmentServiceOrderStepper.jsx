@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 import dynamic from 'next/dynamic'
 
-import { Grid, Card, Step, Button, Divider, Stepper, StepLabel, Typography, CardContent } from '@mui/material'
+import { Grid, Card, Button, Divider, Stepper, Step, StepLabel, Typography, CardContent } from '@mui/material'
 import { toast } from 'react-toastify'
 import { useForm } from 'react-hook-form'
 
@@ -20,7 +20,7 @@ const GarmentEntryForm = dynamic(() => import('@components/garments/GarmentEntry
   loading: LoadingSpinner
 })
 
-const AddGarmentCard = dynamic(() => import('@components/garments/AddGarmentCard'), {
+const SingleFileUpload = dynamic(() => import('@components/media/SingleFileUpload'), {
   ssr: false,
   loading: LoadingSpinner
 })
@@ -34,7 +34,7 @@ const steps = [
   { title: 'Order Summary', subtitle: 'Generate invoice and send to client' }
 ]
 
-const GarmentServiceOrderStepper = ({ userId }) => {
+const GarmentServiceOrderStepper = ({ userId, clientId }) => {
   const [activeStep, setActiveStep] = useState(0)
   const [selectedClient, setSelectedClient] = useState(null)
 
@@ -116,7 +116,7 @@ const GarmentServiceOrderStepper = ({ userId }) => {
                 <h2>Add Garments for {selectedClient && getFirstName(selectedClient.full_name)}</h2>
               </Grid>
               <Grid item xs={6}>
-                <AddGarmentCard />
+                <SingleFileUpload userId={userId} clientId={clientId} btnText='Upload Garment Photo' />
               </Grid>
               <Grid item xs={6}>
                 {/* Add garment form details */}
