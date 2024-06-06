@@ -3,6 +3,8 @@ import React, { useRef, useState, useEffect } from 'react'
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 
+// pass in setFile <CameraCapture onCapture={setFile} />
+
 const CameraCapture = ({ onCapture }) => {
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
@@ -57,7 +59,19 @@ const CameraCapture = ({ onCapture }) => {
 
     const dataUrl = canvasRef.current.toDataURL('image/png')
 
-    onCapture(dataUrl)
+    const byteString = atob(dataUrl.split(',')[1])
+    const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0]
+    const ab = new ArrayBuffer(byteString.length)
+    const ia = new Uint8Array(ab)
+
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i)
+    }
+
+    const blob = new Blob([ab], { type: mimeString })
+    const file = new File([blob], 'snapshot.png', { type: mimeString })
+
+    onCapture(file)
   }
 
   const buttonStyle = {

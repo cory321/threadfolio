@@ -11,7 +11,6 @@ import ErrorIcon from '@mui/icons-material/Error'
 import { useDropzone } from 'react-dropzone'
 
 import { Img, HeadingTypography, AppReactDropzone, UploadContainer } from '@/libs/styles/AppReactDropzone'
-import CameraCapture from '@components/media/CameraCapture' // Adjust the import path as needed
 
 const UploadDropzone = ({ userId }) => {
   const [file, setFile] = useState(null)
@@ -19,27 +18,13 @@ const UploadDropzone = ({ userId }) => {
   const [uploading, setUploading] = useState(false)
   const [uploadSuccess, setUploadSuccess] = useState(false)
   const [uploadError, setUploadError] = useState(false)
+  const [fileSizeError, setFileSizeError] = useState(false)
 
   const onDrop = acceptedFiles => {
     setFile(acceptedFiles[0])
     setUploadSuccess(false) // Reset upload success status on new file drop
     setUploadError(false) // Reset upload error status on new file drop
-  }
-
-  const handleCapture = dataUrl => {
-    const byteString = atob(dataUrl.split(',')[1])
-    const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0]
-    const ab = new ArrayBuffer(byteString.length)
-    const ia = new Uint8Array(ab)
-
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i)
-    }
-
-    const blob = new Blob([ab], { type: mimeString })
-    const file = new File([blob], 'snapshot.png', { type: mimeString })
-
-    setFile(file)
+    setFileSizeError(false) // Reset file size error status on new file drop
   }
 
   const handleUpload = async () => {
@@ -51,6 +36,7 @@ const UploadDropzone = ({ userId }) => {
 
     setUploading(true)
     setUploadError(false)
+    setFileSizeError(false)
 
     try {
       const signatureResponse = await fetch('/api/sign-cloudinary-params', {
@@ -75,7 +61,6 @@ const UploadDropzone = ({ userId }) => {
       formData.append('file', file)
       formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET)
       formData.append('folder', `${userId}/client321`)
-      formData.append('tags', 'my-cool-tag')
       formData.append('signature', signature)
       formData.append('timestamp', timestamp)
       formData.append('api_key', api_key)
@@ -127,15 +112,22 @@ const UploadDropzone = ({ userId }) => {
     setFile(null)
     setUploadSuccess(false) // Reset upload success status on file removal
     setUploadError(false) // Reset upload error status on file removal
+    setFileSizeError(false) // Reset file size error status on file removal
     setProgress(0) // Reset progress bar
   }
 
-  const { getRootProps, getInputProps } = useDropzone({ onDrop, accept: 'image/*', maxFiles: 1 })
+  const { getRootProps, getInputProps, fileRejections } = useDropzone({
+    onDrop,
+    accept: 'image/*',
+    maxFiles: 1,
+    maxSize: 10485760 // 10 MB in bytes
+  })
 
   const handleUploadAnother = () => {
     setFile(null)
     setUploadSuccess(false)
     setUploadError(false)
+    setFileSizeError(false)
     setProgress(0)
   }
 
@@ -160,7 +152,7 @@ const UploadDropzone = ({ userId }) => {
             <div className='flex flex-col md:[text-align:unset] text-center'>
               <HeadingTypography variant='h5'>Drop file here or click to upload.</HeadingTypography>
               <Typography>Allowed *.jpeg, *.jpg, *.png, *.gif</Typography>
-              <Typography>Max size of 2 MB</Typography>
+              <Typography>Max size of 10 MB</Typography>
             </div>
           </div>
         )}
@@ -170,6 +162,14 @@ const UploadDropzone = ({ userId }) => {
           </Box>
         )}
       </AppReactDropzone>
+      {fileRejections.length > 0 && (
+        <div className='error-message'>
+          <ErrorIcon />
+          <Typography variant='body1' sx={{ ml: 1 }}>
+            File is too large. Maximum size is 10 MB.
+          </Typography>
+        </div>
+      )}
       {file && !uploading && !uploadSuccess && !uploadError && (
         <div className='buttons'>
           <Button variant='contained' onClick={handleUpload}>
@@ -193,7 +193,6 @@ const UploadDropzone = ({ userId }) => {
           Upload Another?
         </Button>
       )}
-      <CameraCapture onCapture={handleCapture} />
     </UploadContainer>
   )
 }
