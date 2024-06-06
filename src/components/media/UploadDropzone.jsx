@@ -6,11 +6,10 @@ import Box from '@mui/material/Box'
 import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import LinearProgress from '@mui/material/LinearProgress'
+import Button from '@mui/material/Button'
 import { useDropzone } from 'react-dropzone'
 
-import AppReactDropzone from '@/libs/styles/AppReactDropzone'
-
-// Styled component for the upload image inside the dropzone area
+// Styled Components
 const Img = styled('img')(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
     marginRight: theme.spacing(15.75)
@@ -23,7 +22,6 @@ const Img = styled('img')(({ theme }) => ({
   }
 }))
 
-// Styled component for the heading inside the dropzone area
 const HeadingTypography = styled(Typography)(({ theme }) => ({
   marginBottom: theme.spacing(5),
   [theme.breakpoints.down('sm')]: {
@@ -31,18 +29,58 @@ const HeadingTypography = styled(Typography)(({ theme }) => ({
   }
 }))
 
+const AppReactDropzone = styled(Box)(({ theme }) => ({
+  '&.dropzone, & .dropzone': {
+    minHeight: 300,
+    display: 'flex',
+    flexWrap: 'wrap',
+    cursor: 'pointer',
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: theme.spacing(4),
+    borderRadius: theme.shape.borderRadius,
+    border: `2px dashed ${theme.palette.mode === 'light' ? 'rgba(93, 89, 98, 0.22)' : 'rgba(247, 244, 254, 0.14)'}`,
+    [theme.breakpoints.down('xs')]: {
+      textAlign: 'center'
+    },
+    '&:focus': {
+      outline: 'none'
+    },
+    '& .single-file-image': {
+      width: '300px', // Make the image width smaller
+      height: 'auto'
+    }
+  }
+}))
+
+const UploadContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: theme.spacing(2),
+  '& .buttons': {
+    marginTop: theme.spacing(2),
+    display: 'flex',
+    gap: theme.spacing(1)
+  }
+}))
+
 const UploadDropzone = ({ userId }) => {
-  const [files, setFiles] = useState([])
+  const [file, setFile] = useState(null)
   const [progress, setProgress] = useState(0)
 
-  const onDrop = async acceptedFiles => {
-    if (!userId) {
-      console.error('Error: A user ID must be provided.')
+  const onDrop = acceptedFiles => {
+    setFile(acceptedFiles[0])
+  }
+
+  const handleUpload = async () => {
+    if (!userId || !file) {
+      console.error('Error: A user ID and a file must be provided.')
 
       return
     }
-
-    setFiles(acceptedFiles.map(file => Object.assign(file)))
 
     try {
       const signatureResponse = await fetch('/api/sign-cloudinary-params', {
@@ -64,7 +102,7 @@ const UploadDropzone = ({ userId }) => {
 
       const formData = new FormData()
 
-      formData.append('file', acceptedFiles[0])
+      formData.append('file', file)
       formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET)
       formData.append('folder', `${userId}/client123`)
       formData.append('tags', 'my-cool-tag')
@@ -103,39 +141,47 @@ const UploadDropzone = ({ userId }) => {
     }
   }
 
+  const handleRemoveFile = () => {
+    setFile(null)
+  }
+
   const { getRootProps, getInputProps } = useDropzone({ onDrop, accept: 'image/*', maxFiles: 1 })
 
   return (
-    <AppReactDropzone {...getRootProps({ className: 'dropzone' })}>
-      <input {...getInputProps()} />
-      {files.length ? (
-        <img
-          key={files[0].name}
-          alt={files[0].name}
-          src={URL.createObjectURL(files[0])}
-          className='single-file-image'
-        />
-      ) : (
-        <div className='flex items-center flex-col md:flex-row'>
-          <Img alt='Upload img' src='/images/misc/file-upload.png' className='max-bs-[160px] max-is-full bs-full' />
-          <div className='flex flex-col md:[text-align:unset] text-center'>
-            <HeadingTypography variant='h5'>Drop files here or click to upload.</HeadingTypography>
-            <Typography>
-              Drop files here or click{' '}
-              <a href='/' onClick={e => e.preventDefault()} className='text-textPrimary no-underline'>
-                browse
-              </a>{' '}
-              through your machine
-            </Typography>
+    <UploadContainer>
+      <AppReactDropzone {...getRootProps({ className: 'dropzone' })}>
+        <input {...getInputProps()} />
+        {file ? (
+          <>
+            <img key={file.name} alt={file.name} src={URL.createObjectURL(file)} className='single-file-image' />
+          </>
+        ) : (
+          <div className='flex items-center flex-col md:flex-row'>
+            <Img alt='Upload img' src='/images/misc/file-upload.png' className='max-bs-[160px] max-is-full bs-full' />
+            <div className='flex flex-col md:[text-align:unset] text-center'>
+              <HeadingTypography variant='h5'>Drop file here or click to upload.</HeadingTypography>
+              <Typography>Allowed *.jpeg, *.jpg, *.png, *.gif</Typography>
+              <Typography>Max size of 2 MB</Typography>
+            </div>
           </div>
+        )}
+        {progress > 0 && (
+          <Box sx={{ width: '100%', mt: 2 }}>
+            <LinearProgress variant='determinate' value={progress} />
+          </Box>
+        )}
+      </AppReactDropzone>
+      {file && (
+        <div className='buttons'>
+          <Button color='error' variant='outlined' onClick={handleRemoveFile}>
+            Remove
+          </Button>
+          <Button variant='contained' onClick={handleUpload}>
+            Upload
+          </Button>
         </div>
       )}
-      {progress > 0 && (
-        <Box sx={{ width: '100%', mt: 2 }}>
-          <LinearProgress variant='determinate' value={progress} />
-        </Box>
-      )}
-    </AppReactDropzone>
+    </UploadContainer>
   )
 }
 

@@ -26,8 +26,7 @@ const UploadButton = ({ userId }) => {
       signatureEndpoint='/api/sign-cloudinary-params'
       options={{
         autoMinimize: true,
-        folder: userId, // Set the folder to the userId
-        tags: ['my-cool-tag']
+        folder: userId // Set the folder to the userId
       }}
     >
       <CustomButton variant='contained' startIcon={<CloudUploadIcon />}>

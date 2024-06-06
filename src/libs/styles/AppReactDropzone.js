@@ -21,6 +21,10 @@ const AppReactDropzone = styled(Box)(({ theme }) => ({
     },
     '&:focus': {
       outline: 'none'
+    },
+    '& .single-file-image': {
+      width: 'auto', // Make the image width smaller
+      height: '300px'
     }
   }
 }))
