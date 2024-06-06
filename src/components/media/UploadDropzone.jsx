@@ -11,6 +11,7 @@ import ErrorIcon from '@mui/icons-material/Error'
 import { useDropzone } from 'react-dropzone'
 
 import { Img, HeadingTypography, AppReactDropzone, UploadContainer } from '@/libs/styles/AppReactDropzone'
+import CameraCapture from '@components/media/CameraCapture' // Adjust the import path as needed
 
 const UploadDropzone = ({ userId }) => {
   const [file, setFile] = useState(null)
@@ -23,6 +24,22 @@ const UploadDropzone = ({ userId }) => {
     setFile(acceptedFiles[0])
     setUploadSuccess(false) // Reset upload success status on new file drop
     setUploadError(false) // Reset upload error status on new file drop
+  }
+
+  const handleCapture = dataUrl => {
+    const byteString = atob(dataUrl.split(',')[1])
+    const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0]
+    const ab = new ArrayBuffer(byteString.length)
+    const ia = new Uint8Array(ab)
+
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i)
+    }
+
+    const blob = new Blob([ab], { type: mimeString })
+    const file = new File([blob], 'snapshot.png', { type: mimeString })
+
+    setFile(file)
   }
 
   const handleUpload = async () => {
@@ -176,6 +193,7 @@ const UploadDropzone = ({ userId }) => {
           Upload Another?
         </Button>
       )}
+      <CameraCapture onCapture={handleCapture} />
     </UploadContainer>
   )
 }

@@ -2,7 +2,10 @@ import { v2 as cloudinary } from 'cloudinary'
 import { currentUser } from '@clerk/nextjs/server'
 
 import MediaGallery from '@/components/media/MediaGallery'
+
 import UploadDropzone from '@/components/media/UploadDropzone'
+import CameraUpload from '@/components/media/CameraUpload'
+import CameraFeed from '@/components/media/CameraFeed'
 
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -32,6 +35,8 @@ export default async function PhotoGallery() {
     <>
       <h2>Upload Photos</h2>
       <UploadDropzone userId={user.id} clientId={clientId} />
+      {/* <CameraUpload userId={user.id} clientId={clientId} /> */}
+      {/* <CameraFeed /> */}
       <h2>Photo Gallery</h2>
       <MediaGallery resources={resources} />
     </>
