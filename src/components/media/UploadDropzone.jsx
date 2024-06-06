@@ -12,6 +12,18 @@ import { useDropzone } from 'react-dropzone'
 
 import { Img, HeadingTypography, AppReactDropzone, UploadContainer } from '@/libs/styles/AppReactDropzone'
 
+const MAX_FILE_SIZE = 10485760 // 10 MB in bytes
+const MAX_FILES_TO_UPLOAD = 1
+
+const ALLOWED_FILE_TYPES = {
+  'image/jpeg': ['.jpeg', '.jpg'],
+  'image/png': ['.png'],
+  'image/gif': ['.gif'],
+  'image/webp': ['.webp'],
+  'image/heic': ['.heic'],
+  'image/heif': ['.heif']
+}
+
 const UploadDropzone = ({ userId }) => {
   const [file, setFile] = useState(null)
   const [progress, setProgress] = useState(0)
@@ -61,6 +73,7 @@ const UploadDropzone = ({ userId }) => {
       formData.append('file', file)
       formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET)
       formData.append('folder', `${userId}/client321`)
+      formData.append('tags', 'my-cool-tag')
       formData.append('signature', signature)
       formData.append('timestamp', timestamp)
       formData.append('api_key', api_key)
@@ -118,9 +131,9 @@ const UploadDropzone = ({ userId }) => {
 
   const { getRootProps, getInputProps, fileRejections } = useDropzone({
     onDrop,
-    accept: 'image/*',
-    maxFiles: 1,
-    maxSize: 10485760 // 10 MB in bytes
+    accept: ALLOWED_FILE_TYPES,
+    maxFiles: MAX_FILES_TO_UPLOAD,
+    maxSize: MAX_FILE_SIZE
   })
 
   const handleUploadAnother = () => {
@@ -142,7 +155,7 @@ const UploadDropzone = ({ userId }) => {
             <div className='success-message'>
               <CheckCircleIcon />
               <Typography variant='body1' sx={{ ml: 1 }}>
-                Upload successful!
+                Upload successful! Click here to upload another image.
               </Typography>
             </div>
           )
@@ -150,8 +163,9 @@ const UploadDropzone = ({ userId }) => {
           <div className='flex items-center flex-col md:flex-row'>
             <Img alt='Upload img' src='/images/misc/file-upload.png' className='max-bs-[160px] max-is-full bs-full' />
             <div className='flex flex-col md:[text-align:unset] text-center'>
-              <HeadingTypography variant='h5'>Drop file here or click to upload.</HeadingTypography>
-              <Typography>Allowed *.jpeg, *.jpg, *.png, *.gif</Typography>
+              <HeadingTypography variant='h5'>Drop image here or click to upload.</HeadingTypography>
+              <Typography>Allowed file types</Typography>
+              <Typography> *.jpeg, *.jpg, *.png, *.gif, *.webp, *.heic, *.heif</Typography>
               <Typography>Max size of 10 MB</Typography>
             </div>
           </div>
@@ -166,7 +180,7 @@ const UploadDropzone = ({ userId }) => {
         <div className='error-message'>
           <ErrorIcon />
           <Typography variant='body1' sx={{ ml: 1 }}>
-            File is too large. Maximum size is 10 MB.
+            File is too large or of an invalid type. Maximum size is 10 MB.
           </Typography>
         </div>
       )}
@@ -187,11 +201,6 @@ const UploadDropzone = ({ userId }) => {
             Upload failed. Please try again.
           </Typography>
         </div>
-      )}
-      {(uploadSuccess || uploadError) && (
-        <Button variant='contained' onClick={handleUploadAnother} sx={{ mt: 2 }}>
-          Upload Another?
-        </Button>
       )}
     </UploadContainer>
   )
