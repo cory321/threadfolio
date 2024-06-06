@@ -1,11 +1,12 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 
-import { useDropzone } from 'react-dropzone'
 import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
 import { styled } from '@mui/material/styles'
+import Typography from '@mui/material/Typography'
+import LinearProgress from '@mui/material/LinearProgress'
+import { useDropzone } from 'react-dropzone'
 
 import AppReactDropzone from '@/libs/styles/AppReactDropzone'
 
@@ -32,6 +33,7 @@ const HeadingTypography = styled(Typography)(({ theme }) => ({
 
 const UploadDropzone = ({ userId }) => {
   const [files, setFiles] = useState([])
+  const [progress, setProgress] = useState(0)
 
   const onDrop = async acceptedFiles => {
     if (!userId) {
@@ -39,6 +41,8 @@ const UploadDropzone = ({ userId }) => {
 
       return
     }
+
+    setFiles(acceptedFiles.map(file => Object.assign(file)))
 
     try {
       const signatureResponse = await fetch('/api/sign-cloudinary-params', {
@@ -68,45 +72,49 @@ const UploadDropzone = ({ userId }) => {
       formData.append('timestamp', timestamp)
       formData.append('api_key', api_key)
 
-      const uploadResponse = await fetch(
+      const xhr = new XMLHttpRequest()
+
+      xhr.open(
+        'POST',
         `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-        {
-          method: 'POST',
-          body: formData,
-          headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-          }
-        }
+        true
       )
 
-      if (!uploadResponse.ok) {
-        throw new Error('Upload failed.')
+      xhr.upload.onprogress = event => {
+        if (event.lengthComputable) {
+          const percentComplete = (event.loaded / event.total) * 100
+
+          setProgress(percentComplete)
+        }
       }
 
-      const data = await uploadResponse.json()
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          console.log('Upload successful:', JSON.parse(xhr.responseText))
+          setProgress(100) // Ensure progress bar reaches 100% on success
+        } else {
+          console.error('Upload failed.')
+        }
+      }
 
-      console.log('Upload successful:', data)
-      setFiles(acceptedFiles.map(file => Object.assign(file)))
+      xhr.send(formData)
     } catch (error) {
       console.error('Upload failed:', error)
     }
   }
 
-  const { getRootProps, getInputProps } = useDropzone({
-    multiple: false,
-    accept: { 'image/*': ['.png', '.jpg', '.jpeg', '.gif'] },
-    onDrop
-  })
-
-  const img = files.map(file => (
-    <img key={file.name} alt={file.name} className='single-file-image' src={URL.createObjectURL(file)} />
-  ))
+  const { getRootProps, getInputProps } = useDropzone({ onDrop, accept: 'image/*', maxFiles: 1 })
 
   return (
-    <AppReactDropzone {...getRootProps({ className: 'dropzone' })} {...(files.length && { sx: { height: 450 } })}>
+    <AppReactDropzone {...getRootProps({ className: 'dropzone' })}>
       <input {...getInputProps()} />
       {files.length ? (
-        img
+        <img
+          key={files[0].name}
+          alt={files[0].name}
+          src={URL.createObjectURL(files[0])}
+          className='single-file-image'
+        />
       ) : (
         <div className='flex items-center flex-col md:flex-row'>
           <Img alt='Upload img' src='/images/misc/file-upload.png' className='max-bs-[160px] max-is-full bs-full' />
@@ -121,6 +129,11 @@ const UploadDropzone = ({ userId }) => {
             </Typography>
           </div>
         </div>
+      )}
+      {progress > 0 && (
+        <Box sx={{ width: '100%', mt: 2 }}>
+          <LinearProgress variant='determinate' value={progress} />
+        </Box>
       )}
     </AppReactDropzone>
   )
