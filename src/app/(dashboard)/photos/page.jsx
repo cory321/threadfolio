@@ -2,9 +2,7 @@
 import { v2 as cloudinary } from 'cloudinary'
 import { currentUser } from '@clerk/nextjs/server'
 
-import MediaGallery from '@/components/media/MediaGallery'
-
-import UploadDropzone from '@/components/media/UploadDropzone'
+import SingleFileUploadWithGallery from '@/components/media/SingleFileUploadWithGallery'
 
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -21,21 +19,18 @@ export default async function PhotoGallery() {
   }
 
   const clientId = 'client321' // For testing purposes
-  const folderPath = `${user.id}/${clientId}/`
+  const UPLOAD_PATH = `${user.id}/${clientId}/`
+  const MAX_RESULTS = 50
 
-  // Get resources by folder prefix
   const { resources } = await cloudinary.api.resources({
     type: 'upload',
-    prefix: folderPath,
-    max_results: 50
+    prefix: UPLOAD_PATH,
+    max_results: MAX_RESULTS
   })
 
   return (
-    <>
-      <h2>Upload Photos</h2>
-      <UploadDropzone userId={user.id} clientId={clientId} />
-      <h2>Photo Gallery</h2>
-      <MediaGallery resources={resources} />
-    </>
+    <div>
+      <SingleFileUploadWithGallery userId={user.id} clientId={clientId} resources={resources} />
+    </div>
   )
 }
