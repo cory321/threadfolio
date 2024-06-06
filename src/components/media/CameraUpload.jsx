@@ -11,7 +11,7 @@ import ErrorIcon from '@mui/icons-material/Error'
 
 import { UploadContainer } from '@/libs/styles/AppReactDropzone'
 
-const CameraUpload = ({ userId }) => {
+const CameraUpload = ({ userId, clientId = 'general' }) => {
   const [file, setFile] = useState(null)
   const [progress, setProgress] = useState(0)
   const [uploading, setUploading] = useState(false)
@@ -38,7 +38,7 @@ const CameraUpload = ({ userId }) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          folder: `${userId}/client321`,
+          folder: `${userId}/${clientId}`,
           tags: 'my-cool-tag'
         })
       })
@@ -53,7 +53,7 @@ const CameraUpload = ({ userId }) => {
 
       formData.append('file', file)
       formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET)
-      formData.append('folder', `${userId}/client321`)
+      formData.append('folder', `${userId}/${clientId}`)
       formData.append('tags', 'my-cool-tag')
       formData.append('signature', signature)
       formData.append('timestamp', timestamp)

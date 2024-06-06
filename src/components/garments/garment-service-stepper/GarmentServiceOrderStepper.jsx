@@ -34,7 +34,7 @@ const steps = [
   { title: 'Order Summary', subtitle: 'Generate invoice and send to client' }
 ]
 
-const GarmentServiceOrderStepper = ({ userId, clientId }) => {
+const GarmentServiceOrderStepper = ({ userId }) => {
   const [activeStep, setActiveStep] = useState(0)
   const [selectedClient, setSelectedClient] = useState(null)
 
@@ -116,7 +116,7 @@ const GarmentServiceOrderStepper = ({ userId, clientId }) => {
                 <h2>Add Garments for {selectedClient && getFirstName(selectedClient.full_name)}</h2>
               </Grid>
               <Grid item xs={6}>
-                <SingleFileUpload userId={userId} clientId={clientId} btnText='Upload Garment Photo' />
+                <SingleFileUpload userId={userId} clientId={selectedClient.id} btnText='Upload Garment Photo' />
               </Grid>
               <Grid item xs={6}>
                 {/* Add garment form details */}

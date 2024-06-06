@@ -9,7 +9,7 @@ const AddClientButton = ({ onClick }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
   return (
-    <StyledAddClientCard onClick={onClick} isMobile={isMobile}>
+    <StyledAddClientCard onClick={onClick} {...(isMobile ? { ismobile: 'true' } : {})}>
       <StyledCardContent>
         <Box>
           <AddIcon fontSize='large' sx={{ color: 'primary.main' }} />

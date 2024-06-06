@@ -49,8 +49,8 @@ export const StyledCloseButton = styled(IconButton)(({ theme }) => ({
   color: theme.palette.grey[900]
 }))
 
-export const StyledAddClientCard = styled(Button)(({ theme, isMobile }) => ({
-  width: isMobile ? '100%' : 200,
+export const StyledAddClientCard = styled(Button)(({ theme, ismobile }) => ({
+  width: ismobile ? '100%' : 200,
   height: 200,
   display: 'flex',
   flexDirection: 'column',

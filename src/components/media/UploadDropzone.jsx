@@ -24,7 +24,7 @@ const ALLOWED_FILE_TYPES = {
   'image/heif': ['.heif']
 }
 
-const UploadDropzone = ({ userId }) => {
+const UploadDropzone = ({ userId, clientId = 'general', onUploadSuccess }) => {
   const [file, setFile] = useState(null)
   const [progress, setProgress] = useState(0)
   const [uploading, setUploading] = useState(false)
@@ -57,7 +57,7 @@ const UploadDropzone = ({ userId }) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          folder: `${userId}/client321`, // Assuming client321 for testing
+          folder: `${userId}/${clientId}`, // Assuming client321 for testing
           tags: 'my-cool-tag'
         })
       })
@@ -72,7 +72,7 @@ const UploadDropzone = ({ userId }) => {
 
       formData.append('file', file)
       formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET)
-      formData.append('folder', `${userId}/client321`)
+      formData.append('folder', `${userId}/${clientId}`)
       formData.append('tags', 'my-cool-tag')
       formData.append('signature', signature)
       formData.append('timestamp', timestamp)
@@ -98,9 +98,15 @@ const UploadDropzone = ({ userId }) => {
         setUploading(false)
 
         if (xhr.status === 200) {
-          console.log('Upload successful:', JSON.parse(xhr.responseText))
+          const response = JSON.parse(xhr.responseText)
+
+          console.log('Upload successful:', response)
           setUploadSuccess(true) // Indicate upload success
           setProgress(0) // Hide progress bar immediately
+
+          if (onUploadSuccess) {
+            onUploadSuccess(response.secure_url)
+          }
         } else {
           console.error('Upload failed.')
           setUploadError(true) // Indicate upload error

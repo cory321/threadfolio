@@ -9,11 +9,11 @@ import DialogTitle from '@mui/material/DialogTitle'
 import Typography from '@mui/material/Typography'
 
 import { StyledUploadButton, StyledCloseButton } from './styles/SingleFileUploadWithGalleryStyles'
-
 import UploadDropzone from '@/components/media/UploadDropzone'
 
-const SingleFileUpload = ({ userId, clientId, btnText = 'Upload Photo' }) => {
+const SingleFileUpload = ({ userId, clientId, btnText = 'Upload Garment Photo' }) => {
   const [open, setOpen] = useState(false)
+  const [imageUrl, setImageUrl] = useState(null)
 
   const handleClickOpen = () => {
     setOpen(true)
@@ -23,12 +23,21 @@ const SingleFileUpload = ({ userId, clientId, btnText = 'Upload Photo' }) => {
     setOpen(false)
   }
 
+  const handleUploadSuccess = url => {
+    setImageUrl(url)
+    setOpen(false)
+  }
+
   return (
     <>
-      <StyledUploadButton variant='outlined' color='primary' onClick={handleClickOpen}>
-        <i className='ri-upload-2-line' />
-        <Typography variant='body2'>{btnText}</Typography>
-      </StyledUploadButton>
+      {imageUrl ? (
+        <img src={imageUrl} alt='Uploaded Garment' className='uploaded-garment-image' />
+      ) : (
+        <StyledUploadButton variant='outlined' color='primary' onClick={handleClickOpen}>
+          <i className='ri-upload-2-line' />
+          <Typography variant='body2'>{btnText}</Typography>
+        </StyledUploadButton>
+      )}
       <Dialog fullScreen open={open} onClose={handleClose}>
         <DialogTitle>
           {btnText}
@@ -37,7 +46,7 @@ const SingleFileUpload = ({ userId, clientId, btnText = 'Upload Photo' }) => {
           </StyledCloseButton>
         </DialogTitle>
         <DialogContent>
-          <UploadDropzone userId={userId} clientId={clientId} />
+          <UploadDropzone userId={userId} clientId={clientId} onUploadSuccess={handleUploadSuccess} />
         </DialogContent>
       </Dialog>
     </>
