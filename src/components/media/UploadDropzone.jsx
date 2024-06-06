@@ -42,7 +42,7 @@ const UploadDropzone = ({ userId }) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          folder: `${userId}/client123`, // Assuming client123 for testing
+          folder: `${userId}/client321`, // Assuming client321 for testing
           tags: 'my-cool-tag'
         })
       })
@@ -57,7 +57,7 @@ const UploadDropzone = ({ userId }) => {
 
       formData.append('file', file)
       formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET)
-      formData.append('folder', `${userId}/client123`)
+      formData.append('folder', `${userId}/client321`)
       formData.append('tags', 'my-cool-tag')
       formData.append('signature', signature)
       formData.append('timestamp', timestamp)

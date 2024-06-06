@@ -18,7 +18,7 @@ export default async function PhotoGallery() {
     return <p>Redirecting to login...</p>
   }
 
-  const clientId = 'client123' // For testing purposes
+  const clientId = 'client321' // For testing purposes
   const folderPath = `${user.id}/${clientId}/`
 
   // Get resources by folder prefix
