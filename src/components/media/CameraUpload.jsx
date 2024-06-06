@@ -38,8 +38,7 @@ const CameraUpload = ({ userId, clientId = 'general' }) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          folder: `${userId}/${clientId}`,
-          tags: 'my-cool-tag'
+          folder: `${userId}/${clientId}`
         })
       })
 
@@ -54,7 +53,6 @@ const CameraUpload = ({ userId, clientId = 'general' }) => {
       formData.append('file', file)
       formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET)
       formData.append('folder', `${userId}/${clientId}`)
-      formData.append('tags', 'my-cool-tag')
       formData.append('signature', signature)
       formData.append('timestamp', timestamp)
       formData.append('api_key', api_key)

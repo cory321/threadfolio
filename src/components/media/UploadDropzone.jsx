@@ -57,8 +57,7 @@ const UploadDropzone = ({ userId, clientId = 'general', onUploadSuccess }) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          folder: `${userId}/${clientId}`, // Assuming client321 for testing
-          tags: 'my-cool-tag'
+          folder: `${userId}/${clientId}`
         })
       })
 
@@ -73,7 +72,6 @@ const UploadDropzone = ({ userId, clientId = 'general', onUploadSuccess }) => {
       formData.append('file', file)
       formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET)
       formData.append('folder', `${userId}/${clientId}`)
-      formData.append('tags', 'my-cool-tag')
       formData.append('signature', signature)
       formData.append('timestamp', timestamp)
       formData.append('api_key', api_key)
@@ -105,7 +103,7 @@ const UploadDropzone = ({ userId, clientId = 'general', onUploadSuccess }) => {
           setProgress(0) // Hide progress bar immediately
 
           if (onUploadSuccess) {
-            onUploadSuccess(response.secure_url)
+            onUploadSuccess(response.public_id, { width: response.width, height: response.height })
           }
         } else {
           console.error('Upload failed.')

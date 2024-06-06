@@ -12,7 +12,7 @@ const MediaGallery = ({ resources }) => {
             <CldImage
               src={resource.public_id}
               alt={resource.public_id}
-              sizes='(min-width: 768px) 33vw, (min-width: 1024px) 25vw, (min-width:1280px) 20vw'
+              sizes='(min-width: 768px) 33vw, (min-width: 1024px) 25vw, (min-width:1280px) 20vw, 50vw'
               width={resource.width}
               height={resource.height}
               style={{ width: '100%', height: 'auto' }}
