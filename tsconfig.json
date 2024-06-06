@@ -67,7 +67,8 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "src/middleware.js",
-    "src/components/todo/TodoList.jsx"
+    "src/components/todo/TodoList.jsx",
+    "src/app/api/sign-cloudinary-params/route.js"
   ],
   "exclude": [
     "node_modules"
