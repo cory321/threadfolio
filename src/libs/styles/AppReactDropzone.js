@@ -1,10 +1,28 @@
-'use client'
-
-import Box from '@mui/material/Box'
 import { styled } from '@mui/material/styles'
+import Typography from '@mui/material/Typography'
+import Box from '@mui/material/Box'
 
 // Styled Components
-const AppReactDropzone = styled(Box)(({ theme }) => ({
+export const Img = styled('img')(({ theme }) => ({
+  [theme.breakpoints.up('md')]: {
+    marginRight: theme.spacing(15.75)
+  },
+  [theme.breakpoints.down('md')]: {
+    marginBottom: theme.spacing(4)
+  },
+  [theme.breakpoints.down('sm')]: {
+    width: 160
+  }
+}))
+
+export const HeadingTypography = styled(Typography)(({ theme }) => ({
+  marginBottom: theme.spacing(5),
+  [theme.breakpoints.down('sm')]: {
+    marginBottom: theme.spacing(4)
+  }
+}))
+
+export const AppReactDropzone = styled(Box)(({ theme }) => ({
   '&.dropzone, & .dropzone': {
     minHeight: 300,
     display: 'flex',
@@ -23,10 +41,32 @@ const AppReactDropzone = styled(Box)(({ theme }) => ({
       outline: 'none'
     },
     '& .single-file-image': {
-      width: 'auto', // Make the image width smaller
-      height: '300px'
+      width: '300px', // Make the image width smaller
+      height: 'auto'
     }
   }
 }))
 
-export default AppReactDropzone
+export const UploadContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: theme.spacing(2),
+  '& .buttons': {
+    marginTop: theme.spacing(2),
+    display: 'flex',
+    gap: theme.spacing(1)
+  },
+  '& .success-message, & .error-message': {
+    display: 'flex',
+    alignItems: 'center',
+    marginTop: theme.spacing(2)
+  },
+  '& .success-message': {
+    color: theme.palette.success.main
+  },
+  '& .error-message': {
+    color: theme.palette.error.main
+  }
+}))

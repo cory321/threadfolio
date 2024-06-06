@@ -3,76 +3,26 @@
 import { useState } from 'react'
 
 import Box from '@mui/material/Box'
-import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import LinearProgress from '@mui/material/LinearProgress'
 import Button from '@mui/material/Button'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import ErrorIcon from '@mui/icons-material/Error'
 import { useDropzone } from 'react-dropzone'
 
-// Styled Components
-const Img = styled('img')(({ theme }) => ({
-  [theme.breakpoints.up('md')]: {
-    marginRight: theme.spacing(15.75)
-  },
-  [theme.breakpoints.down('md')]: {
-    marginBottom: theme.spacing(4)
-  },
-  [theme.breakpoints.down('sm')]: {
-    width: 160
-  }
-}))
-
-const HeadingTypography = styled(Typography)(({ theme }) => ({
-  marginBottom: theme.spacing(5),
-  [theme.breakpoints.down('sm')]: {
-    marginBottom: theme.spacing(4)
-  }
-}))
-
-const AppReactDropzone = styled(Box)(({ theme }) => ({
-  '&.dropzone, & .dropzone': {
-    minHeight: 300,
-    display: 'flex',
-    flexWrap: 'wrap',
-    cursor: 'pointer',
-    position: 'relative',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: theme.spacing(4),
-    borderRadius: theme.shape.borderRadius,
-    border: `2px dashed ${theme.palette.mode === 'light' ? 'rgba(93, 89, 98, 0.22)' : 'rgba(247, 244, 254, 0.14)'}`,
-    [theme.breakpoints.down('xs')]: {
-      textAlign: 'center'
-    },
-    '&:focus': {
-      outline: 'none'
-    },
-    '& .single-file-image': {
-      width: '300px', // Make the image width smaller
-      height: 'auto'
-    }
-  }
-}))
-
-const UploadContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  padding: theme.spacing(2),
-  '& .buttons': {
-    marginTop: theme.spacing(2),
-    display: 'flex',
-    gap: theme.spacing(1)
-  }
-}))
+import { Img, HeadingTypography, AppReactDropzone, UploadContainer } from '@/libs/styles/AppReactDropzone'
 
 const UploadDropzone = ({ userId }) => {
   const [file, setFile] = useState(null)
   const [progress, setProgress] = useState(0)
+  const [uploading, setUploading] = useState(false)
+  const [uploadSuccess, setUploadSuccess] = useState(false)
+  const [uploadError, setUploadError] = useState(false)
 
   const onDrop = acceptedFiles => {
     setFile(acceptedFiles[0])
+    setUploadSuccess(false) // Reset upload success status on new file drop
+    setUploadError(false) // Reset upload error status on new file drop
   }
 
   const handleUpload = async () => {
@@ -81,6 +31,9 @@ const UploadDropzone = ({ userId }) => {
 
       return
     }
+
+    setUploading(true)
+    setUploadError(false)
 
     try {
       const signatureResponse = await fetch('/api/sign-cloudinary-params', {
@@ -127,34 +80,63 @@ const UploadDropzone = ({ userId }) => {
       }
 
       xhr.onload = () => {
+        setUploading(false)
+
         if (xhr.status === 200) {
           console.log('Upload successful:', JSON.parse(xhr.responseText))
-          setProgress(100) // Ensure progress bar reaches 100% on success
+          setUploadSuccess(true) // Indicate upload success
+          setProgress(0) // Hide progress bar immediately
         } else {
           console.error('Upload failed.')
+          setUploadError(true) // Indicate upload error
         }
+      }
+
+      xhr.onerror = () => {
+        setUploading(false)
+        setUploadError(true) // Indicate upload error
+        console.error('Network error or upload failed.')
       }
 
       xhr.send(formData)
     } catch (error) {
+      setUploading(false)
+      setUploadError(true) // Indicate upload error
       console.error('Upload failed:', error)
     }
   }
 
   const handleRemoveFile = () => {
     setFile(null)
+    setUploadSuccess(false) // Reset upload success status on file removal
+    setUploadError(false) // Reset upload error status on file removal
+    setProgress(0) // Reset progress bar
   }
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop, accept: 'image/*', maxFiles: 1 })
+
+  const handleUploadAnother = () => {
+    setFile(null)
+    setUploadSuccess(false)
+    setUploadError(false)
+    setProgress(0)
+  }
 
   return (
     <UploadContainer>
       <AppReactDropzone {...getRootProps({ className: 'dropzone' })}>
         <input {...getInputProps()} />
         {file ? (
-          <>
+          !uploadSuccess ? (
             <img key={file.name} alt={file.name} src={URL.createObjectURL(file)} className='single-file-image' />
-          </>
+          ) : (
+            <div className='success-message'>
+              <CheckCircleIcon />
+              <Typography variant='body1' sx={{ ml: 1 }}>
+                Upload successful!
+              </Typography>
+            </div>
+          )
         ) : (
           <div className='flex items-center flex-col md:flex-row'>
             <Img alt='Upload img' src='/images/misc/file-upload.png' className='max-bs-[160px] max-is-full bs-full' />
@@ -171,15 +153,28 @@ const UploadDropzone = ({ userId }) => {
           </Box>
         )}
       </AppReactDropzone>
-      {file && (
+      {file && !uploading && !uploadSuccess && !uploadError && (
         <div className='buttons'>
-          <Button color='error' variant='outlined' onClick={handleRemoveFile}>
-            Remove
-          </Button>
           <Button variant='contained' onClick={handleUpload}>
             Upload
           </Button>
+          <Button color='error' variant='outlined' onClick={handleRemoveFile}>
+            Remove
+          </Button>
         </div>
+      )}
+      {uploadError && (
+        <div className='error-message'>
+          <ErrorIcon />
+          <Typography variant='body1' sx={{ ml: 1 }}>
+            Upload failed. Please try again.
+          </Typography>
+        </div>
+      )}
+      {(uploadSuccess || uploadError) && (
+        <Button variant='contained' onClick={handleUploadAnother} sx={{ mt: 2 }}>
+          Upload Another?
+        </Button>
       )}
     </UploadContainer>
   )
