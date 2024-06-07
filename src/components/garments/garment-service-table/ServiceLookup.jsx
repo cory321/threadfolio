@@ -14,15 +14,16 @@ import {
 
 import EnhancedTableHead from './EnhancedTableHead'
 import EnhancedTableToolbar from './EnhancedTableToolbar'
-import rows from './data/serviceData'
 import { getComparator, stableSort } from './utils/sorting'
+import ServicesSearch from '@components/services/ServicesSearch' // Import the ServicesSearch component
 
-export default function ServiceLookup() {
+export default function ServiceLookup({ userId }) {
   const [order, setOrder] = useState('asc')
   const [orderBy, setOrderBy] = useState('serviceName')
   const [selected, setSelected] = useState([])
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(5)
+  const [services, setServices] = useState([]) // Use state to manage services
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc'
@@ -33,7 +34,7 @@ export default function ServiceLookup() {
 
   const handleSelectAllClick = event => {
     if (event.target.checked) {
-      const newSelected = rows.map(n => n.id)
+      const newSelected = services.map(n => n.id)
 
       setSelected(newSelected)
 
@@ -71,17 +72,24 @@ export default function ServiceLookup() {
 
   const isSelected = id => selected.indexOf(id) !== -1
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - services.length) : 0
 
   const visibleRows = useMemo(
-    () => stableSort(rows, getComparator(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [order, orderBy, page, rowsPerPage]
+    () =>
+      stableSort(services, getComparator(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
+    [order, orderBy, page, rowsPerPage, services]
   )
+
+  const handleServiceSelect = service => {
+    setServices(prevServices => [...prevServices, service])
+  }
 
   return (
     <Box sx={{ mt: 4, width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
         <EnhancedTableToolbar numSelected={selected.length} />
+        <ServicesSearch userId={userId} onServiceSelect={handleServiceSelect} />
+        {/* Add the ServicesSearch component */}
         <TableContainer>
           <Table sx={{ minWidth: 750 }} aria-labelledby='tableTitle'>
             <EnhancedTableHead
@@ -90,7 +98,7 @@ export default function ServiceLookup() {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={rows.length}
+              rowCount={services.length}
             />
             <TableBody>
               {visibleRows.map((row, index) => {
@@ -112,11 +120,11 @@ export default function ServiceLookup() {
                       <Checkbox color='primary' checked={isItemSelected} inputProps={{ 'aria-labelledby': labelId }} />
                     </TableCell>
                     <TableCell component='th' id={labelId} scope='row' padding='none'>
-                      {row.serviceName}
+                      {row.name}
                     </TableCell>
-                    <TableCell align='right'>{row.quantity}</TableCell>
+                    <TableCell align='right'>{row.qty}</TableCell>
                     <TableCell align='right'>{row.unit}</TableCell>
-                    <TableCell align='right'>{row.unitPrice}</TableCell>
+                    <TableCell align='right'>{row.unit_price}</TableCell>
                   </TableRow>
                 )
               })}
@@ -131,7 +139,7 @@ export default function ServiceLookup() {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component='div'
-          count={rows.length}
+          count={services.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}

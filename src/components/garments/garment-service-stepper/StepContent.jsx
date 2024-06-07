@@ -89,8 +89,8 @@ const StepContent = ({
                   />
                 </Grid>
                 <Grid item xs={12} sm={12}>
-                  <ServicesSearch userId={userId} />
-                  <ServiceLookup />
+                  {/* <ServicesSearch userId={userId} /> */}
+                  <ServiceLookup userId={userId} />
                 </Grid>
                 <Grid item xs={12}>
                   <TextField

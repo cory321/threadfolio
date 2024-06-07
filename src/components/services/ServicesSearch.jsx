@@ -127,7 +127,7 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
                   {option.name}
                 </Typography>
                 <Typography variant='body2' color='textSecondary'>
-                  {option.quantity} {option.unit} @ ${option.unit_price}
+                  {option.qty} {option.unit} @ ${option.unit_price}
                 </Typography>
               </Box>
             </Box>
