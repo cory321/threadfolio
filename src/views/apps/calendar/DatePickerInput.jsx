@@ -1,6 +1,8 @@
+// DatePickerInput.jsx
 import React, { forwardRef } from 'react'
 
 import TextField from '@mui/material/TextField'
+import InputAdornment from '@mui/material/InputAdornment'
 import { format, isValid, parse } from 'date-fns'
 
 // Define the input format for dates and times
@@ -38,7 +40,12 @@ const DatePickerInput = forwardRef(({ label, value, onClick, dateFormat }, ref) 
       fullWidth
       variant='outlined'
       InputProps={{
-        readOnly: true
+        readOnly: true,
+        startAdornment: (
+          <InputAdornment position='start'>
+            <i className='ri-calendar-line text-[24px]' />
+          </InputAdornment>
+        )
       }}
     />
   )
