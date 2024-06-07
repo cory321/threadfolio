@@ -85,7 +85,17 @@ export default function ServiceLookup({ userId }) {
   }
 
   const handleInputChange = (id, field, value) => {
-    const updatedRows = services.map(row => (row.uniqueId === id ? { ...row, [field]: value } : row))
+    const updatedRows = services.map(row => {
+      if (row.uniqueId === id) {
+        if (field === 'unit_price' && parseFloat(value) > 1000000000) {
+          value = 1000000000 // Limit unit_price to a maximum of one billion
+        }
+
+        return { ...row, [field]: value }
+      }
+
+      return row
+    })
 
     setServices(updatedRows)
   }
@@ -98,8 +108,16 @@ export default function ServiceLookup({ userId }) {
   }
 
   const subtotal = useMemo(() => {
-    return services.reduce((sum, service) => sum + service.unit_price, 0)
+    return services.reduce((sum, service) => {
+      const unitPrice = parseFloat(service.unit_price) || 0
+
+      return sum + unitPrice
+    }, 0)
   }, [services])
+
+  const formattedSubtotal = useMemo(() => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(subtotal)
+  }, [subtotal])
 
   const isSelected = uniqueId => selected.indexOf(uniqueId) !== -1
 
@@ -211,7 +229,7 @@ export default function ServiceLookup({ userId }) {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 2 }}>
-          <Typography variant='h6'>Subtotal: ${subtotal.toFixed(2)}</Typography>
+          <Typography variant='h6'>Subtotal: {formattedSubtotal}</Typography>
         </Box>
       </Paper>
     </Box>
