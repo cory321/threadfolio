@@ -97,9 +97,9 @@ const StepContent = ({
   userId,
   selectedClient,
   setSelectedClient,
-  handleAccountSubmit,
-  handlePersonalSubmit,
-  handleSocialSubmit,
+  handleClientSubmit,
+  handleGarmentSubmit,
+  handleSummarySubmit,
   handleBack,
   onSubmit,
   getFirstName,
@@ -115,7 +115,7 @@ const StepContent = ({
   switch (step) {
     case 0:
       return (
-        <form key={0} onSubmit={handleAccountSubmit(onSubmit)}>
+        <form key={0} onSubmit={handleClientSubmit(onSubmit)}>
           <Grid container spacing={5}>
             <Grid item xs={12}>
               <GarmentClientLookup userId={userId} onClientSelect={setSelectedClient} selectedClient={selectedClient} />
@@ -131,7 +131,7 @@ const StepContent = ({
       )
     case 1:
       return (
-        <form key={1} onSubmit={handlePersonalSubmit(onSubmit)}>
+        <form key={1} onSubmit={handleGarmentSubmit(onSubmit)}>
           <Grid container spacing={6}>
             <Grid item xs={12} sm={3}>
               <Grid item xs={12}>
@@ -169,7 +169,7 @@ const StepContent = ({
       )
     case 2:
       return (
-        <form key={2} onSubmit={handleSocialSubmit(onSubmit)}>
+        <form key={2} onSubmit={handleSummarySubmit(onSubmit)}>
           <Grid container spacing={5}>
             <Grid item xs={12}>
               <Typography className='font-medium' color='text.primary'>

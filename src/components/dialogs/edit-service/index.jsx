@@ -15,8 +15,7 @@ import {
 } from '@mui/material'
 
 import { handleChange, handleUnitPriceBlur, calculateTotalPrice } from '@/utils/serviceUtils'
-
-const units = ['item', 'hour', 'day', 'week', 'month', 'none']
+import serviceUnitTypes from '@/utils/serviceUnitTypes'
 
 const EditServiceModal = ({ service, onClose, onSave, onDelete }) => {
   const [updatedService, setUpdatedService] = useState(service)
@@ -81,7 +80,7 @@ const EditServiceModal = ({ service, onClose, onSave, onDelete }) => {
             onChange={e => handleChange(e, setUpdatedService)}
             disabled={loading}
           >
-            {units.map(unit => (
+            {Object.values(serviceUnitTypes).map(unit => (
               <MenuItem key={unit} value={unit}>
                 {unit}
               </MenuItem>
@@ -111,9 +110,6 @@ const EditServiceModal = ({ service, onClose, onSave, onDelete }) => {
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleDelete} color='secondary' disabled={loading}>
-          {loading ? <CircularProgress size={24} /> : 'Delete'}
-        </Button>
         <Button onClick={onClose} color='primary' disabled={loading}>
           Cancel
         </Button>

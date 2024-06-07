@@ -9,8 +9,7 @@ import { toast } from 'react-toastify'
 
 import { addService } from '@/app/actions/services'
 import { handleChange, handleUnitPriceBlur, calculateTotalPrice } from '@/utils/serviceUtils'
-
-const units = ['item', 'hour', 'day', 'week', 'month', 'none']
+import serviceUnitTypes from '@/utils/serviceUnitTypes'
 
 const AddServiceForm = ({ setServices, onClose }) => {
   const { userId, getToken } = useAuth()
@@ -19,7 +18,7 @@ const AddServiceForm = ({ setServices, onClose }) => {
     name: '',
     description: '',
     qty: 0,
-    unit: 'item',
+    unit: serviceUnitTypes.ITEM,
     unit_price: 0,
     image_url: ''
   })
@@ -38,11 +37,11 @@ const AddServiceForm = ({ setServices, onClose }) => {
       const newServiceItem = await addService(userId, newService, token)
 
       setServices(prevServices => (prevServices ? [...prevServices, newServiceItem] : [newServiceItem]))
-      setNewService({ name: '', description: '', qty: 0, unit: 'item', unit_price: 0, image_url: '' })
+      setNewService({ name: '', description: '', qty: 0, unit: serviceUnitTypes.ITEM, unit_price: 0, image_url: '' })
       onClose()
       toast.success(`${newServiceItem.name} has been added!`)
     } catch (error) {
-      toast.error(`Error adding service: ${err}`)
+      toast.error(`Error adding service: ${error}`)
       console.error('Error adding service:', error)
     } finally {
       setIsLoading(false)
@@ -92,7 +91,7 @@ const AddServiceForm = ({ setServices, onClose }) => {
         value={newService.unit}
         disabled={isLoading}
       >
-        {units.map(unit => (
+        {Object.values(serviceUnitTypes).map(unit => (
           <MenuItem key={unit} value={unit}>
             {unit}
           </MenuItem>

@@ -112,8 +112,9 @@ export default function ServiceLookup({ userId }) {
   const subtotal = useMemo(() => {
     return services.reduce((sum, service) => {
       const unitPrice = parseFloat(service.unit_price) || 0
+      const qty = parseFloat(service.qty) || 0
 
-      return sum + unitPrice
+      return sum + unitPrice * qty
     }, 0)
   }, [services])
 
