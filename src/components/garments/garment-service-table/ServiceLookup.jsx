@@ -10,6 +10,7 @@ import {
   TableContainer,
   TablePagination,
   TableRow,
+  TextField,
   Typography
 } from '@mui/material'
 import shortUUID from 'short-uuid' // Import the short-uuid library
@@ -26,6 +27,7 @@ export default function ServiceLookup({ userId }) {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [services, setServices] = useState([]) // Use state to manage services
+  const [editingRowId, setEditingRowId] = useState(null) // State to track which row is being edited
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc'
@@ -46,7 +48,8 @@ export default function ServiceLookup({ userId }) {
     setSelected([])
   }
 
-  const handleClick = (event, uniqueId) => {
+  const handleCheckboxClick = (event, uniqueId) => {
+    event.stopPropagation() // Prevent triggering the row click
     const selectedIndex = selected.indexOf(uniqueId)
     let newSelected = []
 
@@ -63,6 +66,10 @@ export default function ServiceLookup({ userId }) {
     setSelected(newSelected)
   }
 
+  const handleRowClick = uniqueId => {
+    setEditingRowId(uniqueId) // Set the clicked row as editable
+  }
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage)
   }
@@ -77,15 +84,11 @@ export default function ServiceLookup({ userId }) {
     setSelected([])
   }
 
-  const isSelected = uniqueId => selected.indexOf(uniqueId) !== -1
+  const handleInputChange = (id, field, value) => {
+    const updatedRows = services.map(row => (row.uniqueId === id ? { ...row, [field]: value } : row))
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - services.length) : 0
-
-  const visibleRows = useMemo(
-    () =>
-      stableSort(services, getComparator(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [order, orderBy, page, rowsPerPage, services]
-  )
+    setServices(updatedRows)
+  }
 
   const handleServiceSelect = service => {
     const uniqueId = shortUUID.generate() // Generate a unique ID using short-uuid
@@ -97,6 +100,16 @@ export default function ServiceLookup({ userId }) {
   const subtotal = useMemo(() => {
     return services.reduce((sum, service) => sum + service.unit_price, 0)
   }, [services])
+
+  const isSelected = uniqueId => selected.indexOf(uniqueId) !== -1
+
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - services.length) : 0
+
+  const visibleRows = useMemo(
+    () =>
+      stableSort(services, getComparator(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
+    [order, orderBy, page, rowsPerPage, services]
+  )
 
   return (
     <Box sx={{ mt: 4, width: '100%' }}>
@@ -117,11 +130,12 @@ export default function ServiceLookup({ userId }) {
               {visibleRows.map((row, index) => {
                 const isItemSelected = isSelected(row.uniqueId)
                 const labelId = `enhanced-table-checkbox-${index}`
+                const isEditing = editingRowId === row.uniqueId
 
                 return (
                   <TableRow
                     hover
-                    onClick={event => handleClick(event, row.uniqueId)}
+                    onClick={() => handleRowClick(row.uniqueId)}
                     role='checkbox'
                     aria-checked={isItemSelected}
                     tabIndex={-1}
@@ -129,15 +143,53 @@ export default function ServiceLookup({ userId }) {
                     selected={isItemSelected}
                     sx={{ cursor: 'pointer' }}
                   >
-                    <TableCell padding='checkbox'>
+                    <TableCell padding='checkbox' onClick={event => handleCheckboxClick(event, row.uniqueId)}>
                       <Checkbox color='primary' checked={isItemSelected} inputProps={{ 'aria-labelledby': labelId }} />
                     </TableCell>
                     <TableCell component='th' id={labelId} scope='row' padding='none'>
-                      {row.name}
+                      {isEditing ? (
+                        <TextField
+                          value={row.name}
+                          onChange={e => handleInputChange(row.uniqueId, 'name', e.target.value)}
+                          variant='standard'
+                        />
+                      ) : (
+                        row.name
+                      )}
                     </TableCell>
-                    <TableCell align='right'>{row.qty}</TableCell>
-                    <TableCell align='right'>{row.unit}</TableCell>
-                    <TableCell align='right'>{row.unit_price}</TableCell>
+                    <TableCell align='right'>
+                      {isEditing ? (
+                        <TextField
+                          value={row.qty}
+                          onChange={e => handleInputChange(row.uniqueId, 'qty', e.target.value)}
+                          variant='standard'
+                        />
+                      ) : (
+                        row.qty
+                      )}
+                    </TableCell>
+                    <TableCell align='right'>
+                      {isEditing ? (
+                        <TextField
+                          value={row.unit}
+                          onChange={e => handleInputChange(row.uniqueId, 'unit', e.target.value)}
+                          variant='standard'
+                        />
+                      ) : (
+                        row.unit
+                      )}
+                    </TableCell>
+                    <TableCell align='right'>
+                      {isEditing ? (
+                        <TextField
+                          value={row.unit_price}
+                          onChange={e => handleInputChange(row.uniqueId, 'unit_price', e.target.value)}
+                          variant='standard'
+                        />
+                      ) : (
+                        row.unit_price
+                      )}
+                    </TableCell>
                   </TableRow>
                 )
               })}
@@ -158,7 +210,7 @@ export default function ServiceLookup({ userId }) {
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 10, pt: 10, pb: 10 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 2 }}>
           <Typography variant='h6'>Subtotal: ${subtotal.toFixed(2)}</Typography>
         </Box>
       </Paper>
