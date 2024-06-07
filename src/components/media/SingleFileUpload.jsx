@@ -12,7 +12,7 @@ import UploadDropzone from '@/components/media/UploadDropzone'
 
 const UploadButton = ({ handleClickOpen, btnText }) => (
   <StyledUploadButton variant='outlined' color='primary' onClick={handleClickOpen}>
-    <i className='ri-upload-2-line' />
+    <i className='ri-camera-line' />
     <Typography variant='body2'>{btnText}</Typography>
   </StyledUploadButton>
 )

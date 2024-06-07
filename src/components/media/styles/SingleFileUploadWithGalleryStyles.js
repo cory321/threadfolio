@@ -21,7 +21,7 @@ export const StyledUploadButton = styled(Button)(({ theme }) => ({
     borderColor: theme.palette.primary.dark,
     border: '2px solid'
   },
-  '& .ri-upload-2-line': {
+  '& .ri-camera-line': {
     fontSize: 40,
     color: theme.palette.primary.main,
     marginBottom: theme.spacing(1)
