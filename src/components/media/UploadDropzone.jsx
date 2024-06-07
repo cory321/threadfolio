@@ -11,35 +11,32 @@ import ErrorIcon from '@mui/icons-material/Error'
 import { useDropzone } from 'react-dropzone'
 
 import { Img, HeadingTypography, AppReactDropzone, UploadContainer } from '@/libs/styles/AppReactDropzone'
-import CameraCapture from '@components/media/CameraCapture' // Adjust the import path as needed
 
-const UploadDropzone = ({ userId }) => {
+const MAX_FILE_SIZE = 10485760 // 10 MB in bytes
+const MAX_FILES_TO_UPLOAD = 1
+
+const ALLOWED_FILE_TYPES = {
+  'image/jpeg': ['.jpeg', '.jpg'],
+  'image/png': ['.png'],
+  'image/gif': ['.gif'],
+  'image/webp': ['.webp'],
+  'image/heic': ['.heic'],
+  'image/heif': ['.heif']
+}
+
+const UploadDropzone = ({ userId, clientId = 'general', onUploadSuccess }) => {
   const [file, setFile] = useState(null)
   const [progress, setProgress] = useState(0)
   const [uploading, setUploading] = useState(false)
   const [uploadSuccess, setUploadSuccess] = useState(false)
   const [uploadError, setUploadError] = useState(false)
+  const [fileSizeError, setFileSizeError] = useState(false)
 
   const onDrop = acceptedFiles => {
     setFile(acceptedFiles[0])
     setUploadSuccess(false) // Reset upload success status on new file drop
     setUploadError(false) // Reset upload error status on new file drop
-  }
-
-  const handleCapture = dataUrl => {
-    const byteString = atob(dataUrl.split(',')[1])
-    const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0]
-    const ab = new ArrayBuffer(byteString.length)
-    const ia = new Uint8Array(ab)
-
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i)
-    }
-
-    const blob = new Blob([ab], { type: mimeString })
-    const file = new File([blob], 'snapshot.png', { type: mimeString })
-
-    setFile(file)
+    setFileSizeError(false) // Reset file size error status on new file drop
   }
 
   const handleUpload = async () => {
@@ -51,6 +48,7 @@ const UploadDropzone = ({ userId }) => {
 
     setUploading(true)
     setUploadError(false)
+    setFileSizeError(false)
 
     try {
       const signatureResponse = await fetch('/api/sign-cloudinary-params', {
@@ -59,8 +57,7 @@ const UploadDropzone = ({ userId }) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          folder: `${userId}/client321`, // Assuming client321 for testing
-          tags: 'my-cool-tag'
+          folder: `${userId}/${clientId}`
         })
       })
 
@@ -74,8 +71,7 @@ const UploadDropzone = ({ userId }) => {
 
       formData.append('file', file)
       formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET)
-      formData.append('folder', `${userId}/client321`)
-      formData.append('tags', 'my-cool-tag')
+      formData.append('folder', `${userId}/${clientId}`)
       formData.append('signature', signature)
       formData.append('timestamp', timestamp)
       formData.append('api_key', api_key)
@@ -100,9 +96,15 @@ const UploadDropzone = ({ userId }) => {
         setUploading(false)
 
         if (xhr.status === 200) {
-          console.log('Upload successful:', JSON.parse(xhr.responseText))
+          const response = JSON.parse(xhr.responseText)
+
+          console.log('Upload successful:', response)
           setUploadSuccess(true) // Indicate upload success
           setProgress(0) // Hide progress bar immediately
+
+          if (onUploadSuccess) {
+            onUploadSuccess(response.public_id, { width: response.width, height: response.height })
+          }
         } else {
           console.error('Upload failed.')
           setUploadError(true) // Indicate upload error
@@ -127,15 +129,22 @@ const UploadDropzone = ({ userId }) => {
     setFile(null)
     setUploadSuccess(false) // Reset upload success status on file removal
     setUploadError(false) // Reset upload error status on file removal
+    setFileSizeError(false) // Reset file size error status on file removal
     setProgress(0) // Reset progress bar
   }
 
-  const { getRootProps, getInputProps } = useDropzone({ onDrop, accept: 'image/*', maxFiles: 1 })
+  const { getRootProps, getInputProps, fileRejections } = useDropzone({
+    onDrop,
+    accept: ALLOWED_FILE_TYPES,
+    maxFiles: MAX_FILES_TO_UPLOAD,
+    maxSize: MAX_FILE_SIZE
+  })
 
   const handleUploadAnother = () => {
     setFile(null)
     setUploadSuccess(false)
     setUploadError(false)
+    setFileSizeError(false)
     setProgress(0)
   }
 
@@ -150,7 +159,7 @@ const UploadDropzone = ({ userId }) => {
             <div className='success-message'>
               <CheckCircleIcon />
               <Typography variant='body1' sx={{ ml: 1 }}>
-                Upload successful!
+                Upload successful! Click here to upload another image.
               </Typography>
             </div>
           )
@@ -158,9 +167,10 @@ const UploadDropzone = ({ userId }) => {
           <div className='flex items-center flex-col md:flex-row'>
             <Img alt='Upload img' src='/images/misc/file-upload.png' className='max-bs-[160px] max-is-full bs-full' />
             <div className='flex flex-col md:[text-align:unset] text-center'>
-              <HeadingTypography variant='h5'>Drop file here or click to upload.</HeadingTypography>
-              <Typography>Allowed *.jpeg, *.jpg, *.png, *.gif</Typography>
-              <Typography>Max size of 2 MB</Typography>
+              <HeadingTypography variant='h5'>Drop image here or click to upload.</HeadingTypography>
+              <Typography>Allowed file types</Typography>
+              <Typography> *.jpeg, *.jpg, *.png, *.gif, *.webp, *.heic, *.heif</Typography>
+              <Typography>Max size of 10 MB</Typography>
             </div>
           </div>
         )}
@@ -170,6 +180,14 @@ const UploadDropzone = ({ userId }) => {
           </Box>
         )}
       </AppReactDropzone>
+      {fileRejections.length > 0 && (
+        <div className='error-message'>
+          <ErrorIcon />
+          <Typography variant='body1' sx={{ ml: 1 }}>
+            File is too large or of an invalid type. Maximum size is 10 MB.
+          </Typography>
+        </div>
+      )}
       {file && !uploading && !uploadSuccess && !uploadError && (
         <div className='buttons'>
           <Button variant='contained' onClick={handleUpload}>
@@ -188,12 +206,6 @@ const UploadDropzone = ({ userId }) => {
           </Typography>
         </div>
       )}
-      {(uploadSuccess || uploadError) && (
-        <Button variant='contained' onClick={handleUploadAnother} sx={{ mt: 2 }}>
-          Upload Another?
-        </Button>
-      )}
-      <CameraCapture onCapture={handleCapture} />
     </UploadContainer>
   )
 }

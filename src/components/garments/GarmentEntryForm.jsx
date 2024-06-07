@@ -44,20 +44,7 @@ function GarmentEntryForm() {
         Add Garment
       </Typography>
       <TextField fullWidth label='Garment Name' value={name} onChange={e => setName(e.target.value)} margin='normal' />
-      <Button variant='contained' component='label' margin='normal'>
-        Upload Image
-        <input type='file' hidden onChange={handleImageUpload} />
-      </Button>
-      <FormControl fullWidth margin='normal'>
-        <InputLabel>Stage</InputLabel>
-        <Select value={stage} onChange={e => setStage(e.target.value)}>
-          <MenuItem value='not started'>Not Started</MenuItem>
-          <MenuItem value='working on it'>Working on it</MenuItem>
-          <MenuItem value='done'>Done</MenuItem>
-          <MenuItem value='stuck'>Stuck</MenuItem>
-          <MenuItem value='archived'>Archived</MenuItem>
-        </Select>
-      </FormControl>
+
       <ServiceLookup />
       <TextField
         fullWidth

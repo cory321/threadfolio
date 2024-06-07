@@ -17,7 +17,7 @@ const CreateServiceOrderPage = async () => {
 
   return (
     <>
-      <h1>Create Service Order</h1>
+      <h1>Create Garment Service Order</h1>
       <br />
       <GarmentServiceOrderStepper userId={userId} />
     </>

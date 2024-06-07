@@ -24,6 +24,7 @@ export const HeadingTypography = styled(Typography)(({ theme }) => ({
 
 export const AppReactDropzone = styled(Box)(({ theme }) => ({
   '&.dropzone, & .dropzone': {
+    width: '100%',
     minHeight: 300,
     display: 'flex',
     flexWrap: 'wrap',
