@@ -1,14 +1,23 @@
 // StepContent.jsx
 
-import React, { useState } from 'react'
+import { useState } from 'react'
+
+import dynamic from 'next/dynamic'
 
 import { Button, Checkbox, FormControlLabel, Grid, TextField, Typography } from '@mui/material'
 
+import LoadingSpinner from '@/components/ui/LoadingSpinner'
+
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 import DatePickerInput from '@views/apps/calendar/DatePickerInput'
-import ServiceLookup from '@/components/services/ServiceLookup'
+import ServiceLookup from '@components/garments/garment-service-table/ServiceLookup'
 import SingleFileUpload from '@/components/media/SingleFileUpload'
 import GarmentClientLookup from '@components/garments/GarmentClientLookup'
+
+const ServicesSearch = dynamic(() => import('@components/services/ServicesSearch'), {
+  ssr: false,
+  loading: LoadingSpinner
+})
 
 const StepContent = ({
   step,
@@ -25,7 +34,6 @@ const StepContent = ({
 }) => {
   const [name, setName] = useState('')
   const [image, setImage] = useState(null)
-  const [stage, setStage] = useState('not started')
   const [instructions, setInstructions] = useState('')
   const [dueDate, setDueDate] = useState(null)
   const [isEvent, setIsEvent] = useState(false)
@@ -61,26 +69,35 @@ const StepContent = ({
     case 1:
       return (
         <form key={1} onSubmit={handlePersonalSubmit(onSubmit)}>
-          <Grid container spacing={3}>
+          <Grid container spacing={6}>
             <Grid item xs={12}>
-              <h2>Add Garments for {selectedClient && getFirstName(selectedClient.full_name)}</h2>
+              <h2>Add garment for {selectedClient && getFirstName(selectedClient.full_name)}</h2>
             </Grid>
-            <Grid item xs={12} sm={4} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Grid item xs={12} sm={3} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <SingleFileUpload userId={userId} clientId={selectedClient.id} btnText='Upload Garment Photo' />
             </Grid>
-            <Grid item xs={12} sm={8}>
+            <Grid item xs={12} sm={9}>
+              <TextField
+                fullWidth
+                label='Garment Name'
+                value={name}
+                onChange={e => setName(e.target.value)}
+                margin='normal'
+              />
+            </Grid>
+            <Grid item xs={12} sm={12}>
+              <h2>
+                Add services to {selectedClient && getFirstName(selectedClient.full_name)}&rsquo;s {name || 'garment'}
+              </h2>
+            </Grid>
+            <Grid item xs={12} sm={12}>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={12}>
-                  <TextField
-                    fullWidth
-                    label='Garment Name'
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                    margin='normal'
-                  />
+                  {/* <ServicesSearch userId={userId} /> */}
+                  <ServiceLookup userId={userId} />
                 </Grid>
                 <Grid item xs={12} sm={12}>
-                  <ServiceLookup />
+                  <h2>Additional instructions and notes</h2>
                 </Grid>
                 <Grid item xs={12}>
                   <TextField
