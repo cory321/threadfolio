@@ -1,14 +1,23 @@
 // StepContent.jsx
 
-import React, { useState } from 'react'
+import { useState } from 'react'
+
+import dynamic from 'next/dynamic'
 
 import { Button, Checkbox, FormControlLabel, Grid, TextField, Typography } from '@mui/material'
+
+import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 import DatePickerInput from '@views/apps/calendar/DatePickerInput'
 import ServiceLookup from '@components/garments/garment-service-table/ServiceLookup'
 import SingleFileUpload from '@/components/media/SingleFileUpload'
 import GarmentClientLookup from '@components/garments/GarmentClientLookup'
+
+const ServicesSearch = dynamic(() => import('@components/services/ServicesSearch'), {
+  ssr: false,
+  loading: LoadingSpinner
+})
 
 const StepContent = ({
   step,
@@ -80,6 +89,7 @@ const StepContent = ({
                   />
                 </Grid>
                 <Grid item xs={12} sm={12}>
+                  <ServicesSearch userId={userId} />
                   <ServiceLookup />
                 </Grid>
                 <Grid item xs={12}>

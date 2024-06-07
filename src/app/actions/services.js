@@ -4,6 +4,23 @@ import { unstable_noStore as noStore } from 'next/cache'
 
 import { getSupabaseClient } from './utils'
 
+export async function searchServices(query, userId, token) {
+  noStore()
+  const supabase = await getSupabaseClient(token)
+
+  const { data, error } = await supabase
+    .from('services')
+    .select('id, name, qty, unit, unit_price')
+    .ilike('name', `%${query}%`)
+    .eq('user_id', userId)
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  return data
+}
+
 export async function addService(userId, service, token) {
   noStore()
   const supabase = await getSupabaseClient(token)

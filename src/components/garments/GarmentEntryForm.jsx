@@ -19,7 +19,7 @@ import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 import DatePickerInput from '@views/apps/calendar/DatePickerInput'
 import ServiceLookup from '@components/garments/garment-service-table/ServiceLookup' // Adjust the path as needed
 
-function GarmentEntryForm() {
+function GarmentEntryForm({ userId }) {
   const [name, setName] = useState('')
   const [image, setImage] = useState(null)
   const [stage, setStage] = useState('not started')
