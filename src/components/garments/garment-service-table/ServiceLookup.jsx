@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useMemo, useState } from 'react'
 
 import {
@@ -13,12 +15,12 @@ import {
   TextField,
   Typography
 } from '@mui/material'
-import shortUUID from 'short-uuid' // Import the short-uuid library
+import shortUUID from 'short-uuid'
 
 import EnhancedTableHead from './EnhancedTableHead'
 import EnhancedTableToolbar from './EnhancedTableToolbar'
 import { getComparator, stableSort } from './utils/sorting'
-import ServicesSearch from '@components/services/ServicesSearch' // Import the ServicesSearch component
+import ServicesSearch from '@components/services/ServicesSearch'
 
 export default function ServiceLookup({ userId }) {
   const [order, setOrder] = useState('asc')
@@ -26,8 +28,8 @@ export default function ServiceLookup({ userId }) {
   const [selected, setSelected] = useState([])
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(5)
-  const [services, setServices] = useState([]) // Use state to manage services
-  const [editingRowId, setEditingRowId] = useState(null) // State to track which row is being edited
+  const [services, setServices] = useState([])
+  const [editingRowId, setEditingRowId] = useState(null)
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc'
@@ -38,7 +40,7 @@ export default function ServiceLookup({ userId }) {
 
   const handleSelectAllClick = event => {
     if (event.target.checked) {
-      const newSelected = services.map(n => n.uniqueId) // Use uniqueId for selection
+      const newSelected = services.map(n => n.uniqueId)
 
       setSelected(newSelected)
 
@@ -49,7 +51,7 @@ export default function ServiceLookup({ userId }) {
   }
 
   const handleCheckboxClick = (event, uniqueId) => {
-    event.stopPropagation() // Prevent triggering the row click
+    event.stopPropagation()
     const selectedIndex = selected.indexOf(uniqueId)
     let newSelected = []
 
@@ -67,7 +69,7 @@ export default function ServiceLookup({ userId }) {
   }
 
   const handleRowClick = uniqueId => {
-    setEditingRowId(uniqueId) // Set the clicked row as editable
+    setEditingRowId(uniqueId)
   }
 
   const handleChangePage = (event, newPage) => {
@@ -132,7 +134,7 @@ export default function ServiceLookup({ userId }) {
   return (
     <Box sx={{ mt: 4, width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <ServicesSearch userId={userId} onServiceSelect={handleServiceSelect} />
+        <ServicesSearch userId={userId} onServiceSelect={handleServiceSelect} setServices={setServices} />
         <EnhancedTableToolbar numSelected={selected.length} onDelete={handleDelete} />
         <TableContainer>
           <Table sx={{ minWidth: 750 }} aria-labelledby='tableTitle'>
@@ -157,7 +159,7 @@ export default function ServiceLookup({ userId }) {
                     role='checkbox'
                     aria-checked={isItemSelected}
                     tabIndex={-1}
-                    key={row.uniqueId} // Use uniqueId as the key
+                    key={row.uniqueId}
                     selected={isItemSelected}
                     sx={{ cursor: 'pointer' }}
                   >

@@ -4,12 +4,23 @@ import React, { useState, useCallback, useTransition } from 'react'
 
 import throttle from 'lodash/throttle'
 import { useAuth } from '@clerk/nextjs'
-import { TextField, CircularProgress, Autocomplete, Typography, Box, Button } from '@mui/material'
+import {
+  TextField,
+  CircularProgress,
+  Autocomplete,
+  Typography,
+  Box,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent
+} from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import { styled } from '@mui/material/styles'
 
 import { searchServices } from '@actions/services'
 import InitialsAvatar from '@/components/InitialsAvatar'
+import AddServiceForm from '@/components/services/AddServiceForm'
 
 const CustomTextField = styled(TextField)(({ theme }) => ({
   '& .MuiInputLabel-root': {
@@ -28,6 +39,7 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
   const { getToken } = useAuth()
   const [loading, setLoading] = useState(false)
   const [isPending, startTransition] = useTransition()
+  const [openCreateDialog, setOpenCreateDialog] = useState(false)
 
   const fetchServices = useCallback(
     async query => {
@@ -83,6 +95,9 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
     }
   }
 
+  const handleCreateDialogOpen = () => setOpenCreateDialog(true)
+  const handleCreateDialogClose = () => setOpenCreateDialog(false)
+
   return (
     <>
       <Autocomplete
@@ -134,11 +149,30 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
           </li>
         )}
       />
-      <Box mt={2} display='flex' justifyContent='flex-end'>
+      <Box mt={2} display='flex' justifyContent='space-between'>
+        <Button variant='outlined' color='primary' onClick={handleCreateDialogOpen}>
+          Create New Service
+        </Button>
         <Button variant='contained' color='primary' onClick={handleConfirmSelection} disabled={!selectedService}>
           Add Service to Garment
         </Button>
       </Box>
+      <Dialog
+        open={openCreateDialog}
+        onClose={handleCreateDialogClose}
+        aria-labelledby='add-service-dialog-title'
+        aria-describedby='add-service-dialog-description'
+        maxWidth='xs'
+        fullWidth
+      >
+        <DialogTitle>Create New Service</DialogTitle>
+        <DialogContent>
+          <AddServiceForm
+            setServices={newService => setResults(prev => [...prev, newService])}
+            onClose={handleCreateDialogClose}
+          />
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
