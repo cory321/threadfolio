@@ -9,7 +9,8 @@ import {
   TableCell,
   TableContainer,
   TablePagination,
-  TableRow
+  TableRow,
+  Typography
 } from '@mui/material'
 import shortUUID from 'short-uuid' // Import the short-uuid library
 
@@ -93,12 +94,15 @@ export default function ServiceLookup({ userId }) {
     setServices(prevServices => [...prevServices, serviceWithUniqueId])
   }
 
+  const subtotal = useMemo(() => {
+    return services.reduce((sum, service) => sum + service.unit_price, 0)
+  }, [services])
+
   return (
     <Box sx={{ mt: 4, width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
+        <ServicesSearch userId={userId} onServiceSelect={handleServiceSelect} />
         <EnhancedTableToolbar numSelected={selected.length} onDelete={handleDelete} />
-        <ServicesSearch userId={userId} onServiceSelect={handleServiceSelect} />{' '}
-        {/* Add the ServicesSearch component */}
         <TableContainer>
           <Table sx={{ minWidth: 750 }} aria-labelledby='tableTitle'>
             <EnhancedTableHead
@@ -154,6 +158,9 @@ export default function ServiceLookup({ userId }) {
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 10, pt: 10, pb: 10 }}>
+          <Typography variant='h6'>Subtotal: ${subtotal.toFixed(2)}</Typography>
+        </Box>
       </Paper>
     </Box>
   )

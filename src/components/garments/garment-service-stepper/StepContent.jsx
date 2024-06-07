@@ -87,7 +87,7 @@ const StepContent = ({
             </Grid>
             <Grid item xs={12} sm={12}>
               <h2>
-                Add services to {selectedClient && getFirstName(selectedClient.full_name)}'s {name || 'garment'}
+                Add services to {selectedClient && getFirstName(selectedClient.full_name)}&rsquo;s {name || 'garment'}
               </h2>
             </Grid>
             <Grid item xs={12} sm={12}>
@@ -95,6 +95,9 @@ const StepContent = ({
                 <Grid item xs={12} sm={12}>
                   {/* <ServicesSearch userId={userId} /> */}
                   <ServiceLookup userId={userId} />
+                </Grid>
+                <Grid item xs={12} sm={12}>
+                  <h2>Additional instructions and notes</h2>
                 </Grid>
                 <Grid item xs={12}>
                   <TextField
