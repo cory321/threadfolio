@@ -34,7 +34,6 @@ const StepContent = ({
 }) => {
   const [name, setName] = useState('')
   const [image, setImage] = useState(null)
-  const [stage, setStage] = useState('not started')
   const [instructions, setInstructions] = useState('')
   const [dueDate, setDueDate] = useState(null)
   const [isEvent, setIsEvent] = useState(false)
@@ -70,24 +69,29 @@ const StepContent = ({
     case 1:
       return (
         <form key={1} onSubmit={handlePersonalSubmit(onSubmit)}>
-          <Grid container spacing={3}>
+          <Grid container spacing={6}>
             <Grid item xs={12}>
-              <h2>Add Garments for {selectedClient && getFirstName(selectedClient.full_name)}</h2>
+              <h2>Add garment for {selectedClient && getFirstName(selectedClient.full_name)}</h2>
             </Grid>
-            <Grid item xs={12} sm={4} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Grid item xs={12} sm={3} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <SingleFileUpload userId={userId} clientId={selectedClient.id} btnText='Upload Garment Photo' />
             </Grid>
-            <Grid item xs={12} sm={8}>
+            <Grid item xs={12} sm={9}>
+              <TextField
+                fullWidth
+                label='Garment Name'
+                value={name}
+                onChange={e => setName(e.target.value)}
+                margin='normal'
+              />
+            </Grid>
+            <Grid item xs={12} sm={12}>
+              <h2>
+                Add services to {selectedClient && getFirstName(selectedClient.full_name)}'s {name || 'garment'}
+              </h2>
+            </Grid>
+            <Grid item xs={12} sm={12}>
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={12}>
-                  <TextField
-                    fullWidth
-                    label='Garment Name'
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                    margin='normal'
-                  />
-                </Grid>
                 <Grid item xs={12} sm={12}>
                   {/* <ServicesSearch userId={userId} /> */}
                   <ServiceLookup userId={userId} />
