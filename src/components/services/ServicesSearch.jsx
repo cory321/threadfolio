@@ -20,7 +20,7 @@ import { styled } from '@mui/material/styles'
 
 import { searchServices } from '@actions/services'
 import InitialsAvatar from '@/components/InitialsAvatar'
-import AddServiceForm from '@/components/services/AddServiceForm'
+import AddServiceFormModal from '@/components/services/AddServiceFormModal'
 
 const CustomTextField = styled(TextField)(({ theme }) => ({
   '& .MuiInputLabel-root': {
@@ -167,8 +167,8 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
       >
         <DialogTitle>Create New Service</DialogTitle>
         <DialogContent>
-          <AddServiceForm
-            setServices={newService => setResults(prev => [...prev, newService])}
+          <AddServiceFormModal
+            setResults={newService => setResults(prev => [...prev, newService])}
             onClose={handleCreateDialogClose}
           />
         </DialogContent>
