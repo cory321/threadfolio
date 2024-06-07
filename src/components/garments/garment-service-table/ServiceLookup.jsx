@@ -228,7 +228,7 @@ export default function ServiceLookup({ userId }) {
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 10 }}>
           <Typography variant='h6'>Subtotal: {formattedSubtotal}</Typography>
         </Box>
       </Paper>

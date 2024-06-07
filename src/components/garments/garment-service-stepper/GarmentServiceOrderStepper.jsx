@@ -12,9 +12,7 @@ import StepContent from './StepContent'
 
 const steps = [
   { title: 'Client Details', subtitle: 'Add or find a client' },
-  { title: 'Add Garment', subtitle: 'Upload photos and add garment details' },
-
-  // { title: 'Add Services', subtitle: 'Append services for garment' },
+  { title: 'Add Garments and Services', subtitle: 'Add garment details and append services' },
   { title: 'Order Summary', subtitle: 'Generate invoice and send to client' }
 ]
 

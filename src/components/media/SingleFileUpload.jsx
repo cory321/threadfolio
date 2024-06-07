@@ -7,6 +7,8 @@ import { CldImage } from 'next-cloudinary'
 import CloseIcon from '@mui/icons-material/Close'
 import EditIcon from '@mui/icons-material/Edit'
 
+import HoverOverlay from '@components/garments/HoverOverlay'
+
 import { StyledUploadButton, StyledCloseButton } from './styles/SingleFileUploadWithGalleryStyles'
 import UploadDropzone from '@/components/media/UploadDropzone'
 
@@ -18,8 +20,8 @@ const UploadButton = ({ handleClickOpen, btnText }) => (
 )
 
 const ImageDisplay = ({ publicId, handleLightboxOpen, handleClickOpen }) => (
-  <Grid container direction='column' alignItems='center' spacing={2}>
-    <Grid item onClick={handleLightboxOpen} style={{ cursor: 'pointer' }}>
+  <Grid container direction='column' alignItems='center' spacing={0}>
+    <Grid item style={{ position: 'relative', cursor: 'pointer', borderRadius: '10px', overflow: 'hidden' }}>
       <CldImage
         src={publicId}
         alt='Photo of uploaded garment'
@@ -28,8 +30,9 @@ const ImageDisplay = ({ publicId, handleLightboxOpen, handleClickOpen }) => (
         crop='fill'
         quality='auto'
         fetchFormat='auto'
-        style={{ width: '200px', height: '200px' }}
+        style={{ borderRadius: '10px', transition: '0.3s' }}
       />
+      <HoverOverlay onClick={handleLightboxOpen} />
     </Grid>
     <Grid item>
       <Button variant='outlined' startIcon={<EditIcon />} onClick={handleClickOpen}>
@@ -85,7 +88,7 @@ const SingleFileUpload = ({ userId, clientId, btnText = 'Upload Garment Photo' }
               crop='fit'
               quality='auto'
               fetchFormat='auto'
-              style={{ width: '100%', height: 'auto' }}
+              style={{ width: '100%', height: 'auto' }} // Added borderRadius for rounded edges
             />
           )}
         </DialogContent>
