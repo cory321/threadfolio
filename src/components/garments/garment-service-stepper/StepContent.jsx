@@ -6,7 +6,7 @@ import { Button, Checkbox, FormControlLabel, Grid, TextField, Typography } from 
 
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 import DatePickerInput from '@views/apps/calendar/DatePickerInput'
-import ServiceLookup from '@/components/services/ServiceLookup'
+import ServiceLookup from '@components/garments/garment-service-table/ServiceLookup'
 import SingleFileUpload from '@/components/media/SingleFileUpload'
 import GarmentClientLookup from '@components/garments/GarmentClientLookup'
 

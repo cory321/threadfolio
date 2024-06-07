@@ -17,7 +17,7 @@ import {
 
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 import DatePickerInput from '@views/apps/calendar/DatePickerInput'
-import ServiceLookup from '@/components/services/ServiceLookup' // Adjust the path as needed
+import ServiceLookup from '@components/garments/garment-service-table/ServiceLookup' // Adjust the path as needed
 
 function GarmentEntryForm() {
   const [name, setName] = useState('')
