@@ -80,7 +80,7 @@ const AddServiceForm = ({ setServices, onClose }) => {
         name='qty'
         type='number'
         onChange={e => handleChange(e, setNewService)}
-        value={newService.qty}
+        value={newService.qty.toString()}
         disabled={isLoading}
       />
       <TextField
