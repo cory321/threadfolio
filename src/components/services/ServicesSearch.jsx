@@ -136,7 +136,7 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
       />
       <Box mt={2} display='flex' justifyContent='flex-end'>
         <Button variant='contained' color='primary' onClick={handleConfirmSelection} disabled={!selectedService}>
-          Select Service
+          Add Service to Garment
         </Button>
       </Box>
     </>

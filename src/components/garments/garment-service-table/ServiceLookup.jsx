@@ -11,6 +11,7 @@ import {
   TablePagination,
   TableRow
 } from '@mui/material'
+import shortUUID from 'short-uuid' // Import the short-uuid library
 
 import EnhancedTableHead from './EnhancedTableHead'
 import EnhancedTableToolbar from './EnhancedTableToolbar'
@@ -34,7 +35,7 @@ export default function ServiceLookup({ userId }) {
 
   const handleSelectAllClick = event => {
     if (event.target.checked) {
-      const newSelected = services.map(n => n.id)
+      const newSelected = services.map(n => n.uniqueId) // Use uniqueId for selection
 
       setSelected(newSelected)
 
@@ -44,12 +45,12 @@ export default function ServiceLookup({ userId }) {
     setSelected([])
   }
 
-  const handleClick = (event, id) => {
-    const selectedIndex = selected.indexOf(id)
+  const handleClick = (event, uniqueId) => {
+    const selectedIndex = selected.indexOf(uniqueId)
     let newSelected = []
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, id)
+      newSelected = newSelected.concat(selected, uniqueId)
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1))
     } else if (selectedIndex === selected.length - 1) {
@@ -70,7 +71,12 @@ export default function ServiceLookup({ userId }) {
     setPage(0)
   }
 
-  const isSelected = id => selected.indexOf(id) !== -1
+  const handleDelete = () => {
+    setServices(services.filter(service => !selected.includes(service.uniqueId)))
+    setSelected([])
+  }
+
+  const isSelected = uniqueId => selected.indexOf(uniqueId) !== -1
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - services.length) : 0
 
@@ -81,14 +87,17 @@ export default function ServiceLookup({ userId }) {
   )
 
   const handleServiceSelect = service => {
-    setServices(prevServices => [...prevServices, service])
+    const uniqueId = shortUUID.generate() // Generate a unique ID using short-uuid
+    const serviceWithUniqueId = { ...service, uniqueId } // Add a uniqueId to each service
+
+    setServices(prevServices => [...prevServices, serviceWithUniqueId])
   }
 
   return (
     <Box sx={{ mt: 4, width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} />
-        <ServicesSearch userId={userId} onServiceSelect={handleServiceSelect} />
+        <EnhancedTableToolbar numSelected={selected.length} onDelete={handleDelete} />
+        <ServicesSearch userId={userId} onServiceSelect={handleServiceSelect} />{' '}
         {/* Add the ServicesSearch component */}
         <TableContainer>
           <Table sx={{ minWidth: 750 }} aria-labelledby='tableTitle'>
@@ -102,17 +111,17 @@ export default function ServiceLookup({ userId }) {
             />
             <TableBody>
               {visibleRows.map((row, index) => {
-                const isItemSelected = isSelected(row.id)
+                const isItemSelected = isSelected(row.uniqueId)
                 const labelId = `enhanced-table-checkbox-${index}`
 
                 return (
                   <TableRow
                     hover
-                    onClick={event => handleClick(event, row.id)}
+                    onClick={event => handleClick(event, row.uniqueId)}
                     role='checkbox'
                     aria-checked={isItemSelected}
                     tabIndex={-1}
-                    key={row.id}
+                    key={row.uniqueId} // Use uniqueId as the key
                     selected={isItemSelected}
                     sx={{ cursor: 'pointer' }}
                   >
