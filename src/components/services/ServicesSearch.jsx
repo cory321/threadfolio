@@ -4,23 +4,13 @@ import React, { useState, useCallback, useTransition } from 'react'
 
 import throttle from 'lodash/throttle'
 import { useAuth } from '@clerk/nextjs'
-import {
-  TextField,
-  CircularProgress,
-  Autocomplete,
-  Typography,
-  Box,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent
-} from '@mui/material'
+import { TextField, CircularProgress, Autocomplete, Typography, Box, Button } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import { styled } from '@mui/material/styles'
 
 import { searchServices } from '@actions/services'
 import InitialsAvatar from '@/components/InitialsAvatar'
-import AddServiceFormModal from '@/components/services/AddServiceFormModal'
+import CreateServiceDialog from '@/components/garments/garment-service-table/CreateServiceDialog'
 
 const CustomTextField = styled(TextField)(({ theme }) => ({
   '& .MuiInputLabel-root': {
@@ -65,7 +55,7 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
 
   const handleSearch = useCallback(throttle(fetchServices, 300), [fetchServices])
 
-  const handleChange = (event, newValue) => {
+  const handleQueryChange = (event, newValue) => {
     const newQuery = (event ? event.target.value : newValue) || ''
 
     setQuery(newQuery)
@@ -104,7 +94,7 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
         options={results}
         getOptionLabel={option => option.name || ''}
         isOptionEqualToValue={(option, value) => option.id === value.id}
-        onInputChange={handleChange}
+        onInputChange={handleQueryChange}
         onChange={handleSelect}
         inputValue={query}
         autoHighlight
@@ -149,7 +139,7 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
           </li>
         )}
       />
-      <Box mt={2} display='flex' justifyContent='space-between'>
+      <Box mt={2} display='flex' justifyContent='flex-end'>
         <Button variant='outlined' color='primary' onClick={handleCreateDialogOpen}>
           Create New Service
         </Button>
@@ -157,22 +147,12 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
           Add Service to Garment
         </Button>
       </Box>
-      <Dialog
+
+      <CreateServiceDialog
         open={openCreateDialog}
         onClose={handleCreateDialogClose}
-        aria-labelledby='add-service-dialog-title'
-        aria-describedby='add-service-dialog-description'
-        maxWidth='xs'
-        fullWidth
-      >
-        <DialogTitle>Create New Service</DialogTitle>
-        <DialogContent>
-          <AddServiceFormModal
-            setResults={newService => setResults(prev => [...prev, newService])}
-            onClose={handleCreateDialogClose}
-          />
-        </DialogContent>
-      </Dialog>
+        onServiceSelect={onServiceSelect}
+      />
     </>
   )
 }

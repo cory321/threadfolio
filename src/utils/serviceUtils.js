@@ -5,7 +5,7 @@ export const handleChange = (e, setServiceState) => {
   if (name === 'qty') {
     const parsedValue = parseInt(value, 10)
 
-    formattedValue = isNaN(parsedValue) ? 0 : parsedValue
+    formattedValue = isNaN(parsedValue) ? '' : parsedValue.toString()
   }
 
   setServiceState(prevService => ({
