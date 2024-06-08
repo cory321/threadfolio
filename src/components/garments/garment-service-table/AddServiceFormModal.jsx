@@ -11,7 +11,7 @@ import { addService } from '@/app/actions/services'
 import { handleChange, handleUnitPriceBlur, calculateTotalPrice } from '@/utils/serviceUtils'
 import serviceUnitTypes from '@/utils/serviceUnitTypes'
 
-const AddServiceForm = ({ setServices, onClose }) => {
+const AddServiceFormModal = ({ setResults, onClose }) => {
   const { userId, getToken } = useAuth()
 
   const [newService, setNewService] = useState({
@@ -36,7 +36,7 @@ const AddServiceForm = ({ setServices, onClose }) => {
     try {
       const newServiceItem = await addService(userId, newService, token)
 
-      setServices(prevServices => (prevServices ? [...prevServices, newServiceItem] : [newServiceItem]))
+      setResults(prevResults => [...prevResults, newServiceItem])
       setNewService({ name: '', description: '', qty: 0, unit: serviceUnitTypes.ITEM, unit_price: 0, image_url: '' })
       onClose()
       toast.success(`${newServiceItem.name} has been added!`)
@@ -125,4 +125,4 @@ const AddServiceForm = ({ setServices, onClose }) => {
   )
 }
 
-export default AddServiceForm
+export default AddServiceFormModal

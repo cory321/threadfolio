@@ -10,6 +10,7 @@ import { styled } from '@mui/material/styles'
 
 import { searchServices } from '@actions/services'
 import InitialsAvatar from '@/components/InitialsAvatar'
+import CreateServiceDialog from '@/components/garments/garment-service-table/CreateServiceDialog'
 
 const CustomTextField = styled(TextField)(({ theme }) => ({
   '& .MuiInputLabel-root': {
@@ -28,6 +29,7 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
   const { getToken } = useAuth()
   const [loading, setLoading] = useState(false)
   const [isPending, startTransition] = useTransition()
+  const [openCreateDialog, setOpenCreateDialog] = useState(false)
 
   const fetchServices = useCallback(
     async query => {
@@ -53,7 +55,7 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
 
   const handleSearch = useCallback(throttle(fetchServices, 300), [fetchServices])
 
-  const handleChange = (event, newValue) => {
+  const handleQueryChange = (event, newValue) => {
     const newQuery = (event ? event.target.value : newValue) || ''
 
     setQuery(newQuery)
@@ -83,13 +85,16 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
     }
   }
 
+  const handleCreateDialogOpen = () => setOpenCreateDialog(true)
+  const handleCreateDialogClose = () => setOpenCreateDialog(false)
+
   return (
     <>
       <Autocomplete
         options={results}
         getOptionLabel={option => option.name || ''}
         isOptionEqualToValue={(option, value) => option.id === value.id}
-        onInputChange={handleChange}
+        onInputChange={handleQueryChange}
         onChange={handleSelect}
         inputValue={query}
         autoHighlight
@@ -135,10 +140,24 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
         )}
       />
       <Box mt={2} display='flex' justifyContent='flex-end'>
+        <Button
+          variant='outlined'
+          color='primary'
+          onClick={handleCreateDialogOpen}
+          sx={{ mr: 2 }} // Add right margin for spacing
+        >
+          Create New Service
+        </Button>
         <Button variant='contained' color='primary' onClick={handleConfirmSelection} disabled={!selectedService}>
           Add Service to Garment
         </Button>
       </Box>
+
+      <CreateServiceDialog
+        open={openCreateDialog}
+        onClose={handleCreateDialogClose}
+        onServiceSelect={onServiceSelect}
+      />
     </>
   )
 }

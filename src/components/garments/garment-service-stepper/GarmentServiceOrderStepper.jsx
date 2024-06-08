@@ -12,9 +12,7 @@ import StepContent from './StepContent'
 
 const steps = [
   { title: 'Client Details', subtitle: 'Add or find a client' },
-  { title: 'Add Garment', subtitle: 'Upload photos and add garment details' },
-
-  // { title: 'Add Services', subtitle: 'Append services for garment' },
+  { title: 'Add Garments and Services', subtitle: 'Add garment details and append services' },
   { title: 'Order Summary', subtitle: 'Generate invoice and send to client' }
 ]
 
@@ -23,30 +21,30 @@ const GarmentServiceOrderStepper = ({ userId }) => {
   const [selectedClient, setSelectedClient] = useState(null)
 
   const {
-    reset: accountReset,
-    control: accountControl,
-    handleSubmit: handleAccountSubmit,
+    reset: clientReset,
+    control: clientControl,
+    handleSubmit: handleClientSubmit,
     formState: { errors: accountErrors }
   } = useForm({
-    defaultValues: { username: '', email: '', password: '', confirmPassword: '' }
+    defaultValues: {}
   })
 
   const {
-    reset: personalReset,
-    control: personalControl,
-    handleSubmit: handlePersonalSubmit,
+    reset: garmentReset,
+    control: garmentControl,
+    handleSubmit: handleGarmentSubmit,
     formState: { errors: personalErrors }
   } = useForm({
-    defaultValues: { firstName: '', lastName: '', country: '', language: [] }
+    defaultValues: {}
   })
 
   const {
-    reset: socialReset,
-    control: socialControl,
-    handleSubmit: handleSocialSubmit,
+    reset: summaryReset,
+    control: summaryControl,
+    handleSubmit: handleSummarySubmit,
     formState: { errors: socialErrors }
   } = useForm({
-    defaultValues: { twitter: '', facebook: '', google: '', linkedIn: '' }
+    defaultValues: {}
   })
 
   const onSubmit = () => {
@@ -61,9 +59,9 @@ const GarmentServiceOrderStepper = ({ userId }) => {
 
   const handleReset = () => {
     setActiveStep(0)
-    accountReset({ email: '', username: '', password: '', confirmPassword: '' })
-    personalReset({ firstName: '', lastName: '', country: '', language: [] })
-    socialReset({ twitter: '', facebook: '', google: '', linkedIn: '' })
+    clientReset({ email: '', username: '', password: '', confirmPassword: '' })
+    garmentReset({ firstName: '', lastName: '', country: '', language: [] })
+    summaryReset({ twitter: '', facebook: '', google: '', linkedIn: '' })
   }
 
   const getFirstName = fullName => (fullName ? fullName.split(' ')[0] : '')
@@ -145,9 +143,9 @@ const GarmentServiceOrderStepper = ({ userId }) => {
             userId={userId}
             selectedClient={selectedClient}
             setSelectedClient={setSelectedClient}
-            handleAccountSubmit={handleAccountSubmit}
-            handlePersonalSubmit={handlePersonalSubmit}
-            handleSocialSubmit={handleSocialSubmit}
+            handleClientSubmit={handleClientSubmit}
+            handleGarmentSubmit={handleGarmentSubmit}
+            handleSummarySubmit={handleSummarySubmit}
             handleBack={handleBack}
             onSubmit={onSubmit}
             getFirstName={getFirstName}

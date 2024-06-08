@@ -15,8 +15,7 @@ import {
 } from '@mui/material'
 
 import { handleChange, handleUnitPriceBlur, calculateTotalPrice } from '@/utils/serviceUtils'
-
-const units = ['item', 'hour', 'day', 'week', 'month', 'none']
+import serviceUnitTypes from '@/utils/serviceUnitTypes'
 
 const EditServiceModal = ({ service, onClose, onSave, onDelete }) => {
   const [updatedService, setUpdatedService] = useState(service)
@@ -36,14 +35,15 @@ const EditServiceModal = ({ service, onClose, onSave, onDelete }) => {
     onClose()
   }
 
-  const calculateTotalPrice = () => {
-    const qty = parseFloat(updatedService.qty) || 0
-    const unitPrice = parseFloat(updatedService.unit_price) || 0
+  const handleQuantityChange = e => {
+    const { value } = e.target
+    const parsedValue = parseInt(value, 10)
+    const formattedValue = isNaN(parsedValue) ? 0 : parsedValue
 
-    return (qty * unitPrice).toLocaleString('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    })
+    setUpdatedService(prevService => ({
+      ...prevService,
+      qty: formattedValue
+    }))
   }
 
   return (
@@ -69,8 +69,8 @@ const EditServiceModal = ({ service, onClose, onSave, onDelete }) => {
             name='qty'
             label='Quantity'
             type='number'
-            onChange={e => handleChange(e, setUpdatedService)}
-            value={updatedService.qty}
+            onChange={handleQuantityChange}
+            value={updatedService.qty.toString()}
             disabled={loading}
           />
           <TextField
@@ -81,7 +81,7 @@ const EditServiceModal = ({ service, onClose, onSave, onDelete }) => {
             onChange={e => handleChange(e, setUpdatedService)}
             disabled={loading}
           >
-            {units.map(unit => (
+            {Object.values(serviceUnitTypes).map(unit => (
               <MenuItem key={unit} value={unit}>
                 {unit}
               </MenuItem>
@@ -107,12 +107,12 @@ const EditServiceModal = ({ service, onClose, onSave, onDelete }) => {
             onChange={e => handleChange(e, setUpdatedService)}
             disabled={loading}
           />
-          <Typography variant='h6'>Total: {calculateTotalPrice()}</Typography>
+          <Typography variant='h6'>Total: {calculateTotalPrice(updatedService)}</Typography>
         </Box>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleDelete} color='secondary' disabled={loading}>
-          {loading ? <CircularProgress size={24} /> : 'Delete'}
+          Delete
         </Button>
         <Button onClick={onClose} color='primary' disabled={loading}>
           Cancel

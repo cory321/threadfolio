@@ -1,6 +1,12 @@
 export const handleChange = (e, setServiceState) => {
   const { name, value } = e.target
-  const formattedValue = name === 'qty' ? parseFloat(value) : value
+  let formattedValue = value
+
+  if (name === 'qty') {
+    const parsedValue = parseInt(value, 10)
+
+    formattedValue = isNaN(parsedValue) ? '' : parsedValue.toString()
+  }
 
   setServiceState(prevService => ({
     ...prevService,
@@ -20,7 +26,7 @@ export const handleUnitPriceBlur = (serviceState, setServiceState) => {
 }
 
 export const calculateTotalPrice = serviceState => {
-  const qty = parseFloat(serviceState.qty) || 0
+  const qty = parseInt(serviceState.qty, 10) || 0
   const unitPrice = parseFloat(serviceState.unit_price) || 0
 
   return (qty * unitPrice).toLocaleString('en-US', {

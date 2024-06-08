@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useMemo, useState } from 'react'
 
 import {
@@ -10,14 +12,15 @@ import {
   TableContainer,
   TablePagination,
   TableRow,
+  TextField,
   Typography
 } from '@mui/material'
-import shortUUID from 'short-uuid' // Import the short-uuid library
+import shortUUID from 'short-uuid'
 
 import EnhancedTableHead from './EnhancedTableHead'
 import EnhancedTableToolbar from './EnhancedTableToolbar'
 import { getComparator, stableSort } from './utils/sorting'
-import ServicesSearch from '@components/services/ServicesSearch' // Import the ServicesSearch component
+import ServicesSearch from '@components/services/ServicesSearch'
 
 export default function ServiceLookup({ userId }) {
   const [order, setOrder] = useState('asc')
@@ -25,7 +28,8 @@ export default function ServiceLookup({ userId }) {
   const [selected, setSelected] = useState([])
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(5)
-  const [services, setServices] = useState([]) // Use state to manage services
+  const [services, setServices] = useState([])
+  const [editingRowId, setEditingRowId] = useState(null)
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc'
@@ -36,7 +40,7 @@ export default function ServiceLookup({ userId }) {
 
   const handleSelectAllClick = event => {
     if (event.target.checked) {
-      const newSelected = services.map(n => n.uniqueId) // Use uniqueId for selection
+      const newSelected = services.map(n => n.uniqueId)
 
       setSelected(newSelected)
 
@@ -46,7 +50,8 @@ export default function ServiceLookup({ userId }) {
     setSelected([])
   }
 
-  const handleClick = (event, uniqueId) => {
+  const handleCheckboxClick = (event, uniqueId) => {
+    event.stopPropagation()
     const selectedIndex = selected.indexOf(uniqueId)
     let newSelected = []
 
@@ -63,6 +68,10 @@ export default function ServiceLookup({ userId }) {
     setSelected(newSelected)
   }
 
+  const handleRowClick = uniqueId => {
+    setEditingRowId(uniqueId)
+  }
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage)
   }
@@ -77,6 +86,42 @@ export default function ServiceLookup({ userId }) {
     setSelected([])
   }
 
+  const handleInputChange = (id, field, value) => {
+    const updatedRows = services.map(row => {
+      if (row.uniqueId === id) {
+        if (field === 'unit_price' && parseFloat(value) > 1000000000) {
+          value = 1000000000 // Limit unit_price to a maximum of one billion
+        }
+
+        return { ...row, [field]: value }
+      }
+
+      return row
+    })
+
+    setServices(updatedRows)
+  }
+
+  const handleServiceSelect = service => {
+    const uniqueId = shortUUID.generate() // Generate a unique ID using short-uuid
+    const serviceWithUniqueId = { ...service, uniqueId } // Add a uniqueId to each service
+
+    setServices(prevServices => [...prevServices, serviceWithUniqueId])
+  }
+
+  const subtotal = useMemo(() => {
+    return services.reduce((sum, service) => {
+      const unitPrice = parseFloat(service.unit_price) || 0
+      const qty = parseFloat(service.qty) || 0
+
+      return sum + unitPrice * qty
+    }, 0)
+  }, [services])
+
+  const formattedSubtotal = useMemo(() => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(subtotal)
+  }, [subtotal])
+
   const isSelected = uniqueId => selected.indexOf(uniqueId) !== -1
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - services.length) : 0
@@ -87,21 +132,10 @@ export default function ServiceLookup({ userId }) {
     [order, orderBy, page, rowsPerPage, services]
   )
 
-  const handleServiceSelect = service => {
-    const uniqueId = shortUUID.generate() // Generate a unique ID using short-uuid
-    const serviceWithUniqueId = { ...service, uniqueId } // Add a uniqueId to each service
-
-    setServices(prevServices => [...prevServices, serviceWithUniqueId])
-  }
-
-  const subtotal = useMemo(() => {
-    return services.reduce((sum, service) => sum + service.unit_price, 0)
-  }, [services])
-
   return (
     <Box sx={{ mt: 4, width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <ServicesSearch userId={userId} onServiceSelect={handleServiceSelect} />
+        <ServicesSearch userId={userId} onServiceSelect={handleServiceSelect} setServices={setServices} />
         <EnhancedTableToolbar numSelected={selected.length} onDelete={handleDelete} />
         <TableContainer>
           <Table sx={{ minWidth: 750 }} aria-labelledby='tableTitle'>
@@ -117,27 +151,66 @@ export default function ServiceLookup({ userId }) {
               {visibleRows.map((row, index) => {
                 const isItemSelected = isSelected(row.uniqueId)
                 const labelId = `enhanced-table-checkbox-${index}`
+                const isEditing = editingRowId === row.uniqueId
 
                 return (
                   <TableRow
                     hover
-                    onClick={event => handleClick(event, row.uniqueId)}
+                    onClick={() => handleRowClick(row.uniqueId)}
                     role='checkbox'
                     aria-checked={isItemSelected}
                     tabIndex={-1}
-                    key={row.uniqueId} // Use uniqueId as the key
+                    key={row.uniqueId}
                     selected={isItemSelected}
                     sx={{ cursor: 'pointer' }}
                   >
-                    <TableCell padding='checkbox'>
+                    <TableCell padding='checkbox' onClick={event => handleCheckboxClick(event, row.uniqueId)}>
                       <Checkbox color='primary' checked={isItemSelected} inputProps={{ 'aria-labelledby': labelId }} />
                     </TableCell>
                     <TableCell component='th' id={labelId} scope='row' padding='none'>
-                      {row.name}
+                      {isEditing ? (
+                        <TextField
+                          value={row.name}
+                          onChange={e => handleInputChange(row.uniqueId, 'name', e.target.value)}
+                          variant='standard'
+                        />
+                      ) : (
+                        row.name
+                      )}
                     </TableCell>
-                    <TableCell align='right'>{row.qty}</TableCell>
-                    <TableCell align='right'>{row.unit}</TableCell>
-                    <TableCell align='right'>{row.unit_price}</TableCell>
+                    <TableCell align='right'>
+                      {isEditing ? (
+                        <TextField
+                          value={row.qty}
+                          onChange={e => handleInputChange(row.uniqueId, 'qty', e.target.value)}
+                          variant='standard'
+                        />
+                      ) : (
+                        row.qty
+                      )}
+                    </TableCell>
+                    <TableCell align='right'>
+                      {isEditing ? (
+                        <TextField
+                          value={row.unit}
+                          onChange={e => handleInputChange(row.uniqueId, 'unit', e.target.value)}
+                          variant='standard'
+                        />
+                      ) : (
+                        row.unit
+                      )}
+                    </TableCell>
+                    <TableCell align='right'>
+                      {isEditing ? (
+                        <TextField
+                          value={row.unit_price}
+                          onChange={e => handleInputChange(row.uniqueId, 'unit_price', e.target.value)}
+                          variant='standard'
+                        />
+                      ) : (
+                        row.unit_price
+                      )}
+                    </TableCell>
                   </TableRow>
                 )
               })}
@@ -158,8 +231,8 @@ export default function ServiceLookup({ userId }) {
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 10, pt: 10, pb: 10 }}>
-          <Typography variant='h6'>Subtotal: ${subtotal.toFixed(2)}</Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 10 }}>
+          <Typography variant='h6'>Subtotal: {formattedSubtotal}</Typography>
         </Box>
       </Paper>
     </Box>
