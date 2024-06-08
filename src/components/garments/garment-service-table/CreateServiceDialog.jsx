@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState } from 'react'
 
 import {
@@ -11,11 +13,16 @@ import {
   InputAdornment,
   Typography
 } from '@mui/material'
+import { useAuth } from '@clerk/nextjs'
+import { toast } from 'react-toastify'
 
 import { handleUnitPriceBlur, calculateTotalPrice, handleChange } from '@/utils/serviceUtils'
+import { addService } from '@/app/actions/services'
 import serviceUnitTypes from '@/utils/serviceUnitTypes'
 
 const CreateServiceDialog = ({ open, onClose, onServiceSelect }) => {
+  const { userId, getToken } = useAuth()
+
   const [newService, setNewService] = useState({
     name: '',
     description: '',
@@ -24,6 +31,37 @@ const CreateServiceDialog = ({ open, onClose, onServiceSelect }) => {
     unit_price: 0,
     image_url: ''
   })
+
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleSubmit = async () => {
+    if (newService.name === '' || newService.unit_price <= 0) return
+
+    const token = await getToken({ template: 'supabase' })
+
+    setIsLoading(true)
+
+    try {
+      const newServiceItem = await addService(userId, newService, token)
+
+      onServiceSelect(newServiceItem) // Add the new service to the table
+      setNewService({
+        name: '',
+        description: '',
+        qty: '0',
+        unit: serviceUnitTypes.ITEM,
+        unit_price: 0,
+        image_url: ''
+      })
+      onClose()
+      toast.success(`${newServiceItem.name} has been added!`)
+    } catch (error) {
+      toast.error(`Error adding service: ${error.message}`)
+      console.error('Error adding service:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <Dialog open={open} onClose={onClose}>
@@ -38,6 +76,7 @@ const CreateServiceDialog = ({ open, onClose, onServiceSelect }) => {
           name='name'
           value={newService.name}
           onChange={e => handleChange(e, setNewService)}
+          disabled={isLoading}
         />
         <TextField
           margin='dense'
@@ -48,6 +87,7 @@ const CreateServiceDialog = ({ open, onClose, onServiceSelect }) => {
           name='description'
           value={newService.description}
           onChange={e => handleChange(e, setNewService)}
+          disabled={isLoading}
         />
         <TextField
           margin='dense'
@@ -58,6 +98,7 @@ const CreateServiceDialog = ({ open, onClose, onServiceSelect }) => {
           name='qty'
           value={newService.qty}
           onChange={e => handleChange(e, setNewService)}
+          disabled={isLoading}
         />
         <TextField
           select
@@ -68,6 +109,7 @@ const CreateServiceDialog = ({ open, onClose, onServiceSelect }) => {
           name='unit'
           value={newService.unit}
           onChange={e => handleChange(e, setNewService)}
+          disabled={isLoading}
         >
           {Object.values(serviceUnitTypes).map(unit => (
             <MenuItem key={unit} value={unit}>
@@ -89,6 +131,7 @@ const CreateServiceDialog = ({ open, onClose, onServiceSelect }) => {
           InputProps={{
             startAdornment: <InputAdornment position='start'>$</InputAdornment>
           }}
+          disabled={isLoading}
         />
         <TextField
           margin='dense'
@@ -99,23 +142,18 @@ const CreateServiceDialog = ({ open, onClose, onServiceSelect }) => {
           name='image_url'
           value={newService.image_url}
           onChange={e => handleChange(e, setNewService)}
+          disabled={isLoading}
         />
         <Typography variant='h6' mt={2}>
           Total: {calculateTotalPrice(newService)}
         </Typography>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color='primary'>
+        <Button onClick={onClose} color='primary' disabled={isLoading}>
           Cancel
         </Button>
-        <Button
-          onClick={() => {
-            onServiceSelect(newService)
-            onClose()
-          }}
-          color='primary'
-        >
-          Add Service
+        <Button onClick={handleSubmit} color='primary' disabled={isLoading}>
+          {isLoading ? 'Adding...' : 'Add Service'}
         </Button>
       </DialogActions>
     </Dialog>
