@@ -140,7 +140,12 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
         )}
       />
       <Box mt={2} display='flex' justifyContent='flex-end'>
-        <Button variant='outlined' color='primary' onClick={handleCreateDialogOpen}>
+        <Button
+          variant='outlined'
+          color='primary'
+          onClick={handleCreateDialogOpen}
+          sx={{ mr: 2 }} // Add right margin for spacing
+        >
           Create New Service
         </Button>
         <Button variant='contained' color='primary' onClick={handleConfirmSelection} disabled={!selectedService}>
