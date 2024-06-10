@@ -18,7 +18,11 @@ import { handleChange, handleUnitPriceBlur, calculateTotalPrice } from '@/utils/
 import serviceUnitTypes from '@/utils/serviceUnitTypes'
 
 const EditServiceModal = ({ service, onClose, onSave, onDelete }) => {
-  const [updatedService, setUpdatedService] = useState(service)
+  const [updatedService, setUpdatedService] = useState({
+    ...service,
+    unit_price: parseFloat(service.unit_price).toFixed(2)
+  })
+
   const [loading, setLoading] = useState(false)
 
   const handleSave = async () => {
