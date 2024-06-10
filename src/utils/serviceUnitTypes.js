@@ -4,8 +4,7 @@ const serviceUnitTypes = {
   HOUR: 'hour',
   DAY: 'day',
   WEEK: 'week',
-  MONTH: 'month',
-  NONE: 'none'
+  MONTH: 'month'
 }
 
 export default serviceUnitTypes

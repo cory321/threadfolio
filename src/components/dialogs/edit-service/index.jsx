@@ -100,13 +100,6 @@ const EditServiceModal = ({ service, onClose, onSave, onDelete }) => {
               startAdornment: <InputAdornment position='start'>$</InputAdornment>
             }}
           />
-          <TextField
-            name='image_url'
-            label='Image URL'
-            value={updatedService.image_url}
-            onChange={e => handleChange(e, setUpdatedService)}
-            disabled={loading}
-          />
           <Typography variant='h6'>Total: {calculateTotalPrice(updatedService)}</Typography>
         </Box>
       </DialogContent>

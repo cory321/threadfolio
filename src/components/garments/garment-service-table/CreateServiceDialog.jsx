@@ -28,8 +28,7 @@ const CreateServiceDialog = ({ open, onClose, onServiceSelect }) => {
     description: '',
     qty: '0',
     unit: serviceUnitTypes.ITEM,
-    unit_price: 0,
-    image_url: ''
+    unit_price: 0
   })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -50,8 +49,7 @@ const CreateServiceDialog = ({ open, onClose, onServiceSelect }) => {
         description: '',
         qty: '0',
         unit: serviceUnitTypes.ITEM,
-        unit_price: 0,
-        image_url: ''
+        unit_price: 0
       })
       onClose()
       toast.success(`${newServiceItem.name} has been added!`)
@@ -131,17 +129,6 @@ const CreateServiceDialog = ({ open, onClose, onServiceSelect }) => {
           InputProps={{
             startAdornment: <InputAdornment position='start'>$</InputAdornment>
           }}
-          disabled={isLoading}
-        />
-        <TextField
-          margin='dense'
-          label='Image URL'
-          type='text'
-          fullWidth
-          variant='outlined'
-          name='image_url'
-          value={newService.image_url}
-          onChange={e => handleChange(e, setNewService)}
           disabled={isLoading}
         />
         <Typography variant='h6' mt={2}>

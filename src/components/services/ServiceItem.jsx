@@ -87,38 +87,6 @@ const ServiceItem = ({ service, onDelete, onEdit, onDuplicate }) => {
           <Grid container spacing={2} alignItems='center'>
             <Grid item xs={11.5} sx={{ textAlign: 'left' }} onClick={() => !loading && setIsEditing(true)}>
               <Grid container spacing={2} alignItems='center'>
-                <Grid item xs={12} sm={3} sx={{ textAlign: 'left' }}>
-                  <Box
-                    display='flex'
-                    justifyContent='center'
-                    alignItems='center'
-                    height='100%'
-                    width='100%'
-                    sx={{
-                      width: '100%',
-                      height: '100px',
-                      overflow: 'hidden',
-                      borderRadius: '8px'
-                    }}
-                  >
-                    {imageError ? (
-                      <BrokenImageIcon style={{ fontSize: 50 }} />
-                    ) : (
-                      <Box
-                        component='img'
-                        src={service.image_url}
-                        alt={service.name}
-                        sx={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          borderRadius: '8px'
-                        }}
-                        onError={handleImageError}
-                      />
-                    )}
-                  </Box>
-                </Grid>
                 <Grid item xs={12} sm={5} sx={{ textAlign: 'left' }}>
                   <Box display='flex' flexDirection='column' gap={2}>
                     <Typography variant='h6'>{service.name}</Typography>

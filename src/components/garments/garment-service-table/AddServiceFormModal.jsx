@@ -19,8 +19,7 @@ const AddServiceFormModal = ({ setResults, onClose }) => {
     description: '',
     qty: 0,
     unit: serviceUnitTypes.ITEM,
-    unit_price: 0,
-    image_url: ''
+    unit_price: 0
   })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -37,7 +36,7 @@ const AddServiceFormModal = ({ setResults, onClose }) => {
       const newServiceItem = await addService(userId, newService, token)
 
       setResults(prevResults => [...prevResults, newServiceItem])
-      setNewService({ name: '', description: '', qty: 0, unit: serviceUnitTypes.ITEM, unit_price: 0, image_url: '' })
+      setNewService({ name: '', description: '', qty: 0, unit: serviceUnitTypes.ITEM, unit_price: 0 })
       onClose()
       toast.success(`${newServiceItem.name} has been added!`)
     } catch (error) {
@@ -109,13 +108,6 @@ const AddServiceFormModal = ({ setResults, onClose }) => {
         InputProps={{
           startAdornment: <InputAdornment position='start'>$</InputAdornment>
         }}
-      />
-      <TextField
-        label='Image URL'
-        name='image_url'
-        onChange={e => handleChange(e, setNewService)}
-        value={newService.image_url}
-        disabled={isLoading}
       />
       <Typography variant='h6'>Total: {calculateTotalPrice(newService)}</Typography>
       <Button type='submit' disabled={isLoading}>

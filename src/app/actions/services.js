@@ -33,8 +33,7 @@ export async function addService(userId, service, token) {
       qty: service.qty,
       unit: service.unit,
       unit_price: service.unit_price,
-      user_id: userId,
-      image_url: service.image_url
+      user_id: userId
     })
     .select()
     .single()
@@ -57,8 +56,7 @@ export async function editService(id, updatedService, token) {
       description: updatedService.description,
       qty: updatedService.qty,
       unit: updatedService.unit,
-      unit_price: updatedService.unit_price,
-      image_url: updatedService.image_url
+      unit_price: updatedService.unit_price
     })
     .eq('id', id)
     .select()
