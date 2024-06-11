@@ -174,8 +174,16 @@ const StepContent = ({
   onSubmit,
   steps
 }) => {
-  const { selectedClient, setSelectedClient, garmentDetails, setGarmentDetails, services, setServices } =
-    useContext(GarmentServiceOrderContext)
+  const {
+    selectedClient,
+    setSelectedClient,
+    garmentDetails,
+    setGarmentDetails,
+    services,
+    setServices,
+    orderId,
+    setOrderId
+  } = useContext(GarmentServiceOrderContext)
 
   const { getToken } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
@@ -212,7 +220,8 @@ const StepContent = ({
         qty: service.qty,
         unit_price: service.unit_price,
         unit: service.unit
-      }))
+      })),
+      order_id: orderId // Use the existing orderId
     }
 
     try {
@@ -221,6 +230,11 @@ const StepContent = ({
       const newGarment = await addGarment(userId, selectedClient.id, garmentData, token)
 
       toast.success(`${newGarment.garment.name} has been added!`)
+
+      // If no orderId exists, set the new orderId
+      if (!orderId) {
+        setOrderId(newGarment.order.id)
+      }
     } catch (error) {
       toast.error(`Error adding garment: ${error.message}`)
       console.error('Error adding garment:', error)
