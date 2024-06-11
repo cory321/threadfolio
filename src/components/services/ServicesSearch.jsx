@@ -152,7 +152,7 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
           color='primary'
           onClick={handleCreateDialogOpen}
           sx={{ mr: 2 }} // Add right margin for spacing
-          startIcon={<i class='ri-file-add-line'></i>}
+          startIcon={<i className='ri-file-add-line'></i>}
         >
           Create New Service
         </Button>
@@ -161,7 +161,7 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
           color='primary'
           onClick={handleConfirmSelection}
           disabled={!selectedService}
-          startIcon={<i class='ri-arrow-down-line'></i>}
+          startIcon={<i className='ri-arrow-down-line'></i>}
         >
           Add Service to Garment
         </Button>

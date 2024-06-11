@@ -13,7 +13,8 @@ export const GarmentServiceOrderProvider = ({ children }) => {
     dueDate: null,
     isEvent: false,
     eventDate: null,
-    image_url: ''
+    image_url: '',
+    image_metadata: { width: 0, height: 0 }
   })
 
   const [services, setServices] = useState([])

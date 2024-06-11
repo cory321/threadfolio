@@ -1,6 +1,4 @@
-'use client'
-
-import { useState, useContext, useEffect } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 
 import { Grid, Dialog, DialogContent, DialogTitle, Typography, Button } from '@mui/material'
 import { CldImage } from 'next-cloudinary'
@@ -10,7 +8,6 @@ import EditIcon from '@mui/icons-material/Edit'
 import HoverOverlay from '@components/garments/HoverOverlay'
 import { StyledUploadButton, StyledCloseButton } from './styles/SingleFileUploadWithGalleryStyles'
 import UploadDropzone from '@/components/media/UploadDropzone'
-
 import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderContext'
 
 const UploadButton = ({ handleClickOpen, btnText }) => (
@@ -22,7 +19,7 @@ const UploadButton = ({ handleClickOpen, btnText }) => (
   </Grid>
 )
 
-const ImageDisplay = ({ publicId, handleLightboxOpen, handleClickOpen }) => (
+const ImageDisplay = ({ publicId, handleLightboxOpen, handleClickOpen, width, height }) => (
   <Grid container direction='column' alignItems='center' spacing={0} sx={{ pt: 8 }}>
     <Grid item style={{ position: 'relative', cursor: 'pointer', borderRadius: '10px', overflow: 'hidden' }}>
       <CldImage
@@ -50,7 +47,6 @@ const SingleFileUpload = ({ userId, clientId, btnText = 'Upload Garment Photo' }
   const [open, setOpen] = useState(false)
   const [publicId, setPublicId] = useState(garmentDetails.image_url) // Initialize with context value
   const [lightboxOpen, setLightboxOpen] = useState(false)
-  const [imageMetadata, setImageMetadata] = useState({ width: 0, height: 0 })
 
   useEffect(() => {
     setPublicId(garmentDetails.image_url)
@@ -63,15 +59,24 @@ const SingleFileUpload = ({ userId, clientId, btnText = 'Upload Garment Photo' }
 
   const handleUploadSuccess = (publicId, metadata) => {
     setPublicId(publicId)
-    setImageMetadata(metadata)
     setOpen(false)
-    setGarmentDetails(prev => ({ ...prev, image_url: publicId }))
+    setGarmentDetails(prev => ({
+      ...prev,
+      image_url: publicId,
+      image_metadata: metadata
+    }))
   }
 
   return (
     <>
       {publicId ? (
-        <ImageDisplay publicId={publicId} handleLightboxOpen={handleLightboxOpen} handleClickOpen={handleClickOpen} />
+        <ImageDisplay
+          publicId={publicId}
+          handleLightboxOpen={handleLightboxOpen}
+          handleClickOpen={handleClickOpen}
+          width={garmentDetails.image_metadata.width}
+          height={garmentDetails.image_metadata.height}
+        />
       ) : (
         <UploadButton handleClickOpen={handleClickOpen} btnText={btnText} />
       )}
@@ -92,8 +97,8 @@ const SingleFileUpload = ({ userId, clientId, btnText = 'Upload Garment Photo' }
             <CldImage
               src={publicId}
               alt='Photo of uploaded garment'
-              width={imageMetadata.width}
-              height={imageMetadata.height}
+              width={garmentDetails.image_metadata.width}
+              height={garmentDetails.image_metadata.height}
               crop='fit'
               quality='auto'
               fetchFormat='auto'

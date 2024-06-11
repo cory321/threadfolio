@@ -186,7 +186,26 @@ const StepContent = ({
   }
 
   const handleGarmentSave = () => {
-    // Implement save logic here
+    const garmentData = {
+      user_id: userId,
+      client_id: selectedClient.id,
+      name: garmentDetails.name,
+      image_url: garmentDetails.image_url,
+      stage: 'new', // assuming 'new' as a default stage, modify as needed
+      notes: garmentDetails.instructions,
+      due_date: garmentDetails.dueDate,
+      is_event: garmentDetails.isEvent,
+      event_date: garmentDetails.eventDate,
+      services: services.map(service => ({
+        name: service.name,
+        description: service.description,
+        qty: service.qty,
+        unit_price: service.unit_price,
+        unit: service.unit
+      }))
+    }
+
+    console.log(garmentData)
     handleDialogClose()
   }
 
