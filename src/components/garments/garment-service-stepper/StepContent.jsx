@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react'
 
 import {
   Grid,
+  Box,
   Button,
   TextField,
   Typography,
@@ -38,12 +39,10 @@ const getFirstName = fullName => {
 }
 
 const AddGarmentButton = ({ handleClickOpen, btnText }) => (
-  <Grid item sx={{ padding: 10 }}>
-    <StyledUploadButton variant='outlined' color='primary' onClick={handleClickOpen}>
-      <i className='ri-t-shirt-line' />
-      <Typography variant='body2'>{btnText}</Typography>
-    </StyledUploadButton>
-  </Grid>
+  <StyledUploadButton variant='outlined' color='primary' onClick={handleClickOpen}>
+    <i className='ri-t-shirt-line' />
+    <Typography variant='body2'>{btnText}</Typography>
+  </StyledUploadButton>
 )
 
 const GarmentDetailsDialog = ({
@@ -241,6 +240,17 @@ const StepContent = ({
 
       // Add the new garment to the garments state
       setGarments(prevGarments => [...prevGarments, newGarment.garment])
+
+      // Clear garment details form
+      setGarmentDetails({
+        name: '',
+        image_cloud_id: '',
+        instructions: '',
+        dueDate: null,
+        isEvent: false,
+        eventDate: null,
+        image_metadata: { width: 0, height: 0 } // Reset image metadata
+      })
     } catch (error) {
       toast.error(`Error adding garment: ${error.message}`)
       console.error('Error adding garment:', error)
@@ -277,25 +287,29 @@ const StepContent = ({
         return (
           <>
             <form key={1} onSubmit={handleGarmentSubmit(onSubmit)}>
-              <Grid container spacing={6}>
+              <h2>Add Garments {selectedClient.full_name && `for ${getFirstName(selectedClient.full_name)}`} </h2>
+              <Grid container sx={{ pt: 10 }}>
                 <Grid item xs={12}>
-                  <h2>Add Garments {selectedClient.full_name && `for ${getFirstName(selectedClient.full_name)}`} </h2>
-                  <Grid container spacing={2}>
-                    <AddGarmentButton btnText='Add Garment' handleClickOpen={handleDialogOpen} />
+                  <Grid container spacing={6}>
+                    <Grid item>
+                      <AddGarmentButton btnText='Add Garment' handleClickOpen={handleDialogOpen} />
+                    </Grid>
                     {garments.length > 0 &&
                       garments.map((garment, index) => (
                         <Grid item key={index}>
                           <CldImage
                             src={garment.image_cloud_id}
                             alt={garment.name}
-                            width={200}
-                            height={200}
+                            width={150}
+                            height={150}
                             crop='fill'
                             quality='auto'
                             fetchformat='auto'
                             style={{ borderRadius: '10px', transition: '0.3s' }}
                           />
-                          <Typography variant='h5'>{garment.name}</Typography>
+                          <Typography variant='h6' align='center'>
+                            {garment.name}
+                          </Typography>
                         </Grid>
                       ))}
                   </Grid>
