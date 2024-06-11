@@ -10,7 +10,7 @@ export async function searchServices(query, userId, token) {
 
   const { data, error } = await supabase
     .from('service_catalog')
-    .select('id, name, qty, unit, unit_price')
+    .select('id, name, description, qty, unit, unit_price')
     .ilike('name', `%${query}%`)
     .eq('user_id', userId)
 

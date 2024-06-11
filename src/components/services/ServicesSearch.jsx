@@ -85,6 +85,12 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
     }
   }
 
+  const handleKeyPress = event => {
+    if (event.key === 'Enter' && selectedService) {
+      handleConfirmSelection()
+    }
+  }
+
   const handleCreateDialogOpen = () => setOpenCreateDialog(true)
   const handleCreateDialogClose = () => setOpenCreateDialog(false)
 
@@ -101,6 +107,7 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
         filterOptions={x => x}
         loading={loading}
         noOptionsText={'No services found'}
+        onKeyPress={handleKeyPress} // Add the key press event listener
         renderInput={params => (
           <CustomTextField
             {...params}

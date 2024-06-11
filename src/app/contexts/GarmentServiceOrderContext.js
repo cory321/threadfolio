@@ -1,5 +1,4 @@
 'use client'
-
 import React, { createContext, useState, useMemo } from 'react'
 
 export const GarmentServiceOrderContext = createContext()
@@ -13,7 +12,8 @@ export const GarmentServiceOrderProvider = ({ children }) => {
     instructions: '',
     dueDate: null,
     isEvent: false,
-    eventDate: null
+    eventDate: null,
+    image_url: ''
   })
 
   const [services, setServices] = useState([])

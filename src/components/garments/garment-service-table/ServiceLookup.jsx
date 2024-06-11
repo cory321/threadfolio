@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import { useMemo, useState, useContext } from 'react'
 
 import {
   Box,
@@ -21,14 +21,15 @@ import EnhancedTableHead from './EnhancedTableHead'
 import EnhancedTableToolbar from './EnhancedTableToolbar'
 import { getComparator, stableSort } from './utils/sorting'
 import ServicesSearch from '@components/services/ServicesSearch'
+import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderContext'
 
 export default function ServiceLookup({ userId }) {
+  const { services, setServices } = useContext(GarmentServiceOrderContext)
   const [order, setOrder] = useState('asc')
   const [orderBy, setOrderBy] = useState('serviceName')
   const [selected, setSelected] = useState([])
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(5)
-  const [services, setServices] = useState([])
   const [editingRowId, setEditingRowId] = useState(null)
 
   const handleRequestSort = (event, property) => {
@@ -82,7 +83,7 @@ export default function ServiceLookup({ userId }) {
   }
 
   const handleDelete = () => {
-    setServices(services.filter(service => !selected.includes(service.uniqueId)))
+    setServices(prevServices => prevServices.filter(service => !selected.includes(service.uniqueId)))
     setSelected([])
   }
 
@@ -90,10 +91,12 @@ export default function ServiceLookup({ userId }) {
     const updatedRows = services.map(row => {
       if (row.uniqueId === id) {
         if (field === 'unit_price' && parseFloat(value) > 1000000000) {
-          value = 1000000000 // Limit unit_price to a maximum of one billion
+          value = 1000000000 // Limit unit_price to a maximum of one billion. I don't believe any user will ever charge more than a billion for a service on this app
         }
 
-        return { ...row, [field]: value }
+        const formattedValue = field === 'unit_price' ? parseFloat(value).toFixed(2) : value
+
+        return { ...row, [field]: formattedValue }
       }
 
       return row
@@ -102,9 +105,19 @@ export default function ServiceLookup({ userId }) {
     setServices(updatedRows)
   }
 
+  const handleInputBlur = (id, field, value) => {
+    const formattedValue = parseFloat(value).toFixed(2)
+
+    handleInputChange(id, field, formattedValue)
+  }
+
+  /*
+  We want to have a uniqueId for the services because
+  they can be altered and customized before adding them to the db
+  */
   const handleServiceSelect = service => {
     const uniqueId = shortUUID.generate() // Generate a unique ID using short-uuid
-    const serviceWithUniqueId = { ...service, uniqueId } // Add a uniqueId to each service
+    const serviceWithUniqueId = { ...service, uniqueId, unit_price: parseFloat(service.unit_price).toFixed(2) } // Add a uniqueId to each service
 
     setServices(prevServices => [...prevServices, serviceWithUniqueId])
   }
@@ -178,12 +191,24 @@ export default function ServiceLookup({ userId }) {
                         row.name
                       )}
                     </TableCell>
+                    <TableCell component='th' id={labelId} scope='row' padding='none'>
+                      {isEditing ? (
+                        <TextField
+                          value={row.description || ''}
+                          onChange={e => handleInputChange(row.uniqueId, 'description', e.target.value)}
+                          variant='standard'
+                        />
+                      ) : (
+                        row.description
+                      )}
+                    </TableCell>
                     <TableCell align='right'>
                       {isEditing ? (
                         <TextField
                           value={row.qty}
                           onChange={e => handleInputChange(row.uniqueId, 'qty', e.target.value)}
                           variant='standard'
+                          inputProps={{ style: { textAlign: 'right' } }}
                         />
                       ) : (
                         row.qty
@@ -195,6 +220,7 @@ export default function ServiceLookup({ userId }) {
                           value={row.unit}
                           onChange={e => handleInputChange(row.uniqueId, 'unit', e.target.value)}
                           variant='standard'
+                          inputProps={{ style: { textAlign: 'right' } }}
                         />
                       ) : (
                         row.unit
@@ -204,11 +230,16 @@ export default function ServiceLookup({ userId }) {
                       {isEditing ? (
                         <TextField
                           value={row.unit_price}
+                          onBlur={e => handleInputBlur(row.uniqueId, 'unit_price', e.target.value)}
                           onChange={e => handleInputChange(row.uniqueId, 'unit_price', e.target.value)}
                           variant='standard'
+                          inputProps={{ style: { textAlign: 'right' } }}
                         />
                       ) : (
-                        row.unit_price
+                        parseFloat(row.unit_price).toLocaleString('en-US', {
+                          style: 'currency',
+                          currency: 'USD'
+                        })
                       )}
                     </TableCell>
                   </TableRow>

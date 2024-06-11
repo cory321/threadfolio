@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useContext, useEffect } from 'react'
 
 import { Grid, Dialog, DialogContent, DialogTitle, Typography, Button } from '@mui/material'
 import { CldImage } from 'next-cloudinary'
@@ -8,9 +8,10 @@ import CloseIcon from '@mui/icons-material/Close'
 import EditIcon from '@mui/icons-material/Edit'
 
 import HoverOverlay from '@components/garments/HoverOverlay'
-
 import { StyledUploadButton, StyledCloseButton } from './styles/SingleFileUploadWithGalleryStyles'
 import UploadDropzone from '@/components/media/UploadDropzone'
+
+import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderContext'
 
 const UploadButton = ({ handleClickOpen, btnText }) => (
   <StyledUploadButton variant='outlined' color='primary' onClick={handleClickOpen}>
@@ -43,10 +44,15 @@ const ImageDisplay = ({ publicId, handleLightboxOpen, handleClickOpen }) => (
 )
 
 const SingleFileUpload = ({ userId, clientId, btnText = 'Upload Garment Photo' }) => {
+  const { garmentDetails, setGarmentDetails } = useContext(GarmentServiceOrderContext)
   const [open, setOpen] = useState(false)
-  const [publicId, setPublicId] = useState(null)
+  const [publicId, setPublicId] = useState(garmentDetails.image_url) // Initialize with context value
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [imageMetadata, setImageMetadata] = useState({ width: 0, height: 0 })
+
+  useEffect(() => {
+    setPublicId(garmentDetails.image_url)
+  }, [garmentDetails.image_url])
 
   const handleClickOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
@@ -57,6 +63,7 @@ const SingleFileUpload = ({ userId, clientId, btnText = 'Upload Garment Photo' }
     setPublicId(publicId)
     setImageMetadata(metadata)
     setOpen(false)
+    setGarmentDetails(prev => ({ ...prev, image_url: publicId }))
   }
 
   return (
@@ -88,7 +95,7 @@ const SingleFileUpload = ({ userId, clientId, btnText = 'Upload Garment Photo' }
               crop='fit'
               quality='auto'
               fetchFormat='auto'
-              style={{ width: '100%', height: 'auto' }} // Added borderRadius for rounded edges
+              style={{ width: '100%', height: 'auto' }}
             />
           )}
         </DialogContent>
