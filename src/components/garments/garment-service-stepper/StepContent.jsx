@@ -53,7 +53,8 @@ const GarmentDetailsDialog = ({
   garmentDetails,
   setGarmentDetails,
   handleInputChange,
-  handleGarmentSave
+  handleGarmentSave,
+  isLoading
 }) => {
   const { name, instructions, dueDate, isEvent, eventDate } = garmentDetails
   const theme = useTheme()
@@ -95,6 +96,7 @@ const GarmentDetailsDialog = ({
                     margin='normal'
                     variant='outlined'
                     fullWidth
+                    disabled={isLoading}
                   />
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={4} sx={{ paddingBottom: '0.5rem' }}>
@@ -102,6 +104,7 @@ const GarmentDetailsDialog = ({
                     selected={dueDate}
                     onChange={date => setGarmentDetails(prev => ({ ...prev, dueDate: date }))}
                     customInput={<DatePickerInput label='Due Date' dateFormat='EEEE, MMMM d, yyyy' />}
+                    disabled={isLoading}
                   />
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={4}>
@@ -110,6 +113,7 @@ const GarmentDetailsDialog = ({
                       <Checkbox
                         checked={isEvent}
                         onChange={() => setGarmentDetails(prev => ({ ...prev, isEvent: !isEvent }))}
+                        disabled={isLoading}
                       />
                     }
                     label='Garment is for a special event'
@@ -119,6 +123,7 @@ const GarmentDetailsDialog = ({
                       selected={eventDate}
                       onChange={date => setGarmentDetails(prev => ({ ...prev, eventDate: date }))}
                       customInput={<DatePickerInput label='Event Date' dateFormat='EEEE, MMMM d, yyyy' />}
+                      disabled={isLoading}
                     />
                   )}
                 </Grid>
@@ -128,7 +133,7 @@ const GarmentDetailsDialog = ({
           <Grid item xs={12}>
             <h2>Add Services</h2>
             <Grid item xs={12} sm={12}>
-              <ServiceLookup userId={userId} />
+              <ServiceLookup userId={userId} disabled={isLoading} />
             </Grid>
             <Grid item xs={12}>
               <TextField
@@ -141,17 +146,18 @@ const GarmentDetailsDialog = ({
                 onChange={handleInputChange}
                 margin='normal'
                 variant='outlined'
+                disabled={isLoading}
               />
             </Grid>
           </Grid>
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button variant='text' onClick={handleClose}>
+        <Button variant='text' onClick={handleClose} disabled={isLoading}>
           Cancel
         </Button>
-        <Button variant='contained' onClick={handleGarmentSave}>
-          Save Garment
+        <Button variant='contained' onClick={handleGarmentSave} disabled={isLoading}>
+          {isLoading ? 'Saving...' : 'Save Garment'}
         </Button>
       </DialogActions>
     </Dialog>
@@ -279,6 +285,7 @@ const StepContent = ({
               setGarmentDetails={setGarmentDetails}
               handleInputChange={handleInputChange}
               handleGarmentSave={handleGarmentSave}
+              isLoading={isLoading}
             />
           </>
         )
