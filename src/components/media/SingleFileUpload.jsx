@@ -14,10 +14,12 @@ import UploadDropzone from '@/components/media/UploadDropzone'
 import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderContext'
 
 const UploadButton = ({ handleClickOpen, btnText }) => (
-  <StyledUploadButton variant='outlined' color='primary' onClick={handleClickOpen}>
-    <i className='ri-camera-line' />
-    <Typography variant='body2'>{btnText}</Typography>
-  </StyledUploadButton>
+  <Grid container direction='column' justifyContent='center' alignItems='center' style={{ height: '100%' }}>
+    <StyledUploadButton variant='outlined' color='primary' onClick={handleClickOpen}>
+      <i className='ri-camera-line' />
+      <Typography variant='body2'>{btnText}</Typography>
+    </StyledUploadButton>
+  </Grid>
 )
 
 const ImageDisplay = ({ publicId, handleLightboxOpen, handleClickOpen }) => (

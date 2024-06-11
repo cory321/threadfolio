@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 import { alpha, IconButton, Toolbar, Tooltip, Typography } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import FilterListIcon from '@mui/icons-material/FilterList'
+import InfoIcon from '@mui/icons-material/Info'
 
 function EnhancedTableToolbar(props) {
   const { numSelected, onDelete } = props
@@ -25,6 +26,11 @@ function EnhancedTableToolbar(props) {
       ) : (
         <Typography sx={{ flex: '1 1 100%' }} variant='h6' id='tableTitle' component='div'>
           Services
+          <Tooltip title='Modifying this table won&rsquo;t affect the original service catalog.' placement='right'>
+            <IconButton>
+              <InfoIcon />
+            </IconButton>
+          </Tooltip>
         </Typography>
       )}
 
