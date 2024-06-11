@@ -13,7 +13,8 @@ import {
   TablePagination,
   TableRow,
   TextField,
-  Typography
+  Typography,
+  Button
 } from '@mui/material'
 import shortUUID from 'short-uuid'
 
@@ -22,6 +23,7 @@ import EnhancedTableToolbar from './EnhancedTableToolbar'
 import { getComparator, stableSort } from './utils/sorting'
 import ServicesSearch from '@components/services/ServicesSearch'
 import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderContext'
+import EditDescriptionModal from './EditDescriptionModal'
 
 export default function ServiceLookup({ userId }) {
   const { services, setServices } = useContext(GarmentServiceOrderContext)
@@ -31,6 +33,9 @@ export default function ServiceLookup({ userId }) {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const [editingRowId, setEditingRowId] = useState(null)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [currentDescription, setCurrentDescription] = useState('')
+  const [currentServiceId, setCurrentServiceId] = useState(null)
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc'
@@ -111,15 +116,21 @@ export default function ServiceLookup({ userId }) {
     handleInputChange(id, field, formattedValue)
   }
 
-  /*
-  We want to have a uniqueId for the services because
-  they can be altered and customized before adding them to the db
-  */
   const handleServiceSelect = service => {
     const uniqueId = shortUUID.generate() // Generate a unique ID using short-uuid
     const serviceWithUniqueId = { ...service, uniqueId, unit_price: parseFloat(service.unit_price).toFixed(2) } // Add a uniqueId to each service
 
     setServices(prevServices => [...prevServices, serviceWithUniqueId])
+  }
+
+  const handleOpenModal = (description, serviceId) => {
+    setCurrentDescription(description)
+    setCurrentServiceId(serviceId)
+    setModalOpen(true)
+  }
+
+  const handleSaveDescription = newDescription => {
+    handleInputChange(currentServiceId, 'description', newDescription)
   }
 
   const subtotal = useMemo(() => {
@@ -193,11 +204,11 @@ export default function ServiceLookup({ userId }) {
                     </TableCell>
                     <TableCell component='th' id={labelId} scope='row' padding='none'>
                       {isEditing ? (
-                        <TextField
-                          value={row.description || ''}
-                          onChange={e => handleInputChange(row.uniqueId, 'description', e.target.value)}
-                          variant='standard'
-                        />
+                        <>
+                          <Button variant='outlined' onClick={() => handleOpenModal(row.description, row.uniqueId)}>
+                            Edit Description
+                          </Button>
+                        </>
                       ) : (
                         row.description
                       )}
@@ -266,6 +277,12 @@ export default function ServiceLookup({ userId }) {
           <Typography variant='h6'>Subtotal: {formattedSubtotal}</Typography>
         </Box>
       </Paper>
+      <EditDescriptionModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        description={currentDescription}
+        onSave={handleSaveDescription}
+      />
     </Box>
   )
 }
