@@ -17,6 +17,8 @@ import {
 } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import CloseIcon from '@mui/icons-material/Close'
+import { useAuth } from '@clerk/nextjs'
+import { toast } from 'react-toastify'
 
 import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderContext'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
@@ -25,6 +27,7 @@ import ServiceLookup from '@components/garments/garment-service-table/ServiceLoo
 import SingleFileUpload from '@/components/media/SingleFileUpload'
 import GarmentClientLookup from '@components/garments/GarmentClientLookup'
 import { StyledUploadButton } from '@components/media/styles/SingleFileUploadWithGalleryStyles'
+import { addGarment } from '@actions/garments'
 
 const getFirstName = fullName => {
   if (!fullName) return ''
@@ -168,7 +171,8 @@ const StepContent = ({
   const { selectedClient, setSelectedClient, garmentDetails, setGarmentDetails, services, setServices } =
     useContext(GarmentServiceOrderContext)
 
-  const { name, instructions, dueDate, isEvent, eventDate } = garmentDetails
+  const { getToken } = useAuth()
+  const [isLoading, setIsLoading] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const handleInputChange = e => {
@@ -185,7 +189,7 @@ const StepContent = ({
     setDialogOpen(false)
   }
 
-  const handleGarmentSave = () => {
+  const handleGarmentSave = async () => {
     const garmentData = {
       user_id: userId,
       client_id: selectedClient.id,
@@ -205,7 +209,19 @@ const StepContent = ({
       }))
     }
 
-    console.log(garmentData)
+    try {
+      setIsLoading(true)
+      const token = await getToken({ template: 'supabase' })
+      const newGarment = await addGarment(userId, selectedClient.id, garmentData, token)
+
+      toast.success(`${newGarment.garment.name} has been added!`)
+    } catch (error) {
+      toast.error(`Error adding garment: ${error.message}`)
+      console.error('Error adding garment:', error)
+    } finally {
+      setIsLoading(false)
+    }
+
     handleDialogClose()
   }
 
