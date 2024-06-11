@@ -190,7 +190,7 @@ const StepContent = ({
       user_id: userId,
       client_id: selectedClient.id,
       name: garmentDetails.name,
-      image_url: garmentDetails.image_url,
+      image_cloud_id: garmentDetails.image_cloud_id,
       stage: 'new', // assuming 'new' as a default stage, modify as needed
       notes: garmentDetails.instructions,
       due_date: garmentDetails.dueDate,

@@ -32,7 +32,7 @@ const EditDescriptionDialog = ({ open, onClose, description, onSave }) => {
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth='md' fullScreen={fullScreen}>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant='h6'>Edit Description</Typography>
+        Edit Description
         <IconButton onClick={onClose}>
           <CloseIcon />
         </IconButton>

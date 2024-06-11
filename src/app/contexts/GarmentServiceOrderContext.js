@@ -13,7 +13,7 @@ export const GarmentServiceOrderProvider = ({ children }) => {
     dueDate: null,
     isEvent: false,
     eventDate: null,
-    image_url: '',
+    image_cloud_id: '',
     image_metadata: { width: 0, height: 0 }
   })
 

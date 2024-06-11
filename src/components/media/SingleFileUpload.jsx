@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react'
 
-import { Grid, Dialog, DialogContent, DialogTitle, Typography, Button } from '@mui/material'
+import { Grid, Dialog, DialogContent, DialogTitle, Typography, Button, IconButton } from '@mui/material'
 import { CldImage } from 'next-cloudinary'
 import CloseIcon from '@mui/icons-material/Close'
 import EditIcon from '@mui/icons-material/Edit'
@@ -19,7 +19,7 @@ const UploadButton = ({ handleClickOpen, btnText }) => (
   </Grid>
 )
 
-const ImageDisplay = ({ publicId, handleLightboxOpen, handleClickOpen, width, height }) => (
+const ImageDisplay = ({ publicId, handleLightboxOpen, handleClickOpen }) => (
   <Grid container direction='column' alignItems='center' spacing={0} sx={{ pt: 8 }}>
     <Grid item style={{ position: 'relative', cursor: 'pointer', borderRadius: '10px', overflow: 'hidden' }}>
       <CldImage
@@ -29,7 +29,7 @@ const ImageDisplay = ({ publicId, handleLightboxOpen, handleClickOpen, width, he
         height={200}
         crop='fill'
         quality='auto'
-        fetchFormat='auto'
+        fetchformat='auto'
         style={{ borderRadius: '10px', transition: '0.3s' }}
       />
       <HoverOverlay onClick={handleLightboxOpen} />
@@ -45,12 +45,12 @@ const ImageDisplay = ({ publicId, handleLightboxOpen, handleClickOpen, width, he
 const SingleFileUpload = ({ userId, clientId, btnText = 'Upload Garment Photo' }) => {
   const { garmentDetails, setGarmentDetails } = useContext(GarmentServiceOrderContext)
   const [open, setOpen] = useState(false)
-  const [publicId, setPublicId] = useState(garmentDetails.image_url) // Initialize with context value
+  const [publicId, setPublicId] = useState(garmentDetails.image_cloud_id) // Initialize with context value
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
   useEffect(() => {
-    setPublicId(garmentDetails.image_url)
-  }, [garmentDetails.image_url])
+    setPublicId(garmentDetails.image_cloud_id)
+  }, [garmentDetails.image_cloud_id])
 
   const handleClickOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
@@ -62,7 +62,7 @@ const SingleFileUpload = ({ userId, clientId, btnText = 'Upload Garment Photo' }
     setOpen(false)
     setGarmentDetails(prev => ({
       ...prev,
-      image_url: publicId,
+      image_cloud_id: publicId,
       image_metadata: metadata
     }))
   }
@@ -70,13 +70,7 @@ const SingleFileUpload = ({ userId, clientId, btnText = 'Upload Garment Photo' }
   return (
     <>
       {publicId ? (
-        <ImageDisplay
-          publicId={publicId}
-          handleLightboxOpen={handleLightboxOpen}
-          handleClickOpen={handleClickOpen}
-          width={garmentDetails.image_metadata.width}
-          height={garmentDetails.image_metadata.height}
-        />
+        <ImageDisplay publicId={publicId} handleLightboxOpen={handleLightboxOpen} handleClickOpen={handleClickOpen} />
       ) : (
         <UploadButton handleClickOpen={handleClickOpen} btnText={btnText} />
       )}
@@ -92,6 +86,21 @@ const SingleFileUpload = ({ userId, clientId, btnText = 'Upload Garment Photo' }
         </DialogContent>
       </Dialog>
       <Dialog open={lightboxOpen} onClose={handleLightboxClose} maxWidth='lg'>
+        <DialogTitle>
+          Garment Preview
+          <IconButton
+            aria-label='close'
+            onClick={handleLightboxClose}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: theme => theme.palette.grey[500]
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
         <DialogContent>
           {publicId && (
             <CldImage
@@ -101,7 +110,7 @@ const SingleFileUpload = ({ userId, clientId, btnText = 'Upload Garment Photo' }
               height={garmentDetails.image_metadata.height}
               crop='fit'
               quality='auto'
-              fetchFormat='auto'
+              fetchformat='auto'
               style={{ width: '100%', height: 'auto' }}
             />
           )}

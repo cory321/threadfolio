@@ -29,7 +29,7 @@ export async function addGarment(userId, clientId, garment, token) {
       user_id: userId,
       client_id: clientId,
       name: garment.name,
-      image_url: garment.image_url,
+      image_cloud_id: garment.image_cloud_id,
       stage: garment.stage,
       notes: garment.notes,
       due_date: garment.due_date,
