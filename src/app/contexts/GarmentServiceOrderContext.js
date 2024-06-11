@@ -1,5 +1,4 @@
 'use client'
-
 import React, { createContext, useState, useMemo } from 'react'
 
 export const GarmentServiceOrderContext = createContext()
@@ -20,6 +19,7 @@ export const GarmentServiceOrderProvider = ({ children }) => {
 
   const [services, setServices] = useState([])
   const [orderId, setOrderId] = useState(null)
+  const [garments, setGarments] = useState([]) // Add garments state
 
   const value = useMemo(
     () => ({
@@ -32,9 +32,11 @@ export const GarmentServiceOrderProvider = ({ children }) => {
       services,
       setServices,
       orderId,
-      setOrderId
+      setOrderId,
+      garments,
+      setGarments
     }),
-    [activeStep, selectedClient, garmentDetails, services, orderId]
+    [activeStep, selectedClient, garmentDetails, services, orderId, garments]
   )
 
   return <GarmentServiceOrderContext.Provider value={value}>{children}</GarmentServiceOrderContext.Provider>

@@ -19,6 +19,7 @@ import { useTheme } from '@mui/material/styles'
 import CloseIcon from '@mui/icons-material/Close'
 import { useAuth } from '@clerk/nextjs'
 import { toast } from 'react-toastify'
+import { CldImage } from 'next-cloudinary'
 
 import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderContext'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
@@ -37,7 +38,7 @@ const getFirstName = fullName => {
 }
 
 const AddGarmentButton = ({ handleClickOpen, btnText }) => (
-  <Grid container sx={{ padding: 10 }}>
+  <Grid item sx={{ padding: 10 }}>
     <StyledUploadButton variant='outlined' color='primary' onClick={handleClickOpen}>
       <i className='ri-t-shirt-line' />
       <Typography variant='body2'>{btnText}</Typography>
@@ -182,7 +183,9 @@ const StepContent = ({
     services,
     setServices,
     orderId,
-    setOrderId
+    setOrderId,
+    garments,
+    setGarments
   } = useContext(GarmentServiceOrderContext)
 
   const { getToken } = useAuth()
@@ -235,6 +238,9 @@ const StepContent = ({
       if (!orderId) {
         setOrderId(newGarment.order.id)
       }
+
+      // Add the new garment to the garments state
+      setGarments(prevGarments => [...prevGarments, newGarment.garment])
     } catch (error) {
       toast.error(`Error adding garment: ${error.message}`)
       console.error('Error adding garment:', error)
@@ -274,7 +280,25 @@ const StepContent = ({
               <Grid container spacing={6}>
                 <Grid item xs={12}>
                   <h2>Add Garments {selectedClient.full_name && `for ${getFirstName(selectedClient.full_name)}`} </h2>
-                  <AddGarmentButton btnText='Add Garment' handleClickOpen={handleDialogOpen} />
+                  <Grid container spacing={2}>
+                    <AddGarmentButton btnText='Add Garment' handleClickOpen={handleDialogOpen} />
+                    {garments.length > 0 &&
+                      garments.map((garment, index) => (
+                        <Grid item key={index}>
+                          <CldImage
+                            src={garment.image_cloud_id}
+                            alt={garment.name}
+                            width={200}
+                            height={200}
+                            crop='fill'
+                            quality='auto'
+                            fetchformat='auto'
+                            style={{ borderRadius: '10px', transition: '0.3s' }}
+                          />
+                          <Typography variant='h5'>{garment.name}</Typography>
+                        </Grid>
+                      ))}
+                  </Grid>
                 </Grid>
               </Grid>
               <Grid container spacing={6}>
