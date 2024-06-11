@@ -10,9 +10,14 @@ import {
   DialogActions,
   Button,
   MenuItem,
+  IconButton,
   InputAdornment,
-  Typography
+  Typography,
+  Tooltip
 } from '@mui/material'
+
+import InfoIcon from '@mui/icons-material/Info'
+
 import { useAuth } from '@clerk/nextjs'
 import { toast } from 'react-toastify'
 
@@ -63,7 +68,14 @@ const CreateServiceDialog = ({ open, onClose, onServiceSelect }) => {
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Create New Service</DialogTitle>
+      <DialogTitle>
+        Create New Service
+        <Tooltip title='Service will be added to the service catalog' placement='right'>
+          <IconButton>
+            <InfoIcon />
+          </IconButton>
+        </Tooltip>
+      </DialogTitle>
       <DialogContent>
         <TextField
           margin='dense'

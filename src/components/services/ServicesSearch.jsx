@@ -148,14 +148,21 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
       />
       <Box mt={2} display='flex' justifyContent='flex-end'>
         <Button
-          variant='outlined'
+          variant='text'
           color='primary'
           onClick={handleCreateDialogOpen}
           sx={{ mr: 2 }} // Add right margin for spacing
+          startIcon={<i class='ri-file-add-line'></i>}
         >
           Create New Service
         </Button>
-        <Button variant='contained' color='primary' onClick={handleConfirmSelection} disabled={!selectedService}>
+        <Button
+          variant='contained'
+          color='primary'
+          onClick={handleConfirmSelection}
+          disabled={!selectedService}
+          startIcon={<i class='ri-arrow-down-line'></i>}
+        >
           Add Service to Garment
         </Button>
       </Box>

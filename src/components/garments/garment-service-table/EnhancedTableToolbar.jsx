@@ -26,7 +26,7 @@ function EnhancedTableToolbar(props) {
       ) : (
         <Typography sx={{ flex: '1 1 100%' }} variant='h6' id='tableTitle' component='div'>
           Services
-          <Tooltip title='Modifying this table won&rsquo;t affect the original service catalog.' placement='right'>
+          <Tooltip title='Modifying this table will not affect the service catalog.' placement='right'>
             <IconButton>
               <InfoIcon />
             </IconButton>

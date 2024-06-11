@@ -23,7 +23,7 @@ const UploadButton = ({ handleClickOpen, btnText }) => (
 )
 
 const ImageDisplay = ({ publicId, handleLightboxOpen, handleClickOpen }) => (
-  <Grid container direction='column' alignItems='center' spacing={0}>
+  <Grid container direction='column' alignItems='center' spacing={0} sx={{ pt: 8 }}>
     <Grid item style={{ position: 'relative', cursor: 'pointer', borderRadius: '10px', overflow: 'hidden' }}>
       <CldImage
         src={publicId}
@@ -38,7 +38,7 @@ const ImageDisplay = ({ publicId, handleLightboxOpen, handleClickOpen }) => (
       <HoverOverlay onClick={handleLightboxOpen} />
     </Grid>
     <Grid item>
-      <Button variant='outlined' startIcon={<EditIcon />} onClick={handleClickOpen}>
+      <Button variant='text' startIcon={<EditIcon />} onClick={handleClickOpen}>
         Change
       </Button>
     </Grid>
