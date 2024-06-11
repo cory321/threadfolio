@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import { useMemo, useState, useContext } from 'react'
 
 import {
   Box,
@@ -21,15 +21,20 @@ import EnhancedTableHead from './EnhancedTableHead'
 import EnhancedTableToolbar from './EnhancedTableToolbar'
 import { getComparator, stableSort } from './utils/sorting'
 import ServicesSearch from '@components/services/ServicesSearch'
+import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderContext'
+import EditDescriptionDialog from './EditDescriptionDialog'
 
 export default function ServiceLookup({ userId }) {
+  const { services, setServices } = useContext(GarmentServiceOrderContext)
   const [order, setOrder] = useState('asc')
   const [orderBy, setOrderBy] = useState('serviceName')
   const [selected, setSelected] = useState([])
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(5)
-  const [services, setServices] = useState([])
   const [editingRowId, setEditingRowId] = useState(null)
+  const [isDescriptionModalOpen, setDescriptionModalOpen] = useState(false)
+  const [currentDescription, setCurrentDescription] = useState('')
+  const [currentEditingRowId, setCurrentEditingRowId] = useState(null)
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc'
@@ -82,7 +87,7 @@ export default function ServiceLookup({ userId }) {
   }
 
   const handleDelete = () => {
-    setServices(services.filter(service => !selected.includes(service.uniqueId)))
+    setServices(prevServices => prevServices.filter(service => !selected.includes(service.uniqueId)))
     setSelected([])
   }
 
@@ -90,7 +95,10 @@ export default function ServiceLookup({ userId }) {
     const updatedRows = services.map(row => {
       if (row.uniqueId === id) {
         if (field === 'unit_price' && parseFloat(value) > 1000000000) {
-          value = 1000000000 // Limit unit_price to a maximum of one billion
+          value = 1000000000
+
+          /* Limit unit_price to a maximum of one billion.
+          I don't believe any user will ever charge more than a billion for a service on this app. */
         }
 
         return { ...row, [field]: value }
@@ -102,9 +110,17 @@ export default function ServiceLookup({ userId }) {
     setServices(updatedRows)
   }
 
+  const handleInputBlur = (id, field, value) => {
+    if (field === 'unit_price') {
+      const formattedValue = parseFloat(value).toFixed(2)
+
+      handleInputChange(id, field, formattedValue)
+    }
+  }
+
   const handleServiceSelect = service => {
     const uniqueId = shortUUID.generate() // Generate a unique ID using short-uuid
-    const serviceWithUniqueId = { ...service, uniqueId } // Add a uniqueId to each service
+    const serviceWithUniqueId = { ...service, uniqueId, unit_price: parseFloat(service.unit_price).toFixed(2) } // Add a uniqueId to each service
 
     setServices(prevServices => [...prevServices, serviceWithUniqueId])
   }
@@ -131,6 +147,25 @@ export default function ServiceLookup({ userId }) {
       stableSort(services, getComparator(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
     [order, orderBy, page, rowsPerPage, services]
   )
+
+  const handleOpenDescriptionModal = (description, uniqueId) => {
+    setCurrentDescription(description)
+    setCurrentEditingRowId(uniqueId)
+    setDescriptionModalOpen(true)
+  }
+
+  const handleSaveDescription = newDescription => {
+    const updatedRows = services.map(row => {
+      if (row.uniqueId === currentEditingRowId) {
+        return { ...row, description: newDescription }
+      }
+
+      return row
+    })
+
+    setServices(updatedRows)
+    setEditingRowId(null)
+  }
 
   return (
     <Box sx={{ mt: 4, width: '100%' }}>
@@ -178,12 +213,22 @@ export default function ServiceLookup({ userId }) {
                         row.name
                       )}
                     </TableCell>
+                    <TableCell
+                      component='th'
+                      id={labelId}
+                      scope='row'
+                      padding='none'
+                      onClick={() => handleOpenDescriptionModal(row.description, row.uniqueId)}
+                    >
+                      {row.description}
+                    </TableCell>
                     <TableCell align='right'>
                       {isEditing ? (
                         <TextField
                           value={row.qty}
                           onChange={e => handleInputChange(row.uniqueId, 'qty', e.target.value)}
                           variant='standard'
+                          inputProps={{ style: { textAlign: 'right' } }}
                         />
                       ) : (
                         row.qty
@@ -195,6 +240,7 @@ export default function ServiceLookup({ userId }) {
                           value={row.unit}
                           onChange={e => handleInputChange(row.uniqueId, 'unit', e.target.value)}
                           variant='standard'
+                          inputProps={{ style: { textAlign: 'right' } }}
                         />
                       ) : (
                         row.unit
@@ -204,11 +250,16 @@ export default function ServiceLookup({ userId }) {
                       {isEditing ? (
                         <TextField
                           value={row.unit_price}
+                          onBlur={e => handleInputBlur(row.uniqueId, 'unit_price', e.target.value)}
                           onChange={e => handleInputChange(row.uniqueId, 'unit_price', e.target.value)}
                           variant='standard'
+                          inputProps={{ style: { textAlign: 'right' } }}
                         />
                       ) : (
-                        row.unit_price
+                        parseFloat(row.unit_price).toLocaleString('en-US', {
+                          style: 'currency',
+                          currency: 'USD'
+                        })
                       )}
                     </TableCell>
                   </TableRow>
@@ -235,6 +286,12 @@ export default function ServiceLookup({ userId }) {
           <Typography variant='h6'>Subtotal: {formattedSubtotal}</Typography>
         </Box>
       </Paper>
+      <EditDescriptionDialog
+        open={isDescriptionModalOpen}
+        onClose={() => setDescriptionModalOpen(false)}
+        description={currentDescription}
+        onSave={handleSaveDescription}
+      />
     </Box>
   )
 }

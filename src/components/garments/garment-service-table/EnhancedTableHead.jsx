@@ -6,6 +6,7 @@ import { visuallyHidden } from '@mui/utils'
 
 const headCells = [
   { id: 'name', numeric: false, disablePadding: true, label: 'Service Name' },
+  { id: 'description', numeric: false, disablePadding: true, label: 'Description' },
   { id: 'qty', numeric: true, disablePadding: false, label: 'Quantity' },
   { id: 'unit', numeric: false, disablePadding: false, label: 'Unit' },
   { id: 'unit_price', numeric: true, disablePadding: false, label: 'Unit Price ($)' }

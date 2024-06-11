@@ -1,6 +1,5 @@
 'use client'
-
-import React, { useState } from 'react'
+import React, { useContext } from 'react'
 
 import { Box, Button, Card, CardContent, Divider, Stepper, Step, StepLabel, Typography } from '@mui/material'
 import { toast } from 'react-toastify'
@@ -9,6 +8,7 @@ import { useForm } from 'react-hook-form'
 import StepperWrapper from '@core/styles/stepper'
 import StepperCustomDot from './StepperCustomDot'
 import StepContent from './StepContent'
+import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderContext'
 
 const steps = [
   { title: 'Client Details', subtitle: 'Add or find a client' },
@@ -17,35 +17,28 @@ const steps = [
 ]
 
 const GarmentServiceOrderStepper = ({ userId }) => {
-  const [activeStep, setActiveStep] = useState(0)
-  const [selectedClient, setSelectedClient] = useState(null)
+  const { activeStep, setActiveStep, selectedClient, setSelectedClient } = useContext(GarmentServiceOrderContext)
 
   const {
     reset: clientReset,
     control: clientControl,
     handleSubmit: handleClientSubmit,
     formState: { errors: accountErrors }
-  } = useForm({
-    defaultValues: {}
-  })
+  } = useForm({ defaultValues: {} })
 
   const {
     reset: garmentReset,
     control: garmentControl,
     handleSubmit: handleGarmentSubmit,
     formState: { errors: personalErrors }
-  } = useForm({
-    defaultValues: {}
-  })
+  } = useForm({ defaultValues: {} })
 
   const {
     reset: summaryReset,
     control: summaryControl,
     handleSubmit: handleSummarySubmit,
     formState: { errors: socialErrors }
-  } = useForm({
-    defaultValues: {}
-  })
+  } = useForm({ defaultValues: {} })
 
   const onSubmit = () => {
     setActiveStep(prevActiveStep => prevActiveStep + 1)
@@ -149,7 +142,7 @@ const GarmentServiceOrderStepper = ({ userId }) => {
             handleBack={handleBack}
             onSubmit={onSubmit}
             getFirstName={getFirstName}
-            steps={steps} // Pass steps as a prop
+            steps={steps}
           />
         )}
       </CardContent>
