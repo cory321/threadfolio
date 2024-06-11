@@ -17,7 +17,6 @@ import MoreVertIcon from '@mui/icons-material/MoreVert'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import DuplicateIcon from '@mui/icons-material/FileCopy'
-import BrokenImageIcon from '@mui/icons-material/BrokenImage'
 
 import EditServiceModal from '@/components/dialogs/edit-service/'
 
@@ -25,7 +24,6 @@ import { calculateTotalPrice } from '@/utils/serviceUtils'
 
 const ServiceItem = ({ service, onDelete, onEdit, onDuplicate }) => {
   const [isEditing, setIsEditing] = useState(false)
-  const [imageError, setImageError] = useState(false)
   const [loading, setLoading] = useState(false)
   const [anchorEl, setAnchorEl] = useState(null)
 

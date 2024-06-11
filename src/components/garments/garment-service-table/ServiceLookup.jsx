@@ -95,12 +95,13 @@ export default function ServiceLookup({ userId }) {
     const updatedRows = services.map(row => {
       if (row.uniqueId === id) {
         if (field === 'unit_price' && parseFloat(value) > 1000000000) {
-          value = 1000000000 // Limit unit_price to a maximum of one billion. I don't believe any user will ever charge more than a billion for a service on this app
+          value = 1000000000
+
+          /* Limit unit_price to a maximum of one billion.
+          I don't believe any user will ever charge more than a billion for a service on this app. */
         }
 
-        const formattedValue = field === 'unit_price' ? parseFloat(value).toFixed(2) : value
-
-        return { ...row, [field]: formattedValue }
+        return { ...row, [field]: value }
       }
 
       return row
@@ -110,15 +111,13 @@ export default function ServiceLookup({ userId }) {
   }
 
   const handleInputBlur = (id, field, value) => {
-    const formattedValue = parseFloat(value).toFixed(2)
+    if (field === 'unit_price') {
+      const formattedValue = parseFloat(value).toFixed(2)
 
-    handleInputChange(id, field, formattedValue)
+      handleInputChange(id, field, formattedValue)
+    }
   }
 
-  /*
-  We want to have a uniqueId for the services because
-  they can be altered and customized before adding them to the db
-  */
   const handleServiceSelect = service => {
     const uniqueId = shortUUID.generate() // Generate a unique ID using short-uuid
     const serviceWithUniqueId = { ...service, uniqueId, unit_price: parseFloat(service.unit_price).toFixed(2) } // Add a uniqueId to each service
