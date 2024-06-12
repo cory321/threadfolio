@@ -288,7 +288,7 @@ const StepContent = ({
           <>
             <form key={1} onSubmit={handleGarmentSubmit(onSubmit)}>
               <h2>Add Garments {selectedClient.full_name && `for ${getFirstName(selectedClient.full_name)}`} </h2>
-              <Grid container sx={{ pt: 10 }}>
+              <Grid container sx={{ pt: 10, pb: 10 }}>
                 <Grid item xs={12}>
                   <Grid container spacing={6}>
                     <Grid item>
@@ -297,16 +297,32 @@ const StepContent = ({
                     {garments.length > 0 &&
                       garments.map((garment, index) => (
                         <Grid item key={index}>
-                          <CldImage
-                            src={garment.image_cloud_id}
-                            alt={garment.name}
-                            width={150}
-                            height={150}
-                            crop='fill'
-                            quality='auto'
-                            fetchformat='auto'
-                            style={{ borderRadius: '10px', transition: '0.3s' }}
-                          />
+                          {garment.image_cloud_id ? (
+                            <CldImage
+                              src={garment.image_cloud_id}
+                              alt={garment.name}
+                              width={150}
+                              height={150}
+                              crop='fill'
+                              quality='auto'
+                              fetchformat='auto'
+                              style={{ borderRadius: '10px', transition: '0.3s' }}
+                            />
+                          ) : (
+                            <Box
+                              sx={{
+                                width: 150,
+                                height: 150,
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                border: '1px solid grey',
+                                borderRadius: '10px'
+                              }}
+                            >
+                              <i className='ri-t-shirt-line' style={{ fontSize: '2rem', color: 'grey' }} />
+                            </Box>
+                          )}
                           <Typography variant='h6' align='center'>
                             {garment.name}
                           </Typography>

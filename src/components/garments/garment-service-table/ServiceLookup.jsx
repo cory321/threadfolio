@@ -13,7 +13,9 @@ import {
   TablePagination,
   TableRow,
   TextField,
-  Typography
+  Typography,
+  Select,
+  MenuItem
 } from '@mui/material'
 import shortUUID from 'short-uuid'
 
@@ -23,6 +25,7 @@ import { getComparator, stableSort } from './utils/sorting'
 import ServicesSearch from '@components/services/ServicesSearch'
 import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderContext'
 import EditDescriptionDialog from './EditDescriptionDialog'
+import serviceUnitTypes from '@/utils/serviceUnitTypes'
 
 export default function ServiceLookup({ userId }) {
   const { services, setServices } = useContext(GarmentServiceOrderContext)
@@ -207,7 +210,7 @@ export default function ServiceLookup({ userId }) {
                         <TextField
                           value={row.name}
                           onChange={e => handleInputChange(row.uniqueId, 'name', e.target.value)}
-                          variant='standard'
+                          variant='outlined'
                         />
                       ) : (
                         row.name
@@ -227,7 +230,7 @@ export default function ServiceLookup({ userId }) {
                         <TextField
                           value={row.qty}
                           onChange={e => handleInputChange(row.uniqueId, 'qty', e.target.value)}
-                          variant='standard'
+                          variant='outlined'
                           inputProps={{ style: { textAlign: 'right' } }}
                         />
                       ) : (
@@ -236,12 +239,18 @@ export default function ServiceLookup({ userId }) {
                     </TableCell>
                     <TableCell align='right'>
                       {isEditing ? (
-                        <TextField
+                        <Select
                           value={row.unit}
                           onChange={e => handleInputChange(row.uniqueId, 'unit', e.target.value)}
-                          variant='standard'
+                          variant='outlined'
                           inputProps={{ style: { textAlign: 'right' } }}
-                        />
+                        >
+                          {Object.values(serviceUnitTypes).map(unit => (
+                            <MenuItem key={unit} value={unit}>
+                              {unit}
+                            </MenuItem>
+                          ))}
+                        </Select>
                       ) : (
                         row.unit
                       )}
@@ -252,7 +261,7 @@ export default function ServiceLookup({ userId }) {
                           value={row.unit_price}
                           onBlur={e => handleInputBlur(row.uniqueId, 'unit_price', e.target.value)}
                           onChange={e => handleInputChange(row.uniqueId, 'unit_price', e.target.value)}
-                          variant='standard'
+                          variant='outlined'
                           inputProps={{ style: { textAlign: 'right' } }}
                         />
                       ) : (
