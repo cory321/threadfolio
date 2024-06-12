@@ -8,20 +8,24 @@ export async function addGarment(userId, clientId, garment, token) {
   noStore()
   const supabase = await getSupabaseClient(token)
 
-  // Create a new garment order and retrieve the UUID
-  const { data: orderData, error: orderError } = await supabase
-    .from('garment_orders')
-    .insert({
-      client_id: clientId
-    })
-    .select('id')
-    .single()
+  let orderId = garment.order_id
 
-  if (orderError) {
-    throw new Error(orderError.message)
+  // Create a new garment order if orderId is not provided
+  if (!orderId) {
+    const { data: orderData, error: orderError } = await supabase
+      .from('garment_orders')
+      .insert({
+        client_id: clientId
+      })
+      .select('id')
+      .single()
+
+    if (orderError) {
+      throw new Error(orderError.message)
+    }
+
+    orderId = orderData.id
   }
-
-  const orderId = orderData.id
 
   const { data: garmentData, error: garmentError } = await supabase
     .from('garments')
@@ -29,7 +33,7 @@ export async function addGarment(userId, clientId, garment, token) {
       user_id: userId,
       client_id: clientId,
       name: garment.name,
-      image_url: garment.image_url,
+      image_cloud_id: garment.image_cloud_id,
       stage: garment.stage,
       notes: garment.notes,
       due_date: garment.due_date,
@@ -66,7 +70,7 @@ export async function addGarment(userId, clientId, garment, token) {
   }
 
   return {
-    order: orderData,
+    order: { id: orderId },
     garment: garmentData,
     garmentServices: garmentServicesData
   }

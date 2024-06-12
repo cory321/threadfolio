@@ -13,10 +13,13 @@ export const GarmentServiceOrderProvider = ({ children }) => {
     dueDate: null,
     isEvent: false,
     eventDate: null,
-    image_url: ''
+    image_cloud_id: '',
+    image_metadata: { width: 0, height: 0 }
   })
 
   const [services, setServices] = useState([])
+  const [orderId, setOrderId] = useState(null)
+  const [garments, setGarments] = useState([]) // Add garments state
 
   const value = useMemo(
     () => ({
@@ -27,9 +30,13 @@ export const GarmentServiceOrderProvider = ({ children }) => {
       garmentDetails,
       setGarmentDetails,
       services,
-      setServices
+      setServices,
+      orderId,
+      setOrderId,
+      garments,
+      setGarments
     }),
-    [activeStep, selectedClient, garmentDetails, services]
+    [activeStep, selectedClient, garmentDetails, services, orderId, garments]
   )
 
   return <GarmentServiceOrderContext.Provider value={value}>{children}</GarmentServiceOrderContext.Provider>

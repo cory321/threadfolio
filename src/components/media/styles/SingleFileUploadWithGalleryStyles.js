@@ -26,6 +26,11 @@ export const StyledUploadButton = styled(Button)(({ theme }) => ({
     color: theme.palette.primary.main,
     marginBottom: theme.spacing(1)
   },
+  '& .ri-t-shirt-line': {
+    fontSize: 40,
+    color: theme.palette.primary.main,
+    marginBottom: theme.spacing(1)
+  },
   minWidth: 'unset',
   minHeight: 'unset',
   '& .MuiButton-label': {

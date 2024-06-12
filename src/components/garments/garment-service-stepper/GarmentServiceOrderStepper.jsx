@@ -11,7 +11,7 @@ import StepContent from './StepContent'
 import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderContext'
 
 const steps = [
-  { title: 'Client Details', subtitle: 'Add or find a client' },
+  { title: 'Client Details', subtitle: 'Add or search for client' },
   { title: 'Add Garments and Services', subtitle: 'Add garment details and append services' },
   { title: 'Order Summary', subtitle: 'Generate invoice and send to client' }
 ]
