@@ -27,7 +27,7 @@ import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderCo
 import EditDescriptionDialog from './EditDescriptionDialog'
 import serviceUnitTypes from '@/utils/serviceUnitTypes'
 
-export default function ServiceLookup({ userId }) {
+export default function ServiceLookup({ userId, isGarmentSaving }) {
   const { services, setServices } = useContext(GarmentServiceOrderContext)
   const [order, setOrder] = useState('asc')
   const [orderBy, setOrderBy] = useState('serviceName')
@@ -173,7 +173,12 @@ export default function ServiceLookup({ userId }) {
   return (
     <Box sx={{ mt: 4, width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <ServicesSearch userId={userId} onServiceSelect={handleServiceSelect} setServices={setServices} />
+        <ServicesSearch
+          userId={userId}
+          onServiceSelect={handleServiceSelect}
+          setServices={setServices}
+          isGarmentSaving={isGarmentSaving}
+        />
         <EnhancedTableToolbar numSelected={selected.length} onDelete={handleDelete} />
         <TableContainer>
           <Table sx={{ minWidth: 750 }} aria-labelledby='tableTitle'>
