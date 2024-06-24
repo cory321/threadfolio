@@ -63,9 +63,6 @@ const GarmentDetailsDialog = ({
           <Grid item xs={12}>
             <h2>Garment Details</h2>
             <Grid container spacing={6}>
-              <Grid item xs={12} md={3}>
-                <SingleFileUpload userId={userId} clientId={selectedClient.id} btnText='Upload Garment Photo' />
-              </Grid>
               <Grid item xs={12} md={9}>
                 <Grid item xs={12} sm={12} md={6} lg={4} sx={{ pt: { sm: '0', md: '1rem' }, pb: '0.5rem' }}>
                   <TextField
@@ -79,6 +76,7 @@ const GarmentDetailsDialog = ({
                     disabled={isLoading}
                   />
                 </Grid>
+
                 <Grid item xs={12} sm={12} md={6} lg={4} sx={{ paddingBottom: '0.5rem' }}>
                   <AppReactDatepicker
                     selected={dueDate}
@@ -107,6 +105,9 @@ const GarmentDetailsDialog = ({
                     />
                   )}
                 </Grid>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <SingleFileUpload userId={userId} clientId={selectedClient.id} btnText='Upload Garment Photo' />
               </Grid>
             </Grid>
           </Grid>

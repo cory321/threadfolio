@@ -11,7 +11,6 @@ const Step2GarmentDetails = ({
   garmentDetails,
   setGarmentDetails,
   garments,
-  setGarments,
   handleGarmentSubmit,
   handleInputChange,
   handleGarmentSave,
