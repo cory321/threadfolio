@@ -215,6 +215,7 @@ const AddAppointmentModal = props => {
               selected={values.appointmentDate}
               onChange={date => setValues({ ...values, appointmentDate: date })}
               customInput={<DatePickerInput label='Appointment Date' dateFormat='EEEE, MMMM d, yyyy' />}
+              minDate={new Date()}
             />
           </FormControl>
 
@@ -230,6 +231,7 @@ const AddAppointmentModal = props => {
                   dateFormat='h:mm aa'
                   timeCaption='Start Time'
                   customInput={<DatePickerInput label='Start Time' dateFormat='h:mm aa' />}
+                  minDate={new Date()}
                 />
               </FormControl>
             </Grid>
@@ -245,6 +247,7 @@ const AddAppointmentModal = props => {
                   dateFormat='h:mm aa'
                   timeCaption='End Time'
                   customInput={<DatePickerInput label='End Time' dateFormat='h:mm aa' />}
+                  minDate={new Date()}
                 />
               </FormControl>
             </Grid>

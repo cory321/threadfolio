@@ -83,6 +83,7 @@ const GarmentDetailsDialog = ({
                     onChange={date => setGarmentDetails(prev => ({ ...prev, dueDate: date }))}
                     customInput={<DatePickerInput label='Due Date' dateFormat='EEEE, MMMM d, yyyy' />}
                     disabled={isLoading}
+                    minDate={new Date()}
                   />
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={4}>
@@ -102,6 +103,7 @@ const GarmentDetailsDialog = ({
                       onChange={date => setGarmentDetails(prev => ({ ...prev, eventDate: date }))}
                       customInput={<DatePickerInput label='Event Date' dateFormat='EEEE, MMMM d, yyyy' />}
                       disabled={isLoading}
+                      minDate={new Date()}
                     />
                   )}
                 </Grid>

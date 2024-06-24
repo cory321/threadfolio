@@ -59,6 +59,7 @@ function GarmentEntryForm({ userId }) {
         selected={dueDate}
         onChange={date => setDueDate(date)}
         customInput={<DatePickerInput label='Due Date' dateFormat='EEEE, MMMM d, yyyy' />}
+        minDate={new Date()}
       />
       <FormControlLabel
         control={<Checkbox checked={isEvent} onChange={() => setIsEvent(!isEvent)} />}
@@ -69,6 +70,7 @@ function GarmentEntryForm({ userId }) {
           selected={eventDate}
           onChange={date => setEventDate(date)}
           customInput={<DatePickerInput label='Event Date' dateFormat='EEEE, MMMM d, yyyy' />}
+          minDate={new Date()}
         />
       )}
 
