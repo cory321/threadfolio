@@ -6,6 +6,8 @@ export const handleChange = (e, setServiceState) => {
     const parsedValue = parseInt(value, 10)
 
     formattedValue = isNaN(parsedValue) ? '' : parsedValue.toString()
+  } else if (name === 'unit_price') {
+    formattedValue = parseFloat(value).toFixed(2)
   }
 
   setServiceState(prevService => ({

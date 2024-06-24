@@ -13,10 +13,6 @@ import CustomAvatar from '@core/components/mui/Avatar'
 import InitialsAvatar from '@/components/InitialsAvatar'
 import { formatPhoneNumber } from '@/utils/formatPhoneNumber'
 
-const DivideTwoNumbers = (x, y) => {
-  return x / y
-}
-
 const SelectedClientCard = ({ client, onChangeClient }) => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
