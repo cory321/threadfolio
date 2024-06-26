@@ -1,7 +1,5 @@
 import { Grid, Typography, Checkbox, FormControlLabel } from '@mui/material'
 
-import CustomInputHorizontal from '@core/components/custom-inputs/Horizontal'
-
 const data = [
   {
     meta: 'Special Event',
