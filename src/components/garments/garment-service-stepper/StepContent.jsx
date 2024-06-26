@@ -84,8 +84,14 @@ const StepContent = ({
         setOrderId(newGarment.order.id)
       }
 
-      // Add the new garment to the garments state
-      setGarments(prevGarments => [...prevGarments, newGarment.garment])
+      // Add the new garment to the garments state, including services
+      setGarments(prevGarments => [
+        ...prevGarments,
+        {
+          ...newGarment.garment,
+          services: newGarment.garmentServices // Include the services here
+        }
+      ])
 
       // Clear services table
       setServices([])
