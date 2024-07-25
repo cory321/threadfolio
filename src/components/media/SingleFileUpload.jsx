@@ -42,15 +42,15 @@ const ImageDisplay = ({ publicId, handleLightboxOpen, handleClickOpen }) => (
   </Grid>
 )
 
-const SingleFileUpload = ({ userId, clientId, btnText = 'Upload Garment Photo' }) => {
+const SingleFileUpload = ({ userId, clientId, btnText = 'Upload Garment Photo', initialImage }) => {
   const { garmentDetails, setGarmentDetails } = useContext(GarmentServiceOrderContext)
   const [open, setOpen] = useState(false)
-  const [publicId, setPublicId] = useState(garmentDetails.image_cloud_id) // Initialize with context value
+  const [publicId, setPublicId] = useState(initialImage || garmentDetails.image_cloud_id)
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
   useEffect(() => {
-    setPublicId(garmentDetails.image_cloud_id)
-  }, [garmentDetails.image_cloud_id])
+    setPublicId(initialImage || garmentDetails.image_cloud_id)
+  }, [initialImage, garmentDetails.image_cloud_id])
 
   const handleClickOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
@@ -106,12 +106,12 @@ const SingleFileUpload = ({ userId, clientId, btnText = 'Upload Garment Photo' }
             <CldImage
               src={publicId}
               alt='Photo of uploaded garment'
-              width={garmentDetails.image_metadata.width}
-              height={garmentDetails.image_metadata.height}
+              width={garmentDetails.image_metadata?.width || 600}
+              height={garmentDetails.image_metadata?.height || 600}
               crop='fit'
               quality='auto'
               fetchformat='auto'
-              style={{ width: '100%', height: 'auto' }}
+              style={{ width: '100%', height: 'auto', maxWidth: '600px', maxHeight: '600px' }}
             />
           )}
         </DialogContent>

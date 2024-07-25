@@ -6,7 +6,7 @@ const PrintableInvoice = ({ orderId, selectedClient, garments }) => {
   const calculateTotal = () => {
     return garments.reduce((total, garment) => {
       const garmentTotal = garment.services.reduce((sum, service) => {
-        return sum + service.qty * service.unit_price
+        return sum + service.qty * parseFloat(service.unit_price)
       }, 0)
 
       return total + garmentTotal
@@ -29,14 +29,10 @@ const PrintableInvoice = ({ orderId, selectedClient, garments }) => {
       </div>
 
       {garments.map((garment, index) => (
-        <div key={garment.id} className='garment-section'>
-          <Typography variant='h6'>
+        <div key={index} className='garment-section'>
+          <Typography variant='h2'>
             Garment {index + 1}: {garment.name}
           </Typography>
-          <Typography variant='body2'>Due Date: {new Date(garment.due_date).toLocaleDateString()}</Typography>
-          {garment.is_event && (
-            <Typography variant='body2'>Event Date: {new Date(garment.event_date).toLocaleDateString()}</Typography>
-          )}
 
           <TableContainer component={Paper}>
             <Table>
@@ -50,22 +46,37 @@ const PrintableInvoice = ({ orderId, selectedClient, garments }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {garment.services.map(service => (
-                  <TableRow key={service.id}>
-                    <TableCell>{service.name}</TableCell>
-                    <TableCell align='right'>{service.qty}</TableCell>
-                    <TableCell align='right'>{service.unit}</TableCell>
-                    <TableCell align='right'>${service.unit_price.toFixed(2)}</TableCell>
-                    <TableCell align='right'>${(service.qty * service.unit_price).toFixed(2)}</TableCell>
+                {garment.services && garment.services.length > 0 ? (
+                  garment.services.map((service, serviceIndex) => (
+                    <TableRow key={serviceIndex}>
+                      <TableCell>{service.name}</TableCell>
+                      <TableCell align='right'>{service.qty}</TableCell>
+                      <TableCell align='right'>{service.unit}</TableCell>
+                      <TableCell align='right'>${parseFloat(service.unit_price).toFixed(2)}</TableCell>
+                      <TableCell align='right'>${(service.qty * parseFloat(service.unit_price)).toFixed(2)}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={5} align='center'>
+                      No services added for this garment
+                    </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </TableContainer>
+          <Typography variant='body2'>
+            Due Date: {garment.due_date ? new Date(garment.due_date).toLocaleDateString() : 'Not set'}
+          </Typography>
+          {garment.is_event && garment.event_date && (
+            <Typography variant='body2'>Event Date: {new Date(garment.event_date).toLocaleDateString()}</Typography>
+          )}
+          <Typography variant='body2'>Notes: {garment.notes || 'No notes'}</Typography>
         </div>
       ))}
 
-      <Typography variant='h6' className='total'>
+      <Typography variant='h1' className='total'>
         Total Order Amount: ${calculateTotal().toFixed(2)}
       </Typography>
     </div>

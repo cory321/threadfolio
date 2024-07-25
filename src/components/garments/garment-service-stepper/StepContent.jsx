@@ -51,8 +51,8 @@ const StepContent = ({
     setDialogOpen(false)
   }
 
-  const handleGarmentSave = async () => {
-    const garmentData = {
+  const handleGarmentSave = () => {
+    const newGarment = {
       user_id: userId,
       client_id: selectedClient.id,
       name: garmentDetails.name,
@@ -68,50 +68,25 @@ const StepContent = ({
         qty: service.qty,
         unit_price: service.unit_price,
         unit: service.unit
-      })),
-      order_id: orderId // Use the existing orderId
+      }))
     }
 
-    try {
-      setIsLoading(true)
-      const token = await getToken({ template: 'supabase' })
-      const newGarment = await addGarment(userId, selectedClient.id, garmentData, token)
+    // Add the new garment to the garments state, including services
+    setGarments(prevGarments => [...prevGarments, { ...newGarment }])
 
-      toast.success(`${newGarment.garment.name} has been added!`)
+    // Clear services table
+    setServices([])
 
-      // If no orderId exists, set the new orderId
-      if (!orderId) {
-        setOrderId(newGarment.order.id)
-      }
-
-      // Add the new garment to the garments state, including services
-      setGarments(prevGarments => [
-        ...prevGarments,
-        {
-          ...newGarment.garment,
-          services: newGarment.garmentServices // Include the services here
-        }
-      ])
-
-      // Clear services table
-      setServices([])
-
-      // Clear garment details form
-      setGarmentDetails({
-        name: '',
-        image_cloud_id: '',
-        instructions: '',
-        dueDate: null,
-        isEvent: false,
-        eventDate: null,
-        image_metadata: { width: 0, height: 0 } // Reset image metadata
-      })
-    } catch (error) {
-      toast.error(`Error adding garment: ${error.message}`)
-      console.error('Error adding garment:', error)
-    } finally {
-      setIsLoading(false)
-    }
+    // Clear garment details form
+    setGarmentDetails({
+      name: '',
+      image_cloud_id: '',
+      instructions: '',
+      dueDate: null,
+      isEvent: false,
+      eventDate: null,
+      image_metadata: { width: 0, height: 0 } // Reset image metadata
+    })
 
     handleDialogClose()
   }
