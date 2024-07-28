@@ -1,5 +1,7 @@
 import React, { useContext, useState } from 'react'
 
+import { useRouter } from 'next/navigation'
+
 import { useAuth } from '@clerk/nextjs'
 import { toast } from 'react-toastify'
 
@@ -8,7 +10,7 @@ import Step2GarmentDetails from './Step2GarmentDetails'
 import Step3Summary from './Step3Summary'
 
 import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderContext'
-import { addGarment } from '@actions/garments'
+import { addGarmentsAndServicesFromContext } from '@actions/garments'
 
 const StepContent = ({
   step,
@@ -34,6 +36,7 @@ const StepContent = ({
   } = useContext(GarmentServiceOrderContext)
 
   const { getToken } = useAuth()
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
 
@@ -91,6 +94,29 @@ const StepContent = ({
     handleDialogClose()
   }
 
+  const handleFinalSubmit = async () => {
+    setIsLoading(true)
+
+    try {
+      const token = await getToken({ template: 'supabase' })
+      const result = await addGarmentsAndServicesFromContext(userId, selectedClient, garments, token)
+
+      console.log('Saved successfully:', result)
+      toast.success('Garments and services saved successfully!')
+
+      // Clear the context or navigate to a new page
+      setGarments([])
+      setSelectedClient(null)
+      onSubmit() // This should move to the next step or finish the process
+    } catch (error) {
+      console.error('Error saving garments:', error)
+      toast.error('Error saving garments and services. Please try again.')
+    } finally {
+      setIsLoading(false)
+      router.push('/orders')
+    }
+  }
+
   const renderStep = () => {
     switch (step) {
       case 0:
@@ -127,9 +153,10 @@ const StepContent = ({
         return (
           <Step3Summary
             steps={steps}
-            handleSummarySubmit={handleSummarySubmit}
+            handleSummarySubmit={handleFinalSubmit}
             onSubmit={onSubmit}
             handleBack={handleBack}
+            isLoading={isLoading}
           />
         )
       default:
