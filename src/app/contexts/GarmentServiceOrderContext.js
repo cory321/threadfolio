@@ -1,5 +1,5 @@
 'use client'
-import React, { createContext, useState, useMemo } from 'react'
+import React, { createContext, useState, useMemo, useEffect } from 'react'
 
 export const GarmentServiceOrderContext = createContext()
 
@@ -19,7 +19,32 @@ export const GarmentServiceOrderProvider = ({ children }) => {
 
   const [services, setServices] = useState([])
   const [orderId, setOrderId] = useState(null)
-  const [garments, setGarments] = useState([]) // Add garments state
+  const [garments, setGarments] = useState([])
+
+  useEffect(() => {
+    const storedClient = localStorage.getItem('selectedClient')
+    const storedGarments = localStorage.getItem('garments')
+
+    if (storedClient) {
+      setSelectedClient(JSON.parse(storedClient))
+    }
+
+    if (storedGarments) {
+      setGarments(JSON.parse(storedGarments))
+    }
+  }, [])
+
+  useEffect(() => {
+    if (selectedClient) {
+      localStorage.setItem('selectedClient', JSON.stringify(selectedClient))
+    } else {
+      localStorage.removeItem('selectedClient')
+    }
+  }, [selectedClient])
+
+  useEffect(() => {
+    localStorage.setItem('garments', JSON.stringify(garments))
+  }, [garments])
 
   const value = useMemo(
     () => ({

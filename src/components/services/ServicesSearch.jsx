@@ -22,7 +22,7 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
   }
 }))
 
-const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {} }) => {
+const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}, isGarmentSaving = false }) => {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [selectedService, setSelectedService] = useState(null)
@@ -153,6 +153,7 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
           onClick={handleCreateDialogOpen}
           sx={{ mr: 2 }} // Add right margin for spacing
           startIcon={<i className='ri-file-add-line'></i>}
+          disabled={isGarmentSaving}
         >
           Create New Service
         </Button>
@@ -160,7 +161,7 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
           variant='contained'
           color='primary'
           onClick={handleConfirmSelection}
-          disabled={!selectedService}
+          disabled={!selectedService || isGarmentSaving}
           startIcon={<i className='ri-arrow-down-line'></i>}
         >
           Add Service to Garment

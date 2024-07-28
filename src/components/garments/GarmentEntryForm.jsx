@@ -2,18 +2,7 @@
 
 import React, { useState } from 'react'
 
-import {
-  Box,
-  Button,
-  Checkbox,
-  FormControl,
-  FormControlLabel,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-  Typography
-} from '@mui/material'
+import { Box, Button, Checkbox, FormControlLabel, TextField, Typography } from '@mui/material'
 
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 import DatePickerInput from '@views/apps/calendar/DatePickerInput'
@@ -22,20 +11,13 @@ import ServiceLookup from '@components/garments/garment-service-table/ServiceLoo
 function GarmentEntryForm({ userId }) {
   const [name, setName] = useState('')
   const [image, setImage] = useState(null)
-  const [stage, setStage] = useState('not started')
   const [instructions, setInstructions] = useState('')
   const [dueDate, setDueDate] = useState(null)
   const [isEvent, setIsEvent] = useState(false)
   const [eventDate, setEventDate] = useState(null)
 
-  const handleImageUpload = event => {
-    setImage(event.target.files[0])
-  }
-
   const handleSubmit = event => {
     event.preventDefault()
-
-    // Handle form submission
   }
 
   return (
@@ -59,6 +41,7 @@ function GarmentEntryForm({ userId }) {
         selected={dueDate}
         onChange={date => setDueDate(date)}
         customInput={<DatePickerInput label='Due Date' dateFormat='EEEE, MMMM d, yyyy' />}
+        minDate={new Date()}
       />
       <FormControlLabel
         control={<Checkbox checked={isEvent} onChange={() => setIsEvent(!isEvent)} />}
@@ -69,6 +52,7 @@ function GarmentEntryForm({ userId }) {
           selected={eventDate}
           onChange={date => setEventDate(date)}
           customInput={<DatePickerInput label='Event Date' dateFormat='EEEE, MMMM d, yyyy' />}
+          minDate={new Date()}
         />
       )}
 

@@ -264,6 +264,7 @@ const AddEventSidebar = props => {
                 customInput={<PickersComponent label='Start Date' registername='startDate' />}
                 onChange={date => setValues({ ...values, startDate: new Date(date) })}
                 onSelect={handleStartDate}
+                minDate={new Date()}
               />
             </div>
             <div className='mbe-6'>

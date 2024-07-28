@@ -15,7 +15,8 @@ import {
   TextField,
   Typography,
   Select,
-  MenuItem
+  MenuItem,
+  Button
 } from '@mui/material'
 import shortUUID from 'short-uuid'
 
@@ -27,7 +28,7 @@ import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderCo
 import EditDescriptionDialog from './EditDescriptionDialog'
 import serviceUnitTypes from '@/utils/serviceUnitTypes'
 
-export default function ServiceLookup({ userId }) {
+export default function ServiceLookup({ userId, isGarmentSaving }) {
   const { services, setServices } = useContext(GarmentServiceOrderContext)
   const [order, setOrder] = useState('asc')
   const [orderBy, setOrderBy] = useState('serviceName')
@@ -60,24 +61,36 @@ export default function ServiceLookup({ userId }) {
 
   const handleCheckboxClick = (event, uniqueId) => {
     event.stopPropagation()
-    const selectedIndex = selected.indexOf(uniqueId)
-    let newSelected = []
 
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, uniqueId)
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1))
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1))
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1))
+    if (editingRowId) {
+      setEditingRowId(null)
+      setSelected([])
+    } else {
+      const selectedIndex = selected.indexOf(uniqueId)
+      let newSelected = []
+
+      if (selectedIndex === -1) {
+        newSelected = newSelected.concat(selected, uniqueId)
+      } else if (selectedIndex === 0) {
+        newSelected = newSelected.concat(selected.slice(1))
+      } else if (selectedIndex === selected.length - 1) {
+        newSelected = newSelected.concat(selected.slice(0, -1))
+      } else if (selectedIndex > 0) {
+        newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1))
+      }
+
+      setSelected(newSelected)
     }
-
-    setSelected(newSelected)
   }
 
   const handleRowClick = uniqueId => {
-    setEditingRowId(uniqueId)
+    if (!editingRowId) {
+      if (selected.indexOf(uniqueId) === -1) {
+        handleCheckboxClick({ stopPropagation: () => {} }, uniqueId)
+      } else {
+        handleCheckboxClick({ stopPropagation: () => {} }, uniqueId)
+      }
+    }
   }
 
   const handleChangePage = (event, newPage) => {
@@ -98,10 +111,7 @@ export default function ServiceLookup({ userId }) {
     const updatedRows = services.map(row => {
       if (row.uniqueId === id) {
         if (field === 'unit_price' && parseFloat(value) > 1000000000) {
-          value = 1000000000
-
-          /* Limit unit_price to a maximum of one billion.
-          I don't believe any user will ever charge more than a billion for a service on this app. */
+          value = 1000000000 // Limit unit_price to a maximum of one billion.
         }
 
         return { ...row, [field]: value }
@@ -152,9 +162,11 @@ export default function ServiceLookup({ userId }) {
   )
 
   const handleOpenDescriptionModal = (description, uniqueId) => {
-    setCurrentDescription(description)
-    setCurrentEditingRowId(uniqueId)
-    setDescriptionModalOpen(true)
+    if (editingRowId === uniqueId) {
+      setCurrentDescription(description)
+      setCurrentEditingRowId(uniqueId)
+      setDescriptionModalOpen(true)
+    }
   }
 
   const handleSaveDescription = newDescription => {
@@ -167,13 +179,28 @@ export default function ServiceLookup({ userId }) {
     })
 
     setServices(updatedRows)
+    setDescriptionModalOpen(false)
+  }
+
+  const handleEditClick = uniqueId => {
+    setEditingRowId(uniqueId)
+    setSelected([])
+  }
+
+  const handleCancelClick = () => {
     setEditingRowId(null)
+    setSelected([])
   }
 
   return (
     <Box sx={{ mt: 4, width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <ServicesSearch userId={userId} onServiceSelect={handleServiceSelect} setServices={setServices} />
+        <ServicesSearch
+          userId={userId}
+          onServiceSelect={handleServiceSelect}
+          setServices={setServices}
+          isGarmentSaving={isGarmentSaving}
+        />
         <EnhancedTableToolbar numSelected={selected.length} onDelete={handleDelete} />
         <TableContainer>
           <Table sx={{ minWidth: 750 }} aria-labelledby='tableTitle'>
@@ -200,10 +227,18 @@ export default function ServiceLookup({ userId }) {
                     tabIndex={-1}
                     key={row.uniqueId}
                     selected={isItemSelected}
-                    sx={{ cursor: 'pointer' }}
+                    sx={{ cursor: isEditing ? 'default' : 'pointer' }}
                   >
-                    <TableCell padding='checkbox' onClick={event => handleCheckboxClick(event, row.uniqueId)}>
-                      <Checkbox color='primary' checked={isItemSelected} inputProps={{ 'aria-labelledby': labelId }} />
+                    <TableCell
+                      padding='checkbox'
+                      onClick={event => !isEditing && handleCheckboxClick(event, row.uniqueId)}
+                    >
+                      <Checkbox
+                        color='primary'
+                        checked={isItemSelected}
+                        disabled={isEditing}
+                        inputProps={{ 'aria-labelledby': labelId }}
+                      />
                     </TableCell>
                     <TableCell component='th' id={labelId} scope='row' padding='none'>
                       {isEditing ? (
@@ -271,12 +306,19 @@ export default function ServiceLookup({ userId }) {
                         })
                       )}
                     </TableCell>
+                    <TableCell align='right'>
+                      {isEditing ? (
+                        <Button onClick={handleCancelClick}>Cancel</Button>
+                      ) : (
+                        isItemSelected && <Button onClick={() => handleEditClick(row.uniqueId)}>Edit</Button>
+                      )}
+                    </TableCell>
                   </TableRow>
                 )
               })}
               {emptyRows > 0 && (
                 <TableRow style={{ height: 53 * emptyRows }}>
-                  <TableCell colSpan={6} />
+                  <TableCell colSpan={7} />
                 </TableRow>
               )}
             </TableBody>
@@ -295,12 +337,14 @@ export default function ServiceLookup({ userId }) {
           <Typography variant='h6'>Subtotal: {formattedSubtotal}</Typography>
         </Box>
       </Paper>
-      <EditDescriptionDialog
-        open={isDescriptionModalOpen}
-        onClose={() => setDescriptionModalOpen(false)}
-        description={currentDescription}
-        onSave={handleSaveDescription}
-      />
+      {editingRowId && (
+        <EditDescriptionDialog
+          open={isDescriptionModalOpen}
+          onClose={() => setDescriptionModalOpen(false)}
+          description={currentDescription}
+          onSave={handleSaveDescription}
+        />
+      )}
     </Box>
   )
 }
