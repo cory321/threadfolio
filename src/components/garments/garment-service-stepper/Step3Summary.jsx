@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 
-import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import { Grid, Button, Typography } from '@mui/material'
 
 import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderContext'
@@ -33,25 +33,22 @@ const Step3Summary = ({ steps, handleSummarySubmit, onSubmit, handleBack, isLoad
 
     printWindow.document.write('</head><body>')
     printWindow.document.write('<div id="printable-content"></div>')
-    printWindow.document.write('</body></html>')
     printWindow.document.close()
 
     const content = printWindow.document.getElementById('printable-content')
 
-    // Use ReactDOM.render with a callback to ensure content is fully rendered
-    ReactDOM.render(
-      <PrintableInvoice orderId={orderId} selectedClient={selectedClient} garments={garments} />,
-      content,
-      () => {
-        // This callback is called after the component has been rendered
-        setTimeout(() => {
-          printWindow.print()
+    // Use createRoot to render the component
+    const root = createRoot(content)
 
-          // Optional: Close the print window after printing
-          // printWindow.close();
-        }, 200) // Small delay to ensure styles are applied
-      }
-    )
+    root.render(<PrintableInvoice orderId={orderId} selectedClient={selectedClient} garments={garments} />, () => {
+      // This callback is called after the component has been rendered
+      setTimeout(() => {
+        printWindow.print()
+
+        // Optional: Close the print window after printing
+        // printWindow.close();
+      }, 200) // Small delay to ensure styles are applied
+    })
   }
 
   return (

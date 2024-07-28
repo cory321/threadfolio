@@ -28,6 +28,7 @@ import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderCo
 const GarmentDetailsDialog = ({ open, handleClose, userId, selectedClient, handleInputChange, isLoading }) => {
   const { garmentDetails, setGarmentDetails, services, setServices, garments, setGarments } =
     useContext(GarmentServiceOrderContext)
+
   const [isEditMode, setIsEditMode] = useState(false)
   const theme = useTheme()
   const fullScreen = useMediaQuery(theme.breakpoints.down('lg'))
