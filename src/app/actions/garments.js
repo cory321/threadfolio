@@ -101,6 +101,7 @@ export async function getOrders(userId, token) {
         id,
         name,
         stage,
+        image_cloud_id,
         garment_services (
           id,
           name,
@@ -128,6 +129,7 @@ export async function getOrders(userId, token) {
       id: garment.id,
       name: garment.name,
       stage: garment.stage,
+      image_cloud_id: garment.image_cloud_id, // Include image_cloud_id here
       services: garment.garment_services,
       total_price: garment.garment_services.reduce((sum, service) => sum + service.qty * service.unit_price, 0)
     })),
