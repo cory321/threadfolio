@@ -143,11 +143,9 @@ export default function OrdersPage() {
   }
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
+    <>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant='h4' component='h1'>
-          Orders
-        </Typography>
+        <h1>Orders</h1>
         <Link href='/orders/create' passHref>
           <Button variant='contained' color='primary'>
             Create Order
@@ -159,6 +157,6 @@ export default function OrdersPage() {
       ) : (
         orders.map(order => <OrderCard key={order.id} order={order} />)
       )}
-    </Box>
+    </>
   )
 }
