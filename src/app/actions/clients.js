@@ -92,6 +92,32 @@ export async function addClient({ userId, fullName, email, phoneNumber, mailingA
     throw new Error('Notes should be a string.')
   }
 
+  // Check for existing email
+  const { data: existingEmail } = await supabase
+    .from('clients')
+    .select('id')
+    .eq('email', email)
+    .eq('user_id', userId)
+    .single()
+
+  if (existingEmail) {
+    throw new Error('A client with this email already exists.')
+  }
+
+  // Check for existing phone number (if provided)
+  if (phoneNumber) {
+    const { data: existingPhone } = await supabase
+      .from('clients')
+      .select('id')
+      .eq('phone_number', phoneNumber)
+      .eq('user_id', userId)
+      .single()
+
+    if (existingPhone) {
+      throw new Error('A client with this phone number already exists.')
+    }
+  }
+
   const { data, error } = await supabase
     .from('clients')
     .insert({

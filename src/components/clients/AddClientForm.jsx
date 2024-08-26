@@ -49,20 +49,23 @@ const AddClientForm = ({ onClose = () => {}, setClients = () => {}, onClientSele
         resetForm()
 
         if (onClientSelect) {
-          onClientSelect(newClient) // Pass the new client object to the parent
+          onClientSelect(newClient)
         }
 
-        onClose() // Close the modal on successful submission
+        onClose()
         toast.success(`${newClient.full_name} has been added!`)
       } catch (err) {
-        toast.error(`Error adding client: ${err}`)
         console.error('Error adding client:', err)
 
-        if (err.message === 'Email is used by an existing client.') {
+        if (err.message === 'A client with this email already exists.') {
           setFieldError('email', err.message)
+        } else if (err.message === 'A client with this phone number already exists.') {
+          setFieldError('phoneNumber', err.message)
         } else {
           setFieldError('general', err.message)
         }
+
+        toast.error(`Error adding client: ${err.message}`)
       } finally {
         setSubmitting(false)
       }

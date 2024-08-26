@@ -55,9 +55,6 @@ const ClientDashboard = () => {
       </Grid>
       <Box pt={6}>
         <ClientList clients={clients} setClients={setClients} />
-        <Card sx={{ p: 2, mt: 2 }}>
-          TODO: Handle Pagination, Handle attempts at creating a user with a duplicate email
-        </Card>
       </Box>
       <Dialog
         fullScreen={fullScreen}
