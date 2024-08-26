@@ -1,5 +1,3 @@
-// utils.js
-
 import { createClient } from '@supabase/supabase-js'
 
 // Function to get Supabase client
