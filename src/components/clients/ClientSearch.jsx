@@ -4,7 +4,7 @@ import React, { useState, useCallback, useTransition } from 'react'
 
 import throttle from 'lodash/throttle'
 import { useAuth } from '@clerk/nextjs'
-import { TextField, CircularProgress, Autocomplete, Typography, Box, InputAdornment, Button } from '@mui/material'
+import { TextField, CircularProgress, Autocomplete, Typography, Box, InputAdornment } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import { styled } from '@mui/material/styles'
 
@@ -69,17 +69,12 @@ const ClientSearch = ({ userId, onClientSelect = () => {}, onClose = () => {} })
   const handleSelect = (event, value) => {
     if (value) {
       setQuery(value.full_name)
-      setSelectedClient(value) // Store the selected client
+      setSelectedClient(value)
+      onClientSelect(value) // Immediately call onClientSelect with the selected client
+      onClose() // Close the modal or perform any necessary cleanup
     } else {
       setQuery('')
       setSelectedClient(null)
-    }
-  }
-
-  const handleConfirmSelection = () => {
-    if (selectedClient) {
-      onClientSelect(selectedClient) // Call the callback with the selected client
-      onClose() // Close the modal
     }
   }
 
@@ -102,7 +97,7 @@ const ClientSearch = ({ userId, onClientSelect = () => {}, onClose = () => {} })
             label={
               <>
                 <SearchIcon />
-                Type to search client
+                Find client by name
               </>
             }
             variant='outlined'
@@ -134,11 +129,6 @@ const ClientSearch = ({ userId, onClientSelect = () => {}, onClose = () => {} })
           </li>
         )}
       />
-      <Box mt={2} display='flex' justifyContent='flex-end'>
-        <Button variant='contained' color='primary' onClick={handleConfirmSelection} disabled={!selectedClient}>
-          Select Client
-        </Button>
-      </Box>
     </>
   )
 }

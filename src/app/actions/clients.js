@@ -27,14 +27,18 @@ export async function searchClients(query, userId, token) {
   return clients
 }
 
-export async function fetchClients(token, page = 1, pageSize = 10) {
+export async function fetchClients(token, page = 1, pageSize = 10, userId) {
   noStore()
   const supabase = await getSupabaseClient(token)
 
   const start = (page - 1) * pageSize
   const end = start + pageSize - 1
 
-  const { data, count, error } = await supabase.from('clients').select('*', { count: 'exact' }).range(start, end)
+  const { data, count, error } = await supabase
+    .from('clients')
+    .select('*', { count: 'exact' })
+    .eq('user_id', userId) // Add this line to filter by user_id
+    .range(start, end)
 
   if (error) {
     throw new Error(error.message)

@@ -37,12 +37,18 @@ const ClientList = ({ clients: initialClients, setClients }) => {
 
   const loadClients = useCallback(
     async (newPage, newRowsPerPage) => {
+      if (!userId) {
+        console.error('User ID is not available')
+
+        return
+      }
+
       setIsLoading(true)
       setError(null)
 
       try {
         const token = await getToken({ template: 'supabase' })
-        const { clients: clientsData, totalCount } = await fetchClients(token, newPage + 1, newRowsPerPage)
+        const { clients: clientsData, totalCount } = await fetchClients(token, newPage + 1, newRowsPerPage, userId)
 
         setLocalClients(clientsData)
         setClients(clientsData)
@@ -54,16 +60,16 @@ const ClientList = ({ clients: initialClients, setClients }) => {
         setIsLoading(false)
       }
     },
-    [getToken, setClients]
+    [getToken, setClients, userId]
   )
 
   useEffect(() => {
-    if (!initialClients || initialClients.length === 0) {
+    if ((!initialClients || initialClients.length === 0) && userId) {
       loadClients(page, rowsPerPage)
     } else {
       setLocalClients(initialClients)
     }
-  }, [initialClients, loadClients, page, rowsPerPage])
+  }, [initialClients, loadClients, page, rowsPerPage, userId])
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage)
@@ -91,7 +97,7 @@ const ClientList = ({ clients: initialClients, setClients }) => {
   return (
     <>
       <Box mb={4}>
-        <ClientSearch userId={userId} onClientSelect={handleClientSelect} isClientListPage={true} />
+        <ClientSearch userId={userId} onClientSelect={handleClientSelect} />
       </Box>
       <TableContainer component={Paper}>
         <Table>
