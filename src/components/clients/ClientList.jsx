@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 
 import Link from 'next/link'
 
@@ -19,46 +19,56 @@ import { useAuth } from '@clerk/nextjs'
 import { fetchClients } from '@actions/clients'
 import InitialsAvatar from '@/components/InitialsAvatar'
 
-const ClientList = ({ clients, setClients }) => {
+const ClientList = ({ clients: initialClients, setClients }) => {
   const { getToken } = useAuth()
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
   const [page, setPage] = useState(0)
+  const [totalCount, setTotalCount] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [localClients, setLocalClients] = useState(initialClients || [])
 
-  useEffect(() => {
-    const loadClients = async () => {
-      const token = await getToken({ template: 'supabase' })
-
+  const loadClients = useCallback(
+    async (newPage, newRowsPerPage) => {
       setIsLoading(true)
       setError(null)
 
       try {
-        const clientsData = await fetchClients(token)
+        const token = await getToken({ template: 'supabase' })
+        const { clients: clientsData, totalCount } = await fetchClients(token, newPage + 1, newRowsPerPage)
 
+        setLocalClients(clientsData)
         setClients(clientsData)
+        setTotalCount(totalCount)
       } catch (err) {
         console.error('Error fetching clients:', err)
         setError(err.message)
       } finally {
         setIsLoading(false)
       }
-    }
+    },
+    [getToken, setClients]
+  )
 
-    loadClients()
-  }, [getToken, setClients])
+  useEffect(() => {
+    if (!initialClients || initialClients.length === 0) {
+      loadClients(page, rowsPerPage)
+    } else {
+      setLocalClients(initialClients)
+    }
+  }, [initialClients, loadClients, page, rowsPerPage])
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage)
+    loadClients(newPage, rowsPerPage)
   }
 
   const handleChangeRowsPerPage = event => {
-    setRowsPerPage(parseInt(event.target.value, 10))
-    setPage(0)
-  }
+    const newRowsPerPage = parseInt(event.target.value, 10)
 
-  if (isLoading) {
-    return <CircularProgress />
+    setRowsPerPage(newRowsPerPage)
+    setPage(0)
+    loadClients(0, newRowsPerPage)
   }
 
   if (error) {
@@ -66,8 +76,8 @@ const ClientList = ({ clients, setClients }) => {
   }
 
   return (
-    <Paper>
-      <TableContainer>
+    <>
+      <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
@@ -80,7 +90,7 @@ const ClientList = ({ clients, setClients }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {clients.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(client => (
+            {localClients.map(client => (
               <TableRow key={client.id}>
                 <TableCell>
                   <InitialsAvatar fullName={client.full_name} />
@@ -102,15 +112,27 @@ const ClientList = ({ clients, setClients }) => {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
         component='div'
-        count={clients.length}
-        rowsPerPage={rowsPerPage}
+        count={totalCount}
         page={page}
         onPageChange={handleChangePage}
+        rowsPerPage={rowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        disabled={isLoading}
       />
-    </Paper>
+      {isLoading && (
+        <CircularProgress
+          size={24}
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            marginTop: -12,
+            marginLeft: -12
+          }}
+        />
+      )}
+    </>
   )
 }
 
