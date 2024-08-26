@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react'
 
+import { useRouter } from 'next/navigation'
+
 import Link from 'next/link'
 
 import {
@@ -12,21 +14,26 @@ import {
   TableRow,
   Typography,
   Paper,
-  TablePagination
+  TablePagination,
+  Box
 } from '@mui/material'
+
 import { useAuth } from '@clerk/nextjs'
 
 import { fetchClients } from '@actions/clients'
 import InitialsAvatar from '@/components/InitialsAvatar'
+import ClientSearch from './ClientSearch'
 
 const ClientList = ({ clients: initialClients, setClients }) => {
-  const { getToken } = useAuth()
+  const { getToken, userId } = useAuth()
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
   const [page, setPage] = useState(0)
   const [totalCount, setTotalCount] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [localClients, setLocalClients] = useState(initialClients || [])
+  const [searchResults, setSearchResults] = useState(null)
 
   const loadClients = useCallback(
     async (newPage, newRowsPerPage) => {
@@ -71,12 +78,21 @@ const ClientList = ({ clients: initialClients, setClients }) => {
     loadClients(0, newRowsPerPage)
   }
 
+  const handleClientSelect = selectedClient => {
+    router.push(`/clients/${selectedClient.id}`)
+  }
+
+  const displayedClients = searchResults || localClients
+
   if (error) {
     return <Typography color='error'>{error}</Typography>
   }
 
   return (
     <>
+      <Box mb={4}>
+        <ClientSearch userId={userId} onClientSelect={handleClientSelect} isClientListPage={true} />
+      </Box>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -90,7 +106,7 @@ const ClientList = ({ clients: initialClients, setClients }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {localClients.map(client => (
+            {displayedClients.map(client => (
               <TableRow key={client.id}>
                 <TableCell>
                   <InitialsAvatar fullName={client.full_name} />
@@ -111,15 +127,17 @@ const ClientList = ({ clients: initialClients, setClients }) => {
           </TableBody>
         </Table>
       </TableContainer>
-      <TablePagination
-        component='div'
-        count={totalCount}
-        page={page}
-        onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        disabled={isLoading}
-      />
+      {!searchResults && (
+        <TablePagination
+          component='div'
+          count={totalCount}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          disabled={isLoading}
+        />
+      )}
       {isLoading && (
         <CircularProgress
           size={24}
