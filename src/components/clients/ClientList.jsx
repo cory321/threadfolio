@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
 
 import { useRouter } from 'next/navigation'
-
 import Link from 'next/link'
 
 import {
@@ -15,9 +14,10 @@ import {
   Typography,
   Paper,
   TablePagination,
-  Box
+  Box,
+  TableSortLabel
 } from '@mui/material'
-
+import { visuallyHidden } from '@mui/utils'
 import { useAuth } from '@clerk/nextjs'
 
 import { fetchClients } from '@actions/clients'
@@ -34,9 +34,11 @@ const ClientList = ({ clients: initialClients, setClients }) => {
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [localClients, setLocalClients] = useState(initialClients || [])
   const [searchResults, setSearchResults] = useState(null)
+  const [order, setOrder] = useState('asc')
+  const [orderBy, setOrderBy] = useState('full_name')
 
   const loadClients = useCallback(
-    async (newPage, newRowsPerPage) => {
+    async (newPage, newRowsPerPage, newOrderBy, newOrder) => {
       if (!userId) {
         console.error('User ID is not available')
 
@@ -48,7 +50,15 @@ const ClientList = ({ clients: initialClients, setClients }) => {
 
       try {
         const token = await getToken({ template: 'supabase' })
-        const { clients: clientsData, totalCount } = await fetchClients(token, newPage + 1, newRowsPerPage, userId)
+
+        const { clients: clientsData, totalCount } = await fetchClients(
+          token,
+          newPage + 1,
+          newRowsPerPage,
+          userId,
+          newOrderBy,
+          newOrder
+        )
 
         setLocalClients(clientsData)
         setClients(clientsData)
@@ -65,15 +75,15 @@ const ClientList = ({ clients: initialClients, setClients }) => {
 
   useEffect(() => {
     if ((!initialClients || initialClients.length === 0) && userId) {
-      loadClients(page, rowsPerPage)
+      loadClients(page, rowsPerPage, orderBy, order)
     } else {
       setLocalClients(initialClients)
     }
-  }, [initialClients, loadClients, page, rowsPerPage, userId])
+  }, [initialClients, loadClients, page, rowsPerPage, userId, orderBy, order])
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage)
-    loadClients(newPage, rowsPerPage)
+    loadClients(newPage, rowsPerPage, orderBy, order)
   }
 
   const handleChangeRowsPerPage = event => {
@@ -81,7 +91,16 @@ const ClientList = ({ clients: initialClients, setClients }) => {
 
     setRowsPerPage(newRowsPerPage)
     setPage(0)
-    loadClients(0, newRowsPerPage)
+    loadClients(0, newRowsPerPage, orderBy, order)
+  }
+
+  const handleRequestSort = property => event => {
+    const isAsc = orderBy === property && order === 'asc'
+    const newOrder = isAsc ? 'desc' : 'asc'
+
+    setOrder(newOrder)
+    setOrderBy(property)
+    loadClients(page, rowsPerPage, property, newOrder)
   }
 
   const handleClientSelect = selectedClient => {
@@ -104,7 +123,20 @@ const ClientList = ({ clients: initialClients, setClients }) => {
           <TableHead>
             <TableRow>
               <TableCell>Avatar</TableCell>
-              <TableCell>Full Name</TableCell>
+              <TableCell sortDirection={orderBy === 'full_name' ? order : false}>
+                <TableSortLabel
+                  active={orderBy === 'full_name'}
+                  direction={orderBy === 'full_name' ? order : 'asc'}
+                  onClick={handleRequestSort('full_name')}
+                >
+                  Full Name
+                  {orderBy === 'full_name' ? (
+                    <Box component='span' sx={visuallyHidden}>
+                      {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                    </Box>
+                  ) : null}
+                </TableSortLabel>
+              </TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Phone Number</TableCell>
               <TableCell>Mailing Address</TableCell>

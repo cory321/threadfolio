@@ -27,7 +27,7 @@ export async function searchClients(query, userId, token) {
   return clients
 }
 
-export async function fetchClients(token, page = 1, pageSize = 10, userId) {
+export async function fetchClients(token, page = 1, pageSize = 10, userId, orderBy = 'full_name', order = 'asc') {
   noStore()
   const supabase = await getSupabaseClient(token)
 
@@ -37,7 +37,8 @@ export async function fetchClients(token, page = 1, pageSize = 10, userId) {
   const { data, count, error } = await supabase
     .from('clients')
     .select('*', { count: 'exact' })
-    .eq('user_id', userId) // Add this line to filter by user_id
+    .eq('user_id', userId)
+    .order(orderBy, { ascending: order === 'asc' })
     .range(start, end)
 
   if (error) {
@@ -90,32 +91,6 @@ export async function addClient({ userId, fullName, email, phoneNumber, mailingA
 
   if (notes && typeof notes !== 'string') {
     throw new Error('Notes should be a string.')
-  }
-
-  // Check for existing email
-  const { data: existingEmail } = await supabase
-    .from('clients')
-    .select('id')
-    .eq('email', email)
-    .eq('user_id', userId)
-    .single()
-
-  if (existingEmail) {
-    throw new Error('A client with this email already exists.')
-  }
-
-  // Check for existing phone number (if provided)
-  if (phoneNumber) {
-    const { data: existingPhone } = await supabase
-      .from('clients')
-      .select('id')
-      .eq('phone_number', phoneNumber)
-      .eq('user_id', userId)
-      .single()
-
-    if (existingPhone) {
-      throw new Error('A client with this phone number already exists.')
-    }
   }
 
   const { data, error } = await supabase
