@@ -20,9 +20,23 @@ import {
 import { visuallyHidden } from '@mui/utils'
 import { useAuth } from '@clerk/nextjs'
 
+import { styled } from '@mui/material/styles'
+
 import { fetchClients } from '@actions/clients'
 import InitialsAvatar from '@/components/InitialsAvatar'
 import ClientSearch from './ClientSearch'
+
+const StyledLink = styled(Typography)(({ theme }) => ({
+  textDecoration: 'none',
+  color: 'inherit',
+  padding: '4px 8px',
+  borderRadius: theme.shape.borderRadius,
+  transition: 'none',
+  '&:hover': {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText
+  }
+}))
 
 const ClientList = ({ clients: initialClients, setClients }) => {
   const { getToken, userId } = useAuth()
@@ -151,9 +165,7 @@ const ClientList = ({ clients: initialClients, setClients }) => {
                 </TableCell>
                 <TableCell>
                   <Link href={`/clients/${client.id}`} passHref>
-                    <Typography component='a' style={{ textDecoration: 'none', color: 'inherit' }}>
-                      {client.full_name}
-                    </Typography>
+                    <StyledLink component='a'>{client.full_name}</StyledLink>
                   </Link>
                 </TableCell>
                 <TableCell>{client.email}</TableCell>
