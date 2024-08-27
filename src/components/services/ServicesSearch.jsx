@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback, useTransition } from 'react'
+import React, { useState, useCallback } from 'react'
 
 import throttle from 'lodash/throttle'
 import { useAuth } from '@clerk/nextjs'
@@ -22,13 +22,12 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
   }
 }))
 
-const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}, isGarmentSaving = false }) => {
+const ServicesSearch = ({ userId, onServiceSelect = () => {}, isGarmentSaving = false }) => {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [selectedService, setSelectedService] = useState(null)
   const { getToken } = useAuth()
   const [loading, setLoading] = useState(false)
-  const [isPending, startTransition] = useTransition()
   const [openCreateDialog, setOpenCreateDialog] = useState(false)
 
   const fetchServices = useCallback(
@@ -59,35 +58,26 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
     const newQuery = (event ? event.target.value : newValue) || ''
 
     setQuery(newQuery)
-    startTransition(() => {
-      if (newQuery.length > 1) {
-        handleSearch(newQuery)
-      } else {
-        setResults([])
-      }
-    })
+
+    if (newQuery.length > 1) {
+      handleSearch(newQuery)
+    } else {
+      setResults([])
+    }
   }
 
   const handleSelect = (event, value) => {
     if (value) {
       setQuery(value.name)
-      setSelectedService(value) // Store the selected service
+      setSelectedService(value)
+      onServiceSelect(value)
+      setQuery('')
+      setSelectedService(null)
+      setResults([])
     } else {
       setQuery('')
       setSelectedService(null)
-    }
-  }
-
-  const handleConfirmSelection = () => {
-    if (selectedService) {
-      onServiceSelect(selectedService) // Call the callback with the selected service
-      onClose() // Close the modal
-    }
-  }
-
-  const handleKeyPress = event => {
-    if (event.key === 'Enter' && selectedService) {
-      handleConfirmSelection()
+      setResults([])
     }
   }
 
@@ -103,11 +93,14 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
         onInputChange={handleQueryChange}
         onChange={handleSelect}
         inputValue={query}
+        value={selectedService}
         autoHighlight
         filterOptions={x => x}
         loading={loading}
         noOptionsText={'No services found'}
-        onKeyPress={handleKeyPress} // Add the key press event listener
+        clearOnBlur={false}
+        clearOnEscape
+        handleHomeEndKeys
         renderInput={params => (
           <CustomTextField
             {...params}
@@ -151,20 +144,11 @@ const ServicesSearch = ({ userId, onServiceSelect = () => {}, onClose = () => {}
           variant='text'
           color='primary'
           onClick={handleCreateDialogOpen}
-          sx={{ mr: 2 }} // Add right margin for spacing
+          sx={{ mr: 2 }}
           startIcon={<i className='ri-file-add-line'></i>}
           disabled={isGarmentSaving}
         >
           Create New Service
-        </Button>
-        <Button
-          variant='contained'
-          color='primary'
-          onClick={handleConfirmSelection}
-          disabled={!selectedService || isGarmentSaving}
-          startIcon={<i className='ri-arrow-down-line'></i>}
-        >
-          Add Service to Garment
         </Button>
       </Box>
 

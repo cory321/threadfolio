@@ -24,6 +24,7 @@ import { toast } from 'react-toastify'
 import { handleUnitPriceBlur, calculateTotalPrice, handleChange } from '@/utils/serviceUtils'
 import { addService } from '@/app/actions/services'
 import serviceUnitTypes from '@/utils/serviceUnitTypes'
+import { formatAsCurrency, parseFloatFromCurrency, formatUnitPrice } from '@/utils/currencyUtils'
 
 const CreateServiceDialog = ({ open, onClose, onServiceSelect }) => {
   const { userId, getToken } = useAuth()
@@ -37,6 +38,30 @@ const CreateServiceDialog = ({ open, onClose, onServiceSelect }) => {
   })
 
   const [isLoading, setIsLoading] = useState(false)
+  const [displayUnitPrice, setDisplayUnitPrice] = useState('0.00')
+
+  const [isUnitPriceFocused, setIsUnitPriceFocused] = useState(false)
+
+  const handleUnitPriceChange = e => {
+    const rawValue = e.target.value
+    const formattedValue = formatAsCurrency(rawValue)
+
+    setDisplayUnitPrice(formattedValue)
+    setNewService(prev => ({ ...prev, unit_price: parseFloatFromCurrency(rawValue) }))
+  }
+
+  const handleUnitPriceFocus = () => {
+    setIsUnitPriceFocused(true)
+
+    if (displayUnitPrice === '0.00' || displayUnitPrice === '') {
+      setDisplayUnitPrice('')
+    }
+  }
+
+  const handleUnitPriceBlur = () => {
+    setIsUnitPriceFocused(false)
+    formatUnitPrice(displayUnitPrice, setDisplayUnitPrice, setNewService)
+  }
 
   const handleSubmit = async () => {
     if (newService.name === '' || newService.unit_price <= 0) return
@@ -130,14 +155,14 @@ const CreateServiceDialog = ({ open, onClose, onServiceSelect }) => {
         <TextField
           margin='dense'
           label='Unit Price'
-          type='number'
+          type='text'
           fullWidth
           variant='outlined'
           name='unit_price'
-          value={newService.unit_price}
-          onChange={e => handleChange(e, setNewService)}
-          onBlur={() => handleUnitPriceBlur(newService, setNewService)}
-          inputProps={{ step: '0.01' }}
+          value={isUnitPriceFocused ? displayUnitPrice : formatAsCurrency(displayUnitPrice)}
+          onChange={handleUnitPriceChange}
+          onFocus={handleUnitPriceFocus}
+          onBlur={handleUnitPriceBlur}
           InputProps={{
             startAdornment: <InputAdornment position='start'>$</InputAdornment>
           }}

@@ -27,6 +27,7 @@ import ServicesSearch from '@components/services/ServicesSearch'
 import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderContext'
 import EditDescriptionDialog from './EditDescriptionDialog'
 import serviceUnitTypes from '@/utils/serviceUnitTypes'
+import { formatAsCurrency, parseFloatFromCurrency, formatCurrency } from '@/utils/currencyUtils'
 
 export default function ServiceLookup({ userId, isGarmentSaving }) {
   const { services, setServices } = useContext(GarmentServiceOrderContext)
@@ -39,6 +40,7 @@ export default function ServiceLookup({ userId, isGarmentSaving }) {
   const [isDescriptionModalOpen, setDescriptionModalOpen] = useState(false)
   const [currentDescription, setCurrentDescription] = useState('')
   const [currentEditingRowId, setCurrentEditingRowId] = useState(null)
+  const [isUnitPriceFocused, setIsUnitPriceFocused] = useState(false)
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc'
@@ -84,12 +86,13 @@ export default function ServiceLookup({ userId, isGarmentSaving }) {
   }
 
   const handleRowClick = uniqueId => {
-    if (!editingRowId) {
-      if (selected.indexOf(uniqueId) === -1) {
-        handleCheckboxClick({ stopPropagation: () => {} }, uniqueId)
-      } else {
-        handleCheckboxClick({ stopPropagation: () => {} }, uniqueId)
-      }
+    if (editingRowId && editingRowId !== uniqueId) {
+      handleCancelClick()
+    } else if (!editingRowId) {
+      const isSelected = selected.indexOf(uniqueId) !== -1
+      const newSelected = isSelected ? selected.filter(id => id !== uniqueId) : [...selected, uniqueId]
+
+      setSelected(newSelected)
     }
   }
 
@@ -107,28 +110,33 @@ export default function ServiceLookup({ userId, isGarmentSaving }) {
     setSelected([])
   }
 
-  const handleInputChange = (id, field, value) => {
-    const updatedRows = services.map(row => {
-      if (row.uniqueId === id) {
-        if (field === 'unit_price' && parseFloat(value) > 1000000000) {
-          value = 1000000000 // Limit unit_price to a maximum of one billion.
+  const handleInputChange = (uniqueId, field, value) => {
+    setServices(prevServices =>
+      prevServices.map(service => {
+        if (service.uniqueId === uniqueId) {
+          if (field === 'unit_price') {
+            return { ...service, [field]: formatAsCurrency(value) }
+          }
+
+          return { ...service, [field]: value }
         }
 
-        return { ...row, [field]: value }
-      }
-
-      return row
-    })
-
-    setServices(updatedRows)
+        return service
+      })
+    )
   }
 
-  const handleInputBlur = (id, field, value) => {
+  const handleInputBlur = (uniqueId, field, value) => {
     if (field === 'unit_price') {
-      const formattedValue = parseFloat(value).toFixed(2)
+      const numericValue = parseFloatFromCurrency(value)
+      const formattedValue = formatCurrency(numericValue)
 
-      handleInputChange(id, field, formattedValue)
+      setServices(prevServices =>
+        prevServices.map(service => (service.uniqueId === uniqueId ? { ...service, [field]: formattedValue } : service))
+      )
     }
+
+    setIsUnitPriceFocused(false)
   }
 
   const handleServiceSelect = service => {
@@ -138,18 +146,16 @@ export default function ServiceLookup({ userId, isGarmentSaving }) {
     setServices(prevServices => [...prevServices, serviceWithUniqueId])
   }
 
-  const subtotal = useMemo(() => {
-    return services.reduce((sum, service) => {
-      const unitPrice = parseFloat(service.unit_price) || 0
-      const qty = parseFloat(service.qty) || 0
-
-      return sum + unitPrice * qty
-    }, 0)
-  }, [services])
-
   const formattedSubtotal = useMemo(() => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(subtotal)
-  }, [subtotal])
+    const subtotal = services.reduce((total, service) => {
+      const quantity = parseInt(service.qty, 10) || 0
+      const unitPrice = parseFloatFromCurrency(service.unit_price)
+
+      return total + quantity * unitPrice
+    }, 0)
+
+    return formatCurrency(subtotal)
+  }, [services])
 
   const isSelected = uniqueId => selected.indexOf(uniqueId) !== -1
 
@@ -190,6 +196,25 @@ export default function ServiceLookup({ userId, isGarmentSaving }) {
   const handleCancelClick = () => {
     setEditingRowId(null)
     setSelected([])
+
+    // If you have any temporary state for editing, reset it here
+  }
+
+  const handleUnitPriceFocus = uniqueId => {
+    setIsUnitPriceFocused(true)
+    setServices(prevServices =>
+      prevServices.map(service =>
+        service.uniqueId === uniqueId
+          ? { ...service, unit_price: parseFloatFromCurrency(service.unit_price).toString() }
+          : service
+      )
+    )
+  }
+
+  const handleKeyPress = (event, uniqueId) => {
+    if (event.key === 'Enter' && editingRowId === uniqueId) {
+      handleCancelClick()
+    }
   }
 
   return (
@@ -227,7 +252,7 @@ export default function ServiceLookup({ userId, isGarmentSaving }) {
                     tabIndex={-1}
                     key={row.uniqueId}
                     selected={isItemSelected}
-                    sx={{ cursor: isEditing ? 'default' : 'pointer' }}
+                    sx={{ cursor: 'pointer' }}
                   >
                     <TableCell
                       padding='checkbox'
@@ -293,22 +318,23 @@ export default function ServiceLookup({ userId, isGarmentSaving }) {
                     <TableCell align='right'>
                       {isEditing ? (
                         <TextField
-                          value={row.unit_price}
+                          value={
+                            isUnitPriceFocused ? row.unit_price : formatCurrency(parseFloatFromCurrency(row.unit_price))
+                          }
+                          onFocus={() => handleUnitPriceFocus(row.uniqueId)}
                           onBlur={e => handleInputBlur(row.uniqueId, 'unit_price', e.target.value)}
                           onChange={e => handleInputChange(row.uniqueId, 'unit_price', e.target.value)}
+                          onKeyPress={e => handleKeyPress(e, row.uniqueId)}
                           variant='outlined'
                           inputProps={{ style: { textAlign: 'right' } }}
                         />
                       ) : (
-                        parseFloat(row.unit_price).toLocaleString('en-US', {
-                          style: 'currency',
-                          currency: 'USD'
-                        })
+                        formatCurrency(parseFloatFromCurrency(row.unit_price))
                       )}
                     </TableCell>
                     <TableCell align='right'>
                       {isEditing ? (
-                        <Button onClick={handleCancelClick}>Cancel</Button>
+                        <Button onClick={handleCancelClick}>Return</Button>
                       ) : (
                         isItemSelected && <Button onClick={() => handleEditClick(row.uniqueId)}>Edit</Button>
                       )}
