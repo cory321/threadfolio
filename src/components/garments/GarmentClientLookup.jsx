@@ -111,7 +111,12 @@ const GarmentClientLookup = ({ userId, onClientSelect, selectedClient }) => {
           {clientType === 'new' ? (
             <AddClientForm onClientSelect={handleClientSelect} onClose={handleClose} />
           ) : (
-            <ClientSearch userId={userId} onClientSelect={handleClientSelect} onClose={handleClose} />
+            <ClientSearch
+              userId={userId}
+              onClientSelect={handleClientSelect}
+              onClose={handleClose}
+              isClientListPage={false}
+            />
           )}
         </DialogContent>
       </Dialog>

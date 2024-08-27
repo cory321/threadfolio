@@ -27,17 +27,25 @@ export async function searchClients(query, userId, token) {
   return clients
 }
 
-export async function fetchClients(token) {
+export async function fetchClients(token, page = 1, pageSize = 10, userId, orderBy = 'full_name', order = 'asc') {
   noStore()
   const supabase = await getSupabaseClient(token)
 
-  const { data, error } = await supabase.from('clients').select('*')
+  const start = (page - 1) * pageSize
+  const end = start + pageSize - 1
+
+  const { data, count, error } = await supabase
+    .from('clients')
+    .select('*', { count: 'exact' })
+    .eq('user_id', userId)
+    .order(orderBy, { ascending: order === 'asc' })
+    .range(start, end)
 
   if (error) {
     throw new Error(error.message)
   }
 
-  return data
+  return { clients: data, totalCount: count }
 }
 
 export async function fetchClientById(id, token) {
