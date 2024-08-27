@@ -15,6 +15,7 @@ import {
   Paper,
   TablePagination,
   Box,
+  Button,
   TableSortLabel
 } from '@mui/material'
 import { visuallyHidden } from '@mui/utils'
@@ -26,16 +27,25 @@ import { fetchClients } from '@actions/clients'
 import InitialsAvatar from '@/components/InitialsAvatar'
 import ClientSearch from './ClientSearch'
 
-const StyledLink = styled(Typography)(({ theme }) => ({
+const StyledLink = styled(Button)(({ theme }) => ({
   textDecoration: 'none',
-  color: 'inherit',
-  padding: '4px 8px',
+  color: theme.palette.primary.contrastText,
+  padding: '8px 16px',
   borderRadius: theme.shape.borderRadius,
   transition: 'none',
+  textTransform: 'none',
+  fontWeight: 'bold',
+  width: '100%',
+  justifyContent: 'center', // Center the text
   '&:hover': {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText
+    backgroundColor: 'transparent',
+    border: `1px solid ${theme.palette.primary.main}`,
+    color: theme.palette.primary.main
   }
+}))
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  padding: theme.spacing(2) // Increase padding
 }))
 
 const ClientList = ({ clients: initialClients, setClients }) => {
@@ -136,8 +146,8 @@ const ClientList = ({ clients: initialClients, setClients }) => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Avatar</TableCell>
-              <TableCell sortDirection={orderBy === 'full_name' ? order : false}>
+              <StyledTableCell>Avatar</StyledTableCell>
+              <StyledTableCell sortDirection={orderBy === 'full_name' ? order : false}>
                 <TableSortLabel
                   active={orderBy === 'full_name'}
                   direction={orderBy === 'full_name' ? order : 'asc'}
@@ -150,28 +160,30 @@ const ClientList = ({ clients: initialClients, setClients }) => {
                     </Box>
                   ) : null}
                 </TableSortLabel>
-              </TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Phone Number</TableCell>
-              <TableCell>Mailing Address</TableCell>
-              <TableCell>Notes</TableCell>
+              </StyledTableCell>
+              <StyledTableCell>Email</StyledTableCell>
+              <StyledTableCell>Phone Number</StyledTableCell>
+              <StyledTableCell>Mailing Address</StyledTableCell>
+              <StyledTableCell>Notes</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {displayedClients.map(client => (
-              <TableRow key={client.id}>
-                <TableCell>
+              <TableRow key={client.id} sx={{ '& > *': { paddingTop: 2, paddingBottom: 2 } }}>
+                <StyledTableCell>
                   <InitialsAvatar fullName={client.full_name} />
-                </TableCell>
-                <TableCell>
-                  <Link href={`/clients/${client.id}`} passHref>
-                    <StyledLink component='a'>{client.full_name}</StyledLink>
+                </StyledTableCell>
+                <StyledTableCell padding='none'>
+                  <Link href={`/clients/${client.id}`} passHref legacyBehavior>
+                    <StyledLink component='a' variant='contained' color='primary'>
+                      {client.full_name}
+                    </StyledLink>
                   </Link>
-                </TableCell>
-                <TableCell>{client.email}</TableCell>
-                <TableCell>{client.phone_number}</TableCell>
-                <TableCell>{client.mailing_address}</TableCell>
-                <TableCell>{client.notes}</TableCell>
+                </StyledTableCell>
+                <StyledTableCell>{client.email}</StyledTableCell>
+                <StyledTableCell>{client.phone_number}</StyledTableCell>
+                <StyledTableCell>{client.mailing_address}</StyledTableCell>
+                <StyledTableCell>{client.notes}</StyledTableCell>
               </TableRow>
             ))}
           </TableBody>
