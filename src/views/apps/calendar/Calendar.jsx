@@ -163,7 +163,32 @@ const Calendar = props => {
       handleUpdateEvent(resizedEvent)
     },
     ref: calendarRef,
-    direction: theme.direction
+    direction: theme.direction,
+    eventContent: info => {
+      const timeFormat = new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+      })
+
+      const startTime = timeFormat.format(info.event.start)
+      const endTime = timeFormat.format(info.event.end)
+      const title = info.event.title.split(' - ')
+      const appointmentType = title[0]
+      const clientName = title[1]
+
+      return {
+        html: `
+          <div class="fc-event-main-frame">
+            <div class="fc-event-time">${startTime} - ${endTime}</div>
+            <div class="fc-event-title-container">
+            <div class="fc-event-title fc-event-title-client">${clientName}</div>
+            <div class="fc-event-title">${appointmentType}</div>
+            </div>
+          </div>
+        `
+      }
+    }
   }
 
   // @ts-ignore

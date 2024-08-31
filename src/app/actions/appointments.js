@@ -50,11 +50,24 @@ export async function getAppointments(userId, token) {
   noStore()
   const supabase = await getSupabaseClient(token)
 
-  const { data: appointments, error } = await supabase.from('appointments').select('*').eq('user_id', userId)
+  const { data: appointments, error } = await supabase
+    .from('appointments')
+    .select(
+      `
+      *,
+      clients (
+        id,
+        full_name
+      )
+    `
+    )
+    .eq('user_id', userId)
 
   if (error) {
     throw new Error(error.message)
   }
+
+  console.log('Appointments returned from Supabase:', appointments)
 
   const transformedAppointments = appointments.map(appointment => {
     const startDate = new Date(appointment.appointment_date)
@@ -83,9 +96,11 @@ export async function getAppointments(userId, token) {
         appointmentTitle = 'Appointment'
     }
 
+    const clientName = appointment.clients ? appointment.clients.full_name : 'Unknown Client'
+
     return {
       id: appointment.id,
-      title: appointmentTitle,
+      title: `${appointmentTitle} - ${clientName}`,
       start: startDate.toISOString(),
       end: endDate.toISOString(),
       allDay: false,
@@ -95,7 +110,8 @@ export async function getAppointments(userId, token) {
         type: appointment.type,
         sendEmail: appointment.send_email,
         sendSms: appointment.send_sms,
-        notes: appointment.notes
+        notes: appointment.notes,
+        clientName: clientName
       }
     }
   })

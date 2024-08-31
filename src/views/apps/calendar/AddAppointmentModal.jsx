@@ -164,7 +164,7 @@ const AddAppointmentModal = props => {
 
       const transformedAppointment = {
         id: data.id,
-        title: appointmentTitle,
+        title: `${appointmentTitle} - ${values.clientName}`,
         start: startDate
           .toLocaleString('en-US', {
             year: 'numeric',
@@ -196,7 +196,8 @@ const AddAppointmentModal = props => {
           type: data.type,
           sendEmail: data.send_email,
           sendSms: data.send_sms,
-          notes: data.notes
+          notes: data.notes,
+          clientName: values.clientName
         }
       }
 
@@ -216,7 +217,11 @@ const AddAppointmentModal = props => {
   }
 
   const handleClientSelect = selectedClient => {
-    setValues({ ...values, clientId: selectedClient ? selectedClient.id : null })
+    setValues({
+      ...values,
+      clientId: selectedClient ? selectedClient.id : null,
+      clientName: selectedClient ? selectedClient.full_name : ''
+    })
     setClientError('')
   }
 
