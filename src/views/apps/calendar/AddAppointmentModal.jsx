@@ -16,6 +16,8 @@ import {
 import { useForm } from 'react-hook-form'
 import { useAuth } from '@clerk/nextjs'
 
+import { setHours, setMinutes, addMinutes } from 'date-fns'
+
 import { addAppointment } from '@/app/actions/appointments'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 import DatePickerInput from './DatePickerInput'
@@ -59,6 +61,15 @@ const AddAppointmentModal = props => {
       appointmentDate: selectedDate || new Date()
     }))
   }, [selectedDate])
+
+  useEffect(() => {
+    if (values.startTime >= values.endTime) {
+      setValues(prevValues => ({
+        ...prevValues,
+        endTime: new Date(new Date(values.startTime).getTime() + 60 * 60 * 1000) // 1 hour later
+      }))
+    }
+  }, [values.startTime])
 
   const handleModalClose = () => {
     setValues({
@@ -169,6 +180,28 @@ const AddAppointmentModal = props => {
     setClientError('')
   }
 
+  const handleStartTimeChange = date => {
+    const newStartTime = new Date(date)
+    let newEndTime = new Date(values.endTime)
+
+    if (newStartTime >= newEndTime) {
+      newEndTime = new Date(newStartTime.getTime() + 60 * 60 * 1000) // 1 hour later
+    }
+
+    setValues({
+      ...values,
+      startTime: newStartTime,
+      endTime: newEndTime
+    })
+  }
+
+  const handleEndTimeChange = date => {
+    setValues({
+      ...values,
+      endTime: new Date(date)
+    })
+  }
+
   return (
     <Dialog
       open={addEventModalOpen}
@@ -203,14 +236,15 @@ const AddAppointmentModal = props => {
               <FormControl fullWidth>
                 <AppReactDatepicker
                   selected={values.startTime}
-                  onChange={date => setValues({ ...values, startTime: new Date(date) })}
+                  onChange={handleStartTimeChange}
                   showTimeSelect
                   showTimeSelectOnly
                   timeIntervals={15}
                   dateFormat='h:mm aa'
                   timeCaption='Start Time'
                   customInput={<DatePickerInput label='Start Time' dateFormat='h:mm aa' />}
-                  minDate={new Date()}
+                  minTime={setHours(setMinutes(new Date(), 0), 0)}
+                  maxTime={setHours(setMinutes(new Date(), 45), 23)}
                 />
               </FormControl>
             </Grid>
@@ -219,14 +253,21 @@ const AddAppointmentModal = props => {
               <FormControl fullWidth>
                 <AppReactDatepicker
                   selected={values.endTime}
-                  onChange={date => setValues({ ...values, endTime: new Date(date) })}
+                  onChange={handleEndTimeChange}
                   showTimeSelect
                   showTimeSelectOnly
                   timeIntervals={15}
                   dateFormat='h:mm aa'
                   timeCaption='End Time'
                   customInput={<DatePickerInput label='End Time' dateFormat='h:mm aa' />}
-                  minDate={new Date()}
+                  minTime={addMinutes(values.startTime, 15)}
+                  maxTime={setHours(setMinutes(new Date(), 45), 23)}
+                  filterTime={time => {
+                    const selectedTime = new Date(time)
+                    const startTime = new Date(values.startTime)
+
+                    return selectedTime > startTime
+                  }}
                 />
               </FormControl>
             </Grid>
