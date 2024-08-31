@@ -94,58 +94,26 @@ const AddAppointmentModal = props => {
     setClientError('')
     setIsLoading(true)
 
-    const appointmentDate = formatDateToLocalMidnight(values.appointmentDate)
-    const startTime = formatTimeToHHMMSS(values.startTime)
-    const endTime = formatTimeToHHMMSS(values.endTime)
-
-    const startDate = new Date(appointmentDate)
-    const startTimeParts = startTime.split(':')
-
-    startDate.setUTCHours(startTimeParts[0], startTimeParts[1], startTimeParts[2])
-
-    const endDate = new Date(appointmentDate)
-    const endTimeParts = endTime.split(':')
-
-    endDate.setUTCHours(endTimeParts[0], endTimeParts[1], endTimeParts[2])
-
-    let appointmentTitle = ''
-
-    switch (values.appointmentType) {
-      case 'order_pickup':
-        appointmentTitle = 'Order Pickup'
-        break
-      case 'general':
-        appointmentTitle = 'General Appointment'
-        break
-      case 'initial':
-        appointmentTitle = 'Initial Consultation'
-        break
-      default:
-        appointmentTitle = 'Appointment'
-    }
-
-    if (!values.clientId) {
-      console.error('No client selected')
-
-      return
-    }
-
-    const newAppointment = {
-      clientId: values.clientId,
-      userId,
-      appointmentDate,
-      startTime,
-      endTime,
-      location: values.location,
-      status: 'scheduled',
-      type: values.appointmentType,
-      sendEmail: values.sendConfirmation,
-      sendSms: values.sendConfirmation,
-      notes: values.notes
-    }
-
     try {
       const token = await getToken({ template: 'supabase' })
+
+      const appointmentDate = values.appointmentDate.toISOString().split('T')[0]
+      const startTime = values.startTime.toISOString().split('T')[1].split('.')[0]
+      const endTime = values.endTime.toISOString().split('T')[1].split('.')[0]
+
+      const newAppointment = {
+        clientId: values.clientId,
+        userId,
+        appointmentDate,
+        startTime,
+        endTime,
+        location: values.location,
+        status: 'scheduled',
+        type: values.appointmentType,
+        sendEmail: values.sendConfirmation,
+        sendSms: values.sendConfirmation,
+        notes: values.notes
+      }
 
       const data = await addAppointment(
         newAppointment.clientId,
@@ -164,31 +132,9 @@ const AddAppointmentModal = props => {
 
       const transformedAppointment = {
         id: data.id,
-        title: `${appointmentTitle} - ${values.clientName}`,
-        start: startDate
-          .toLocaleString('en-US', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false,
-            timeZone: 'UTC'
-          })
-          .replace(/(\d+)\/(\d+)\/(\d+), (\d+):(\d+):(\d+)/, '$3-$1-$2T$4:$5:$6'),
-        end: endDate
-          .toLocaleString('en-US', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false,
-            timeZone: 'UTC'
-          })
-          .replace(/(\d+)\/(\d+)\/(\d+), (\d+):(\d+):(\d+)/, '$3-$1-$2T$4:$5:$6'),
+        title: `${values.appointmentType} - ${values.clientName}`,
+        start: new Date(`${appointmentDate}T${startTime}`).toISOString(),
+        end: new Date(`${appointmentDate}T${endTime}`).toISOString(),
         allDay: false,
         extendedProps: {
           location: data.location,
@@ -201,9 +147,7 @@ const AddAppointmentModal = props => {
         }
       }
 
-      console.log('Before dispatching added action')
       dispatch({ type: 'added', event: transformedAppointment })
-      console.log('After dispatching added action')
     } catch (error) {
       console.error('Failed to add appointment:', error)
     } finally {
@@ -259,7 +203,7 @@ const AddAppointmentModal = props => {
               <FormControl fullWidth>
                 <AppReactDatepicker
                   selected={values.startTime}
-                  onChange={date => setValues({ ...values, startTime: date })}
+                  onChange={date => setValues({ ...values, startTime: new Date(date) })}
                   showTimeSelect
                   showTimeSelectOnly
                   timeIntervals={15}
@@ -275,7 +219,7 @@ const AddAppointmentModal = props => {
               <FormControl fullWidth>
                 <AppReactDatepicker
                   selected={values.endTime}
-                  onChange={date => setValues({ ...values, endTime: date })}
+                  onChange={date => setValues({ ...values, endTime: new Date(date) })}
                   showTimeSelect
                   showTimeSelectOnly
                   timeIntervals={15}

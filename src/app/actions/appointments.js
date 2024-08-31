@@ -67,18 +67,9 @@ export async function getAppointments(userId, token) {
     throw new Error(error.message)
   }
 
-  console.log('Appointments returned from Supabase:', appointments)
-
   const transformedAppointments = appointments.map(appointment => {
-    const startDate = new Date(appointment.appointment_date)
-    const startTime = appointment.start_time.split(':')
-
-    startDate.setHours(startTime[0], startTime[1], startTime[2])
-
-    const endDate = new Date(appointment.appointment_date)
-    const endTime = appointment.end_time.split(':')
-
-    endDate.setHours(endTime[0], endTime[1], endTime[2])
+    const startDate = new Date(appointment.appointment_date + 'T' + appointment.start_time + 'Z')
+    const endDate = new Date(appointment.appointment_date + 'T' + appointment.end_time + 'Z')
 
     let appointmentTitle = ''
 

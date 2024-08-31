@@ -143,6 +143,10 @@ const AppFullCalendar = styled('div')(({ theme }) => ({
 
     // Event Colors
     '& .fc-event': {
+      cursor: 'pointer', // Add this line to change the cursor to a pointer for all events
+      '&:hover': {
+        color: theme.palette.primary.main
+      },
       '& .fc-event-title-container, .fc-event-main-frame': {
         lineHeight: 1
       },
@@ -327,12 +331,12 @@ const AppFullCalendar = styled('div')(({ theme }) => ({
     },
 
     // Hover effect for dates
-    '& .fc-daygrid-day': {
-      '&:hover': {
-        backgroundColor: 'rgba(0, 0, 255, 0.1)', // Change to your desired hover color
-        cursor: 'pointer'
-      }
-    },
+    // '& .fc-daygrid-day': {
+    //   '&:hover': {
+    //     backgroundColor: 'rgba(0, 0, 255, 0.1)', // Change to your desired hover color
+    //     cursor: 'pointer'
+    //   }
+    // },
 
     // WeekView
     '& .fc-timegrid': {

@@ -52,9 +52,7 @@ const SidebarLeft = props => {
     : null
 
   const handleSidebarToggleModal = () => {
-    // Updated
-    handleSelectEvent(null)
-    handleAddEventModalToggle() // Updated
+    handleAddEventModalToggle()
   }
 
   if (renderFilters) {
