@@ -88,16 +88,18 @@ const AddAppointmentModal = props => {
   }
 
   const formatTimeToHHMMSS = date => {
-    const hours = date.getHours().toString().padStart(2, '0')
-    const minutes = date.getMinutes().toString().padStart(2, '0')
-    const seconds = date.getSeconds().toString().padStart(2, '0')
-
-    return `${hours}:${minutes}:${seconds}`
+    return date.toTimeString().split(' ')[0]
   }
 
   const onSubmit = async () => {
     if (!values.clientId) {
       setClientError('Please select a client before scheduling the appointment.')
+
+      return
+    }
+
+    if (values.startTime >= values.endTime) {
+      setClientError('End time must be after start time.')
 
       return
     }
@@ -109,8 +111,8 @@ const AddAppointmentModal = props => {
       const token = await getToken({ template: 'supabase' })
 
       const appointmentDate = values.appointmentDate.toISOString().split('T')[0]
-      const startTime = values.startTime.toISOString().split('T')[1].split('.')[0]
-      const endTime = values.endTime.toISOString().split('T')[1].split('.')[0]
+      const startTime = formatTimeToHHMMSS(values.startTime)
+      const endTime = formatTimeToHHMMSS(values.endTime)
 
       const newAppointment = {
         clientId: values.clientId,
@@ -144,8 +146,8 @@ const AddAppointmentModal = props => {
       const transformedAppointment = {
         id: data.id,
         title: `${values.appointmentType} - ${values.clientName}`,
-        start: new Date(`${appointmentDate}T${startTime}`).toISOString(),
-        end: new Date(`${appointmentDate}T${endTime}`).toISOString(),
+        start: new Date(`${appointmentDate}T${startTime}`),
+        end: new Date(`${appointmentDate}T${endTime}`),
         allDay: false,
         extendedProps: {
           location: data.location,
@@ -161,6 +163,7 @@ const AddAppointmentModal = props => {
       dispatch({ type: 'added', event: transformedAppointment })
     } catch (error) {
       console.error('Failed to add appointment:', error)
+      setClientError(error.message || 'Failed to add appointment. Please try again.')
     } finally {
       setIsLoading(false)
       handleModalClose()

@@ -68,8 +68,8 @@ export async function getAppointments(userId, token) {
   }
 
   const transformedAppointments = appointments.map(appointment => {
-    const startDate = new Date(appointment.appointment_date + 'T' + appointment.start_time + 'Z')
-    const endDate = new Date(appointment.appointment_date + 'T' + appointment.end_time + 'Z')
+    const startDate = new Date(`${appointment.appointment_date}T${appointment.start_time}`)
+    const endDate = new Date(`${appointment.appointment_date}T${appointment.end_time}`)
 
     let appointmentTitle = ''
 
@@ -92,8 +92,8 @@ export async function getAppointments(userId, token) {
     return {
       id: appointment.id,
       title: `${appointmentTitle} - ${clientName}`,
-      start: startDate.toISOString(),
-      end: endDate.toISOString(),
+      start: startDate,
+      end: endDate,
       allDay: false,
       extendedProps: {
         location: appointment.location,
