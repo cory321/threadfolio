@@ -13,6 +13,7 @@ import calendarReducer from '@reducers/calendarReducer'
 // View Imports
 import Calendar from '@views/apps/calendar/Calendar'
 import SidebarLeft from '@views/apps/calendar/SidebarLeft'
+import ViewAppointmentModal from '@views/apps/calendar/ViewAppointmentModal'
 
 // CalendarColors Object
 const calendarsColor = {
@@ -29,6 +30,8 @@ const AppCalendar = ({ events }) => {
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false)
   const [addEventModalOpen, setAddEventModalOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState(null)
+  const [viewEventModalOpen, setViewEventModalOpen] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState(null)
 
   // Vars
   const initialState = {
@@ -38,7 +41,6 @@ const AppCalendar = ({ events }) => {
   }
 
   useEffect(() => {
-    console.log(events)
     dispatch({ type: 'init', events })
   }, [events])
 
@@ -51,6 +53,14 @@ const AppCalendar = ({ events }) => {
   const mdAbove = useMediaQuery(theme => theme.breakpoints.up('md'))
   const handleLeftSidebarToggle = () => setLeftSidebarOpen(!leftSidebarOpen)
   const handleAddEventModalToggle = () => setAddEventModalOpen(!addEventModalOpen)
+
+  const handleViewEventModalToggle = () => {
+    setViewEventModalOpen(!viewEventModalOpen)
+
+    if (viewEventModalOpen) {
+      setSelectedEvent(null) // Clear the selected event when closing the modal
+    }
+  }
 
   // Add event handler
   const handleAddEvent = async event => {
@@ -106,7 +116,8 @@ const AppCalendar = ({ events }) => {
   // Dispatch Select Event Action
   const handleSelectEvent = info => {
     setSelectedDate(info.start)
-    dispatch({ type: 'selected_event', event: info.event })
+    setSelectedEvent(info) // Set the selected event
+    dispatch({ type: 'selected_event', event: info })
   }
 
   // Dispatch Select Calendar Action
@@ -167,6 +178,7 @@ const AppCalendar = ({ events }) => {
           handleSelectEvent={handleSelectEvent}
           handleLeftSidebarToggle={handleLeftSidebarToggle}
           handleAddEventModalToggle={handleAddEventModalToggle}
+          handleViewEventModalToggle={handleViewEventModalToggle}
         />
       </div>
       <AddAppointmentModal
@@ -180,6 +192,11 @@ const AppCalendar = ({ events }) => {
         handleSelectEvent={handleSelectEvent}
         dispatch={dispatch}
         selectedDate={selectedDate}
+      />
+      <ViewAppointmentModal
+        open={viewEventModalOpen}
+        handleClose={handleViewEventModalToggle}
+        selectedEvent={selectedEvent}
       />
     </>
   )

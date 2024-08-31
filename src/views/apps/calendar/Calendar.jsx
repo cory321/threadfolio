@@ -38,7 +38,8 @@ const Calendar = props => {
     handleSelectEvent,
     handleUpdateEvent,
     handleAddEventModalToggle, // Changed from handleAddEventSidebarToggle
-    handleLeftSidebarToggle
+    handleLeftSidebarToggle,
+    handleViewEventModalToggle
   } = props
 
   // Refs
@@ -68,36 +69,18 @@ const Calendar = props => {
         titleFormat: { year: 'numeric', month: 'short', day: 'numeric' }
       }
     },
-
-    /*
-          Enable dragging and resizing event
-          ? Docs: https://fullcalendar.io/docs/editable
-        */
-    editable: true,
-
-    /*
-          Enable resizing event from start
-          ? Docs: https://fullcalendar.io/docs/eventResizableFromStart
-        */
-    eventResizableFromStart: true,
-
-    /*
-          Automatically scroll the scroll-containers during event drag-and-drop and date selecting
-          ? Docs: https://fullcalendar.io/docs/dragScroll
-        */
+    editable: false,
+    eventResizableFromStart: false,
     dragScroll: true,
-
-    /*
-          Max number of events within a given day
-          ? Docs: https://fullcalendar.io/docs/dayMaxEvents
-        */
-    dayMaxEvents: 2,
-
-    /*
-          Determines if day names and week names are clickable
-          ? Docs: https://fullcalendar.io/docs/navLinks
-        */
-    navLinks: true,
+    dayMaxEventRows: true,
+    navLinks: false,
+    selectable: false,
+    unselectAuto: false,
+    dayCellContent: args => {
+      return {
+        html: `<div class="fc-daygrid-day-number">${args.dayNumberText}</div>`
+      }
+    },
     eventClassNames({ event: calendarEvent }) {
       // @ts-ignore
       const colorName = calendarsColor[calendarEvent._def.extendedProps.calendar]
@@ -107,20 +90,9 @@ const Calendar = props => {
         `event-bg-${colorName}`
       ]
     },
-    eventClick({ event: clickedEvent, jsEvent }) {
-      jsEvent.preventDefault()
-      handleSelectEvent(clickedEvent)
-      handleAddEventModalToggle() // Changed from handleAddEventSidebarToggle
-
-      if (clickedEvent.url) {
-        // Open the URL in a new tab
-        window.open(clickedEvent.url, '_blank')
-      }
-
-      //* Only grab required field otherwise it goes in infinity loop
-      //! Always grab all fields rendered by form (even if it get `undefined`)
-      // event.value = grabEventDataFromEventApi(clickedEvent)
-      // isAddNewEventSidebarActive.value = true
+    eventClick: function (info) {
+      handleSelectEvent(info.event)
+      handleViewEventModalToggle()
     },
     customButtons: {
       sidebarToggle: {
@@ -136,34 +108,33 @@ const Calendar = props => {
         }
       }
     },
-    dateClick(info) {
-      const ev = { ...blankEvent }
-
-      ev.start = info.date
-      ev.end = info.date
-      ev.allDay = true
-      handleSelectEvent(ev)
-      handleAddEventModalToggle() // Changed from handleAddEventSidebarToggle
-    },
-
-    /*
-          Handle event drop (Also include dragged event)
-          ? Docs: https://fullcalendar.io/docs/eventDrop
-          ? We can use `eventDragStop` but it doesn't return updated event so we have to use `eventDrop` which returns updated event
-        */
-    eventDrop({ event: droppedEvent }) {
-      handleUpdateEvent(droppedEvent)
-    },
-
-    /*
-          Handle event resize
-          ? Docs: https://fullcalendar.io/docs/eventResize
-        */
-    eventResize({ event: resizedEvent }) {
-      handleUpdateEvent(resizedEvent)
-    },
     ref: calendarRef,
-    direction: theme.direction
+    direction: theme.direction,
+    eventContent: info => {
+      const timeFormat = new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+      })
+
+      const startTime = timeFormat.format(info.event.start)
+      const endTime = timeFormat.format(info.event.end)
+      const title = info.event.title.split(' - ')
+      const appointmentType = title[0]
+      const clientName = title[1]
+
+      return {
+        html: `
+          <div class="fc-event-main-frame">
+            <div class="fc-event-time">${startTime} - ${endTime}</div>
+            <div class="fc-event-title-container">
+            <div class="fc-event-title fc-event-title-client">${clientName}</div>
+            <div class="fc-event-title">${appointmentType}</div>
+            </div>
+          </div>
+        `
+      }
+    }
   }
 
   // @ts-ignore
