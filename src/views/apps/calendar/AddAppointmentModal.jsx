@@ -10,7 +10,8 @@ import {
   FormControl,
   FormControlLabel,
   Switch,
-  Grid
+  Grid,
+  Typography
 } from '@mui/material'
 import { useForm } from 'react-hook-form'
 import { useAuth } from '@clerk/nextjs'
@@ -19,6 +20,7 @@ import { addAppointment } from '@/app/actions/appointments'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 import DatePickerInput from './DatePickerInput'
 import AppointmentTypeRadioIcons from './AppointmentTypeRadioIcons'
+import ClientSearch from '@/components/clients/ClientSearch'
 
 const AddAppointmentModal = props => {
   const { addEventModalOpen, handleAddEventModalToggle, selectedDate, dispatch } = props
@@ -35,7 +37,7 @@ const AddAppointmentModal = props => {
   }
 
   const defaultState = {
-    clientId: '71cd77e6-34b5-43ee-994a-aa5d471a00e5',
+    clientId: null,
     appointmentDate: selectedDate || new Date(),
     startTime: getNextNearestHour(),
     endTime: new Date(getNextNearestHour().getTime() + 60 * 60 * 1000), // 1 hour later
@@ -47,6 +49,7 @@ const AddAppointmentModal = props => {
 
   const [values, setValues] = useState(defaultState)
   const [isLoading, setIsLoading] = useState(false)
+  const [clientError, setClientError] = useState('')
 
   const { handleSubmit } = useForm()
 
@@ -82,6 +85,13 @@ const AddAppointmentModal = props => {
   }
 
   const onSubmit = async () => {
+    if (!values.clientId) {
+      setClientError('Please select a client before scheduling the appointment.')
+
+      return
+    }
+
+    setClientError('')
     setIsLoading(true)
 
     const appointmentDate = formatDateToLocalMidnight(values.appointmentDate)
@@ -112,6 +122,12 @@ const AddAppointmentModal = props => {
         break
       default:
         appointmentTitle = 'Appointment'
+    }
+
+    if (!values.clientId) {
+      console.error('No client selected')
+
+      return
     }
 
     const newAppointment = {
@@ -199,6 +215,11 @@ const AddAppointmentModal = props => {
     setValues({ ...values, appointmentType: selectedType })
   }
 
+  const handleClientSelect = selectedClient => {
+    setValues({ ...values, clientId: selectedClient ? selectedClient.id : null })
+    setClientError('')
+  }
+
   return (
     <Dialog
       open={addEventModalOpen}
@@ -217,6 +238,15 @@ const AddAppointmentModal = props => {
               customInput={<DatePickerInput label='Appointment Date' dateFormat='EEEE, MMMM d, yyyy' />}
               minDate={new Date()}
             />
+          </FormControl>
+
+          <FormControl fullWidth margin='normal' style={{ marginBottom: '16px' }}>
+            <ClientSearch userId={userId} onClientSelect={handleClientSelect} />
+            {clientError && (
+              <Typography color='error' variant='caption' style={{ marginTop: '8px' }}>
+                {clientError}
+              </Typography>
+            )}
           </FormControl>
 
           <Grid container spacing={2} style={{ marginTop: '0' }}>
