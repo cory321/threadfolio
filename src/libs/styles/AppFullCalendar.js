@@ -470,35 +470,40 @@ const AppFullCalendar = styled('div')(({ theme }) => ({
       marginLeft: theme.spacing(3)
     },
 
+    '& .fc td, & .fc th': {
+      border: 'none'
+    },
+
     '& .fc-daygrid-day': {
-      position: 'relative',
-      '& .fc-daygrid-day-bottom': {
-        padding: '4px',
-        display: 'flex',
-        justifyContent: 'flex-end'
+      cursor: 'pointer',
+      '&:hover': {
+        boxShadow: `inset 0 0 0 2px ${theme.palette.primary.main}`,
+        borderRadius: theme.shape.borderRadius
       },
-      '& .add-appointment-btn': {
-        display: 'none',
-        background: theme.palette.primary.main,
-        color: theme.palette.common.white,
-        border: 'none',
-        borderRadius: '50%',
-        width: '28px',
-        height: '28px',
-        fontSize: '20px',
-        lineHeight: '28px',
-        textAlign: 'center',
+      '& .fc-event': {
         cursor: 'pointer',
+        zIndex: 1
+      },
+      '& .fc-daygrid-more-link': {
+        cursor: 'pointer',
+        color: theme.palette.primary.main,
+        position: 'relative',
         zIndex: 2,
-        transition: 'all 0.2s ease',
         '&:hover': {
-          background: theme.palette.primary.dark,
-          transform: 'scale(1.1)'
+          textDecoration: 'underline'
         }
       },
-      '&:hover .add-appointment-btn': {
-        display: 'block'
+      '& .fc-daygrid-day-top': {
+        justifyContent: 'flex-start',
+        '& .fc-daygrid-day-number': {
+          border: 'none',
+          padding: '4px',
+          margin: '4px'
+        }
       }
+    },
+    '& .fc-day-other .fc-daygrid-day-top': {
+      opacity: 0.5
     },
     '& .fc-day-header': {
       padding: '8px',

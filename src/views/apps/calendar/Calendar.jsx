@@ -140,16 +140,46 @@ const Calendar = props => {
       const date = arg.date
       const cell = arg.el
 
-      const addButton = document.createElement('button')
+      cell.addEventListener('click', e => {
+        // Check if the clicked element or its parent is the "more events" link
+        const moreLink = e.target.closest('.fc-daygrid-more-link')
 
-      addButton.className = 'add-appointment-btn'
-      addButton.textContent = '+'
-      addButton.dataset.date = date.toISOString()
+        if (moreLink) {
+          // Prevent the event from bubbling up to the cell
+          e.stopPropagation()
 
-      const bottomDiv = cell.querySelector('.fc-daygrid-day-bottom')
+          return // Exit the function early
+        }
 
-      if (bottomDiv) {
-        bottomDiv.appendChild(addButton)
+        if (!e.target.closest('.fc-event')) {
+          handleAddEventModalToggle()
+          setSelectedDate(date)
+        }
+      })
+
+      // Add a separate listener for the "more events" link
+      const moreLink = cell.querySelector('.fc-daygrid-more-link')
+
+      if (moreLink) {
+        moreLink.addEventListener('click', e => {
+          // Prevent the event from bubbling up to the cell
+          e.stopPropagation()
+
+          // Here you can add custom behavior for the "more events" link if needed
+        })
+      }
+    },
+    dayCellContent: arg => {
+      return {
+        html: `
+          <div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner">
+            <div class="fc-daygrid-day-top">
+              <a class="fc-daygrid-day-number">${arg.dayNumberText}</a>
+            </div>
+            <div class="fc-daygrid-day-events"></div>
+            <div class="fc-daygrid-day-bg"></div>
+          </div>
+        `
       }
     }
   }
