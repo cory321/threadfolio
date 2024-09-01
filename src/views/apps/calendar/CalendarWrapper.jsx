@@ -159,6 +159,7 @@ const AppCalendar = ({ events, addEventModalOpen, handleAddEventModalToggle }) =
           handleSelectEvent={handleSelectEvent}
           handleAddEventModalToggle={handleAddEventModalToggle}
           handleViewEventModalToggle={handleViewEventModalToggle}
+          setSelectedDate={setSelectedDate} // Add this line
         />
       </div>
       <AddAppointmentModal

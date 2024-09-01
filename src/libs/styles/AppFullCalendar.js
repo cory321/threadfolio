@@ -468,6 +468,49 @@ const AppFullCalendar = styled('div')(({ theme }) => ({
     // Added left padding to the "today" button
     '& .fc-today-button': {
       marginLeft: theme.spacing(3)
+    },
+
+    '& .fc-daygrid-day': {
+      position: 'relative',
+      '& .fc-daygrid-day-top': {
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '4px'
+      },
+      '& .fc-daygrid-day-number': {
+        position: 'static',
+        padding: 0
+      },
+      '& .add-appointment-btn': {
+        display: 'none',
+        position: 'absolute',
+        top: '4px',
+        right: '4px',
+        background: theme.palette.primary.main,
+        color: theme.palette.common.white,
+        border: 'none',
+        borderRadius: '50%',
+        width: '28px', // Increased from 20px
+        height: '28px', // Increased from 20px
+        fontSize: '20px', // Increased from 16px
+        lineHeight: '28px', // Added to center the plus sign vertically
+        textAlign: 'center', // Added to center the plus sign horizontally
+        cursor: 'pointer',
+        zIndex: 2,
+        transition: 'all 0.2s ease', // Added for smooth hover effect
+        '&:hover': {
+          background: theme.palette.primary.dark,
+          transform: 'scale(1.1)' // Added to make the button slightly larger on hover
+        }
+      },
+      '&:hover .add-appointment-btn': {
+        display: 'block'
+      }
+    },
+    '& .fc-day-header': {
+      padding: '8px',
+      textAlign: 'center',
+      fontWeight: 'bold'
     }
   }
 }))

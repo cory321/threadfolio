@@ -38,7 +38,8 @@ const Calendar = props => {
     handleSelectEvent,
     handleUpdateEvent,
     handleAddEventModalToggle, // Changed from handleAddEventSidebarToggle
-    handleViewEventModalToggle
+    handleViewEventModalToggle,
+    setSelectedDate // Add this line
   } = props
 
   // Refs
@@ -77,7 +78,15 @@ const Calendar = props => {
     unselectAuto: false,
     dayCellContent: args => {
       return {
-        html: `<div class="fc-daygrid-day-number">${args.dayNumberText}</div>`
+        html: `
+          <div class="fc-daygrid-day-number">${args.dayNumberText}</div>
+          <button class="add-appointment-btn" data-date="${args.date.toISOString()}">+</button>
+        `
+      }
+    },
+    dayHeaderContent: args => {
+      return {
+        html: `<div class="fc-day-header">${args.text}</div>`
       }
     },
     eventClassNames({ event: calendarEvent }) {
@@ -129,6 +138,23 @@ const Calendar = props => {
       }
     }
   }
+
+  useEffect(() => {
+    const handleAddAppointmentClick = e => {
+      if (e.target.classList.contains('add-appointment-btn')) {
+        const date = new Date(e.target.dataset.date)
+
+        handleAddEventModalToggle()
+        setSelectedDate(date)
+      }
+    }
+
+    document.addEventListener('click', handleAddAppointmentClick)
+
+    return () => {
+      document.removeEventListener('click', handleAddAppointmentClick)
+    }
+  }, [handleAddEventModalToggle, setSelectedDate])
 
   // @ts-ignore
   return <FullCalendar {...calendarOptions} />
