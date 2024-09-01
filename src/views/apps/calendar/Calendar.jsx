@@ -76,30 +76,25 @@ const Calendar = props => {
     navLinks: false,
     selectable: false,
     unselectAuto: false,
-    dayCellContent: args => {
-      return {
-        html: `
-          <div class="fc-daygrid-day-number">${args.dayNumberText}</div>
-        `
-      }
-    },
-    dayHeaderContent: args => {
-      return {
-        html: `<div class="fc-day-header">${args.text}</div>`
-      }
-    },
     eventClassNames({ event: calendarEvent }) {
-      // @ts-ignore
       const colorName = calendarsColor[calendarEvent._def.extendedProps.calendar]
 
-      return [
-        // Background Color
-        `event-bg-${colorName}`
-      ]
+      return [`event-bg-${colorName}`]
     },
     eventClick: function (info) {
       handleSelectEvent(info.event)
       handleViewEventModalToggle()
+    },
+    dateClick: function (info) {
+      if (!info.jsEvent.target.classList.contains('fc-event')) {
+        handleAddEventModalToggle()
+        setSelectedDate(info.date)
+      }
+    },
+    moreLinkClick: function (info) {
+      // Handle "more" link click if needed
+      // For example, you could open a modal with all events for that day
+      console.log('More link clicked', info)
     },
     customButtons: {
       today: {
@@ -135,71 +130,8 @@ const Calendar = props => {
           </div>
         `
       }
-    },
-    dayCellDidMount: arg => {
-      const date = arg.date
-      const cell = arg.el
-
-      cell.addEventListener('click', e => {
-        // Check if the clicked element or its parent is the "more events" link
-        const moreLink = e.target.closest('.fc-daygrid-more-link')
-
-        if (moreLink) {
-          // Prevent the event from bubbling up to the cell
-          e.stopPropagation()
-
-          return // Exit the function early
-        }
-
-        if (!e.target.closest('.fc-event')) {
-          handleAddEventModalToggle()
-          setSelectedDate(date)
-        }
-      })
-
-      // Add a separate listener for the "more events" link
-      const moreLink = cell.querySelector('.fc-daygrid-more-link')
-
-      if (moreLink) {
-        moreLink.addEventListener('click', e => {
-          // Prevent the event from bubbling up to the cell
-          e.stopPropagation()
-
-          // Here you can add custom behavior for the "more events" link if needed
-        })
-      }
-    },
-    dayCellContent: arg => {
-      return {
-        html: `
-          <div class="fc-daygrid-day-frame fc-scrollgrid-sync-inner">
-            <div class="fc-daygrid-day-top">
-              <a class="fc-daygrid-day-number">${arg.dayNumberText}</a>
-            </div>
-            <div class="fc-daygrid-day-events"></div>
-            <div class="fc-daygrid-day-bg"></div>
-          </div>
-        `
-      }
     }
   }
-
-  useEffect(() => {
-    const handleAddAppointmentClick = e => {
-      if (e.target.classList.contains('add-appointment-btn')) {
-        const date = new Date(e.target.dataset.date)
-
-        handleAddEventModalToggle()
-        setSelectedDate(date)
-      }
-    }
-
-    document.addEventListener('click', handleAddAppointmentClick)
-
-    return () => {
-      document.removeEventListener('click', handleAddAppointmentClick)
-    }
-  }, [handleAddEventModalToggle, setSelectedDate])
 
   // @ts-ignore
   return <FullCalendar {...calendarOptions} />
