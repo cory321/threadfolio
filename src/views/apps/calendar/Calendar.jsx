@@ -60,8 +60,8 @@ const Calendar = props => {
     plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
     initialView: 'dayGridMonth',
     headerToolbar: {
-      start: 'prev, next, today, title',
-      end: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+      start: 'prev,next,title',
+      end: 'today dayGridMonth,timeGridWeek,timeGridDay,listMonth'
     },
     views: {
       week: {

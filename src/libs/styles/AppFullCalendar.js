@@ -22,15 +22,17 @@ const AppFullCalendar = styled('div')(({ theme }) => ({
         gap: theme.spacing(2),
         marginBottom: theme.spacing(5)
       },
-      '& .fc-sidebarToggle-button': {
-        color: `${theme.palette.text.secondary} !important`,
-        marginInlineEnd: theme.spacing(2)
-      },
-      '& .fc-button-group:has(.fc-next-button)': {
-        marginInlineStart: theme.spacing(2)
-      },
-      '.fc-prev-button, & .fc-next-button': {
+      '& .fc-toolbar-chunk': {
         display: 'flex',
+        alignItems: 'center'
+      },
+      '& .fc-toolbar-chunk:first-of-type': {
+        flex: 1,
+        justifyContent: 'flex-start',
+        alignItems: 'center'
+      },
+      '& .fc-prev-button, & .fc-next-button': {
+        display: 'inline-flex',
         backgroundColor: 'transparent',
         padding: theme.spacing(1.5),
         border: '1px solid var(--mui-palette-secondary-main)',
@@ -44,22 +46,19 @@ const AppFullCalendar = styled('div')(({ theme }) => ({
           backgroundColor: 'transparent !important'
         }
       },
-      '& .fc-toolbar-chunk:first-of-type': {
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        rowGap: theme.spacing(2),
-        [theme.breakpoints.down('md')]: {
-          '& div:first-of-type': {
-            display: 'flex',
-            alignItems: 'center'
-          }
-        }
+      '& .fc-prev-button': {
+        marginRight: theme.spacing(1)
       },
-      '& .fc-button': {
-        '&:active, .&:focus': {
-          boxShadow: 'none'
-        }
+      '& .fc-next-button': {
+        marginRight: theme.spacing(2)
+      },
+      '& .fc-toolbar-title': {
+        ...theme.typography.h4,
+        margin: 0,
+        padding: 0,
+        display: 'inline-flex',
+        alignItems: 'center',
+        lineHeight: 1
       },
       '& .fc-button-group': {
         '& .fc-button': {
@@ -82,47 +81,23 @@ const AppFullCalendar = styled('div')(({ theme }) => ({
               backgroundColor: `rgb(${theme.vars.palette.primary.mainChannel} / 0.16)`
             }
           }
-        },
-        '& .fc-sidebarToggle-button': {
-          border: 0,
-          lineHeight: 0.8,
-          borderColor: 'transparent',
-          paddingBottom: '0 !important',
-          backgroundColor: 'transparent',
-          marginLeft: `${theme.spacing(-2)} !important`,
-          padding: `${theme.spacing(1.275, 2)} !important`,
-          '&:focus': {
-            outline: 0,
-            boxShadow: 'none'
-          },
-          '&:not(.fc-prev-button):not(.fc-next-button):hover': {
-            backgroundColor: 'transparent !important'
-          },
-          '& + div': {
-            marginLeft: 0
-          }
-        },
-        '.fc-dayGridMonth-button, .fc-timeGridWeek-button, .fc-timeGridDay-button, & .fc-listMonth-button': {
-          padding: theme.spacing(2.2, 6),
-          '&:last-of-type, &:first-of-type': {
-            borderRadius: theme.shape.borderRadius
-          },
-          '&:first-of-type': {
-            borderTopRightRadius: 0,
-            borderBottomRightRadius: 0
-          },
-          '&:last-of-type': {
-            borderTopLeftRadius: 0,
-            borderBottomLeftRadius: 0
-          }
+        }
+      },
+      '& .fc-today-button': {
+        ...theme.typography.button,
+        textTransform: 'capitalize',
+        backgroundColor: 'transparent',
+        padding: theme.spacing(1.75, 4.5),
+        color: theme.palette.primary.main,
+        borderColor: theme.palette.primary.main,
+        marginRight: theme.spacing(2),
+        '&:hover, &:active, &:focus': {
+          boxShadow: 'none !important',
+          backgroundColor: `rgb(${theme.vars.palette.primary.mainChannel} / 0.16) !important`
         }
       },
       '& > * > :not(:first-of-type)': {
         marginLeft: 0
-      },
-      '& .fc-toolbar-title': {
-        marginInline: theme.spacing(4),
-        ...theme.typography.h4
       },
       '.fc-button:empty:not(.fc-sidebarToggle-button), & .fc-toolbar-chunk:empty': {
         display: 'none'
