@@ -58,7 +58,10 @@ const AppFullCalendar = styled('div')(({ theme }) => ({
         padding: 0,
         display: 'inline-flex',
         alignItems: 'center',
-        lineHeight: 1
+        lineHeight: 1,
+        height: '100%',
+        position: 'relative',
+        top: '4px' // Adjust this value as needed to fine-tune the alignment
       },
       '& .fc-button-group': {
         '& .fc-button': {
