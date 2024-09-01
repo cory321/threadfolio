@@ -80,7 +80,6 @@ const Calendar = props => {
       return {
         html: `
           <div class="fc-daygrid-day-number">${args.dayNumberText}</div>
-          <button class="add-appointment-btn" data-date="${args.date.toISOString()}">+</button>
         `
       }
     },
@@ -135,6 +134,22 @@ const Calendar = props => {
             </div>
           </div>
         `
+      }
+    },
+    dayCellDidMount: arg => {
+      const date = arg.date
+      const cell = arg.el
+
+      const addButton = document.createElement('button')
+
+      addButton.className = 'add-appointment-btn'
+      addButton.textContent = '+'
+      addButton.dataset.date = date.toISOString()
+
+      const bottomDiv = cell.querySelector('.fc-daygrid-day-bottom')
+
+      if (bottomDiv) {
+        bottomDiv.appendChild(addButton)
       }
     }
   }

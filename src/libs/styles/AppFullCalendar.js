@@ -472,35 +472,28 @@ const AppFullCalendar = styled('div')(({ theme }) => ({
 
     '& .fc-daygrid-day': {
       position: 'relative',
-      '& .fc-daygrid-day-top': {
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '4px'
-      },
-      '& .fc-daygrid-day-number': {
-        position: 'static',
-        padding: 0
+      '& .fc-daygrid-day-bottom': {
+        padding: '4px',
+        display: 'flex',
+        justifyContent: 'flex-end'
       },
       '& .add-appointment-btn': {
         display: 'none',
-        position: 'absolute',
-        top: '4px',
-        right: '4px',
         background: theme.palette.primary.main,
         color: theme.palette.common.white,
         border: 'none',
         borderRadius: '50%',
-        width: '28px', // Increased from 20px
-        height: '28px', // Increased from 20px
-        fontSize: '20px', // Increased from 16px
-        lineHeight: '28px', // Added to center the plus sign vertically
-        textAlign: 'center', // Added to center the plus sign horizontally
+        width: '28px',
+        height: '28px',
+        fontSize: '20px',
+        lineHeight: '28px',
+        textAlign: 'center',
         cursor: 'pointer',
         zIndex: 2,
-        transition: 'all 0.2s ease', // Added for smooth hover effect
+        transition: 'all 0.2s ease',
         '&:hover': {
           background: theme.palette.primary.dark,
-          transform: 'scale(1.1)' // Added to make the button slightly larger on hover
+          transform: 'scale(1.1)'
         }
       },
       '&:hover .add-appointment-btn': {
