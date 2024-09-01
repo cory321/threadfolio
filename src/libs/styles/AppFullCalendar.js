@@ -485,6 +485,11 @@ const AppFullCalendar = styled('div')(({ theme }) => ({
       '& .fc-toolbar-title': {
         marginLeft: 0
       }
+    },
+
+    // Added left padding to the "today" button
+    '& .fc-today-button': {
+      marginLeft: theme.spacing(3)
     }
   }
 }))

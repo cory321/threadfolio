@@ -4,8 +4,6 @@
 import { useEffect, useState } from 'react'
 
 import Card from '@mui/material/Card'
-
-// Component Imports
 import { useAuth } from '@clerk/nextjs'
 
 // Styled Component Imports
@@ -17,7 +15,7 @@ import { getAppointments } from '@/app/actions/appointments'
 // Calendar Wrapper Import
 import CalendarWrapper from '@views/apps/calendar/CalendarWrapper'
 
-const CalendarApp = () => {
+const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
   // Get the user and token from Clerk's useAuth hook
   const { getToken, userId } = useAuth()
 
@@ -48,7 +46,11 @@ const CalendarApp = () => {
   return (
     <Card className='overflow-visible'>
       <AppFullCalendar className='app-calendar'>
-        <CalendarWrapper events={events} />
+        <CalendarWrapper
+          events={events}
+          addEventModalOpen={addEventModalOpen}
+          handleAddEventModalToggle={handleAddEventModalToggle}
+        />
       </AppFullCalendar>
     </Card>
   )

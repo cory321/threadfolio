@@ -38,7 +38,6 @@ const Calendar = props => {
     handleSelectEvent,
     handleUpdateEvent,
     handleAddEventModalToggle, // Changed from handleAddEventSidebarToggle
-    handleLeftSidebarToggle,
     handleViewEventModalToggle
   } = props
 
@@ -61,7 +60,7 @@ const Calendar = props => {
     plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
     initialView: 'dayGridMonth',
     headerToolbar: {
-      start: 'sidebarToggle, prev, next, today, title',
+      start: 'prev, next, today, title',
       end: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
     },
     views: {
@@ -95,12 +94,6 @@ const Calendar = props => {
       handleViewEventModalToggle()
     },
     customButtons: {
-      sidebarToggle: {
-        icon: 'bi bi-list',
-        click() {
-          handleLeftSidebarToggle()
-        }
-      },
       today: {
         text: 'today',
         click() {

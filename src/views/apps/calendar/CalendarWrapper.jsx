@@ -12,7 +12,6 @@ import calendarReducer from '@reducers/calendarReducer'
 
 // View Imports
 import Calendar from '@views/apps/calendar/Calendar'
-import SidebarLeft from '@views/apps/calendar/SidebarLeft'
 import ViewAppointmentModal from '@views/apps/calendar/ViewAppointmentModal'
 
 // CalendarColors Object
@@ -24,11 +23,9 @@ const calendarsColor = {
   ETC: 'info'
 }
 
-const AppCalendar = ({ events }) => {
+const AppCalendar = ({ events, addEventModalOpen, handleAddEventModalToggle }) => {
   // States
   const [calendarApi, setCalendarApi] = useState(null)
-  const [leftSidebarOpen, setLeftSidebarOpen] = useState(false)
-  const [addEventModalOpen, setAddEventModalOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState(null)
   const [viewEventModalOpen, setViewEventModalOpen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState(null)
@@ -51,16 +48,6 @@ const AppCalendar = ({ events }) => {
   // Hooks
   const [calendars, dispatch] = useReducer(calendarReducer, initialState)
   const mdAbove = useMediaQuery(theme => theme.breakpoints.up('md'))
-  const handleLeftSidebarToggle = () => setLeftSidebarOpen(!leftSidebarOpen)
-  const handleAddEventModalToggle = () => setAddEventModalOpen(!addEventModalOpen)
-
-  const handleViewEventModalToggle = () => {
-    setViewEventModalOpen(!viewEventModalOpen)
-
-    if (viewEventModalOpen) {
-      setSelectedEvent(null) // Clear the selected event when closing the modal
-    }
-  }
 
   // Add event handler
   const handleAddEvent = async event => {
@@ -113,11 +100,17 @@ const AppCalendar = ({ events }) => {
       })
   }
 
+  // Add this function
+  const handleViewEventModalToggle = () => {
+    setViewEventModalOpen(!viewEventModalOpen)
+  }
+
   // Dispatch Select Event Action
   const handleSelectEvent = info => {
     setSelectedDate(info.start)
     setSelectedEvent(info) // Set the selected event
     dispatch({ type: 'selected_event', event: info })
+    handleViewEventModalToggle() // Open the view modal when an event is selected
   }
 
   // Dispatch Select Calendar Action
@@ -155,18 +148,6 @@ const AppCalendar = ({ events }) => {
 
   return (
     <>
-      <SidebarLeft
-        mdAbove={mdAbove}
-        leftSidebarOpen={leftSidebarOpen}
-        calendars={calendars}
-        calendarApi={calendarApi}
-        calendarsColor={calendarsColor}
-        handleSelectEvent={handleSelectEvent}
-        handleAllCalendars={handleAllCalendars}
-        handleCalendarsUpdate={handleCalendarsUpdate}
-        handleLeftSidebarToggle={handleLeftSidebarToggle}
-        handleAddEventModalToggle={handleAddEventModalToggle}
-      />
       <div className='p-5 pbe-0 flex-grow overflow-visible bg-backgroundPaper'>
         <Calendar
           mdAbove={mdAbove}
@@ -176,7 +157,6 @@ const AppCalendar = ({ events }) => {
           calendarsColor={calendarsColor}
           handleUpdateEvent={handleUpdateEvent}
           handleSelectEvent={handleSelectEvent}
-          handleLeftSidebarToggle={handleLeftSidebarToggle}
           handleAddEventModalToggle={handleAddEventModalToggle}
           handleViewEventModalToggle={handleViewEventModalToggle}
         />
