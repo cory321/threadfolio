@@ -98,9 +98,9 @@ const ClientList = ({ clients: initialClients, setClients }) => {
   )
 
   useEffect(() => {
-    if ((!initialClients || initialClients.length === 0) && userId) {
+    if (initialClients === null && userId) {
       loadClients(page, rowsPerPage, orderBy, order)
-    } else {
+    } else if (initialClients) {
       setLocalClients(initialClients)
     }
   }, [initialClients, loadClients, page, rowsPerPage, userId, orderBy, order])
@@ -139,66 +139,72 @@ const ClientList = ({ clients: initialClients, setClients }) => {
 
   return (
     <>
-      <Box mb={4}>
-        <ClientSearch userId={userId} onClientSelect={handleClientSelect} />
-      </Box>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <StyledTableCell>Avatar</StyledTableCell>
-              <StyledTableCell sortDirection={orderBy === 'full_name' ? order : false}>
-                <TableSortLabel
-                  active={orderBy === 'full_name'}
-                  direction={orderBy === 'full_name' ? order : 'asc'}
-                  onClick={handleRequestSort('full_name')}
-                >
-                  Full Name
-                  {orderBy === 'full_name' ? (
-                    <Box component='span' sx={visuallyHidden}>
-                      {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                    </Box>
-                  ) : null}
-                </TableSortLabel>
-              </StyledTableCell>
-              <StyledTableCell>Email</StyledTableCell>
-              <StyledTableCell>Phone Number</StyledTableCell>
-              <StyledTableCell>Mailing Address</StyledTableCell>
-              <StyledTableCell>Notes</StyledTableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {displayedClients.map(client => (
-              <TableRow key={client.id} sx={{ '& > *': { paddingTop: 2, paddingBottom: 2 } }}>
-                <StyledTableCell>
-                  <InitialsAvatar fullName={client.full_name} />
-                </StyledTableCell>
-                <StyledTableCell padding='none'>
-                  <Link href={`/clients/${client.id}`} passHref legacyBehavior>
-                    <StyledLink component='a' variant='contained' color='primary'>
-                      {client.full_name}
-                    </StyledLink>
-                  </Link>
-                </StyledTableCell>
-                <StyledTableCell>{client.email}</StyledTableCell>
-                <StyledTableCell>{client.phone_number}</StyledTableCell>
-                <StyledTableCell>{client.mailing_address}</StyledTableCell>
-                <StyledTableCell>{client.notes}</StyledTableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      {!searchResults && (
-        <TablePagination
-          component='div'
-          count={totalCount}
-          page={page}
-          onPageChange={handleChangePage}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          disabled={isLoading}
-        />
+      {displayedClients.length === 0 ? (
+        <Typography>No clients found.</Typography>
+      ) : (
+        <>
+          <Box mb={4}>
+            <ClientSearch userId={userId} onClientSelect={handleClientSelect} />
+          </Box>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <StyledTableCell>Avatar</StyledTableCell>
+                  <StyledTableCell sortDirection={orderBy === 'full_name' ? order : false}>
+                    <TableSortLabel
+                      active={orderBy === 'full_name'}
+                      direction={orderBy === 'full_name' ? order : 'asc'}
+                      onClick={handleRequestSort('full_name')}
+                    >
+                      Full Name
+                      {orderBy === 'full_name' ? (
+                        <Box component='span' sx={visuallyHidden}>
+                          {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                        </Box>
+                      ) : null}
+                    </TableSortLabel>
+                  </StyledTableCell>
+                  <StyledTableCell>Email</StyledTableCell>
+                  <StyledTableCell>Phone Number</StyledTableCell>
+                  <StyledTableCell>Mailing Address</StyledTableCell>
+                  <StyledTableCell>Notes</StyledTableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {displayedClients.map(client => (
+                  <TableRow key={client.id} sx={{ '& > *': { paddingTop: 2, paddingBottom: 2 } }}>
+                    <StyledTableCell>
+                      <InitialsAvatar fullName={client.full_name} />
+                    </StyledTableCell>
+                    <StyledTableCell padding='none'>
+                      <Link href={`/clients/${client.id}`} passHref legacyBehavior>
+                        <StyledLink component='a' variant='contained' color='primary'>
+                          {client.full_name}
+                        </StyledLink>
+                      </Link>
+                    </StyledTableCell>
+                    <StyledTableCell>{client.email}</StyledTableCell>
+                    <StyledTableCell>{client.phone_number}</StyledTableCell>
+                    <StyledTableCell>{client.mailing_address}</StyledTableCell>
+                    <StyledTableCell>{client.notes}</StyledTableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          {!searchResults && (
+            <TablePagination
+              component='div'
+              count={totalCount}
+              page={page}
+              onPageChange={handleChangePage}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              disabled={isLoading}
+            />
+          )}
+        </>
       )}
       {isLoading && (
         <CircularProgress

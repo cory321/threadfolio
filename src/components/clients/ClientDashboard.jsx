@@ -34,7 +34,7 @@ const ClientList = dynamic(() => import('@/components/clients/ClientList'), {
 
 const ClientDashboard = () => {
   const [open, setOpen] = useState(false)
-  const [clients, setClients] = useState([])
+  const [clients, setClients] = useState(null)
   const theme = useTheme()
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'))
 
