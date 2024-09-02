@@ -120,11 +120,10 @@ const Calendar = props => {
       return {
         html: `
           <div class="fc-event-main-frame">
-            <div class="fc-event-time">${startTime} - ${endTime}</div>
-            <div class="fc-event-title-container">
-            <div class="fc-event-title fc-event-title-client">${clientName}</div>
-            <div class="fc-event-title">${appointmentType}</div>
+          <div class="fc-event-title-container">
+              <div class="fc-event-title fc-event-title-client">${clientName}</div>
             </div>
+            <div class="fc-event-time">${startTime} - ${endTime}</div>
           </div>
         `
       }

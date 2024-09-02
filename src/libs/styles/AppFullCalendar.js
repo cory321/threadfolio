@@ -243,7 +243,7 @@ const AppFullCalendar = styled('div')(({ theme }) => ({
       '&.fc-daygrid-event': {
         marginLeft: '0px',
         marginRight: '0px',
-        borderRadius: '500px'
+        borderRadius: '4px'
       }
     },
     '& .fc-view-harness': {
@@ -509,6 +509,26 @@ const AppFullCalendar = styled('div')(({ theme }) => ({
       padding: '8px',
       textAlign: 'center',
       fontWeight: 'bold'
+    }
+  },
+  '& .fc-h-event': {
+    backgroundColor: theme.palette.primary.main,
+    borderColor: theme.palette.primary.main,
+    borderRadius: '0',
+    '& .fc-event-main': {
+      fontWeight: 'bold',
+      color: theme.palette.primary.contrastText
+    }
+  },
+
+  // Apply styles to week view timegrid events
+  '& .fc-timegrid-event': {
+    backgroundColor: theme.palette.primary.main,
+    borderColor: theme.palette.primary.main,
+    borderRadius: '0',
+    '& .fc-event-main': {
+      fontWeight: 'bold',
+      color: theme.palette.primary.contrastText
     }
   }
 }))
