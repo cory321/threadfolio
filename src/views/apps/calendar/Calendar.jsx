@@ -105,6 +105,8 @@ const Calendar = props => {
     ref: calendarRef,
     direction: theme.direction,
     eventContent: info => {
+      const viewType = info.view.type
+
       const timeFormat = new Intl.DateTimeFormat('en-US', {
         hour: 'numeric',
         minute: 'numeric',
@@ -117,15 +119,28 @@ const Calendar = props => {
       const appointmentType = title[0]
       const clientName = title[1]
 
-      return {
-        html: `
-          <div class="fc-event-main-frame">
-          <div class="fc-event-title-container">
-              <div class="fc-event-title fc-event-title-client">${clientName}</div>
+      if (viewType === 'listMonth' || viewType === 'listWeek' || viewType === 'listDay') {
+        return {
+          html: `
+            <div class="fc-event-main-frame">
+              <div class="fc-event-title-container">
+                <div class="fc-event-title fc-event-title-client">${clientName}</div>
+              </div>
+              <div class="fc-event-type">${appointmentType}</div>
             </div>
-            <div class="fc-event-time">${startTime} - ${endTime}</div>
-          </div>
-        `
+          `
+        }
+      } else {
+        return {
+          html: `
+            <div class="fc-event-main-frame">
+              <div class="fc-event-title-container">
+                <div class="fc-event-title fc-event-title-client">${clientName}</div>
+              </div>
+              <div class="fc-event-time">${startTime} - ${endTime}</div>
+            </div>
+          `
+        }
       }
     }
   }
