@@ -58,7 +58,10 @@ const AppFullCalendar = styled('div')(({ theme }) => ({
         padding: 0,
         display: 'inline-flex',
         alignItems: 'center',
-        lineHeight: 1
+        lineHeight: 1,
+        height: '100%',
+        position: 'relative',
+        top: '4px' // Adjust this value as needed to fine-tune the alignment
       },
       '& .fc-button-group': {
         '& .fc-button': {
@@ -238,9 +241,11 @@ const AppFullCalendar = styled('div')(({ theme }) => ({
         }
       },
       '&.fc-daygrid-event': {
+        backgroundColor: `${theme.palette.primary.main}`,
+        color: `${theme.palette.primary.contrastText}`,
         marginLeft: '0px',
         marginRight: '0px',
-        borderRadius: '500px'
+        borderRadius: '4px'
       }
     },
     '& .fc-view-harness': {
@@ -465,6 +470,68 @@ const AppFullCalendar = styled('div')(({ theme }) => ({
     // Added left padding to the "today" button
     '& .fc-today-button': {
       marginLeft: theme.spacing(3)
+    },
+
+    '& .fc td, & .fc th': {
+      border: 'none'
+    },
+
+    '& .fc-daygrid-day': {
+      cursor: 'pointer',
+      '&:hover': {
+        boxShadow: `inset 0 0 0 2px ${theme.palette.primary.main}`,
+        borderRadius: theme.shape.borderRadius
+      },
+      '& .fc-event': {
+        cursor: 'pointer',
+        zIndex: 1
+      },
+      '& .fc-daygrid-more-link': {
+        cursor: 'pointer',
+        color: theme.palette.primary.main,
+        position: 'relative',
+        zIndex: 2,
+        '&:hover': {
+          textDecoration: 'underline'
+        }
+      },
+      '& .fc-daygrid-day-top': {
+        justifyContent: 'flex-start',
+        '& .fc-daygrid-day-number': {
+          border: 'none',
+          padding: '4px',
+          margin: '4px'
+        }
+      }
+    },
+    '& .fc-day-other .fc-daygrid-day-top': {
+      opacity: 0.5
+    },
+    '& .fc-day-header': {
+      padding: '8px',
+      textAlign: 'center',
+      fontWeight: 'bold'
+    }
+  },
+  '& .fc-h-event': {
+    backgroundColor: theme.palette.primary.main,
+    borderColor: theme.palette.primary.main,
+    borderRadius: '0',
+    '& .fc-event-main': {
+      fontWeight: 'bold',
+      color: theme.palette.primary.contrastText
+    }
+  },
+
+  // Apply styles to week view timegrid events
+  '& .fc-timegrid-event': {
+    backgroundColor: theme.palette.primary.main,
+    borderColor: theme.palette.primary.main,
+    borderRadius: '4px',
+    minHeight: '30px', // Set a minimum height for short events
+    '& .fc-event-main': {
+      fontWeight: 'bold',
+      color: theme.palette.primary.contrastText
     }
   }
 }))

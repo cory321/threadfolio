@@ -24,6 +24,8 @@ import DatePickerInput from './DatePickerInput'
 import AppointmentTypeRadioIcons from './AppointmentTypeRadioIcons'
 import ClientSearch from '@/components/clients/ClientSearch'
 
+import { adjustEndTimeIfNeeded } from '@/utils/dateTimeUtils'
+
 const AddAppointmentModal = props => {
   const { addEventModalOpen, handleAddEventModalToggle, selectedDate, dispatch } = props
   const { userId, getToken } = useAuth()
@@ -110,7 +112,7 @@ const AddAppointmentModal = props => {
     try {
       const token = await getToken({ template: 'supabase' })
 
-      const appointmentDate = values.appointmentDate.toISOString().split('T')[0]
+      const appointmentDate = formatDateToLocalMidnight(values.appointmentDate)
       const startTime = formatTimeToHHMMSS(values.startTime)
       const endTime = formatTimeToHHMMSS(values.endTime)
 
@@ -160,13 +162,20 @@ const AddAppointmentModal = props => {
         }
       }
 
+      // Check if end time is before start time
+      if (transformedAppointment.end < transformedAppointment.start) {
+        // If so, assume it's meant to be the next day
+        transformedAppointment.end.setDate(transformedAppointment.end.getDate() + 1)
+      }
+
       dispatch({ type: 'added', event: transformedAppointment })
+      props.handleAddEvent(transformedAppointment)
+      handleModalClose()
     } catch (error) {
       console.error('Failed to add appointment:', error)
       setClientError(error.message || 'Failed to add appointment. Please try again.')
     } finally {
       setIsLoading(false)
-      handleModalClose()
     }
   }
 
@@ -199,9 +208,11 @@ const AddAppointmentModal = props => {
   }
 
   const handleEndTimeChange = date => {
+    const newEndTime = adjustEndTimeIfNeeded(values.startTime, date)
+
     setValues({
       ...values,
-      endTime: new Date(date)
+      endTime: newEndTime
     })
   }
 
@@ -263,14 +274,8 @@ const AddAppointmentModal = props => {
                   dateFormat='h:mm aa'
                   timeCaption='End Time'
                   customInput={<DatePickerInput label='End Time' dateFormat='h:mm aa' />}
-                  minTime={addMinutes(values.startTime, 15)}
+                  minTime={setHours(setMinutes(new Date(), 0), 0)}
                   maxTime={setHours(setMinutes(new Date(), 45), 23)}
-                  filterTime={time => {
-                    const selectedTime = new Date(time)
-                    const startTime = new Date(values.startTime)
-
-                    return selectedTime > startTime
-                  }}
                 />
               </FormControl>
             </Grid>

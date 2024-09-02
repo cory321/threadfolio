@@ -38,7 +38,8 @@ const Calendar = props => {
     handleSelectEvent,
     handleUpdateEvent,
     handleAddEventModalToggle, // Changed from handleAddEventSidebarToggle
-    handleViewEventModalToggle
+    handleViewEventModalToggle,
+    setSelectedDate // Add this line
   } = props
 
   // Refs
@@ -71,27 +72,27 @@ const Calendar = props => {
     editable: false,
     eventResizableFromStart: false,
     dragScroll: true,
-    dayMaxEventRows: true,
+    dayMaxEvents: false,
     navLinks: false,
     selectable: false,
     unselectAuto: false,
-    dayCellContent: args => {
-      return {
-        html: `<div class="fc-daygrid-day-number">${args.dayNumberText}</div>`
-      }
-    },
-    eventClassNames({ event: calendarEvent }) {
-      // @ts-ignore
-      const colorName = calendarsColor[calendarEvent._def.extendedProps.calendar]
+    eventClassNames: arg => {
+      const colorName = calendarsColor[arg.event.extendedProps.calendar]
 
-      return [
-        // Background Color
-        `event-bg-${colorName}`
-      ]
+      return [`event-bg-${colorName}`]
     },
-    eventClick: function (info) {
+    eventClick: info => {
       handleSelectEvent(info.event)
       handleViewEventModalToggle()
+    },
+    dateClick: info => {
+      if (!info.dayEl.classList.contains('fc-event')) {
+        handleAddEventModalToggle()
+        setSelectedDate(info.date)
+      }
+    },
+    moreLinkClick: info => {
+      console.log('More link clicked', info)
     },
     customButtons: {
       today: {
@@ -104,6 +105,8 @@ const Calendar = props => {
     ref: calendarRef,
     direction: theme.direction,
     eventContent: info => {
+      const viewType = info.view.type
+
       const timeFormat = new Intl.DateTimeFormat('en-US', {
         hour: 'numeric',
         minute: 'numeric',
@@ -116,16 +119,28 @@ const Calendar = props => {
       const appointmentType = title[0]
       const clientName = title[1]
 
-      return {
-        html: `
-          <div class="fc-event-main-frame">
-            <div class="fc-event-time">${startTime} - ${endTime}</div>
-            <div class="fc-event-title-container">
-            <div class="fc-event-title fc-event-title-client">${clientName}</div>
-            <div class="fc-event-title">${appointmentType}</div>
+      if (viewType === 'listMonth' || viewType === 'listWeek' || viewType === 'listDay') {
+        return {
+          html: `
+            <div class="fc-event-main-frame">
+              <div class="fc-event-title-container">
+                <div class="fc-event-title fc-event-title-client">${clientName}</div>
+              </div>
+              <div class="fc-event-type">${appointmentType}</div>
             </div>
-          </div>
-        `
+          `
+        }
+      } else {
+        return {
+          html: `
+            <div class="fc-event-main-frame">
+              <div class="fc-event-title-container">
+                <div class="fc-event-title fc-event-title-client">${clientName}</div>
+              </div>
+              <div class="fc-event-time">${startTime} - ${endTime}</div>
+            </div>
+          `
+        }
       }
     }
   }
