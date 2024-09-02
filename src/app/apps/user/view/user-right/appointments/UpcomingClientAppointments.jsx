@@ -6,7 +6,7 @@ import { Card, CardHeader, CardContent, Typography, Button, Box } from '@mui/mat
 
 import AppointmentList from './AppointmentList'
 
-const UpcomingClientAppointments = ({ appointments }) => {
+const UpcomingClientAppointments = ({ appointments, clientName }) => {
   return (
     <Card sx={{ mb: 4 }}>
       <CardHeader title='Upcoming Appointments' />
@@ -14,7 +14,7 @@ const UpcomingClientAppointments = ({ appointments }) => {
         {appointments.length === 0 ? (
           <Box display='flex' flexDirection='column' alignItems='center' mt={2}>
             <Typography variant='body1' color='textSecondary'>
-              This client has no upcoming appointments scheduled
+              {clientName} has no upcoming appointments scheduled
             </Typography>
             <Link href='/appointments' passHref>
               <Button variant='text' color='primary'>

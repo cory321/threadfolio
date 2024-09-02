@@ -19,7 +19,7 @@ const ClientAppointments = dynamic(() => import('./appointments'), {
   loading: () => <LoadingSpinner />
 })
 
-const UserRight = ({ tabContentList, clientId }) => {
+const UserRight = ({ tabContentList, clientId, clientName }) => {
   // States
   const [activeTab, setActiveTab] = useState('orders')
 
@@ -51,7 +51,11 @@ const UserRight = ({ tabContentList, clientId }) => {
           </Grid>
           <Grid item xs={12}>
             <TabPanel value={activeTab} className='p-0'>
-              {activeTab === 'appointments' ? <ClientAppointments clientId={clientId} /> : tabContentList[activeTab]}
+              {activeTab === 'appointments' ? (
+                <ClientAppointments clientId={clientId} clientName={clientName} />
+              ) : (
+                tabContentList[activeTab]
+              )}
             </TabPanel>
           </Grid>
         </Grid>

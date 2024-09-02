@@ -92,7 +92,7 @@ const ClientProfile = () => {
           <UserLeftOverview userData={client} />
         </Grid>
         <Grid item xs={12} lg={8} md={7}>
-          <UserRight tabContentList={tabContentList()} clientId={id} />
+          <UserRight tabContentList={tabContentList()} clientId={id} clientName={client.full_name} />
         </Grid>
       </Grid>
     </>

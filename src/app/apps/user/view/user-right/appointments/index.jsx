@@ -8,7 +8,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import UpcomingClientAppointments from './UpcomingClientAppointments'
 import AppointmentHistory from './AppointmentHistory'
 
-const ClientAppointments = ({ clientId }) => {
+const ClientAppointments = ({ clientId, clientName }) => {
   const { getToken, userId } = useAuth()
   const [upcomingAppointments, setUpcomingAppointments] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -61,7 +61,7 @@ const ClientAppointments = ({ clientId }) => {
 
   return (
     <Box>
-      <UpcomingClientAppointments appointments={upcomingAppointments} />
+      <UpcomingClientAppointments appointments={upcomingAppointments} clientName={clientName} />
       <AppointmentHistory clientId={clientId} userId={userId} />
     </Box>
   )
