@@ -5,6 +5,67 @@ import { unstable_noStore as noStore } from 'next/cache'
 import { getSupabaseClient } from './utils'
 import { adjustEndTimeIfNeeded } from '@/utils/dateTimeUtils'
 
+const transformAppointment = appointment => {
+  const startDate = new Date(`${appointment.appointment_date}T${appointment.start_time}`)
+  let endDate = new Date(`${appointment.appointment_date}T${appointment.end_time}`)
+
+  endDate = adjustEndTimeIfNeeded(startDate, endDate)
+
+  let appointmentTitle = 'Appointment'
+
+  switch (appointment.type) {
+    case 'order_pickup':
+      appointmentTitle = 'Order Pickup'
+      break
+    case 'general':
+      appointmentTitle = 'General Appointment'
+      break
+    case 'initial':
+      appointmentTitle = 'Initial Consultation'
+      break
+  }
+
+  const clientName = appointment.clients ? appointment.clients.full_name : 'Unknown Client'
+
+  return {
+    id: appointment.id,
+    title: `${appointmentTitle} - ${clientName}`,
+    start: startDate,
+    end: endDate,
+    allDay: false,
+    extendedProps: {
+      location: appointment.location,
+      status: appointment.status,
+      type: appointment.type,
+      sendEmail: appointment.send_email,
+      sendSms: appointment.send_sms,
+      notes: appointment.notes,
+      clientName: clientName
+    }
+  }
+}
+
+const fetchAppointments = async (supabase, query) => {
+  const { data: appointments, error } = await supabase
+    .from('appointments')
+    .select(
+      `
+      *,
+      clients (
+        id,
+        full_name
+      )
+    `
+    )
+    .match(query)
+    .order('appointment_date', { ascending: true })
+    .order('start_time', { ascending: true })
+
+  if (error) throw new Error(error.message)
+
+  return appointments.map(transformAppointment)
+}
+
 export async function addAppointment(
   clientId,
   userId,
@@ -20,97 +81,53 @@ export async function addAppointment(
   token
 ) {
   noStore()
-  const supabase = await getSupabaseClient(token)
 
-  const { data, error } = await supabase
-    .from('appointments')
-    .insert({
-      client_id: clientId,
-      user_id: userId,
-      appointment_date: appointmentDate,
-      start_time: startTime,
-      end_time: endTime,
-      location,
-      status,
-      type,
-      send_email: sendEmail,
-      send_sms: sendSms,
-      notes
-    })
-    .select()
-    .single()
+  try {
+    console.log('Token received:', token ? 'Yes' : 'No')
+    const supabase = await getSupabaseClient(token)
 
-  if (error) {
-    throw new Error(error.message)
+    console.log('Supabase client initialized')
+
+    const { data, error } = await supabase
+      .from('appointments')
+      .insert({
+        client_id: clientId,
+        user_id: userId,
+        appointment_date: appointmentDate,
+        start_time: startTime,
+        end_time: endTime,
+        location,
+        status,
+        type,
+        send_email: sendEmail,
+        send_sms: sendSms,
+        notes
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Supabase error:', error)
+      throw new Error(`Failed to add appointment: ${error.message}`)
+    }
+
+    return data
+  } catch (error) {
+    console.error('Error in addAppointment:', error)
+    throw error
   }
-
-  return data
 }
 
 export async function getAppointments(userId, token) {
   noStore()
   const supabase = await getSupabaseClient(token)
 
-  const { data: appointments, error } = await supabase
-    .from('appointments')
-    .select(
-      `
-      *,
-      clients (
-        id,
-        full_name
-      )
-    `
-    )
-    .eq('user_id', userId)
+  return fetchAppointments(supabase, { user_id: userId })
+}
 
-  if (error) {
-    throw new Error(error.message)
-  }
+export async function getClientAppointments(userId, clientId, token) {
+  noStore()
+  const supabase = await getSupabaseClient(token)
 
-  const transformedAppointments = appointments.map(appointment => {
-    const startDate = new Date(`${appointment.appointment_date}T${appointment.start_time}`)
-    let endDate = new Date(`${appointment.appointment_date}T${appointment.end_time}`)
-
-    endDate = adjustEndTimeIfNeeded(startDate, endDate)
-
-    let appointmentTitle = ''
-
-    switch (appointment.type) {
-      case 'order_pickup':
-        appointmentTitle = 'Order Pickup'
-        break
-      case 'general':
-        appointmentTitle = 'General Appointment'
-        break
-      case 'initial':
-        appointmentTitle = 'Initial Consultation'
-        break
-      default:
-        appointmentTitle = 'Appointment'
-    }
-
-    const clientName = appointment.clients ? appointment.clients.full_name : 'Unknown Client'
-
-    return {
-      id: appointment.id,
-      title: `${appointmentTitle} - ${clientName}`,
-      start: startDate,
-      end: endDate,
-      allDay: false,
-      extendedProps: {
-        location: appointment.location,
-        status: appointment.status,
-        type: appointment.type,
-        sendEmail: appointment.send_email,
-        sendSms: appointment.send_sms,
-        notes: appointment.notes,
-        clientName: clientName
-      }
-    }
-  })
-
-  console.log('Transformed appointments:', transformedAppointments)
-
-  return transformedAppointments
+  return fetchAppointments(supabase, { user_id: userId, client_id: clientId })
 }

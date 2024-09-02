@@ -15,14 +15,14 @@ import { fetchClientById } from '@actions/clients'
 
 const OrdersTab = dynamic(() => import('@/app/apps/user/view/user-right/orders'))
 const SecurityTab = dynamic(() => import('@/app/apps/user/view/user-right/security'))
-const BillingPlans = dynamic(() => import('@/app/apps/user/view/user-right/billing-plans'))
+const ClientAppointments = dynamic(() => import('@/app/apps/user/view/user-right/appointments'))
 const NotificationsTab = dynamic(() => import('@/app/apps/user/view/user-right/notifications'))
 const ConnectionsTab = dynamic(() => import('@/app/apps/user/view/user-right/connections'))
 
 const tabContentList = () => ({
   orders: <OrdersTab />,
   security: <SecurityTab />,
-  'billing-plans': <BillingPlans />,
+  appointments: <ClientAppointments />,
   notifications: <NotificationsTab />,
   connections: <ConnectionsTab />
 })
@@ -92,7 +92,7 @@ const ClientProfile = () => {
           <UserLeftOverview userData={client} />
         </Grid>
         <Grid item xs={12} lg={8} md={7}>
-          <UserRight tabContentList={tabContentList()} />
+          <UserRight tabContentList={tabContentList()} clientId={id} />
         </Grid>
       </Grid>
     </>
