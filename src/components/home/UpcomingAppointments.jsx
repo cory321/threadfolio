@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { List, ListItem, ListItemText, Typography, Box, Grid, Button } from '@mui/material'
 import { useAuth } from '@clerk/nextjs'
 import { format, parse, getDay } from 'date-fns'
-
 import { useTheme } from '@mui/material/styles'
 import { alpha } from '@mui/system'
 
@@ -20,7 +19,9 @@ const UpcomingAppointments = () => {
     const fetchAppointments = async () => {
       try {
         const token = await getToken({ template: 'supabase' })
-        const appointmentEvents = await getAppointments(userId, token)
+        const today = new Date().toISOString().split('T')[0]
+        const oneMonthLater = new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0]
+        const appointmentEvents = await getAppointments(userId, token, today, oneMonthLater)
 
         setAppointments(appointmentEvents)
       } catch (error) {
@@ -51,8 +52,8 @@ const UpcomingAppointments = () => {
 
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
-  // Get the next 5 appointments
-  const nextFiveAppointments = sortedDates.slice(0, 5)
+  // Get the next 5 appointment dates
+  const nextFiveDates = sortedDates.slice(0, 4)
 
   return (
     <Box>
@@ -70,7 +71,7 @@ const UpcomingAppointments = () => {
       ) : (
         <>
           <List sx={{ padding: 0 }}>
-            {nextFiveAppointments.map(date => (
+            {nextFiveDates.map(date => (
               <Box key={date}>
                 <Box
                   sx={{
@@ -97,7 +98,7 @@ const UpcomingAppointments = () => {
                         <ListItemText
                           primary={
                             <Typography variant='body1' color='textPrimary' fontWeight='bold'>
-                              {appointment.title.split(' - ')[1]}
+                              {appointment.extendedProps.clientName}
                             </Typography>
                           }
                           secondary={

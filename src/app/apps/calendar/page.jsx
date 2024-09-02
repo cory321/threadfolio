@@ -1,59 +1,15 @@
 'use client'
 
-// MUI Imports
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
-import Card from '@mui/material/Card'
-import { useAuth } from '@clerk/nextjs'
+import CalendarApp from '@/components/CalendarApp'
 
-// Styled Component Imports
-import AppFullCalendar from '@/libs/styles/AppFullCalendar'
+export default function CalendarPage() {
+  const [addEventModalOpen, setAddEventModalOpen] = useState(false)
 
-// Server Action Import
-import { getAppointments } from '@/app/actions/appointments'
+  const handleAddEventModalToggle = () => {
+    setAddEventModalOpen(!addEventModalOpen)
+  }
 
-// Calendar Wrapper Import
-import CalendarWrapper from '@views/apps/calendar/CalendarWrapper'
-
-const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
-  // Get the user and token from Clerk's useAuth hook
-  const { getToken, userId } = useAuth()
-
-  // State to store the events
-  const [events, setEvents] = useState([])
-
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        // Fetch the token
-        const token = await getToken({ template: 'supabase' })
-
-        // Fetch and transform appointment data using the server action
-        const appointmentEvents = await getAppointments(userId, token)
-
-        // Update the events state
-        setEvents(appointmentEvents)
-      } catch (error) {
-        console.error('Error fetching events:', error)
-      }
-    }
-
-    if (userId) {
-      fetchEvents()
-    }
-  }, [getToken, userId])
-
-  return (
-    <Card className='overflow-visible'>
-      <AppFullCalendar className='app-calendar'>
-        <CalendarWrapper
-          events={events}
-          addEventModalOpen={addEventModalOpen}
-          handleAddEventModalToggle={handleAddEventModalToggle}
-        />
-      </AppFullCalendar>
-    </Card>
-  )
+  return <CalendarApp addEventModalOpen={addEventModalOpen} handleAddEventModalToggle={handleAddEventModalToggle} />
 }
-
-export default CalendarApp

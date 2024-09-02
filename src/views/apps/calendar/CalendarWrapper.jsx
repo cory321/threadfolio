@@ -23,7 +23,7 @@ const calendarsColor = {
   ETC: 'info'
 }
 
-const AppCalendar = ({ events, addEventModalOpen, handleAddEventModalToggle }) => {
+const AppCalendar = ({ events, addEventModalOpen, handleAddEventModalToggle, onDatesSet }) => {
   // States
   const [calendarApi, setCalendarApi] = useState(null)
   const [selectedDate, setSelectedDate] = useState(null)
@@ -159,7 +159,8 @@ const AppCalendar = ({ events, addEventModalOpen, handleAddEventModalToggle }) =
           handleSelectEvent={handleSelectEvent}
           handleAddEventModalToggle={handleAddEventModalToggle}
           handleViewEventModalToggle={handleViewEventModalToggle}
-          setSelectedDate={setSelectedDate} // Add this line
+          setSelectedDate={setSelectedDate}
+          onDatesSet={onDatesSet}
         />
       </div>
       <AddAppointmentModal

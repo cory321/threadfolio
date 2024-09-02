@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 import { Button } from '@mui/material'
 
-import CalendarApp from '../../apps/calendar/page'
+import CalendarApp from '@/components/CalendarApp'
 
 export default function AppointmentsPage() {
   const [addEventModalOpen, setAddEventModalOpen] = useState(false)

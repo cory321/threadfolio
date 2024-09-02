@@ -16,7 +16,9 @@ import {
 import { useForm } from 'react-hook-form'
 import { useAuth } from '@clerk/nextjs'
 
-import { setHours, setMinutes, addMinutes } from 'date-fns'
+import { setHours, setMinutes } from 'date-fns'
+
+import { toast } from 'react-toastify'
 
 import { addAppointment } from '@/app/actions/appointments'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
@@ -170,6 +172,7 @@ const AddAppointmentModal = props => {
 
       dispatch({ type: 'added', event: transformedAppointment })
       props.handleAddEvent(transformedAppointment)
+      toast.success('Appointment has been scheduled')
       handleModalClose()
     } catch (error) {
       console.error('Failed to add appointment:', error)
