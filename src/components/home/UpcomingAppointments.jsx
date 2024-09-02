@@ -19,7 +19,9 @@ const UpcomingAppointments = () => {
     const fetchAppointments = async () => {
       try {
         const token = await getToken({ template: 'supabase' })
-        const appointmentEvents = await getAppointments(userId, token)
+        const today = new Date().toISOString().split('T')[0]
+        const oneMonthLater = new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0]
+        const appointmentEvents = await getAppointments(userId, token, today, oneMonthLater)
 
         setAppointments(appointmentEvents)
       } catch (error) {

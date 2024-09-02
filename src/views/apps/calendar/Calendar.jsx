@@ -39,7 +39,8 @@ const Calendar = props => {
     handleUpdateEvent,
     handleAddEventModalToggle, // Changed from handleAddEventSidebarToggle
     handleViewEventModalToggle,
-    setSelectedDate // Add this line
+    setSelectedDate,
+    onDatesSet
   } = props
 
   // Refs
@@ -142,7 +143,8 @@ const Calendar = props => {
           `
         }
       }
-    }
+    },
+    datesSet: onDatesSet
   }
 
   // @ts-ignore

@@ -118,11 +118,11 @@ export async function addAppointment(
   }
 }
 
-export async function getAppointments(userId, token) {
+export async function getAppointments(userId, token, start, end) {
   noStore()
   const supabase = await getSupabaseClient(token)
 
-  const { data: appointments, error } = await supabase
+  let query = supabase
     .from('appointments')
     .select(
       `
@@ -136,6 +136,16 @@ export async function getAppointments(userId, token) {
     .eq('user_id', userId)
     .order('appointment_date', { ascending: true })
     .order('start_time', { ascending: true })
+
+  if (start) {
+    query = query.gte('appointment_date', start)
+  }
+
+  if (end) {
+    query = query.lte('appointment_date', end)
+  }
+
+  const { data: appointments, error } = await query
 
   if (error) throw new Error(error.message)
 

@@ -1,7 +1,7 @@
 'use client'
 
 // MUI Imports
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 
 import Card from '@mui/material/Card'
 import { useAuth } from '@clerk/nextjs'
@@ -16,32 +16,41 @@ import { getAppointments } from '@/app/actions/appointments'
 import CalendarWrapper from '@views/apps/calendar/CalendarWrapper'
 
 const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
-  // Get the user and token from Clerk's useAuth hook
   const { getToken, userId } = useAuth()
-
-  // State to store the events
   const [events, setEvents] = useState([])
+  const [visibleDateRange, setVisibleDateRange] = useState({ start: null, end: null })
 
-  useEffect(() => {
-    const fetchEvents = async () => {
+  const fetchEvents = useCallback(
+    async (start, end) => {
       try {
-        // Fetch the token
         const token = await getToken({ template: 'supabase' })
+        const appointmentEvents = await getAppointments(userId, token, start, end)
 
-        // Fetch and transform appointment data using the server action
-        const appointmentEvents = await getAppointments(userId, token)
-
-        // Update the events state
         setEvents(appointmentEvents)
       } catch (error) {
         console.error('Error fetching events:', error)
       }
-    }
+    },
+    [getToken, userId]
+  )
 
-    if (userId) {
-      fetchEvents()
+  useEffect(() => {
+    if (userId && visibleDateRange.start && visibleDateRange.end) {
+      fetchEvents(visibleDateRange.start, visibleDateRange.end)
     }
-  }, [getToken, userId])
+  }, [userId, visibleDateRange, fetchEvents])
+
+  const handleDatesSet = dateInfo => {
+    const newStart = dateInfo.start.toISOString().split('T')[0]
+    const newEnd = dateInfo.end.toISOString().split('T')[0]
+
+    if (newStart !== visibleDateRange.start || newEnd !== visibleDateRange.end) {
+      setVisibleDateRange({
+        start: newStart,
+        end: newEnd
+      })
+    }
+  }
 
   return (
     <Card className='overflow-visible'>
@@ -50,6 +59,7 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
           events={events}
           addEventModalOpen={addEventModalOpen}
           handleAddEventModalToggle={handleAddEventModalToggle}
+          onDatesSet={handleDatesSet}
         />
       </AppFullCalendar>
     </Card>
