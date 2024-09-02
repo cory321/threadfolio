@@ -3,6 +3,7 @@
 import { unstable_noStore as noStore } from 'next/cache'
 
 import { getSupabaseClient } from './utils'
+import { adjustEndTimeIfNeeded } from '@/utils/dateTimeUtils'
 
 export async function addAppointment(
   clientId,
@@ -69,7 +70,9 @@ export async function getAppointments(userId, token) {
 
   const transformedAppointments = appointments.map(appointment => {
     const startDate = new Date(`${appointment.appointment_date}T${appointment.start_time}`)
-    const endDate = new Date(`${appointment.appointment_date}T${appointment.end_time}`)
+    let endDate = new Date(`${appointment.appointment_date}T${appointment.end_time}`)
+
+    endDate = adjustEndTimeIfNeeded(startDate, endDate)
 
     let appointmentTitle = ''
 
@@ -106,6 +109,8 @@ export async function getAppointments(userId, token) {
       }
     }
   })
+
+  console.log('Transformed appointments:', transformedAppointments)
 
   return transformedAppointments
 }

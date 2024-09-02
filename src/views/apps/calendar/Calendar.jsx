@@ -72,28 +72,26 @@ const Calendar = props => {
     editable: false,
     eventResizableFromStart: false,
     dragScroll: true,
-    dayMaxEventRows: true,
+    dayMaxEvents: false,
     navLinks: false,
     selectable: false,
     unselectAuto: false,
-    eventClassNames({ event: calendarEvent }) {
-      const colorName = calendarsColor[calendarEvent._def.extendedProps.calendar]
+    eventClassNames: arg => {
+      const colorName = calendarsColor[arg.event.extendedProps.calendar]
 
       return [`event-bg-${colorName}`]
     },
-    eventClick: function (info) {
+    eventClick: info => {
       handleSelectEvent(info.event)
       handleViewEventModalToggle()
     },
-    dateClick: function (info) {
-      if (!info.jsEvent.target.classList.contains('fc-event')) {
+    dateClick: info => {
+      if (!info.dayEl.classList.contains('fc-event')) {
         handleAddEventModalToggle()
         setSelectedDate(info.date)
       }
     },
-    moreLinkClick: function (info) {
-      // Handle "more" link click if needed
-      // For example, you could open a modal with all events for that day
+    moreLinkClick: info => {
       console.log('More link clicked', info)
     },
     customButtons: {
