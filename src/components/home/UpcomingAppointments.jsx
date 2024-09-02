@@ -56,62 +56,77 @@ const UpcomingAppointments = () => {
 
   return (
     <Box>
-      <List sx={{ padding: 0 }}>
-        {nextFiveAppointments.map(date => (
-          <Box key={date}>
-            <Box
-              sx={{
-                backgroundColor: alpha(theme.palette.grey[200], 0.5),
-                padding: '8px',
-                borderRadius: '4px',
-                mt: 2,
-                width: '100%',
-                display: 'flex',
-                justifyContent: 'space-between'
-              }}
-            >
-              <Typography variant='subtitle1' color='textSecondary'>
-                {date}
-              </Typography>
-              <Typography variant='subtitle1' color='textSecondary'>
-                {daysOfWeek[getDay(parse(date, 'MMMM d, yyyy', new Date()))]}
-              </Typography>
-            </Box>
-            {groupedAppointments[date].map(appointment => (
-              <ListItem key={appointment.id} alignItems='flex-start' sx={{ paddingLeft: 2, paddingRight: 2 }}>
-                <Grid container alignItems='center'>
-                  <Grid item xs={9}>
-                    <ListItemText
-                      primary={
-                        <Typography variant='body1' color='textPrimary' fontWeight='bold'>
-                          {appointment.title.split(' - ')[1]}
+      {appointments.length === 0 ? (
+        <Box display='flex' flexDirection='column' alignItems='center' mt={2}>
+          <Typography variant='body1' color='textSecondary'>
+            You have no upcoming appointments scheduled
+          </Typography>
+          <Link href='/appointments' passHref>
+            <Button variant='text' color='primary'>
+              View Calendar
+            </Button>
+          </Link>
+        </Box>
+      ) : (
+        <>
+          <List sx={{ padding: 0 }}>
+            {nextFiveAppointments.map(date => (
+              <Box key={date}>
+                <Box
+                  sx={{
+                    backgroundColor: alpha(theme.palette.grey[200], 0.5),
+                    padding: '8px',
+                    borderRadius: '4px',
+                    mt: 2,
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'space-between'
+                  }}
+                >
+                  <Typography variant='subtitle1' color='textSecondary'>
+                    {date}
+                  </Typography>
+                  <Typography variant='subtitle1' color='textSecondary'>
+                    {daysOfWeek[getDay(parse(date, 'MMMM d, yyyy', new Date()))]}
+                  </Typography>
+                </Box>
+                {groupedAppointments[date].map(appointment => (
+                  <ListItem key={appointment.id} alignItems='flex-start' sx={{ paddingLeft: 2, paddingRight: 2 }}>
+                    <Grid container alignItems='center'>
+                      <Grid item xs={9}>
+                        <ListItemText
+                          primary={
+                            <Typography variant='body1' color='textPrimary' fontWeight='bold'>
+                              {appointment.title.split(' - ')[1]}
+                            </Typography>
+                          }
+                          secondary={
+                            <Typography component='span' variant='body2' color='primary'>
+                              {appointment.title.split(' - ')[0]}
+                            </Typography>
+                          }
+                        />
+                      </Grid>
+                      <Grid item xs={3}>
+                        <Typography variant='body2' color='textSecondary'>
+                          {`${format(new Date(appointment.start), 'p')} - ${format(new Date(appointment.end), 'p')}`}
                         </Typography>
-                      }
-                      secondary={
-                        <Typography component='span' variant='body2' color='primary'>
-                          {appointment.title.split(' - ')[0]}
-                        </Typography>
-                      }
-                    />
-                  </Grid>
-                  <Grid item xs={3}>
-                    <Typography variant='body2' color='textSecondary'>
-                      {`${format(new Date(appointment.start), 'p')} - ${format(new Date(appointment.end), 'p')}`}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </ListItem>
+                      </Grid>
+                    </Grid>
+                  </ListItem>
+                ))}
+              </Box>
             ))}
+          </List>
+          <Box display='flex' justifyContent='flex-end' mt={2}>
+            <Link href='/appointments' passHref>
+              <Button variant='outlined' color='primary'>
+                View All
+              </Button>
+            </Link>
           </Box>
-        ))}
-      </List>
-      <Box display='flex' justifyContent='flex-end' mt={2}>
-        <Link href='/appointments' passHref>
-          <Button variant='outlined' color='primary'>
-            View All
-          </Button>
-        </Link>
-      </Box>
+        </>
+      )}
     </Box>
   )
 }
