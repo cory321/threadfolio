@@ -10,37 +10,29 @@ import AppointmentHistory from './AppointmentHistory'
 
 const ClientAppointments = ({ clientId }) => {
   const { getToken, userId } = useAuth()
-  const [appointments, setAppointments] = useState([])
+  const [upcomingAppointments, setUpcomingAppointments] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    console.log('ClientAppointments useEffect triggered')
-    console.log('clientId:', clientId)
-    console.log('userId:', userId)
-
-    const fetchAppointments = async () => {
+    const fetchUpcomingAppointments = async () => {
       try {
         setIsLoading(true)
         const token = await getToken({ template: 'supabase' })
+        const { appointments } = await getClientAppointments(userId, clientId, token, 1, 10, false)
 
-        console.log('Token obtained:', token ? 'Yes' : 'No')
-        const appointmentEvents = await getClientAppointments(userId, clientId, token)
-
-        console.log('Appointments fetched:', appointmentEvents)
-
-        setAppointments(appointmentEvents)
+        setUpcomingAppointments(appointments)
         setError(null)
       } catch (error) {
-        console.error('Error fetching appointments:', error)
-        setError('Failed to load appointments. Please try again later.')
+        console.error('Error fetching upcoming appointments:', error)
+        setError('Failed to load upcoming appointments. Please try again later.')
       } finally {
         setIsLoading(false)
       }
     }
 
     if (userId && clientId) {
-      fetchAppointments()
+      fetchUpcomingAppointments()
     } else {
       console.log('Missing userId or clientId')
       setIsLoading(false)
@@ -67,17 +59,10 @@ const ClientAppointments = ({ clientId }) => {
     )
   }
 
-  const today = new Date()
-
-  today.setHours(0, 0, 0, 0)
-
-  const upcomingAppointments = appointments.filter(appointment => new Date(appointment.start) >= today)
-  const pastAppointments = appointments.filter(appointment => new Date(appointment.start) < today)
-
   return (
     <Box>
       <UpcomingClientAppointments appointments={upcomingAppointments} />
-      <AppointmentHistory appointments={pastAppointments} />
+      <AppointmentHistory clientId={clientId} userId={userId} />
     </Box>
   )
 }

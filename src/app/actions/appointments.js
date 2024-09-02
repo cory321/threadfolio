@@ -125,9 +125,46 @@ export async function getAppointments(userId, token) {
   return fetchAppointments(supabase, { user_id: userId })
 }
 
-export async function getClientAppointments(userId, clientId, token) {
+export async function getClientAppointments(
+  userId,
+  clientId,
+  token,
+  page = 1,
+  pageSize = 10,
+  isPastAppointments = false
+) {
   noStore()
   const supabase = await getSupabaseClient(token)
 
-  return fetchAppointments(supabase, { user_id: userId, client_id: clientId })
+  const today = new Date().toISOString().split('T')[0]
+
+  let query = supabase
+    .from('appointments')
+    .select(
+      `
+      *,
+      clients (
+        id,
+        full_name
+      )
+    `,
+      { count: 'exact' }
+    )
+    .eq('user_id', userId)
+    .eq('client_id', clientId)
+
+  if (isPastAppointments) {
+    query = query.lt('appointment_date', today).order('appointment_date', { ascending: false })
+  } else {
+    query = query.gte('appointment_date', today).order('appointment_date', { ascending: true })
+  }
+
+  const { data: appointments, error, count } = await query.range((page - 1) * pageSize, page * pageSize - 1)
+
+  if (error) throw new Error(error.message)
+
+  return {
+    appointments: appointments.map(transformAppointment),
+    totalCount: count
+  }
 }
