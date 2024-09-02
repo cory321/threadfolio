@@ -241,6 +241,8 @@ const AppFullCalendar = styled('div')(({ theme }) => ({
         }
       },
       '&.fc-daygrid-event': {
+        backgroundColor: `${theme.palette.primary.main}`,
+        color: `${theme.palette.primary.contrastText}`,
         marginLeft: '0px',
         marginRight: '0px',
         borderRadius: '4px'
@@ -525,7 +527,8 @@ const AppFullCalendar = styled('div')(({ theme }) => ({
   '& .fc-timegrid-event': {
     backgroundColor: theme.palette.primary.main,
     borderColor: theme.palette.primary.main,
-    borderRadius: '0',
+    borderRadius: '4px',
+    minHeight: '30px', // Set a minimum height for short events
     '& .fc-event-main': {
       fontWeight: 'bold',
       color: theme.palette.primary.contrastText
