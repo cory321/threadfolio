@@ -122,7 +122,24 @@ export async function getAppointments(userId, token) {
   noStore()
   const supabase = await getSupabaseClient(token)
 
-  return fetchAppointments(supabase, { user_id: userId })
+  const { data: appointments, error } = await supabase
+    .from('appointments')
+    .select(
+      `
+      *,
+      clients (
+        id,
+        full_name
+      )
+    `
+    )
+    .eq('user_id', userId)
+    .order('appointment_date', { ascending: true })
+    .order('start_time', { ascending: true })
+
+  if (error) throw new Error(error.message)
+
+  return appointments.map(transformAppointment)
 }
 
 export async function getClientAppointments(
