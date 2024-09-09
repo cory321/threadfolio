@@ -6,21 +6,16 @@ import { getSupabaseClient } from './utils'
 import { adjustEndTimeIfNeeded } from '@/utils/dateTimeUtils'
 
 const transformAppointment = appointment => {
-  const startDate = new Date(`${appointment.appointment_date}T${appointment.start_time}`)
-  let endDate = new Date(`${appointment.appointment_date}T${appointment.end_time}`)
-
-  endDate = adjustEndTimeIfNeeded(startDate, endDate)
-
   let appointmentTitle = 'Appointment'
 
   switch (appointment.type) {
-    case 'order_pickup':
+    case 'order pickup':
       appointmentTitle = 'Order Pickup'
       break
     case 'general':
       appointmentTitle = 'General Appointment'
       break
-    case 'initial':
+    case 'initial consultation':
       appointmentTitle = 'Initial Consultation'
       break
   }
@@ -30,8 +25,8 @@ const transformAppointment = appointment => {
   return {
     id: appointment.id,
     title: `${appointmentTitle} - ${clientName}`,
-    start: startDate,
-    end: endDate,
+    start: new Date(appointment.start_time),
+    end: new Date(appointment.end_time),
     allDay: false,
     extendedProps: {
       location: appointment.location,
@@ -69,15 +64,14 @@ const fetchAppointments = async (supabase, query) => {
 export async function addAppointment(
   clientId,
   userId,
-  appointmentDate,
   startTime,
   endTime,
   location,
   status,
   type,
+  notes,
   sendEmail,
   sendSms,
-  notes,
   token
 ) {
   noStore()
@@ -93,15 +87,14 @@ export async function addAppointment(
       .insert({
         client_id: clientId,
         user_id: userId,
-        appointment_date: appointmentDate,
         start_time: startTime,
         end_time: endTime,
         location,
         status,
         type,
+        notes,
         send_email: sendEmail,
-        send_sms: sendSms,
-        notes
+        send_sms: sendSms
       })
       .select()
       .single()
@@ -134,15 +127,14 @@ export async function getAppointments(userId, token, start, end) {
     `
     )
     .eq('user_id', userId)
-    .order('appointment_date', { ascending: true })
     .order('start_time', { ascending: true })
 
   if (start) {
-    query = query.gte('appointment_date', start)
+    query = query.gte('start_time', start)
   }
 
   if (end) {
-    query = query.lte('appointment_date', end)
+    query = query.lte('start_time', end)
   }
 
   const { data: appointments, error } = await query

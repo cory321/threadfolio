@@ -44,13 +44,13 @@ const AddAppointmentModal = props => {
 
   const defaultState = {
     clientId: null,
-    appointmentDate: selectedDate || new Date(),
     startTime: getNextNearestHour(),
     endTime: new Date(getNextNearestHour().getTime() + 60 * 60 * 1000), // 1 hour later
     location: '1234 Seamstress Shop Ave. Paso Robles, CA 93446',
     appointmentType: 'general',
     notes: '',
-    sendConfirmation: false
+    sendEmail: false,
+    sendSms: false
   }
 
   const [values, setValues] = useState(defaultState)
@@ -95,15 +95,20 @@ const AddAppointmentModal = props => {
     return date.toTimeString().split(' ')[0]
   }
 
+  const combineDateAndTime = (date, time) => {
+    const combined = new Date(date)
+
+    combined.setHours(time.getHours())
+    combined.setMinutes(time.getMinutes())
+    combined.setSeconds(0)
+    combined.setMilliseconds(0)
+
+    return combined
+  }
+
   const onSubmit = async () => {
     if (!values.clientId) {
       setClientError('Please select a client before scheduling the appointment.')
-
-      return
-    }
-
-    if (values.startTime >= values.endTime) {
-      setClientError('End time must be after start time.')
 
       return
     }
@@ -114,44 +119,46 @@ const AddAppointmentModal = props => {
     try {
       const token = await getToken({ template: 'supabase' })
 
-      const appointmentDate = formatDateToLocalMidnight(values.appointmentDate)
-      const startTime = formatTimeToHHMMSS(values.startTime)
-      const endTime = formatTimeToHHMMSS(values.endTime)
+      let startDateTime = combineDateAndTime(values.appointmentDate, values.startTime)
+      let endDateTime = combineDateAndTime(values.appointmentDate, values.endTime)
+
+      // If end time is before start time, assume it's for the next day
+      if (endDateTime < startDateTime) {
+        endDateTime.setDate(endDateTime.getDate() + 1)
+      }
 
       const newAppointment = {
         clientId: values.clientId,
         userId,
-        appointmentDate,
-        startTime,
-        endTime,
+        startTime: startDateTime.toISOString(),
+        endTime: endDateTime.toISOString(),
         location: values.location,
         status: 'scheduled',
         type: values.appointmentType,
-        sendEmail: values.sendConfirmation,
-        sendSms: values.sendConfirmation,
+        sendEmail: values.sendEmail,
+        sendSms: values.sendSms,
         notes: values.notes
       }
 
       const data = await addAppointment(
         newAppointment.clientId,
         newAppointment.userId,
-        newAppointment.appointmentDate,
         newAppointment.startTime,
         newAppointment.endTime,
         newAppointment.location,
         newAppointment.status,
         newAppointment.type,
+        newAppointment.notes,
         newAppointment.sendEmail,
         newAppointment.sendSms,
-        newAppointment.notes,
         token
       )
 
       const transformedAppointment = {
         id: data.id,
         title: `${values.appointmentType} - ${values.clientName}`,
-        start: new Date(`${appointmentDate}T${startTime}`),
-        end: new Date(`${appointmentDate}T${endTime}`),
+        start: new Date(data.start_time),
+        end: new Date(data.end_time),
         allDay: false,
         extendedProps: {
           location: data.location,
@@ -162,12 +169,6 @@ const AddAppointmentModal = props => {
           notes: data.notes,
           clientName: values.clientName
         }
-      }
-
-      // Check if end time is before start time
-      if (transformedAppointment.end < transformedAppointment.start) {
-        // If so, assume it's meant to be the next day
-        transformedAppointment.end.setDate(transformedAppointment.end.getDate() + 1)
       }
 
       dispatch({ type: 'added', event: transformedAppointment })
@@ -309,11 +310,17 @@ const AddAppointmentModal = props => {
           <FormControlLabel
             control={
               <Switch
-                checked={values.sendConfirmation}
-                onChange={e => setValues({ ...values, sendConfirmation: e.target.checked })}
+                checked={values.sendEmail}
+                onChange={e => setValues({ ...values, sendEmail: e.target.checked })}
               />
             }
             label='Send Confirmation Email'
+          />
+          <FormControlLabel
+            control={
+              <Switch checked={values.sendSms} onChange={e => setValues({ ...values, sendSms: e.target.checked })} />
+            }
+            label='Send Confirmation SMS'
           />
           <DialogActions>
             <Button type='submit' variant='contained' onClick={handleSubmit(onSubmit)} disabled={isLoading}>
