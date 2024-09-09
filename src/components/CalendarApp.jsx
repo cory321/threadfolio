@@ -42,8 +42,8 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
   }, [userId, visibleDateRange, fetchEvents])
 
   const handleDatesSet = dateInfo => {
-    const newStart = dateInfo.start.toISOString().split('T')[0]
-    const newEnd = dateInfo.end.toISOString().split('T')[0]
+    const newStart = dateInfo.start.toISOString()
+    const newEnd = dateInfo.end.toISOString()
 
     if (newStart !== visibleDateRange.start || newEnd !== visibleDateRange.end) {
       setVisibleDateRange({
