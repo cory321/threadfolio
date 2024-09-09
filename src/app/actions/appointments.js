@@ -155,7 +155,7 @@ export async function getClientAppointments(
   noStore()
   const supabase = await getSupabaseClient(token)
 
-  const today = new Date().toISOString().split('T')[0]
+  const now = new Date().toISOString()
 
   let query = supabase
     .from('appointments')
@@ -173,9 +173,9 @@ export async function getClientAppointments(
     .eq('client_id', clientId)
 
   if (isPastAppointments) {
-    query = query.lt('appointment_date', today).order('appointment_date', { ascending: false })
+    query = query.lt('start_time', now).order('start_time', { ascending: false })
   } else {
-    query = query.gte('appointment_date', today).order('appointment_date', { ascending: true })
+    query = query.gte('start_time', now).order('start_time', { ascending: true })
   }
 
   const { data: appointments, error, count } = await query.range((page - 1) * pageSize, page * pageSize - 1)

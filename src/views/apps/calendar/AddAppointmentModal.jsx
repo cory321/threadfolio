@@ -11,7 +11,10 @@ import {
   FormControlLabel,
   Switch,
   Grid,
-  Typography
+  Typography,
+  useTheme,
+  useMediaQuery,
+  IconButton
 } from '@mui/material'
 import { useForm } from 'react-hook-form'
 import { useAuth } from '@clerk/nextjs'
@@ -19,6 +22,8 @@ import { useAuth } from '@clerk/nextjs'
 import { setHours, setMinutes } from 'date-fns'
 
 import { toast } from 'react-toastify'
+
+import CloseIcon from '@mui/icons-material/Close'
 
 import { addAppointment } from '@/app/actions/appointments'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
@@ -31,6 +36,8 @@ import { adjustEndTimeIfNeeded } from '@/utils/dateTimeUtils'
 const AddAppointmentModal = props => {
   const { addEventModalOpen, handleAddEventModalToggle, selectedDate, dispatch } = props
   const { userId, getToken } = useAuth()
+  const theme = useTheme()
+  const fullScreen = useMediaQuery(theme.breakpoints.down('md'))
 
   // Function to get the next nearest hour
   const getNextNearestHour = () => {
@@ -73,7 +80,7 @@ const AddAppointmentModal = props => {
         endTime: new Date(new Date(values.startTime).getTime() + 60 * 60 * 1000) // 1 hour later
       }))
     }
-  }, [values.startTime])
+  }, [values.startTime, values.endTime])
 
   const handleModalClose = () => {
     setValues({
@@ -226,9 +233,24 @@ const AddAppointmentModal = props => {
       onClose={handleModalClose}
       maxWidth='sm'
       fullWidth
+      fullScreen={fullScreen}
       aria-labelledby='form-dialog-title'
     >
-      <DialogTitle id='form-dialog-title'>Add Appointment</DialogTitle>
+      <DialogTitle id='form-dialog-title'>
+        Add Appointment
+        <IconButton
+          aria-label='close'
+          onClick={handleModalClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: theme => theme.palette.grey[500]
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
       <DialogContent dividers>
         <form onSubmit={handleSubmit(onSubmit)} autoComplete='off'>
           <FormControl fullWidth margin='normal' style={{ marginBottom: '8px' }}>
