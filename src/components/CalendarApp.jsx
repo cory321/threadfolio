@@ -39,6 +39,12 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
     [getToken, userId]
   )
 
+  const refreshEvents = useCallback(async () => {
+    if (visibleDateRange.start && visibleDateRange.end) {
+      await fetchEvents(visibleDateRange.start, visibleDateRange.end)
+    }
+  }, [fetchEvents, visibleDateRange])
+
   useEffect(() => {
     if (userId && visibleDateRange.start && visibleDateRange.end) {
       fetchEvents(visibleDateRange.start, visibleDateRange.end)
@@ -70,6 +76,7 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
           handleAddEventModalToggle={handleAddEventModalToggle}
           onDatesSet={handleDatesSet}
           onAppointmentCancelled={handleAppointmentCancelled}
+          refreshEvents={refreshEvents}
         />
       </AppFullCalendar>
     </Card>

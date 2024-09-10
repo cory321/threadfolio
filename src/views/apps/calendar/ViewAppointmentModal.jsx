@@ -7,7 +7,7 @@ import { toast } from 'react-toastify'
 
 import { cancelAppointment } from '@/app/actions/appointments'
 
-const ViewAppointmentModal = ({ open, handleClose, selectedEvent, onAppointmentCancelled }) => {
+const ViewAppointmentModal = ({ open, handleClose, selectedEvent, onAppointmentCancelled, refreshEvents }) => {
   const { getToken } = useAuth()
   const [isCancelling, setIsCancelling] = useState(false)
 
@@ -25,6 +25,7 @@ const ViewAppointmentModal = ({ open, handleClose, selectedEvent, onAppointmentC
       onAppointmentCancelled(selectedEvent.id)
       toast.success('Appointment successfully cancelled')
       handleClose()
+      refreshEvents() // Add this line to refresh the events
     } catch (error) {
       console.error('Error cancelling appointment:', error)
       toast.error('Failed to cancel appointment. Please try again.')
