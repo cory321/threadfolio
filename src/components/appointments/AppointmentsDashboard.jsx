@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from 'react'
 
-import { Button, CircularProgress } from '@mui/material'
+import { Button, CircularProgress, Box, Typography } from '@mui/material'
 
 import CalendarApp from '@/components/CalendarApp'
 
@@ -15,11 +15,12 @@ const AppointmentsDashboard = () => {
 
   return (
     <>
-      <div className='flex justify-between items-center mb-4'>
-        <Button variant='contained' startIcon={<i className='ri-add-line' />} onClick={handleAddEventModalToggle}>
+      <Box display='flex' justifyContent='space-between' alignItems='center' mb={4}>
+        <h1>Appointments</h1>
+        <Button variant='contained' onClick={handleAddEventModalToggle}>
           Add Appointment
         </Button>
-      </div>
+      </Box>
       <CalendarApp addEventModalOpen={addEventModalOpen} handleAddEventModalToggle={handleAddEventModalToggle} />
     </>
   )

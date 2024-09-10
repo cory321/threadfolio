@@ -11,7 +11,8 @@ import {
   Button,
   IconButton,
   useMediaQuery,
-  CircularProgress
+  CircularProgress,
+  Typography
 } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import CloseIcon from '@mui/icons-material/Close'
@@ -58,14 +59,17 @@ const ClientDashboard = () => {
 
   return (
     <>
-      <Grid container justifyContent='space-between' alignItems='center'>
+      <Grid container justifyContent='space-between' alignItems='center' mb={4}>
+        <Grid item>
+          <h1>Clients</h1>
+        </Grid>
         <Grid item>
           <Button variant='contained' color='primary' onClick={handleOpen}>
             Add Client
           </Button>
         </Grid>
       </Grid>
-      <Box pt={6}>
+      <Box>
         <ClientList clients={clients} setClients={setClients} />
       </Box>
       <Dialog

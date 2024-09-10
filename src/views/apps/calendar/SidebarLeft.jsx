@@ -88,12 +88,7 @@ const SidebarLeft = props => {
         }}
       >
         <div className='is-full p-5'>
-          <Button
-            fullWidth
-            variant='contained'
-            onClick={handleSidebarToggleModal} // Updated
-            startIcon={<i className='ri-add-line' />}
-          >
+          <Button fullWidth variant='contained' onClick={handleSidebarToggleModal}>
             Add Appointment
           </Button>
         </div>

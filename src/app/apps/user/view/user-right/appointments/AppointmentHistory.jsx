@@ -58,6 +58,7 @@ const AppointmentHistory = ({ clientId, userId, showCancelled }) => {
       try {
         setIsLoading(true)
         const token = await getToken({ template: 'supabase' })
+
         const { appointments, totalCount } = await getClientAppointments(
           userId,
           clientId,
