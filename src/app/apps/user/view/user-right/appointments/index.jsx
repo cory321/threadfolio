@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
 import { useAuth } from '@clerk/nextjs'
-import { Box, Typography, Card, CardContent } from '@mui/material'
+import { Box, Typography, Card, CardContent, Switch, FormControlLabel } from '@mui/material'
 
 import { getClientAppointments } from '@/app/actions/appointments'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
@@ -13,6 +13,7 @@ const ClientAppointments = ({ clientId, clientName }) => {
   const [upcomingAppointments, setUpcomingAppointments] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [showCancelled, setShowCancelled] = useState(false)
 
   useEffect(() => {
     const fetchUpcomingAppointments = async () => {
@@ -39,6 +40,10 @@ const ClientAppointments = ({ clientId, clientName }) => {
     }
   }, [getToken, userId, clientId])
 
+  const handleToggleShowCancelled = () => {
+    setShowCancelled(!showCancelled)
+  }
+
   if (isLoading) {
     return (
       <Card>
@@ -61,8 +66,17 @@ const ClientAppointments = ({ clientId, clientName }) => {
 
   return (
     <Box>
-      <UpcomingClientAppointments appointments={upcomingAppointments} clientName={clientName} />
-      <AppointmentHistory clientId={clientId} userId={userId} />
+      <FormControlLabel
+        control={<Switch checked={showCancelled} onChange={handleToggleShowCancelled} />}
+        label='Show Cancelled Appointments'
+        sx={{ mb: 2 }}
+      />
+      <UpcomingClientAppointments
+        appointments={upcomingAppointments}
+        clientName={clientName}
+        showCancelled={showCancelled}
+      />
+      <AppointmentHistory clientId={clientId} userId={userId} showCancelled={showCancelled} />
     </Box>
   )
 }

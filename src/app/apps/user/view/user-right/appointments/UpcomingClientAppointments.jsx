@@ -6,12 +6,16 @@ import { Card, CardHeader, CardContent, Typography, Button, Box } from '@mui/mat
 
 import AppointmentList from './AppointmentList'
 
-const UpcomingClientAppointments = ({ appointments, clientName }) => {
+const UpcomingClientAppointments = ({ appointments, clientName, showCancelled }) => {
+  const filteredAppointments = showCancelled
+    ? appointments
+    : appointments.filter(app => app.extendedProps.status !== 'cancelled')
+
   return (
     <Card sx={{ mb: 4 }}>
       <CardHeader title='Upcoming Appointments' />
       <CardContent>
-        {appointments.length === 0 ? (
+        {filteredAppointments.length === 0 ? (
           <Box display='flex' flexDirection='column' alignItems='center' mt={2}>
             <Typography variant='body1' color='textSecondary'>
               {clientName} has no upcoming appointments scheduled
@@ -23,7 +27,7 @@ const UpcomingClientAppointments = ({ appointments, clientName }) => {
             </Link>
           </Box>
         ) : (
-          <AppointmentList appointments={appointments} />
+          <AppointmentList appointments={filteredAppointments} />
         )}
       </CardContent>
     </Card>

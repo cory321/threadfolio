@@ -10,8 +10,8 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import AppointmentList from './AppointmentList'
 import { getClientAppointments } from '@/app/actions/appointments'
 
-const AppointmentHistory = ({ clientId }) => {
-  const { getToken, userId } = useAuth()
+const AppointmentHistory = ({ clientId, userId, showCancelled }) => {
+  const { getToken } = useAuth()
   const [appointments, setAppointments] = useState([])
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
@@ -36,7 +36,11 @@ const AppointmentHistory = ({ clientId }) => {
           true
         )
 
-        setAppointments(newAppointments)
+        const filteredAppointments = showCancelled
+          ? newAppointments
+          : newAppointments.filter(app => app.extendedProps.status !== 'cancelled')
+
+        setAppointments(filteredAppointments)
         setTotalCount(totalCount)
         setError(null)
       } catch (error) {
@@ -50,10 +54,38 @@ const AppointmentHistory = ({ clientId }) => {
   )
 
   useEffect(() => {
-    if (userId && clientId) {
-      fetchAppointments(page, rowsPerPage)
+    const fetchAppointments = async () => {
+      try {
+        setIsLoading(true)
+        const token = await getToken({ template: 'supabase' })
+        const { appointments, totalCount } = await getClientAppointments(
+          userId,
+          clientId,
+          token,
+          page + 1,
+          rowsPerPage,
+          true
+        )
+
+        const filteredAppointments = showCancelled
+          ? appointments
+          : appointments.filter(app => app.extendedProps.status !== 'cancelled')
+
+        setAppointments(filteredAppointments)
+        setTotalCount(totalCount)
+        setError(null)
+      } catch (error) {
+        console.error('Error fetching past appointments:', error)
+        setError('Failed to load past appointments. Please try again later.')
+      } finally {
+        setIsLoading(false)
+      }
     }
-  }, [fetchAppointments, userId, clientId, page, rowsPerPage])
+
+    if (userId && clientId) {
+      fetchAppointments()
+    }
+  }, [getToken, userId, clientId, page, rowsPerPage, showCancelled])
 
   const debouncedHandlePageChange = useCallback(
     debounce((event, value) => {
