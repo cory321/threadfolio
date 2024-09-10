@@ -1,18 +1,26 @@
-import React from 'react'
+'use client'
 
-import dynamic from 'next/dynamic'
+import { Suspense } from 'react'
 
-import LoadingSpinner from '@/components/ui/LoadingSpinner'
+import { CircularProgress, Grid, Box } from '@mui/material'
 
-const ClientDashboard = dynamic(() => import('@/components/clients/ClientDashboard'), {
-  ssr: false,
-  loading: LoadingSpinner
-})
+import ClientDashboard from '@/components/clients/ClientDashboard'
 
 export default function ClientsPage() {
   return (
-    <div>
-      <ClientDashboard />
-    </div>
+    <main>
+      <div>
+        <Grid container justifyContent='space-between' alignItems='center'>
+          <Grid item>
+            <h1>Clients</h1>
+          </Grid>
+        </Grid>
+        <Box pt={6}>
+          <Suspense fallback={<CircularProgress />}>
+            <ClientDashboard />
+          </Suspense>
+        </Box>
+      </div>
+    </main>
   )
 }

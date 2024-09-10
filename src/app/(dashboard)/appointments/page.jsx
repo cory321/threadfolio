@@ -1,27 +1,26 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense } from 'react'
 
-import { Button } from '@mui/material'
+import { CircularProgress, Grid, Box } from '@mui/material'
 
-import CalendarApp from '@/components/CalendarApp'
+import AppointmentsDashboard from '@/components/appointments/AppointmentsDashboard'
 
 export default function AppointmentsPage() {
-  const [addEventModalOpen, setAddEventModalOpen] = useState(false)
-
-  const handleAddEventModalToggle = () => {
-    setAddEventModalOpen(!addEventModalOpen)
-  }
-
   return (
-    <>
-      <div className='flex justify-between items-center mb-4'>
-        <h1>Appointments</h1>
-        <Button variant='contained' startIcon={<i className='ri-add-line' />} onClick={handleAddEventModalToggle}>
-          Add Appointment
-        </Button>
+    <main>
+      <div>
+        <Grid container justifyContent='space-between' alignItems='center'>
+          <Grid item>
+            <h1>Appointments</h1>
+          </Grid>
+        </Grid>
+        <Box pt={6}>
+          <Suspense fallback={<CircularProgress />}>
+            <AppointmentsDashboard />
+          </Suspense>
+        </Box>
       </div>
-      <CalendarApp addEventModalOpen={addEventModalOpen} handleAddEventModalToggle={handleAddEventModalToggle} />
-    </>
+    </main>
   )
 }

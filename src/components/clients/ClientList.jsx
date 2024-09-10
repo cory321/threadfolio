@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -20,7 +20,6 @@ import {
 } from '@mui/material'
 import { visuallyHidden } from '@mui/utils'
 import { useAuth } from '@clerk/nextjs'
-
 import { styled } from '@mui/material/styles'
 
 import { fetchClients } from '@actions/clients'
@@ -63,12 +62,7 @@ const ClientList = ({ clients: initialClients, setClients }) => {
 
   const loadClients = useCallback(
     async (newPage, newRowsPerPage, newOrderBy, newOrder) => {
-      if (!userId) {
-        console.error('User ID is not available')
-
-        return
-      }
-
+      if (!userId) return
       setIsLoading(true)
       setError(null)
 
@@ -96,14 +90,6 @@ const ClientList = ({ clients: initialClients, setClients }) => {
     },
     [getToken, setClients, userId]
   )
-
-  useEffect(() => {
-    if (initialClients === null && userId) {
-      loadClients(page, rowsPerPage, orderBy, order)
-    } else if (initialClients) {
-      setLocalClients(initialClients)
-    }
-  }, [initialClients, loadClients, page, rowsPerPage, userId, orderBy, order])
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage)
