@@ -1,8 +1,6 @@
 'use client'
 
-import React, { useState, useCallback } from 'react'
-
-import dynamic from 'next/dynamic'
+import React, { useState, useCallback, useEffect } from 'react'
 
 import {
   Box,
@@ -13,40 +11,54 @@ import {
   Button,
   IconButton,
   useMediaQuery,
-  Card,
   CircularProgress
 } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import CloseIcon from '@mui/icons-material/Close'
+import { useAuth } from '@clerk/nextjs'
 
-import LoadingSpinner from '@/components/ui/LoadingSpinner'
-
-// Dynamically import AddClientForm and ClientList components with loading spinner
-const AddClientForm = dynamic(() => import('@/components/clients/AddClientForm'), {
-  ssr: false,
-  loading: LoadingSpinner
-})
-
-const ClientList = dynamic(() => import('@/components/clients/ClientList'), {
-  ssr: false,
-  loading: LoadingSpinner
-})
+import { fetchClients } from '@actions/clients'
+import ClientList from '@/components/clients/ClientList'
+import AddClientForm from '@/components/clients/AddClientForm'
 
 const ClientDashboard = () => {
   const [open, setOpen] = useState(false)
   const [clients, setClients] = useState(null)
+  const [loading, setLoading] = useState(true)
   const theme = useTheme()
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'))
+  const { getToken, userId } = useAuth()
+
+  const loadClients = useCallback(async () => {
+    if (!userId) return
+    setLoading(true)
+
+    try {
+      const token = await getToken({ template: 'supabase' })
+      const { clients: clientsData } = await fetchClients(token, 1, 10, userId)
+
+      setClients(clientsData)
+    } catch (error) {
+      console.error('Error loading clients:', error)
+    } finally {
+      setLoading(false)
+    }
+  }, [getToken, userId])
+
+  useEffect(() => {
+    loadClients()
+  }, [loadClients])
 
   const handleOpen = useCallback(() => setOpen(true), [])
   const handleClose = useCallback(() => setOpen(false), [])
 
+  if (loading) {
+    return <CircularProgress />
+  }
+
   return (
-    <div>
+    <>
       <Grid container justifyContent='space-between' alignItems='center'>
-        <Grid item>
-          <h1>Clients</h1>
-        </Grid>
         <Grid item>
           <Button variant='contained' color='primary' onClick={handleOpen}>
             Add Client
@@ -61,7 +73,6 @@ const ClientDashboard = () => {
         open={open}
         onClose={handleClose}
         aria-labelledby='add-client-dialog-title'
-        aria-describedby='add-client-dialog-description'
         maxWidth='xs'
         fullWidth
       >
@@ -84,7 +95,7 @@ const ClientDashboard = () => {
           <AddClientForm onClose={handleClose} setClients={setClients} />
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   )
 }
 
