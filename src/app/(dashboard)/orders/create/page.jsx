@@ -1,18 +1,7 @@
-import dynamic from 'next/dynamic'
-
 import { auth } from '@clerk/nextjs/server'
 
 import Breadcrumb from '@/components/ui/Breadcrumb'
-
-import LoadingSpinner from '@/components/ui/LoadingSpinner'
-
-const GarmentServiceOrderStepper = dynamic(
-  () => import('@components/garments/garment-service-stepper/GarmentServiceOrderStepper'),
-  {
-    loading: LoadingSpinner,
-    ssr: false
-  }
-)
+import ClientGarmentServiceOrderStepper from '@/components/garments/garment-service-stepper/ClientGarmentServiceOrderStepper'
 
 const CreateServiceOrderPage = async () => {
   const { userId } = auth()
@@ -28,7 +17,7 @@ const CreateServiceOrderPage = async () => {
 
       <h1>Create Service Order</h1>
       <br />
-      <GarmentServiceOrderStepper userId={userId} />
+      <ClientGarmentServiceOrderStepper userId={userId} />
     </>
   )
 }
