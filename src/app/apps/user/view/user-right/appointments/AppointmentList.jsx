@@ -2,7 +2,7 @@ import React from 'react'
 
 import Link from 'next/link'
 
-import { List, ListItem, ListItemText, Typography, Box, Button } from '@mui/material'
+import { List, ListItem, ListItemText, Typography, Box, Button, Chip } from '@mui/material'
 import { format, parse, getDay } from 'date-fns'
 
 const AppointmentList = ({ appointments, isHistory = false }) => {
@@ -50,25 +50,68 @@ const AppointmentList = ({ appointments, isHistory = false }) => {
               </Typography>
             </Box>
             {groupedAppointments[date].map(appointment => (
-              <ListItem key={appointment.id} alignItems='flex-start' sx={{ paddingLeft: 2, paddingRight: 2 }}>
-                <ListItemText
-                  primary={
-                    <Typography variant='body1' color='textPrimary' fontWeight='bold'>
-                      {appointment.title.split(' - ')[0]}
-                    </Typography>
-                  }
-                  secondary={
-                    <>
-                      <Typography component='span' variant='body2' color='primary'>
-                        {`${format(new Date(appointment.start), 'p')} - ${format(new Date(appointment.end), 'p')}`}
+              <ListItem
+                key={appointment.id}
+                alignItems='center'
+                sx={{ paddingLeft: 2, paddingRight: 2, display: 'flex', justifyContent: 'space-between' }}
+              >
+                <Box sx={{ flex: 1 }}>
+                  <ListItemText
+                    primary={
+                      <Typography
+                        variant='body1'
+                        color='textPrimary'
+                        fontWeight='bold'
+                        sx={{
+                          textDecoration: appointment.extendedProps.status === 'cancelled' ? 'line-through' : 'none'
+                        }}
+                      >
+                        {appointment.title.split(' - ')[0]}
                       </Typography>
-                      <br />
-                      <Typography component='span' variant='body2' color='textSecondary'>
-                        {appointment.extendedProps.location}
-                      </Typography>
-                    </>
-                  }
-                />
+                    }
+                    secondary={
+                      <>
+                        <Typography
+                          component='span'
+                          variant='body2'
+                          color='primary'
+                          sx={{
+                            textDecoration: appointment.extendedProps.status === 'cancelled' ? 'line-through' : 'none'
+                          }}
+                        >
+                          {`${format(new Date(appointment.start), 'p')} - ${format(new Date(appointment.end), 'p')}`}
+                        </Typography>
+                        <br />
+                        <Typography
+                          component='span'
+                          variant='body2'
+                          color='textSecondary'
+                          sx={{
+                            textDecoration: appointment.extendedProps.status === 'cancelled' ? 'line-through' : 'none'
+                          }}
+                        >
+                          {appointment.extendedProps.location}
+                        </Typography>
+                      </>
+                    }
+                  />
+                </Box>
+                {appointment.extendedProps.status === 'cancelled' && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', ml: 1 }}>
+                    <Chip
+                      label='Cancelled'
+                      color='error'
+                      size='small'
+                      variant='outlined'
+                      sx={{
+                        height: '24px',
+                        '& .MuiChip-label': {
+                          fontSize: '0.75rem'
+                        }
+                      }}
+                    />
+                  </Box>
+                )}
               </ListItem>
             ))}
           </Box>

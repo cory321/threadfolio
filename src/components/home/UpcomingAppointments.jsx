@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 
 import Link from 'next/link'
 
-import { List, ListItem, ListItemText, Typography, Box, Grid, Button } from '@mui/material'
+import { List, ListItem, ListItemText, Typography, Box, Grid, Button, Chip } from '@mui/material'
 import { useAuth } from '@clerk/nextjs'
 import { format, parse, getDay } from 'date-fns'
 import { useTheme } from '@mui/material/styles'
@@ -19,9 +19,8 @@ const UpcomingAppointments = () => {
     const fetchAppointments = async () => {
       try {
         const token = await getToken({ template: 'supabase' })
-        const today = new Date().toISOString().split('T')[0]
-        const oneMonthLater = new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0]
-        const appointmentEvents = await getAppointments(userId, token, today, oneMonthLater)
+        const today = new Date().toISOString()
+        const appointmentEvents = await getAppointments(userId, token, today)
 
         setAppointments(appointmentEvents)
       } catch (error) {
@@ -97,19 +96,46 @@ const UpcomingAppointments = () => {
                       <Grid item xs={9}>
                         <ListItemText
                           primary={
-                            <Typography variant='body1' color='textPrimary' fontWeight='bold'>
-                              {appointment.extendedProps.clientName}
-                            </Typography>
+                            <Box display='flex' alignItems='center'>
+                              <Typography
+                                variant='body1'
+                                color='textPrimary'
+                                fontWeight='bold'
+                                sx={{
+                                  textDecoration:
+                                    appointment.extendedProps.status === 'cancelled' ? 'line-through' : 'none'
+                                }}
+                              >
+                                {appointment.extendedProps.clientName}
+                              </Typography>
+                              {appointment.extendedProps.status === 'cancelled' && (
+                                <Chip label='Cancelled' color='error' size='small' sx={{ ml: 1 }} />
+                              )}
+                            </Box>
                           }
                           secondary={
-                            <Typography component='span' variant='body2' color='primary'>
+                            <Typography
+                              component='span'
+                              variant='body2'
+                              color='primary'
+                              sx={{
+                                textDecoration:
+                                  appointment.extendedProps.status === 'cancelled' ? 'line-through' : 'none'
+                              }}
+                            >
                               {appointment.title.split(' - ')[0]}
                             </Typography>
                           }
                         />
                       </Grid>
                       <Grid item xs={3}>
-                        <Typography variant='body2' color='textSecondary'>
+                        <Typography
+                          variant='body2'
+                          color='textSecondary'
+                          sx={{
+                            textDecoration: appointment.extendedProps.status === 'cancelled' ? 'line-through' : 'none'
+                          }}
+                        >
                           {`${format(new Date(appointment.start), 'p')} - ${format(new Date(appointment.end), 'p')}`}
                         </Typography>
                       </Grid>
