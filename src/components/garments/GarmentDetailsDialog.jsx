@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState, useRef } from 'react'
 
 import {
   Grid,
@@ -53,6 +53,8 @@ const GarmentDetailsDialog = ({ open, handleClose, userId, selectedClient, handl
     setGarmentDetails(prev => ({ ...prev, [name]: checked }))
   }
 
+  const notesRef = useRef(null)
+
   const handleSave = () => {
     const newGarment = {
       user_id: userId,
@@ -60,7 +62,7 @@ const GarmentDetailsDialog = ({ open, handleClose, userId, selectedClient, handl
       name: garmentDetails.name,
       image_cloud_id: garmentDetails.image_cloud_id,
       stage: 'new',
-      notes: garmentDetails.notes,
+      notes: notesRef.current ? notesRef.current.value : '',
       due_date: garmentDetails.due_date,
       is_event: garmentDetails.is_event,
       event_date: garmentDetails.event_date,
@@ -175,8 +177,8 @@ const GarmentDetailsDialog = ({ open, handleClose, userId, selectedClient, handl
                 multiline
                 rows={4}
                 name='notes'
-                value={garmentDetails.notes || ''}
-                onChange={handleInputChange}
+                inputRef={notesRef}
+                defaultValue={garmentDetails.notes || ''}
                 margin='normal'
                 variant='outlined'
                 disabled={isLoading}
