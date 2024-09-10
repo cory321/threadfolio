@@ -1,10 +1,36 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Grid } from '@mui/material'
+import { useAuth } from '@clerk/nextjs'
 
-const ViewAppointmentModal = ({ open, handleClose, selectedEvent }) => {
+import { toast } from 'react-toastify'
+
+import { cancelAppointment } from '@/app/actions/appointments'
+
+const ViewAppointmentModal = ({ open, handleClose, selectedEvent, onAppointmentCancelled }) => {
+  const { getToken } = useAuth()
+  const [isCancelling, setIsCancelling] = useState(false)
+
   if (!selectedEvent) {
     return null
+  }
+
+  const handleCancel = async () => {
+    setIsCancelling(true)
+
+    try {
+      const token = await getToken({ template: 'supabase' })
+
+      await cancelAppointment(selectedEvent.id, token)
+      onAppointmentCancelled(selectedEvent.id)
+      toast.success('Appointment successfully cancelled')
+      handleClose()
+    } catch (error) {
+      console.error('Error cancelling appointment:', error)
+      toast.error('Failed to cancel appointment. Please try again.')
+    } finally {
+      setIsCancelling(false)
+    }
   }
 
   return (
@@ -42,6 +68,14 @@ const ViewAppointmentModal = ({ open, handleClose, selectedEvent }) => {
       <DialogActions>
         <Button onClick={handleClose} color='primary'>
           Close
+        </Button>
+        <Button
+          onClick={handleCancel}
+          color='secondary'
+          variant='contained'
+          disabled={isCancelling || selectedEvent.extendedProps?.status === 'cancelled'}
+        >
+          {isCancelling ? 'Cancelling...' : 'Cancel Appointment'}
         </Button>
       </DialogActions>
     </Dialog>

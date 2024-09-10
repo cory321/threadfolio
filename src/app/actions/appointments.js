@@ -127,6 +127,7 @@ export async function getAppointments(userId, token, start, end) {
     `
     )
     .eq('user_id', userId)
+    .neq('status', 'cancelled')
     .order('start_time', { ascending: true })
 
   if (start) {
@@ -185,5 +186,55 @@ export async function getClientAppointments(
   return {
     appointments: appointments.map(transformAppointment),
     totalCount: count
+  }
+}
+
+export async function updateAppointmentStatus(appointmentId, status, token) {
+  noStore()
+
+  try {
+    const supabase = await getSupabaseClient(token)
+
+    const { data, error } = await supabase
+      .from('appointments')
+      .update({ status: status })
+      .eq('id', appointmentId)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Supabase error:', error)
+      throw new Error(`Failed to update appointment status: ${error.message}`)
+    }
+
+    return data
+  } catch (error) {
+    console.error('Error in updateAppointmentStatus:', error)
+    throw error
+  }
+}
+
+export async function cancelAppointment(appointmentId, token) {
+  noStore()
+
+  try {
+    const supabase = await getSupabaseClient(token)
+
+    const { data, error } = await supabase
+      .from('appointments')
+      .update({ status: 'cancelled' })
+      .eq('id', appointmentId)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Supabase error:', error)
+      throw new Error(`Failed to cancel appointment: ${error.message}`)
+    }
+
+    return data
+  } catch (error) {
+    console.error('Error in cancelAppointment:', error)
+    throw error
   }
 }

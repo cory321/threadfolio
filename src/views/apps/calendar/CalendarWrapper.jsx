@@ -23,7 +23,7 @@ const calendarsColor = {
   ETC: 'info'
 }
 
-const AppCalendar = ({ events, addEventModalOpen, handleAddEventModalToggle, onDatesSet }) => {
+const AppCalendar = ({ events, addEventModalOpen, handleAddEventModalToggle, onDatesSet, onAppointmentCancelled }) => {
   // States
   const [calendarApi, setCalendarApi] = useState(null)
   const [selectedDate, setSelectedDate] = useState(null)
@@ -179,6 +179,7 @@ const AppCalendar = ({ events, addEventModalOpen, handleAddEventModalToggle, onD
         open={viewEventModalOpen}
         handleClose={handleViewEventModalToggle}
         selectedEvent={selectedEvent}
+        onAppointmentCancelled={onAppointmentCancelled}
       />
     </>
   )

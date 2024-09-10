@@ -26,8 +26,12 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
         const token = await getToken({ template: 'supabase' })
         const appointmentEvents = await getAppointments(userId, token, start, end)
 
-        console.log('Fetched events:', appointmentEvents) // Add this log
-        setEvents(appointmentEvents)
+        console.log('Fetched events:', appointmentEvents)
+
+        // Filter out cancelled appointments
+        const filteredEvents = appointmentEvents.filter(event => event.extendedProps.status !== 'cancelled')
+
+        setEvents(filteredEvents)
       } catch (error) {
         console.error('Error fetching events:', error)
       }
@@ -53,7 +57,9 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
     }
   }
 
-  console.log('Rendering CalendarApp with events:', events) // Add this log
+  const handleAppointmentCancelled = useCallback(cancelledAppointmentId => {
+    setEvents(prevEvents => prevEvents.filter(event => event.id !== cancelledAppointmentId))
+  }, [])
 
   return (
     <Card className='overflow-visible'>
@@ -63,6 +69,7 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
           addEventModalOpen={addEventModalOpen}
           handleAddEventModalToggle={handleAddEventModalToggle}
           onDatesSet={handleDatesSet}
+          onAppointmentCancelled={handleAppointmentCancelled}
         />
       </AppFullCalendar>
     </Card>
