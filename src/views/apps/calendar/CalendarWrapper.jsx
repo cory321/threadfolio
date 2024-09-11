@@ -58,15 +58,10 @@ const AppCalendar = ({
   const mdAbove = useMediaQuery(theme => theme.breakpoints.up('md'))
 
   // Add event handler
-  const handleAddEvent = async event => {
-    try {
-      const data = await addAppointment(/* ... appointment details ... */)
-
-      onAddAppointment(data)
-      dispatch({ type: 'added', event: data })
-    } catch (error) {
-      console.error('Failed to add appointment:', error)
-    }
+  const handleAddEvent = async appointmentData => {
+    console.log('New appointment added:', appointmentData)
+    dispatch({ type: 'added', event: appointmentData })
+    onAddAppointment(appointmentData)
   }
 
   // Update event handler
@@ -180,7 +175,7 @@ const AppCalendar = ({
         handleAddEventModalToggle={handleAddEventModalToggle}
         selectedDate={selectedDate}
         dispatch={dispatch}
-        onAddAppointment={onAddAppointment}
+        onAddAppointment={handleAddEvent}
       />
       <ViewAppointmentModal
         open={viewEventModalOpen}

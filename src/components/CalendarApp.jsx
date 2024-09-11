@@ -16,7 +16,7 @@ import { getAppointments } from '@/app/actions/appointments'
 import CalendarWrapper from '@views/apps/calendar/CalendarWrapper'
 
 const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
-  const { getToken, userId } = useAuth()
+  const { userId, getToken } = useAuth()
   const [events, setEvents] = useState([])
   const [visibleDateRange, setVisibleDateRange] = useState({ start: null, end: null })
 
@@ -65,8 +65,11 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
   }, [userId, fetchEvents])
 
   const handleAddAppointment = useCallback(newAppointment => {
+    console.log('Adding new appointment:', newAppointment)
     setEvents(prevEvents => {
       const updatedEvents = [...prevEvents, newAppointment]
+
+      console.log('Updated events:', updatedEvents)
 
       return updatedEvents
     })
@@ -90,7 +93,7 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
           onDatesSet={handleDatesSet}
           addEventModalOpen={addEventModalOpen}
           handleAddEventModalToggle={handleAddEventModalToggle}
-          refreshEvents={refreshEvents}
+          refreshEvents={fetchEvents}
           onAddAppointment={handleAddAppointment}
           onCancelAppointment={handleCancelAppointment}
         />

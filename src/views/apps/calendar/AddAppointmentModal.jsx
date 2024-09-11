@@ -161,9 +161,23 @@ const AddAppointmentModal = props => {
         token
       )
 
-      // Call onAddAppointment to update local state
-      onAddAppointment(data)
+      const transformedAppointment = {
+        id: data.id,
+        title: `${data.type} - ${values.clientName}`,
+        start: new Date(data.start_time),
+        end: new Date(data.end_time),
+        extendedProps: {
+          location: data.location,
+          status: data.status,
+          type: data.type,
+          sendEmail: data.send_email,
+          sendSms: data.send_sms,
+          notes: data.notes,
+          clientName: values.clientName
+        }
+      }
 
+      onAddAppointment(transformedAppointment)
       handleAddEventModalToggle()
       toast.success('Appointment added successfully')
     } catch (error) {
