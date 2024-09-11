@@ -29,9 +29,10 @@ export default function calendarReducer(calendars, action) {
     }
 
     case 'deleted': {
-      const events = calendars.events.filter(event => event.id !== action.eventId)
-
-      return { ...calendars, events }
+      return {
+        ...calendars,
+        events: calendars.events.filter(event => event.id !== action.eventId)
+      }
     }
 
     case 'selected_event': {

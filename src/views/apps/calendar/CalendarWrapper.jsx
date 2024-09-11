@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useReducer, useState, useEffect } from 'react'
+import { useReducer, useState, useEffect, useCallback } from 'react'
 
 // MUI Imports
 import { useMediaQuery, Button } from '@mui/material'
@@ -28,8 +28,9 @@ const AppCalendar = ({
   addEventModalOpen,
   handleAddEventModalToggle,
   onDatesSet,
-  onAppointmentCancelled,
-  refreshEvents
+  refreshEvents,
+  onAddAppointment,
+  onCancelAppointment
 }) => {
   // States
   const [calendarApi, setCalendarApi] = useState(null)
@@ -58,19 +59,14 @@ const AppCalendar = ({
 
   // Add event handler
   const handleAddEvent = async event => {
-    // Add event API
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/apps/calendar-events`, {
-      method: 'POST',
-      body: JSON.stringify(event),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-      .then(res => res.json())
-      .then(data => {
-        // Dispatch Add Event Action
-        dispatch({ type: 'added', event: data.event })
-      })
+    try {
+      const data = await addAppointment(/* ... appointment details ... */)
+
+      onAddAppointment(data)
+      dispatch({ type: 'added', event: data })
+    } catch (error) {
+      console.error('Failed to add appointment:', error)
+    }
   }
 
   // Update event handler
@@ -153,6 +149,14 @@ const AppCalendar = ({
     }
   }
 
+  const handleAppointmentCancelled = useCallback(
+    cancelledAppointmentId => {
+      dispatch({ type: 'deleted', eventId: cancelledAppointmentId })
+      onCancelAppointment(cancelledAppointmentId)
+    },
+    [onCancelAppointment]
+  )
+
   return (
     <>
       <div className='p-5 pbe-0 flex-grow overflow-visible bg-backgroundPaper'>
@@ -187,7 +191,7 @@ const AppCalendar = ({
         open={viewEventModalOpen}
         handleClose={handleViewEventModalToggle}
         selectedEvent={selectedEvent}
-        onAppointmentCancelled={onAppointmentCancelled}
+        onAppointmentCancelled={handleAppointmentCancelled}
         refreshEvents={refreshEvents}
       />
     </>

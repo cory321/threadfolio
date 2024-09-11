@@ -17,7 +17,7 @@ import CalendarWrapper from '@views/apps/calendar/CalendarWrapper'
 
 const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
   const { getToken, userId } = useAuth()
-  const [events, setEvents] = useState({})
+  const [events, setEvents] = useState([])
   const [visibleDateRange, setVisibleDateRange] = useState({ start: null, end: null })
 
   const fetchEvents = useCallback(
@@ -25,6 +25,8 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
       try {
         const token = await getToken({ template: 'supabase' })
         const appointmentEvents = await getAppointments(userId, token, start, end)
+
+        setEvents(appointmentEvents)
 
         return appointmentEvents
       } catch (error) {
@@ -45,9 +47,7 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
       const startDate = prevMonth.toISOString()
       const endDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0).toISOString()
 
-      const fetchedEvents = await fetchEvents(startDate, endDate)
-
-      setEvents(fetchedEvents)
+      await fetchEvents(startDate, endDate)
     },
     [fetchEvents]
   )
@@ -65,11 +65,19 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
     [visibleDateRange, prefetchEvents]
   )
 
-  const refreshEvents = useCallback(() => {
-    if (visibleDateRange.start) {
-      prefetchEvents(new Date(visibleDateRange.start))
+  const handleAddAppointment = useCallback(newAppointment => {
+    setEvents(prevEvents => [...prevEvents, newAppointment])
+  }, [])
+
+  const handleCancelAppointment = useCallback(cancelledAppointmentId => {
+    setEvents(prevEvents => prevEvents.filter(event => event.id !== cancelledAppointmentId))
+  }, [])
+
+  const refreshEvents = useCallback(async () => {
+    if (visibleDateRange.start && visibleDateRange.end) {
+      await fetchEvents(visibleDateRange.start, visibleDateRange.end)
     }
-  }, [prefetchEvents, visibleDateRange])
+  }, [fetchEvents, visibleDateRange])
 
   useEffect(() => {
     if (userId && visibleDateRange.start) {
@@ -86,6 +94,8 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
           addEventModalOpen={addEventModalOpen}
           handleAddEventModalToggle={handleAddEventModalToggle}
           refreshEvents={refreshEvents}
+          onAddAppointment={handleAddAppointment}
+          onCancelAppointment={handleCancelAppointment}
         />
       </AppFullCalendar>
     </Card>
