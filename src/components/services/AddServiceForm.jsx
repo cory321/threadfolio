@@ -11,7 +11,7 @@ import { addService } from '@/app/actions/services'
 import { handleChange, handleUnitPriceBlur, calculateTotalPrice } from '@/utils/serviceUtils'
 import serviceUnitTypes from '@/utils/serviceUnitTypes'
 
-const AddServiceForm = ({ setServices, onClose }) => {
+const AddServiceForm = ({ setServices = () => {}, onClose }) => {
   const { userId, getToken } = useAuth()
 
   const [newService, setNewService] = useState({
@@ -35,7 +35,10 @@ const AddServiceForm = ({ setServices, onClose }) => {
     try {
       const newServiceItem = await addService(userId, newService, token)
 
-      setServices(prevServices => (prevServices ? [...prevServices, newServiceItem] : [newServiceItem]))
+      if (typeof setServices === 'function') {
+        setServices(prevServices => (prevServices ? [...prevServices, newServiceItem] : [newServiceItem]))
+      }
+
       setNewService({ name: '', description: '', qty: 0, unit: serviceUnitTypes.ITEM, unit_price: 0 })
       onClose()
       toast.success(`${newServiceItem.name} has been added!`)
@@ -110,9 +113,11 @@ const AddServiceForm = ({ setServices, onClose }) => {
         }}
       />
       <Typography variant='h6'>Total: {calculateTotalPrice(newService)}</Typography>
-      <Button type='submit' disabled={isLoading}>
-        {isLoading ? 'Adding...' : 'Add Service'}
-      </Button>
+      <Box mt={2} display='flex' justifyContent='flex-end'>
+        <Button variant='contained' color='primary' type='submit' disabled={isLoading}>
+          {isLoading ? 'Adding...' : 'Add Service'}
+        </Button>
+      </Box>
     </Box>
   )
 }

@@ -21,6 +21,9 @@ import {
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
 
+import AddAppointmentModal from '@/views/apps/calendar/AddAppointmentModal'
+import AddServiceModal from '@/components/services/AddServiceModal'
+
 const BlendedImage = dynamic(() => import('@/components/ui/BlendedImage'), {
   ssr: false,
   loading: () => (
@@ -65,15 +68,29 @@ const actions = [
 
 const ActionsList = ({ isMobile }) => {
   const [addClientModalOpen, setAddClientModalOpen] = useState(false)
+  const [addAppointmentModalOpen, setAddAppointmentModalOpen] = useState(false)
+  const [addServiceModalOpen, setAddServiceModalOpen] = useState(false)
 
   const handleNavigation = link => {
     if (link === '/clients') {
       setAddClientModalOpen(true)
+    } else if (link === '/appointments') {
+      setAddAppointmentModalOpen(true)
+    } else if (link === '/services') {
+      setAddServiceModalOpen(true)
     }
   }
 
   const handleCloseAddClientModal = () => {
     setAddClientModalOpen(false)
+  }
+
+  const handleCloseAddAppointmentModal = () => {
+    setAddAppointmentModalOpen(false)
+  }
+
+  const handleCloseAddServiceModal = () => {
+    setAddServiceModalOpen(false)
   }
 
   return (
@@ -85,51 +102,32 @@ const ActionsList = ({ isMobile }) => {
               Start from
             </Typography>
             {isMobile ? (
-              actions.map((action, index) =>
-                action.link === '/clients' ? (
-                  <StyledButton
-                    key={index}
-                    fullWidth
-                    variant='contained'
-                    startIcon={<i className={action.icon} />}
-                    onClick={() => handleNavigation(action.link)}
-                  >
-                    {action.text}
-                  </StyledButton>
-                ) : (
-                  <Link href={action.link} key={index} passHref>
-                    <StyledButton fullWidth variant='contained' startIcon={<i className={action.icon} />}>
-                      {action.text}
-                    </StyledButton>
-                  </Link>
-                )
-              )
+              actions.map((action, index) => (
+                <StyledButton
+                  key={index}
+                  fullWidth
+                  variant='contained'
+                  startIcon={<i className={action.icon} />}
+                  onClick={() => handleNavigation(action.link)}
+                >
+                  {action.text}
+                </StyledButton>
+              ))
             ) : (
               <List>
-                {actions.map((action, index) =>
-                  action.link === '/clients' ? (
-                    <StyledListItem
-                      key={index}
-                      component={ButtonBase}
-                      onClick={() => handleNavigation(action.link)}
-                      sx={{ width: '100%' }}
-                    >
-                      <ListItemIcon>
-                        <i className={action.icon} />
-                      </ListItemIcon>
-                      <ListItemText primary={action.text} />
-                    </StyledListItem>
-                  ) : (
-                    <Link href={action.link} key={index} passHref>
-                      <StyledListItem component={ButtonBase} sx={{ width: '100%' }}>
-                        <ListItemIcon>
-                          <i className={action.icon} />
-                        </ListItemIcon>
-                        <ListItemText primary={action.text} />
-                      </StyledListItem>
-                    </Link>
-                  )
-                )}
+                {actions.map((action, index) => (
+                  <StyledListItem
+                    key={index}
+                    component={ButtonBase}
+                    onClick={() => handleNavigation(action.link)}
+                    sx={{ width: '100%' }}
+                  >
+                    <ListItemIcon>
+                      <i className={action.icon} />
+                    </ListItemIcon>
+                    <ListItemText primary={action.text} />
+                  </StyledListItem>
+                ))}
               </List>
             )}
           </Grid>
@@ -147,6 +145,13 @@ const ActionsList = ({ isMobile }) => {
         </Grid>
       </CardContent>
       <AddClientModal open={addClientModalOpen} onClose={handleCloseAddClientModal} />
+      <AddAppointmentModal
+        addEventModalOpen={addAppointmentModalOpen}
+        handleAddEventModalToggle={handleCloseAddAppointmentModal}
+        selectedDate={new Date()}
+        onAddAppointment={() => {}}
+      />
+      <AddServiceModal open={addServiceModalOpen} onClose={handleCloseAddServiceModal} />
     </Card>
   )
 }
