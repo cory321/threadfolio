@@ -73,7 +73,8 @@ const Calendar = props => {
     editable: false,
     eventResizableFromStart: false,
     dragScroll: true,
-    dayMaxEvents: false,
+    dayMaxEvents: 3,
+    moreLinkClick: 'popover',
     navLinks: false,
     selectable: false,
     unselectAuto: false,
@@ -146,6 +147,20 @@ const Calendar = props => {
     },
     datesSet: info => {
       props.onDatesSet(info)
+    },
+    fixedWeekCount: false,
+    eventDidMount: info => {
+      if (info.view.type === 'dayGridMonth' && info.el.classList.contains('fc-more-link')) {
+        info.el.addEventListener('click', e => {
+          e.preventDefault()
+          const date = info.event.start
+
+          const events = calendarApi.getEvents().filter(event => event.start.toDateString() === date.toDateString())
+
+          // Here you can open your custom modal with the events
+          handleOpenCustomModal(date, events)
+        })
+      }
     }
   }
 
