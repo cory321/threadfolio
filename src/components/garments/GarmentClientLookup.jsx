@@ -26,7 +26,7 @@ const AddClientButton = dynamic(() => import('@components/garments/AddClientButt
   loading: LoadingSpinner
 })
 
-const AddClientForm = dynamic(() => import('@components/clients/AddClientForm'), {
+const AddClientModal = dynamic(() => import('@components/clients/AddClientModal'), {
   ssr: false,
   loading: LoadingSpinner
 })
@@ -109,7 +109,7 @@ const GarmentClientLookup = ({ userId, onClientSelect, selectedClient }) => {
             </RadioGroup>
           </FormControl>
           {clientType === 'new' ? (
-            <AddClientForm onClientSelect={handleClientSelect} onClose={handleClose} />
+            <AddClientModal open={true} onClose={handleClose} onClientSelect={handleClientSelect} />
           ) : (
             <ClientSearch
               userId={userId}

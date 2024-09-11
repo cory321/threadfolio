@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useState } from 'react'
 
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import dynamic from 'next/dynamic'
 
 import {
@@ -19,6 +19,7 @@ import {
   CircularProgress,
   Box
 } from '@mui/material'
+import { styled } from '@mui/material/styles'
 
 const BlendedImage = dynamic(() => import('@/components/ui/BlendedImage'), {
   ssr: false,
@@ -29,6 +30,31 @@ const BlendedImage = dynamic(() => import('@/components/ui/BlendedImage'), {
   )
 })
 
+const AddClientModal = dynamic(() => import('@/components/clients/AddClientModal'), {
+  ssr: false,
+  loading: () => <CircularProgress />
+})
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+  padding: '18px',
+  fontSize: '1.1rem',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    backgroundColor: theme.palette.primary.dark,
+    transform: 'translateY(-3px)',
+    boxShadow: theme.shadows[4]
+  }
+}))
+
+const StyledListItem = styled(ListItem)(({ theme }) => ({
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    backgroundColor: theme.palette.action.hover,
+    transform: 'translateX(5px)'
+  }
+}))
+
 const actions = [
   { icon: 'ri-file-add-line', text: 'New Order', link: '/orders/create' },
   { icon: 'ri-user-add-line', text: 'New Client', link: '/clients' },
@@ -38,17 +64,17 @@ const actions = [
 ]
 
 const ActionsList = ({ isMobile }) => {
-  const router = useRouter()
+  const [addClientModalOpen, setAddClientModalOpen] = useState(false)
 
   const handleNavigation = link => {
-    router.push(link)
+    if (link === '/clients') {
+      setAddClientModalOpen(true)
+    }
   }
 
-  useEffect(() => {
-    actions.forEach(action => {
-      router.prefetch(action.link)
-    })
-  }, [router])
+  const handleCloseAddClientModal = () => {
+    setAddClientModalOpen(false)
+  }
 
   return (
     <Card>
@@ -59,33 +85,51 @@ const ActionsList = ({ isMobile }) => {
               Start from
             </Typography>
             {isMobile ? (
-              actions.map((action, index) => (
-                <Button
-                  key={index}
-                  fullWidth
-                  variant='contained'
-                  startIcon={<i className={action.icon} />}
-                  sx={{ marginBottom: 5, padding: '18px', fontSize: '1.1rem' }}
-                  onClick={() => handleNavigation(action.link)}
-                >
-                  {action.text}
-                </Button>
-              ))
+              actions.map((action, index) =>
+                action.link === '/clients' ? (
+                  <StyledButton
+                    key={index}
+                    fullWidth
+                    variant='contained'
+                    startIcon={<i className={action.icon} />}
+                    onClick={() => handleNavigation(action.link)}
+                  >
+                    {action.text}
+                  </StyledButton>
+                ) : (
+                  <Link href={action.link} key={index} passHref>
+                    <StyledButton fullWidth variant='contained' startIcon={<i className={action.icon} />}>
+                      {action.text}
+                    </StyledButton>
+                  </Link>
+                )
+              )
             ) : (
               <List>
-                {actions.map((action, index) => (
-                  <ListItem
-                    key={index}
-                    component={ButtonBase}
-                    onClick={() => handleNavigation(action.link)}
-                    sx={{ width: '100%' }}
-                  >
-                    <ListItemIcon>
-                      <i className={action.icon} />
-                    </ListItemIcon>
-                    <ListItemText primary={action.text} />
-                  </ListItem>
-                ))}
+                {actions.map((action, index) =>
+                  action.link === '/clients' ? (
+                    <StyledListItem
+                      key={index}
+                      component={ButtonBase}
+                      onClick={() => handleNavigation(action.link)}
+                      sx={{ width: '100%' }}
+                    >
+                      <ListItemIcon>
+                        <i className={action.icon} />
+                      </ListItemIcon>
+                      <ListItemText primary={action.text} />
+                    </StyledListItem>
+                  ) : (
+                    <Link href={action.link} key={index} passHref>
+                      <StyledListItem component={ButtonBase} sx={{ width: '100%' }}>
+                        <ListItemIcon>
+                          <i className={action.icon} />
+                        </ListItemIcon>
+                        <ListItemText primary={action.text} />
+                      </StyledListItem>
+                    </Link>
+                  )
+                )}
               </List>
             )}
           </Grid>
@@ -102,6 +146,7 @@ const ActionsList = ({ isMobile }) => {
           )}
         </Grid>
       </CardContent>
+      <AddClientModal open={addClientModalOpen} onClose={handleCloseAddClientModal} />
     </Card>
   )
 }
