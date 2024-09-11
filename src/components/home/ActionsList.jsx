@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react'
 
-import Link from 'next/link'
 import dynamic from 'next/dynamic'
+import Link from 'next/link'
 
 import {
   Typography,
@@ -21,8 +21,20 @@ import {
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
 
-import AddAppointmentModal from '@/views/apps/calendar/AddAppointmentModal'
-import AddServiceModal from '@/components/services/AddServiceModal'
+const AddClientModal = dynamic(() => import('@/components/clients/AddClientModal'), {
+  ssr: false,
+  loading: () => <CircularProgress />
+})
+
+const AddAppointmentModal = dynamic(() => import('@/views/apps/calendar/AddAppointmentModal'), {
+  ssr: false,
+  loading: () => <CircularProgress />
+})
+
+const AddServiceModal = dynamic(() => import('@/components/services/AddServiceModal'), {
+  ssr: false,
+  loading: () => <CircularProgress />
+})
 
 const BlendedImage = dynamic(() => import('@/components/ui/BlendedImage'), {
   ssr: false,
@@ -31,11 +43,6 @@ const BlendedImage = dynamic(() => import('@/components/ui/BlendedImage'), {
       <CircularProgress />
     </Box>
   )
-})
-
-const AddClientModal = dynamic(() => import('@/components/clients/AddClientModal'), {
-  ssr: false,
-  loading: () => <CircularProgress />
 })
 
 const StyledButton = styled(Button)(({ theme }) => ({
@@ -59,38 +66,66 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
 }))
 
 const actions = [
-  { icon: 'ri-file-add-line', text: 'New Order', link: '/orders/create' },
-  { icon: 'ri-user-add-line', text: 'New Client', link: '/clients' },
-  { icon: 'ri-calendar-line', text: 'New Appointment', link: '/appointments' },
-  { icon: 'ri-service-line', text: 'New Service', link: '/services' },
-  { icon: 'ri-file-list-line', text: 'New Invoice', link: '/finance' }
+  { icon: 'ri-file-add-line', text: 'New Order', link: '/orders/create', modal: null },
+  { icon: 'ri-user-add-line', text: 'New Client', link: '/clients', modal: 'client' },
+  { icon: 'ri-calendar-line', text: 'New Appointment', link: '/appointments', modal: 'appointment' },
+  { icon: 'ri-service-line', text: 'New Service', link: '/services', modal: 'service' },
+  { icon: 'ri-file-list-line', text: 'New Invoice', link: '/finance', modal: null }
 ]
 
 const ActionsList = ({ isMobile }) => {
-  const [addClientModalOpen, setAddClientModalOpen] = useState(false)
-  const [addAppointmentModalOpen, setAddAppointmentModalOpen] = useState(false)
-  const [addServiceModalOpen, setAddServiceModalOpen] = useState(false)
+  const [modalStates, setModalStates] = useState({
+    client: false,
+    appointment: false,
+    service: false
+  })
 
-  const handleNavigation = link => {
-    if (link === '/clients') {
-      setAddClientModalOpen(true)
-    } else if (link === '/appointments') {
-      setAddAppointmentModalOpen(true)
-    } else if (link === '/services') {
-      setAddServiceModalOpen(true)
+  const handleNavigation = (link, modal) => {
+    if (modal) {
+      setModalStates(prev => ({ ...prev, [modal]: true }))
     }
   }
 
-  const handleCloseAddClientModal = () => {
-    setAddClientModalOpen(false)
+  const handleCloseModal = modal => {
+    setModalStates(prev => ({ ...prev, [modal]: false }))
   }
 
-  const handleCloseAddAppointmentModal = () => {
-    setAddAppointmentModalOpen(false)
-  }
+  const renderActionItem = (action, index) => {
+    const ActionComponent = isMobile ? StyledButton : StyledListItem
 
-  const handleCloseAddServiceModal = () => {
-    setAddServiceModalOpen(false)
+    const commonProps = {
+      key: index,
+      ...(isMobile
+        ? {
+            fullWidth: true,
+            variant: 'contained',
+            startIcon: <i className={action.icon} />
+          }
+        : {
+            component: action.modal ? ButtonBase : 'a',
+            sx: { width: '100%' }
+          }),
+      onClick: action.modal ? () => handleNavigation(action.link, action.modal) : undefined
+    }
+
+    const content = isMobile ? (
+      action.text
+    ) : (
+      <>
+        <ListItemIcon>
+          <i className={action.icon} />
+        </ListItemIcon>
+        <ListItemText primary={action.text} />
+      </>
+    )
+
+    return action.modal ? (
+      <ActionComponent {...commonProps}>{content}</ActionComponent>
+    ) : (
+      <Link href={action.link} passHref style={{ textDecoration: 'none', width: '100%' }}>
+        <ActionComponent {...commonProps}>{content}</ActionComponent>
+      </Link>
+    )
   }
 
   return (
@@ -99,37 +134,9 @@ const ActionsList = ({ isMobile }) => {
         <Grid container spacing={2}>
           <Grid item xs={12} sm={5}>
             <Typography variant='h6' gutterBottom>
-              Start from
+              Quick actions
             </Typography>
-            {isMobile ? (
-              actions.map((action, index) => (
-                <StyledButton
-                  key={index}
-                  fullWidth
-                  variant='contained'
-                  startIcon={<i className={action.icon} />}
-                  onClick={() => handleNavigation(action.link)}
-                >
-                  {action.text}
-                </StyledButton>
-              ))
-            ) : (
-              <List>
-                {actions.map((action, index) => (
-                  <StyledListItem
-                    key={index}
-                    component={ButtonBase}
-                    onClick={() => handleNavigation(action.link)}
-                    sx={{ width: '100%' }}
-                  >
-                    <ListItemIcon>
-                      <i className={action.icon} />
-                    </ListItemIcon>
-                    <ListItemText primary={action.text} />
-                  </StyledListItem>
-                ))}
-              </List>
-            )}
+            {isMobile ? actions.map(renderActionItem) : <List>{actions.map(renderActionItem)}</List>}
           </Grid>
           {!isMobile && (
             <Grid item sm={7}>
@@ -144,14 +151,14 @@ const ActionsList = ({ isMobile }) => {
           )}
         </Grid>
       </CardContent>
-      <AddClientModal open={addClientModalOpen} onClose={handleCloseAddClientModal} />
+      <AddClientModal open={modalStates.client} onClose={() => handleCloseModal('client')} />
       <AddAppointmentModal
-        addEventModalOpen={addAppointmentModalOpen}
-        handleAddEventModalToggle={handleCloseAddAppointmentModal}
+        addEventModalOpen={modalStates.appointment}
+        handleAddEventModalToggle={() => handleCloseModal('appointment')}
         selectedDate={new Date()}
         onAddAppointment={() => {}}
       />
-      <AddServiceModal open={addServiceModalOpen} onClose={handleCloseAddServiceModal} />
+      <AddServiceModal open={modalStates.service} onClose={() => handleCloseModal('service')} />
     </Card>
   )
 }
