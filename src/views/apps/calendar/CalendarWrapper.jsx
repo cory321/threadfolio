@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useReducer, useState, useEffect } from 'react'
+import { useReducer, useState, useEffect, useCallback } from 'react'
 
 // MUI Imports
 import { useMediaQuery, Button } from '@mui/material'
@@ -28,8 +28,9 @@ const AppCalendar = ({
   addEventModalOpen,
   handleAddEventModalToggle,
   onDatesSet,
-  onAppointmentCancelled,
-  refreshEvents
+  refreshEvents,
+  onAddAppointment,
+  onCancelAppointment
 }) => {
   // States
   const [calendarApi, setCalendarApi] = useState(null)
@@ -57,20 +58,10 @@ const AppCalendar = ({
   const mdAbove = useMediaQuery(theme => theme.breakpoints.up('md'))
 
   // Add event handler
-  const handleAddEvent = async event => {
-    // Add event API
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/apps/calendar-events`, {
-      method: 'POST',
-      body: JSON.stringify(event),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-      .then(res => res.json())
-      .then(data => {
-        // Dispatch Add Event Action
-        dispatch({ type: 'added', event: data.event })
-      })
+  const handleAddEvent = async appointmentData => {
+    console.log('New appointment added:', appointmentData)
+    dispatch({ type: 'added', event: appointmentData })
+    onAddAppointment(appointmentData)
   }
 
   // Update event handler
@@ -153,10 +144,19 @@ const AppCalendar = ({
     }
   }
 
+  const handleAppointmentCancelled = useCallback(
+    cancelledAppointmentId => {
+      dispatch({ type: 'deleted', eventId: cancelledAppointmentId })
+      onCancelAppointment(cancelledAppointmentId)
+    },
+    [onCancelAppointment]
+  )
+
   return (
     <>
       <div className='p-5 pbe-0 flex-grow overflow-visible bg-backgroundPaper'>
         <Calendar
+          events={events} // Make sure this prop is passed correctly
           mdAbove={mdAbove}
           calendars={calendars}
           calendarApi={calendarApi}
@@ -171,22 +171,17 @@ const AppCalendar = ({
         />
       </div>
       <AddAppointmentModal
-        calendars={calendars}
-        calendarApi={calendarApi}
-        handleAddEvent={handleAddEvent}
-        handleUpdateEvent={handleUpdateEvent}
-        handleDeleteEvent={handleDeleteEvent}
         addEventModalOpen={addEventModalOpen}
         handleAddEventModalToggle={handleAddEventModalToggle}
-        handleSelectEvent={handleSelectEvent}
-        dispatch={dispatch}
         selectedDate={selectedDate}
+        dispatch={dispatch}
+        onAddAppointment={handleAddEvent}
       />
       <ViewAppointmentModal
         open={viewEventModalOpen}
         handleClose={handleViewEventModalToggle}
         selectedEvent={selectedEvent}
-        onAppointmentCancelled={onAppointmentCancelled}
+        onAppointmentCancelled={handleAppointmentCancelled}
         refreshEvents={refreshEvents}
       />
     </>

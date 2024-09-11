@@ -16,28 +16,68 @@ import { getAppointments } from '@/app/actions/appointments'
 import CalendarWrapper from '@views/apps/calendar/CalendarWrapper'
 
 const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
-  const { getToken, userId } = useAuth()
+  const { userId, getToken } = useAuth()
   const [events, setEvents] = useState([])
   const [visibleDateRange, setVisibleDateRange] = useState({ start: null, end: null })
 
   const fetchEvents = useCallback(
-    async (start, end) => {
+    async currentDate => {
       try {
         const token = await getToken({ template: 'supabase' })
-        const appointmentEvents = await getAppointments(userId, token, start, end)
+        const currentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
+        const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
+        const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
 
-        console.log('Fetched events:', appointmentEvents)
+        const startDate = prevMonth.toISOString()
+        const endDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0).toISOString()
 
-        // Filter out cancelled appointments
-        const filteredEvents = appointmentEvents.filter(event => event.extendedProps.status !== 'cancelled')
+        const appointmentEvents = await getAppointments(userId, token, startDate, endDate)
 
-        setEvents(filteredEvents)
+        setEvents(appointmentEvents)
+
+        return appointmentEvents
       } catch (error) {
         console.error('Error fetching events:', error)
+
+        return []
       }
     },
     [getToken, userId]
   )
+
+  const handleDatesSet = useCallback(
+    dateInfo => {
+      const newStart = dateInfo.start.toISOString()
+      const newEnd = dateInfo.end.toISOString()
+
+      if (newStart !== visibleDateRange.start || newEnd !== visibleDateRange.end) {
+        setVisibleDateRange({ start: newStart, end: newEnd })
+        fetchEvents(dateInfo.start)
+      }
+    },
+    [visibleDateRange, fetchEvents]
+  )
+
+  useEffect(() => {
+    if (userId) {
+      fetchEvents(new Date())
+    }
+  }, [userId, fetchEvents])
+
+  const handleAddAppointment = useCallback(newAppointment => {
+    console.log('Adding new appointment:', newAppointment)
+    setEvents(prevEvents => {
+      const updatedEvents = [...prevEvents, newAppointment]
+
+      console.log('Updated events:', updatedEvents)
+
+      return updatedEvents
+    })
+  }, [])
+
+  const handleCancelAppointment = useCallback(cancelledAppointmentId => {
+    setEvents(prevEvents => prevEvents.filter(event => event.id !== cancelledAppointmentId))
+  }, [])
 
   const refreshEvents = useCallback(async () => {
     if (visibleDateRange.start && visibleDateRange.end) {
@@ -45,38 +85,17 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
     }
   }, [fetchEvents, visibleDateRange])
 
-  useEffect(() => {
-    if (userId && visibleDateRange.start && visibleDateRange.end) {
-      fetchEvents(visibleDateRange.start, visibleDateRange.end)
-    }
-  }, [userId, visibleDateRange, fetchEvents])
-
-  const handleDatesSet = dateInfo => {
-    const newStart = dateInfo.start.toISOString()
-    const newEnd = dateInfo.end.toISOString()
-
-    if (newStart !== visibleDateRange.start || newEnd !== visibleDateRange.end) {
-      setVisibleDateRange({
-        start: newStart,
-        end: newEnd
-      })
-    }
-  }
-
-  const handleAppointmentCancelled = useCallback(cancelledAppointmentId => {
-    setEvents(prevEvents => prevEvents.filter(event => event.id !== cancelledAppointmentId))
-  }, [])
-
   return (
     <Card className='overflow-visible'>
       <AppFullCalendar className='app-calendar'>
         <CalendarWrapper
           events={events}
+          onDatesSet={handleDatesSet}
           addEventModalOpen={addEventModalOpen}
           handleAddEventModalToggle={handleAddEventModalToggle}
-          onDatesSet={handleDatesSet}
-          onAppointmentCancelled={handleAppointmentCancelled}
-          refreshEvents={refreshEvents}
+          refreshEvents={fetchEvents}
+          onAddAppointment={handleAddAppointment}
+          onCancelAppointment={handleCancelAppointment}
         />
       </AppFullCalendar>
     </Card>
