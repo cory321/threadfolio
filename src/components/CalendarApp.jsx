@@ -1,7 +1,7 @@
 'use client'
 
 // MUI Imports
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 
 import Card from '@mui/material/Card'
 import { useAuth } from '@clerk/nextjs'
@@ -17,7 +17,7 @@ import CalendarWrapper from '@views/apps/calendar/CalendarWrapper'
 
 const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
   const { getToken, userId } = useAuth()
-  const [events, setEvents] = useState([])
+  const [events, setEvents] = useState({})
   const [visibleDateRange, setVisibleDateRange] = useState({ start: null, end: null })
 
   const fetchEvents = useCallback(
@@ -26,56 +26,65 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
         const token = await getToken({ template: 'supabase' })
         const appointmentEvents = await getAppointments(userId, token, start, end)
 
-        console.log('Fetched events:', appointmentEvents)
-
-        // Filter out cancelled appointments
-        const filteredEvents = appointmentEvents.filter(event => event.extendedProps.status !== 'cancelled')
-
-        setEvents(filteredEvents)
+        return appointmentEvents
       } catch (error) {
         console.error('Error fetching events:', error)
+
+        return []
       }
     },
     [getToken, userId]
   )
 
-  const refreshEvents = useCallback(async () => {
-    if (visibleDateRange.start && visibleDateRange.end) {
-      await fetchEvents(visibleDateRange.start, visibleDateRange.end)
+  const prefetchEvents = useCallback(
+    async currentDate => {
+      const currentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
+      const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
+      const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
+
+      const startDate = prevMonth.toISOString()
+      const endDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0).toISOString()
+
+      const fetchedEvents = await fetchEvents(startDate, endDate)
+
+      setEvents(fetchedEvents)
+    },
+    [fetchEvents]
+  )
+
+  const handleDatesSet = useCallback(
+    dateInfo => {
+      const newStart = dateInfo.start.toISOString()
+      const newEnd = dateInfo.end.toISOString()
+
+      if (newStart !== visibleDateRange.start || newEnd !== visibleDateRange.end) {
+        setVisibleDateRange({ start: newStart, end: newEnd })
+        prefetchEvents(dateInfo.start)
+      }
+    },
+    [visibleDateRange, prefetchEvents]
+  )
+
+  const refreshEvents = useCallback(() => {
+    if (visibleDateRange.start) {
+      prefetchEvents(new Date(visibleDateRange.start))
     }
-  }, [fetchEvents, visibleDateRange])
+  }, [prefetchEvents, visibleDateRange])
 
   useEffect(() => {
-    if (userId && visibleDateRange.start && visibleDateRange.end) {
-      fetchEvents(visibleDateRange.start, visibleDateRange.end)
+    if (userId && visibleDateRange.start) {
+      prefetchEvents(new Date(visibleDateRange.start))
     }
-  }, [userId, visibleDateRange, fetchEvents])
-
-  const handleDatesSet = dateInfo => {
-    const newStart = dateInfo.start.toISOString()
-    const newEnd = dateInfo.end.toISOString()
-
-    if (newStart !== visibleDateRange.start || newEnd !== visibleDateRange.end) {
-      setVisibleDateRange({
-        start: newStart,
-        end: newEnd
-      })
-    }
-  }
-
-  const handleAppointmentCancelled = useCallback(cancelledAppointmentId => {
-    setEvents(prevEvents => prevEvents.filter(event => event.id !== cancelledAppointmentId))
-  }, [])
+  }, [userId, visibleDateRange, prefetchEvents])
 
   return (
     <Card className='overflow-visible'>
       <AppFullCalendar className='app-calendar'>
         <CalendarWrapper
           events={events}
+          onDatesSet={handleDatesSet}
           addEventModalOpen={addEventModalOpen}
           handleAddEventModalToggle={handleAddEventModalToggle}
-          onDatesSet={handleDatesSet}
-          onAppointmentCancelled={handleAppointmentCancelled}
           refreshEvents={refreshEvents}
         />
       </AppFullCalendar>

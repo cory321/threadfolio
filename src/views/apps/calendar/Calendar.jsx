@@ -58,7 +58,7 @@ const Calendar = props => {
 
   // calendarOptions(Props)
   const calendarOptions = {
-    events: calendars.events,
+    events: props.events, // Make sure this is correctly passed from CalendarWrapper
     plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
     initialView: 'dayGridMonth',
     headerToolbar: {
@@ -144,7 +144,9 @@ const Calendar = props => {
         }
       }
     },
-    datesSet: onDatesSet
+    datesSet: info => {
+      props.onDatesSet(info)
+    }
   }
 
   // @ts-ignore

@@ -157,6 +157,7 @@ const AppCalendar = ({
     <>
       <div className='p-5 pbe-0 flex-grow overflow-visible bg-backgroundPaper'>
         <Calendar
+          events={events} // Make sure this prop is passed correctly
           mdAbove={mdAbove}
           calendars={calendars}
           calendarApi={calendarApi}
