@@ -12,6 +12,11 @@ import 'react-datepicker/dist/react-datepicker.css'
 
 // Styled Components
 const StyledReactDatePicker = styled(Box)(({ theme }) => {
+  if (!theme || !theme.vars || !theme.vars.palette) {
+    // Return a default styling if theme is not available
+    return {}
+  }
+
   return {
     '& .react-datepicker-popper': {
       zIndex: 20,

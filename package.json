@@ -11,7 +11,8 @@
     "lint:fix": "next lint --fix",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "build:icons": "tsx src/assets/iconify-icons/bundle-icons-css.js",
-    "postinstall": "npm run build:icons"
+    "postinstall": "npm run build:icons",
+    "test": "jest"
   },
   "dependencies": {
     "@clerk/nextjs": "^5.0.8",
@@ -76,6 +77,45 @@
     "yup": "^1.4.0"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.25.4",
+    "@babel/preset-react": "^7.24.7",
+    "@babel/preset-typescript": "^7.24.7",
+    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/react": "^16.0.1",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "typescript": "5.4.5"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": [
+      "@testing-library/jest-dom",
+      "<rootDir>/jest.setup.js"
+    ],
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/src/$1",
+      "^@core/(.*)$": "<rootDir>/src/@core/$1",
+      "^@layouts/(.*)$": "<rootDir>/src/@layouts/$1",
+      "^@menu/(.*)$": "<rootDir>/src/@menu/$1",
+      "^@assets/(.*)$": "<rootDir>/src/assets/$1",
+      "^@components/(.*)$": "<rootDir>/src/components/$1",
+      "^@configs/(.*)$": "<rootDir>/src/configs/$1",
+      "^@views/(.*)$": "<rootDir>/src/views/$1",
+      "^@reducers/(.*)$": "<rootDir>/src/reducers/$1",
+      "^@actions/(.*)$": "<rootDir>/src/app/actions/$1",
+      "\\.(css|less|scss|sass)$": "<rootDir>/__mocks__/styleMock.js"
+    },
+    "transform": {
+      "^.+\\.(js|jsx|ts|tsx)$": "babel-jest"
+    },
+    "moduleFileExtensions": [
+      "js",
+      "jsx",
+      "ts",
+      "tsx"
+    ],
+    "transformIgnorePatterns": [
+      "/node_modules/(?!(@mui|@babel)/)"
+    ]
   }
 }

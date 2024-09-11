@@ -25,7 +25,7 @@ const ViewAppointmentModal = ({ open, handleClose, selectedEvent, onAppointmentC
       onAppointmentCancelled(selectedEvent.id)
       toast.success('Appointment successfully cancelled')
       handleClose()
-      refreshEvents() // Remove the await here, as we've already updated the local state
+      refreshEvents(new Date()) // Pass the current date when refreshing events
     } catch (error) {
       console.error('Error cancelling appointment:', error)
       toast.error('Failed to cancel appointment. Please try again.')
