@@ -34,7 +34,7 @@ import ClientSearch from '@/components/clients/ClientSearch'
 import { adjustEndTimeIfNeeded } from '@/utils/dateTimeUtils'
 
 const AddAppointmentModal = props => {
-  const { addEventModalOpen, handleAddEventModalToggle, selectedDate, dispatch } = props
+  const { addEventModalOpen, handleAddEventModalToggle, selectedDate, dispatch, onAddAppointment } = props
   const { userId, getToken } = useAuth()
   const theme = useTheme()
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'))
@@ -161,30 +161,14 @@ const AddAppointmentModal = props => {
         token
       )
 
-      const transformedAppointment = {
-        id: data.id,
-        title: `${values.appointmentType} - ${values.clientName}`,
-        start: new Date(data.start_time),
-        end: new Date(data.end_time),
-        allDay: false,
-        extendedProps: {
-          location: data.location,
-          status: data.status,
-          type: data.type,
-          sendEmail: data.send_email,
-          sendSms: data.send_sms,
-          notes: data.notes,
-          clientName: values.clientName
-        }
-      }
+      // Call onAddAppointment to update local state
+      onAddAppointment(data)
 
-      dispatch({ type: 'added', event: transformedAppointment })
-      props.handleAddEvent(transformedAppointment)
-      toast.success('Appointment has been scheduled')
-      handleModalClose()
+      handleAddEventModalToggle()
+      toast.success('Appointment added successfully')
     } catch (error) {
-      console.error('Failed to add appointment:', error)
-      setClientError(error.message || 'Failed to add appointment. Please try again.')
+      console.error('Error adding appointment:', error)
+      toast.error('Failed to add appointment. Please try again.')
     } finally {
       setIsLoading(false)
     }

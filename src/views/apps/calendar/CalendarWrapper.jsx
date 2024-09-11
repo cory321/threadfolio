@@ -176,16 +176,11 @@ const AppCalendar = ({
         />
       </div>
       <AddAppointmentModal
-        calendars={calendars}
-        calendarApi={calendarApi}
-        handleAddEvent={handleAddEvent}
-        handleUpdateEvent={handleUpdateEvent}
-        handleDeleteEvent={handleDeleteEvent}
         addEventModalOpen={addEventModalOpen}
         handleAddEventModalToggle={handleAddEventModalToggle}
-        handleSelectEvent={handleSelectEvent}
-        dispatch={dispatch}
         selectedDate={selectedDate}
+        dispatch={dispatch}
+        onAddAppointment={onAddAppointment}
       />
       <ViewAppointmentModal
         open={viewEventModalOpen}

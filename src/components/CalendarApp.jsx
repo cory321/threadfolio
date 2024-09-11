@@ -1,7 +1,7 @@
 'use client'
 
 // MUI Imports
-import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 
 import Card from '@mui/material/Card'
 import { useAuth } from '@clerk/nextjs'
@@ -21,10 +21,17 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
   const [visibleDateRange, setVisibleDateRange] = useState({ start: null, end: null })
 
   const fetchEvents = useCallback(
-    async (start, end) => {
+    async currentDate => {
       try {
         const token = await getToken({ template: 'supabase' })
-        const appointmentEvents = await getAppointments(userId, token, start, end)
+        const currentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
+        const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
+        const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
+
+        const startDate = prevMonth.toISOString()
+        const endDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0).toISOString()
+
+        const appointmentEvents = await getAppointments(userId, token, startDate, endDate)
 
         setEvents(appointmentEvents)
 
@@ -38,20 +45,6 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
     [getToken, userId]
   )
 
-  const prefetchEvents = useCallback(
-    async currentDate => {
-      const currentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
-      const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
-      const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
-
-      const startDate = prevMonth.toISOString()
-      const endDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0).toISOString()
-
-      await fetchEvents(startDate, endDate)
-    },
-    [fetchEvents]
-  )
-
   const handleDatesSet = useCallback(
     dateInfo => {
       const newStart = dateInfo.start.toISOString()
@@ -59,14 +52,24 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
 
       if (newStart !== visibleDateRange.start || newEnd !== visibleDateRange.end) {
         setVisibleDateRange({ start: newStart, end: newEnd })
-        prefetchEvents(dateInfo.start)
+        fetchEvents(dateInfo.start)
       }
     },
-    [visibleDateRange, prefetchEvents]
+    [visibleDateRange, fetchEvents]
   )
 
+  useEffect(() => {
+    if (userId) {
+      fetchEvents(new Date())
+    }
+  }, [userId, fetchEvents])
+
   const handleAddAppointment = useCallback(newAppointment => {
-    setEvents(prevEvents => [...prevEvents, newAppointment])
+    setEvents(prevEvents => {
+      const updatedEvents = [...prevEvents, newAppointment]
+
+      return updatedEvents
+    })
   }, [])
 
   const handleCancelAppointment = useCallback(cancelledAppointmentId => {
@@ -78,12 +81,6 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
       await fetchEvents(visibleDateRange.start, visibleDateRange.end)
     }
   }, [fetchEvents, visibleDateRange])
-
-  useEffect(() => {
-    if (userId && visibleDateRange.start) {
-      prefetchEvents(new Date(visibleDateRange.start))
-    }
-  }, [userId, visibleDateRange, prefetchEvents])
 
   return (
     <Card className='overflow-visible'>
