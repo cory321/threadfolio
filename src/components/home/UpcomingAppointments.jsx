@@ -33,6 +33,12 @@ const UpcomingAppointments = () => {
     }
   }, [getToken, userId])
 
+  const appointmentTypeMap = {
+    initial: 'Initial Consultation',
+    general: 'General Appointment',
+    order_pickup: 'Order Pickup'
+  }
+
   const groupedAppointments = appointments.reduce((acc, appointment) => {
     const date = format(new Date(appointment.start), 'MMMM d, yyyy')
 
@@ -114,17 +120,19 @@ const UpcomingAppointments = () => {
                             </Box>
                           }
                           secondary={
-                            <Typography
-                              component='span'
-                              variant='body2'
-                              color='primary'
-                              sx={{
-                                textDecoration:
-                                  appointment.extendedProps.status === 'cancelled' ? 'line-through' : 'none'
-                              }}
-                            >
-                              {appointment.title.split(' - ')[0]}
-                            </Typography>
+                            <>
+                              <Typography
+                                component='span'
+                                variant='body2'
+                                color='primary'
+                                sx={{
+                                  textDecoration:
+                                    appointment.extendedProps.status === 'cancelled' ? 'line-through' : 'none'
+                                }}
+                              >
+                                {appointmentTypeMap[appointment.extendedProps.type]}
+                              </Typography>
+                            </>
                           }
                         />
                       </Grid>
