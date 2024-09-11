@@ -243,8 +243,8 @@ const AppFullCalendar = styled('div')(({ theme }) => ({
       '&.fc-daygrid-event': {
         backgroundColor: `${theme.palette.primary.main}`,
         color: `${theme.palette.primary.contrastText}`,
-        marginLeft: '0px',
-        marginRight: '0px',
+        marginLeft: '0',
+        marginRight: '0',
         borderRadius: '4px'
       }
     },
@@ -513,13 +513,12 @@ const AppFullCalendar = styled('div')(({ theme }) => ({
       fontWeight: 'bold'
     },
     '& .fc-daygrid-day-frame': {
-      height: '150px', // Adjust this value as needed
-      overflow: 'hidden'
+      minHeight: '150px', // Adjust this value as needed
+      overflow: 'visible'
     },
     '& .fc-daygrid-day-events': {
       marginTop: '5px',
-      maxHeight: 'calc(100% - 30px)', // Adjust based on your day number height
-      overflow: 'hidden'
+      overflow: 'visible'
     },
     '& .fc-daygrid-more-link': {
       position: 'absolute',
