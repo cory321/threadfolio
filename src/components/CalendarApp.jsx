@@ -24,7 +24,6 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
     async currentDate => {
       try {
         const token = await getToken({ template: 'supabase' })
-        const currentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
         const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
         const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
 
@@ -78,12 +77,6 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
   const handleCancelAppointment = useCallback(cancelledAppointmentId => {
     setEvents(prevEvents => prevEvents.filter(event => event.id !== cancelledAppointmentId))
   }, [])
-
-  const refreshEvents = useCallback(async () => {
-    if (visibleDateRange.start && visibleDateRange.end) {
-      await fetchEvents(visibleDateRange.start, visibleDateRange.end)
-    }
-  }, [fetchEvents, visibleDateRange])
 
   return (
     <Card className='overflow-visible'>

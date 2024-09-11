@@ -2,11 +2,23 @@ import { Grid, Button } from '@mui/material'
 
 import GarmentClientLookup from '@components/garments/GarmentClientLookup'
 
-const Step1ClientSelection = ({ userId, selectedClient, setSelectedClient, handleClientSubmit, onSubmit }) => (
+const Step1ClientSelection = ({
+  userId,
+  selectedClient,
+  setSelectedClient,
+  handleClientSubmit,
+  onSubmit,
+  setClients
+}) => (
   <form key={0} onSubmit={handleClientSubmit(onSubmit)}>
     <Grid container spacing={5}>
       <Grid item xs={12}>
-        <GarmentClientLookup userId={userId} onClientSelect={setSelectedClient} selectedClient={selectedClient} />
+        <GarmentClientLookup
+          userId={userId}
+          onClientSelect={setSelectedClient}
+          selectedClient={selectedClient}
+          setClients={setClients}
+        />
       </Grid>
       <Grid item xs={6}></Grid>
       <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'flex-end' }}>

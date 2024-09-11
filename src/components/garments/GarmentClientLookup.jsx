@@ -26,7 +26,7 @@ const AddClientButton = dynamic(() => import('@components/garments/AddClientButt
   loading: LoadingSpinner
 })
 
-const AddClientForm = dynamic(() => import('@components/clients/AddClientForm'), {
+const AddClientInlineForm = dynamic(() => import('@/components/clients/AddClientInlineForm'), {
   ssr: false,
   loading: LoadingSpinner
 })
@@ -41,7 +41,7 @@ const SelectedClientCard = dynamic(() => import('@components/garments/SelectedCl
   loading: LoadingSpinner
 })
 
-const GarmentClientLookup = ({ userId, onClientSelect, selectedClient }) => {
+const GarmentClientLookup = ({ userId, onClientSelect, selectedClient, setClients }) => {
   const [open, setOpen] = useState(false)
   const [clientType, setClientType] = useState('new')
   const theme = useTheme()
@@ -109,7 +109,7 @@ const GarmentClientLookup = ({ userId, onClientSelect, selectedClient }) => {
             </RadioGroup>
           </FormControl>
           {clientType === 'new' ? (
-            <AddClientForm onClientSelect={handleClientSelect} onClose={handleClose} />
+            <AddClientInlineForm onClose={handleClose} onClientSelect={handleClientSelect} setClients={setClients} />
           ) : (
             <ClientSearch
               userId={userId}

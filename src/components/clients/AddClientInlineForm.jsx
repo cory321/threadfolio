@@ -1,6 +1,4 @@
-'use client'
-
-import React from 'react'
+import React, { useState } from 'react'
 
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
@@ -10,8 +8,9 @@ import { toast } from 'react-toastify'
 
 import { addClient } from '@actions/clients'
 
-const AddClientForm = ({ onClose = () => {}, setClients = () => {}, onClientSelect = null }) => {
+const AddClientInlineForm = ({ onClose, onClientSelect }) => {
   const { userId, getToken } = useAuth()
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const validationSchema = Yup.object({
     fullName: Yup.string().max(100, 'Full name must be less than 100 characters').required('Full name is required'),
@@ -34,9 +33,8 @@ const AddClientForm = ({ onClose = () => {}, setClients = () => {}, onClientSele
     },
     validationSchema,
     onSubmit: async (values, { setSubmitting, resetForm, setFieldError }) => {
+      setIsSubmitting(true)
       const token = await getToken({ template: 'supabase' })
-
-      setSubmitting(true)
 
       try {
         const newClient = await addClient({
@@ -45,7 +43,6 @@ const AddClientForm = ({ onClose = () => {}, setClients = () => {}, onClientSele
           token
         })
 
-        setClients(prevClients => (prevClients ? [...prevClients, newClient] : [newClient]))
         resetForm()
 
         if (onClientSelect) {
@@ -67,6 +64,7 @@ const AddClientForm = ({ onClose = () => {}, setClients = () => {}, onClientSele
 
         toast.error(`Error adding client: ${err.message}`)
       } finally {
+        setIsSubmitting(false)
         setSubmitting(false)
       }
     }
@@ -99,7 +97,6 @@ const AddClientForm = ({ onClose = () => {}, setClients = () => {}, onClientSele
         onBlur={formik.handleBlur}
         error={formik.touched.fullName && Boolean(formik.errors.fullName)}
         helperText={formik.touched.fullName && formik.errors.fullName}
-        sx={{ mt: 1 }} // Add slight padding to the top
       />
       <TextField
         required
@@ -154,7 +151,7 @@ const AddClientForm = ({ onClose = () => {}, setClients = () => {}, onClientSele
         helperText={formik.touched.notes && formik.errors.notes}
       />
       <Box mt={2} display='flex' justifyContent='flex-end'>
-        <Button variant='contained' color='primary' sx={{ mt: 2 }} type='submit' disabled={formik.isSubmitting}>
+        <Button variant='contained' color='primary' type='submit' disabled={formik.isSubmitting}>
           {formik.isSubmitting ? 'Adding...' : 'Add Client'}
         </Button>
       </Box>
@@ -162,4 +159,4 @@ const AddClientForm = ({ onClose = () => {}, setClients = () => {}, onClientSele
   )
 }
 
-export default AddClientForm
+export default AddClientInlineForm

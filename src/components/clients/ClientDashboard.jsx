@@ -20,7 +20,7 @@ import { useAuth } from '@clerk/nextjs'
 
 import { fetchClients } from '@actions/clients'
 import ClientList from '@/components/clients/ClientList'
-import AddClientForm from '@/components/clients/AddClientForm'
+import AddClientModal from '@/components/clients/AddClientModal'
 
 const ClientDashboard = () => {
   const [open, setOpen] = useState(false)
@@ -72,33 +72,7 @@ const ClientDashboard = () => {
       <Box>
         <ClientList clients={clients} setClients={setClients} />
       </Box>
-      <Dialog
-        fullScreen={fullScreen}
-        open={open}
-        onClose={handleClose}
-        aria-labelledby='add-client-dialog-title'
-        maxWidth='xs'
-        fullWidth
-      >
-        <DialogTitle id='add-client-dialog-title'>
-          Add Client
-          <IconButton
-            aria-label='close'
-            onClick={handleClose}
-            sx={{
-              position: 'absolute',
-              right: 8,
-              top: 8,
-              color: theme => theme.palette.grey[900]
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          <AddClientForm onClose={handleClose} setClients={setClients} />
-        </DialogContent>
-      </Dialog>
+      <AddClientModal open={open} onClose={handleClose} setClients={setClients} />
     </>
   )
 }
