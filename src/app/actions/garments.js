@@ -205,3 +205,84 @@ export async function getOrderById(userId, orderId, token) {
 
   return processedOrder
 }
+
+export async function getGarments(userId, token, { page = 1, pageSize = 10, clientId = null } = {}) {
+  noStore()
+  const supabase = await getSupabaseClient(token)
+
+  let query = supabase
+    .from('garments')
+    .select(
+      `
+      id,
+      name,
+      stage,
+      image_cloud_id,
+      notes,
+      due_date,
+      is_event,
+      event_date,
+      order_id,
+      created_at,
+      client_id,
+      clients (
+        id,
+        full_name,
+        email,
+        phone_number
+      ),
+      garment_services (
+        id,
+        name,
+        qty,
+        unit_price,
+        unit
+      )
+    `
+    )
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+
+  if (clientId) {
+    query = query.eq('client_id', clientId)
+  }
+
+  const {
+    data: garments,
+    error,
+    count
+  } = await query.range((page - 1) * pageSize, page * pageSize - 1).order('created_at', { ascending: false })
+
+  if (error) {
+    throw new Error('Failed to fetch garments: ' + error.message)
+  }
+
+  // Process the garments to calculate total price and format the data
+  const processedGarments = garments.map(garment => ({
+    id: garment.id,
+    name: garment.name,
+    stage: garment.stage,
+    image_cloud_id: garment.image_cloud_id,
+    notes: garment.notes,
+    due_date: garment.due_date,
+    is_event: garment.is_event,
+    event_date: garment.event_date,
+    order_id: garment.order_id,
+    created_at: garment.created_at,
+    client: {
+      id: garment.clients.id,
+      full_name: garment.clients.full_name,
+      email: garment.clients.email,
+      phone_number: garment.clients.phone_number
+    },
+    services: garment.garment_services,
+    total_price: garment.garment_services.reduce((sum, service) => sum + service.qty * service.unit_price, 0)
+  }))
+
+  return {
+    garments: processedGarments,
+    totalCount: count,
+    page,
+    pageSize
+  }
+}
