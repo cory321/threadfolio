@@ -1,9 +1,11 @@
 import React from 'react'
 
+import Link from 'next/link'
+
 import { Typography, Box, Paper, Grid } from '@mui/material'
 import { format } from 'date-fns'
 
-import GarmentCard from '@/components/garments/GarmentCard'
+import OrderGarmentCard from '@/components/orders/OrderGarmentCard'
 
 const OrderDetails = ({ order }) => {
   return (
@@ -34,10 +36,12 @@ const OrderDetails = ({ order }) => {
       <Typography variant='h5' gutterBottom>
         Garments
       </Typography>
-      <Grid container spacing={3}>
+      <Grid container spacing={2}>
         {order.garments.map(garment => (
-          <Grid item xs={12} sm={6} md={4} key={garment.id}>
-            <GarmentCard garment={garment} />
+          <Grid item xs={12} sm={6} md={4} lg={3} key={garment.id}>
+            <Link href={`/orders/${order.id}/${garment.id}`} passHref style={{ textDecoration: 'none' }}>
+              <OrderGarmentCard garment={garment} />
+            </Link>
           </Grid>
         ))}
       </Grid>

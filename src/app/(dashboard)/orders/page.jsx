@@ -9,7 +9,7 @@ import { Button, Card, CardContent, Typography, Box, Chip, Grid, CircularProgres
 import { useAuth } from '@clerk/nextjs'
 
 import { getOrders } from '@/app/actions/garments'
-import GarmentCard from '@/components/garments/GarmentCard'
+import OrderGarmentCard from '@/components/orders/OrderGarmentCard'
 
 const OrderCard = ({ order }) => {
   const dueDate = addDays(new Date(order.created_at), 14)
@@ -41,11 +41,18 @@ const OrderCard = ({ order }) => {
             </Grid>
           </Grid>
           <Grid container spacing={2}>
-            {order.garments.map(garment => (
-              <Grid item xs={12} sm={6} md={4} key={garment.id}>
-                <GarmentCard garment={garment} />
+            {order.garments.slice(0, 4).map(garment => (
+              <Grid item xs={6} sm={3} key={garment.id}>
+                <OrderGarmentCard garment={garment} />
               </Grid>
             ))}
+            {order.garments.length > 4 && (
+              <Grid item xs={12}>
+                <Typography variant='body2' color='text.secondary'>
+                  +{order.garments.length - 4} more garments
+                </Typography>
+              </Grid>
+            )}
           </Grid>
         </CardContent>
       </Card>
