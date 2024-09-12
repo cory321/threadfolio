@@ -286,3 +286,50 @@ export async function getGarments(userId, token, { page = 1, pageSize = 10, clie
     pageSize
   }
 }
+
+export async function getGarmentById(userId, garmentId, token) {
+  noStore()
+  const supabase = await getSupabaseClient(token)
+
+  const { data: garment, error } = await supabase
+    .from('garments')
+    .select(
+      `
+      id,
+      name,
+      stage,
+      image_cloud_id,
+      notes,
+      due_date,
+      is_event,
+      event_date,
+      client_id,
+      clients (
+        id,
+        full_name,
+        email,
+        phone_number
+      ),
+      garment_services (
+        id,
+        name,
+        qty,
+        unit_price,
+        unit
+      )
+    `
+    )
+    .eq('user_id', userId)
+    .eq('id', garmentId)
+    .single()
+
+  if (error) {
+    throw new Error('Failed to fetch garment: ' + error.message)
+  }
+
+  return {
+    ...garment,
+    client: garment.clients,
+    services: garment.garment_services
+  }
+}

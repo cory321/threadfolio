@@ -1,5 +1,7 @@
 import React from 'react'
 
+import Link from 'next/link'
+
 import { Typography, Box, Paper, Grid } from '@mui/material'
 import { format } from 'date-fns'
 
@@ -37,7 +39,9 @@ const OrderDetails = ({ order }) => {
       <Grid container spacing={2}>
         {order.garments.map(garment => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={garment.id}>
-            <OrderGarmentCard garment={garment} />
+            <Link href={`/garments/${garment.id}`} passHref style={{ textDecoration: 'none' }}>
+              <OrderGarmentCard garment={garment} />
+            </Link>
           </Grid>
         ))}
       </Grid>

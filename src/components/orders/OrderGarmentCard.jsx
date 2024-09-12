@@ -13,7 +13,12 @@ const OrderGarmentCard = ({ garment }) => (
       border: '1px solid',
       borderColor: 'grey.200',
       borderRadius: 2,
-      overflow: 'hidden'
+      overflow: 'hidden',
+      transition: 'box-shadow 0.3s',
+      '&:hover': {
+        boxShadow: 3,
+        cursor: 'pointer'
+      }
     }}
   >
     <Grid container>
