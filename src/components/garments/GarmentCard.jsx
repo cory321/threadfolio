@@ -8,8 +8,8 @@ import { format } from 'date-fns'
 
 import { formatPhoneNumber } from '@/utils/formatPhoneNumber'
 
-const GarmentCard = ({ garment }) => (
-  <Link href={`/garments/${garment.id}`} passHref style={{ textDecoration: 'none' }}>
+const GarmentCard = ({ garment, orderId }) => (
+  <Link href={`/orders/${orderId}/${garment.id}`} passHref style={{ textDecoration: 'none' }}>
     <Paper
       elevation={0}
       sx={{

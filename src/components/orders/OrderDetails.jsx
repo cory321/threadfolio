@@ -39,7 +39,7 @@ const OrderDetails = ({ order }) => {
       <Grid container spacing={2}>
         {order.garments.map(garment => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={garment.id}>
-            <Link href={`/garments/${garment.id}`} passHref style={{ textDecoration: 'none' }}>
+            <Link href={`/orders/${order.id}/${garment.id}`} passHref style={{ textDecoration: 'none' }}>
               <OrderGarmentCard garment={garment} />
             </Link>
           </Grid>

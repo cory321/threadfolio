@@ -16,18 +16,18 @@ import { formatPhoneNumber } from '@/utils/formatPhoneNumber'
 export default function GarmentPage() {
   const [garment, setGarment] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
-  const { garmentId } = useParams()
+  const { orderId, garmentId } = useParams()
   const { userId, getToken } = useAuth()
 
   useEffect(() => {
     async function fetchGarment() {
-      if (userId && garmentId) {
+      if (userId && orderId && garmentId) {
         try {
           setIsLoading(true)
           const token = await getToken({ template: 'supabase' })
 
           if (!token) throw new Error('Failed to retrieve token')
-          const fetchedGarment = await getGarmentById(userId, garmentId, token)
+          const fetchedGarment = await getGarmentById(userId, orderId, garmentId, token)
 
           setGarment(fetchedGarment)
         } catch (error) {
@@ -39,7 +39,7 @@ export default function GarmentPage() {
     }
 
     fetchGarment()
-  }, [userId, garmentId, getToken])
+  }, [userId, orderId, garmentId, getToken])
 
   if (isLoading) {
     return (
@@ -58,8 +58,8 @@ export default function GarmentPage() {
       <Breadcrumb
         items={[
           { label: 'Orders', href: '/orders' },
-          { label: 'Garments', href: '/garments' },
-          { label: garment.name, href: `/garments/${garment.id}` }
+          { label: `Order #${orderId}`, href: `/orders/${orderId}` },
+          { label: garment.name, href: `/orders/${orderId}/${garment.id}` }
         ]}
       />
       <Paper elevation={3} sx={{ p: 3, mt: 2 }}>

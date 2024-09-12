@@ -26,9 +26,9 @@ export default function GarmentsPage() {
           const fetchedGarmentsData = await getGarments(userId, token)
 
           setGarmentsData(fetchedGarmentsData)
-          setIsLoading(false)
         } catch (error) {
           console.error('Failed to fetch garments:', error)
+        } finally {
           setIsLoading(false)
         }
       }
@@ -40,7 +40,7 @@ export default function GarmentsPage() {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
           <CircularProgress />
         </Box>
       )
@@ -54,7 +54,7 @@ export default function GarmentsPage() {
       <Grid container spacing={3}>
         {garmentsData.garments.map(garment => (
           <Grid item xs={12} key={garment.id}>
-            <GarmentCard garment={garment} />
+            <GarmentCard garment={garment} orderId={garment.order_id} />
           </Grid>
         ))}
       </Grid>

@@ -287,7 +287,7 @@ export async function getGarments(userId, token, { page = 1, pageSize = 10, clie
   }
 }
 
-export async function getGarmentById(userId, garmentId, token) {
+export async function getGarmentById(userId, orderId, garmentId, token) {
   noStore()
   const supabase = await getSupabaseClient(token)
 
@@ -320,6 +320,7 @@ export async function getGarmentById(userId, garmentId, token) {
     `
     )
     .eq('user_id', userId)
+    .eq('order_id', orderId)
     .eq('id', garmentId)
     .single()
 
