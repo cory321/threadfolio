@@ -62,6 +62,14 @@ export default function OrderPage() {
       <Box sx={{ mt: 2 }}>
         <OrderDetails order={order} />
       </Box>
+      <Box sx={{ mt: 2 }}>
+        <Typography variant='h6'>Invoicing Information</Typography>
+        <Typography>
+          Put invoicing information on this page, so that the garments in this order can be invoiced. We want to be able
+          to add all garments in the order to an invoice with their respective services. When the services are paid, we
+          can classify the garment as paid status.
+        </Typography>
+      </Box>
     </>
   )
 }

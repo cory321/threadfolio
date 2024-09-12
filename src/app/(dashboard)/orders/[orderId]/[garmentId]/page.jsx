@@ -5,13 +5,15 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 
 import { useAuth } from '@clerk/nextjs'
-import { Typography, Box, CircularProgress, Paper, Grid } from '@mui/material'
+import { Typography, Box, CircularProgress, Paper, Grid, Card, CardContent, CardHeader, Chip } from '@mui/material'
 import { CldImage } from 'next-cloudinary'
 import { format } from 'date-fns'
 
 import { getGarmentById } from '@/app/actions/garments'
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import { formatPhoneNumber } from '@/utils/formatPhoneNumber'
+import TimeTracker from '@/components/garments/TimeTracker'
+import Finances from '@/components/garments/Finances'
 
 export default function GarmentPage() {
   const [garment, setGarment] = useState(null)
@@ -62,63 +64,81 @@ export default function GarmentPage() {
           { label: garment.name, href: `/orders/${orderId}/${garment.id}` }
         ]}
       />
-      <Paper elevation={3} sx={{ p: 3, mt: 2 }}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={4}>
-            {garment.image_cloud_id ? (
-              <CldImage src={garment.image_cloud_id} alt={garment.name} width={300} height={300} crop='fill' />
-            ) : (
-              <Box
-                sx={{
-                  width: 300,
-                  height: 300,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  bgcolor: 'grey.200'
-                }}
-              >
-                <i className='ri-t-shirt-line' style={{ fontSize: '5rem', color: 'grey' }} />
-              </Box>
-            )}
-          </Grid>
-          <Grid item xs={12} md={8}>
-            <Typography variant='h4' gutterBottom>
-              {garment.name}
-            </Typography>
-            <Typography variant='body1' gutterBottom>
-              Stage: {garment.stage}
-            </Typography>
-            <Typography variant='body1' gutterBottom>
-              Due Date: {garment.due_date ? format(new Date(garment.due_date), 'PPP') : 'Not set'}
-            </Typography>
-            {garment.is_event && garment.event_date && (
+      <Grid container spacing={3} sx={{ mt: 2 }}>
+        <Grid item xs={12} md={3}>
+          <Card>
+            <CardContent>
+              {garment.image_cloud_id ? (
+                <CldImage src={garment.image_cloud_id} alt={garment.name} width={300} height={300} crop='fill' />
+              ) : (
+                <Box
+                  sx={{
+                    width: 300,
+                    height: 300,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    bgcolor: 'grey.200'
+                  }}
+                >
+                  <i className='ri-t-shirt-line' style={{ fontSize: '5rem', color: 'grey' }} />
+                </Box>
+              )}
+              <Typography variant='h5' gutterBottom sx={{ mt: 2 }}>
+                {garment.name}
+              </Typography>
               <Typography variant='body1' gutterBottom>
-                Event Date: {format(new Date(garment.event_date), 'PPP')}
+                Due Date: {garment.due_date ? format(new Date(garment.due_date), 'PPP') : 'Not set'}
               </Typography>
-            )}
-            <Typography variant='body1' gutterBottom>
-              Notes: {garment.notes || 'No notes'}
-            </Typography>
-
-            <Typography variant='h6' sx={{ mt: 2 }}>
-              Client Information
-            </Typography>
-            <Typography variant='body1'>Name: {garment.client.full_name}</Typography>
-            <Typography variant='body1'>Email: {garment.client.email}</Typography>
-            <Typography variant='body1'>Phone: {formatPhoneNumber(garment.client.phone_number)}</Typography>
-
-            <Typography variant='h6' sx={{ mt: 2 }}>
-              Services
-            </Typography>
-            {garment.services.map((service, index) => (
-              <Typography key={index} variant='body1'>
-                {service.name}: {service.qty} {service.unit} - ${parseFloat(service.unit_price).toFixed(2)}
+              {garment.is_event && garment.event_date && (
+                <Typography variant='body1' gutterBottom>
+                  Event Date: {format(new Date(garment.event_date), 'PPP')}
+                </Typography>
+              )}
+            </CardContent>
+          </Card>
+          <Card sx={{ mt: 2 }}>
+            <CardContent>
+              <Typography variant='h6' gutterBottom>
+                Client Information
               </Typography>
-            ))}
-          </Grid>
+              <Typography variant='body1'>Name: {garment.client.full_name}</Typography>
+              <Typography variant='body1'>Email: {garment.client.email}</Typography>
+              <Typography variant='body1'>Phone: {formatPhoneNumber(garment.client.phone_number)}</Typography>
+            </CardContent>
+          </Card>
         </Grid>
-      </Paper>
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardHeader title='Services' />
+            <CardContent>
+              {garment.services.map((service, index) => (
+                <Typography key={index} variant='body1'>
+                  {service.name}: {service.qty} {service.unit} - ${parseFloat(service.unit_price).toFixed(2)}
+                </Typography>
+              ))}
+            </CardContent>
+          </Card>
+          <Card sx={{ mt: 2 }}>
+            <CardHeader title='Notes' />
+            <CardContent>
+              <Typography variant='body1'>{garment.notes || 'No notes'}</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <Card>
+            <CardContent>
+              <Typography variant='h6' gutterBottom>
+                Stage
+              </Typography>
+              <Chip label={garment.stage} color='primary' />
+            </CardContent>
+          </Card>
+          <TimeTracker sx={{ mt: 2 }} />
+          <Finances sx={{ mt: 2 }} />
+        </Grid>
+      </Grid>
     </>
   )
 }
