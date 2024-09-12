@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react'
 
 import Link from 'next/link'
 
+import { compareAsc } from 'date-fns'
+
 import { useAuth } from '@clerk/nextjs'
-import { Button, Box, Typography, CircularProgress, Grid } from '@mui/material'
+import { Button, Box, Typography, CircularProgress, Grid, Card, CardContent, CardMedia, Chip } from '@mui/material'
 
 import { getGarments } from '@/app/actions/garments'
 import GarmentCard from '@/components/garments/GarmentCard'
@@ -25,7 +27,14 @@ export default function GarmentsPage() {
           if (!token) throw new Error('Failed to retrieve token')
           const fetchedGarmentsData = await getGarments(userId, token)
 
-          setGarmentsData(fetchedGarmentsData)
+          const sortedGarments = fetchedGarmentsData.garments.sort((a, b) => {
+            if (!a.due_date) return 1
+            if (!b.due_date) return -1
+
+            return compareAsc(new Date(a.due_date), new Date(b.due_date))
+          })
+
+          setGarmentsData({ ...fetchedGarmentsData, garments: sortedGarments })
         } catch (error) {
           console.error('Failed to fetch garments:', error)
         } finally {
@@ -47,24 +56,40 @@ export default function GarmentsPage() {
     }
 
     if (garmentsData.garments.length === 0) {
-      return <Typography>No garments found.</Typography>
+      return (
+        <Card sx={{ p: 4, textAlign: 'center' }}>
+          <Typography variant='h6'>No garments found.</Typography>
+          <Link href='/orders/create' passHref>
+            <Button variant='contained' color='primary' sx={{ mt: 2 }}>
+              Create New Order
+            </Button>
+          </Link>
+        </Card>
+      )
     }
 
     return (
       <Grid container spacing={3}>
-        {garmentsData.garments.map(garment => (
-          <Grid item xs={12} key={garment.id}>
-            <GarmentCard garment={garment} orderId={garment.order_id} />
-          </Grid>
-        ))}
+        {garmentsData.garments
+          .sort((a, b) => {
+            if (!a.due_date) return 1
+            if (!b.due_date) return -1
+
+            return compareAsc(new Date(a.due_date), new Date(b.due_date))
+          })
+          .map(garment => (
+            <Grid item xs={12} sm={6} md={4} lg={3} key={garment.id}>
+              <GarmentCard garment={garment} orderId={garment.order_id} />
+            </Grid>
+          ))}
       </Grid>
     )
   }
 
   return (
-    <>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, mt: 2 }}>
-        <h1>Garments</h1>
+    <Box sx={{ p: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant='h4'>Garments</Typography>
         <Link href='/orders/create' passHref>
           <Button variant='contained' color='primary'>
             Create Order
@@ -72,6 +97,6 @@ export default function GarmentsPage() {
         </Link>
       </Box>
       {renderContent()}
-    </>
+    </Box>
   )
 }
