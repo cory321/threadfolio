@@ -80,13 +80,13 @@ const GarmentCard = ({ garment, orderId }) => {
         >
           {/* Card Header: Garment Title and Stage Chip */}
           <Grid container alignItems='center' justifyContent='space-between' spacing={1}>
-            <Grid item xs={6} sm={8}>
+            <Grid item xs={8}>
               {/* Garment Title */}
               <Typography variant='h6' component='div' noWrap>
                 {garment.name}
               </Typography>
             </Grid>
-            <Grid item xs={6} sm={4}>
+            <Grid item xs={4}>
               {/* Stage Chip */}
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <StatusBadge type='stage' label={garment.stage} />
@@ -100,12 +100,12 @@ const GarmentCard = ({ garment, orderId }) => {
           {/* Main Content: Image and Details */}
           <Grid container spacing={2} sx={{ flexGrow: 1 }}>
             {/* Image Section */}
-            <Grid item xs={12} sm={4}>
+            <Grid item xs={4}>
               <Box
                 sx={{
                   width: '100%',
                   position: 'relative',
-                  paddingBottom: '100%', // This maintains the 1:1 aspect ratio
+                  paddingBottom: '100%',
                   borderRadius: 1,
                   overflow: 'hidden',
                   border: '1px solid',
@@ -158,7 +158,7 @@ const GarmentCard = ({ garment, orderId }) => {
             </Grid>
 
             {/* Details Section */}
-            <Grid item xs={12} sm={8}>
+            <Grid item xs={8}>
               <CardContent
                 sx={{
                   padding: 0,
