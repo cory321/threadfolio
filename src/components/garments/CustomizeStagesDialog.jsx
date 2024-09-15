@@ -15,7 +15,6 @@ import {
   Tooltip
 } from '@mui/material'
 import { Delete, DragIndicator, Edit } from '@mui/icons-material'
-import { useAuth } from '@clerk/nextjs'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 
 import { updateStages } from '@/app/actions/garments'
@@ -30,7 +29,6 @@ export default function CustomizeStagesDialog({
 }) {
   const [stages, setStages] = useState([])
   const [isEditing, setIsEditing] = useState(null)
-  const [newStageName, setNewStageName] = useState('')
   const [error, setError] = useState('')
   const [stageToDelete, setStageToDelete] = useState(null)
   const [reassignStageId, setReassignStageId] = useState(null)
@@ -46,9 +44,7 @@ export default function CustomizeStagesDialog({
 
   useEffect(() => {
     if (!open) {
-      // No need to reset stages here
       setIsEditing(null)
-      setNewStageName('')
       setError('')
       setStageToDelete(null)
       setReassignStageId(null)
@@ -68,30 +64,43 @@ export default function CustomizeStagesDialog({
   }
 
   const handleAddStage = () => {
-    if (newStageName.trim() === '') {
-      setError('Stage name cannot be empty.')
-
-      return
-    }
-
     const newStage = {
       id: null,
       user_id: userId,
-      name: newStageName.trim(),
+      name: '',
       position: stages.length + 1
     }
 
-    setStages([...stages, newStage])
-    setNewStageName('')
-    setIsEditing(null)
+    setStages(prevStages => {
+      const updatedStages = [...prevStages, newStage]
+
+      setIsEditing(updatedStages.length - 1) // Set the new stage to editing mode
+
+      return updatedStages
+    })
+
     setError('')
   }
 
   const handleDeleteStage = index => {
     const stageToDelete = stages[index]
 
-    setStageToDelete(stageToDelete)
-    setConfirmDeleteOpen(true)
+    if (stageToDelete.id === null) {
+      // If the stage is new (unsaved), remove it from local state
+      setStages(prevStages => {
+        const updatedStages = prevStages.filter((_, i) => i !== index)
+
+        // Update positions of remaining stages
+        return updatedStages.map((stage, idx) => ({
+          ...stage,
+          position: idx + 1
+        }))
+      })
+    } else {
+      // Existing stage, proceed with confirmation dialog
+      setStageToDelete(stageToDelete)
+      setConfirmDeleteOpen(true)
+    }
   }
 
   const handleConfirmDelete = async () => {
@@ -173,6 +182,7 @@ export default function CustomizeStagesDialog({
             {error}
           </Typography>
         )}
+        {/* DragDropContext for Stages */}
         <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', mb: 2 }}>
           {/* Add Stage Box */}
           <Card
@@ -186,19 +196,18 @@ export default function CustomizeStagesDialog({
               cursor: 'pointer',
               flexShrink: 0
             }}
-            onClick={() => setIsEditing('new')}
+            onClick={handleAddStage}
           >
             <Typography variant='button'>Add Stage</Typography>
           </Card>
 
-          {/* DragDropContext for Stages */}
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId='stages' direction='horizontal'>
               {provided => (
                 <Box ref={provided.innerRef} {...provided.droppableProps} sx={{ display: 'flex', gap: 2 }}>
                   {stages.map((stage, index) => (
                     <Draggable
-                      key={stage.id || `temp-${index}`}
+                      key={stage.id ? stage.id.toString() : `temp-${index}`}
                       draggableId={stage.id ? stage.id.toString() : `temp-${index}`}
                       index={index}
                     >
@@ -216,13 +225,12 @@ export default function CustomizeStagesDialog({
                             justifyContent: 'center',
                             flexShrink: 0,
                             '&:hover .hover-actions': { opacity: 1 },
-                            cursor: 'pointer',
                             border: '1px solid #ccc',
                             borderRadius: 2,
                             backgroundColor: stage.name.trim() === '' ? '#fff0f0' : 'white'
                           }}
                         >
-                          {isEditing === stage.id ? (
+                          {isEditing === index ? (
                             <TextField
                               value={stage.name}
                               onChange={e => handleStageNameChange(index, e.target.value)}
@@ -244,14 +252,15 @@ export default function CustomizeStagesDialog({
                             <Tooltip title={stage.name.trim() === '' ? 'Click to edit' : stage.name}>
                               <Typography
                                 variant='h6'
-                                onClick={() => setIsEditing(stage.id)}
+                                onClick={() => setIsEditing(index)}
                                 sx={{
                                   textAlign: 'center',
                                   width: '100%',
                                   userSelect: 'none',
                                   wordWrap: 'break-word',
                                   overflowWrap: 'break-word',
-                                  color: stage.name.trim() === '' ? 'red' : 'inherit'
+                                  color: stage.name.trim() === '' ? 'red' : 'inherit',
+                                  cursor: 'pointer'
                                 }}
                               >
                                 {stage.name.trim() === '' ? 'Empty Stage Name' : stage.name}
@@ -296,7 +305,7 @@ export default function CustomizeStagesDialog({
                               sx={{ color: 'blue', pointerEvents: 'auto' }}
                               onClick={e => {
                                 e.stopPropagation()
-                                setIsEditing(stage.id)
+                                setIsEditing(index)
                               }}
                             >
                               <Edit fontSize='small' />
@@ -321,37 +330,14 @@ export default function CustomizeStagesDialog({
             </Droppable>
           </DragDropContext>
         </Box>
-
-        {/* Add Stage Input */}
-        {isEditing === 'new' && (
-          <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-            <TextField
-              label='Stage Name'
-              value={newStageName}
-              onChange={e => setNewStageName(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Enter') {
-                  handleAddStage()
-                }
-              }}
-              autoFocus
-              variant='outlined'
-              size='small'
-              fullWidth
-              inputProps={{ maxLength: 25 }}
-              error={newStageName.trim() === ''}
-              helperText={newStageName.trim() === '' ? 'Stage name is required' : ''}
-            />
-            <Button variant='contained' onClick={handleAddStage} disabled={newStageName.trim() === ''}>
-              Add
-            </Button>
-            <Button onClick={() => setIsEditing(null)}>Cancel</Button>
-          </Box>
-        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button variant='contained' onClick={handleSave} disabled={stages.some(stage => stage.name.trim() === '')}>
+        <Button
+          variant='contained'
+          onClick={handleSave}
+          disabled={stages.some(stage => stage.name.trim() === '') || isSaving}
+        >
           Save
         </Button>
       </DialogActions>
