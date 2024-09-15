@@ -60,7 +60,7 @@ const StepContent = ({
       client_id: selectedClient.id,
       name: garmentDetails.name,
       image_cloud_id: garmentDetails.image_cloud_id,
-      stage: 'new', // assuming 'new' as a default stage, modify as needed
+      stage: 'not started', // assuming 'not started' as a default stage, modify as needed
       notes: garmentDetails.instructions,
       due_date: garmentDetails.dueDate,
       is_event: garmentDetails.isEvent,
