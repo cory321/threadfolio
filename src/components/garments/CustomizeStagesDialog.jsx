@@ -17,6 +17,9 @@ import {
 import { Delete, DragIndicator, Edit } from '@mui/icons-material'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 
+import { useTheme } from '@mui/material/styles'
+import useMediaQuery from '@mui/material/useMediaQuery'
+
 import { updateStages } from '@/app/actions/garments'
 
 export default function CustomizeStagesDialog({
@@ -195,8 +198,16 @@ export default function CustomizeStagesDialog({
     setReassignStageId(null)
   }
 
+  const theme = useTheme()
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth='md' fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth='lg'
+      fullWidth
+      fullScreen={useMediaQuery(theme.breakpoints.down('sm'))}
+    >
       <DialogTitle>Customize your stages</DialogTitle>
       <DialogContent>
         <Typography variant='subtitle1' sx={{ mb: 2 }}>

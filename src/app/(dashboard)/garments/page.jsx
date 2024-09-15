@@ -2,16 +2,14 @@
 
 import React, { useEffect, useState } from 'react'
 
-import Link from 'next/link'
-
-import { compareAsc } from 'date-fns'
-
 import { useAuth } from '@clerk/nextjs'
-import { Button, Box, Typography, CircularProgress, Grid, Card, CardContent, CardMedia, Chip } from '@mui/material'
+import { Button, Box, Typography, CircularProgress, Grid } from '@mui/material'
+import SettingsIcon from '@mui/icons-material/Settings'
 
-import { getGarmentsAndStages, initializeDefaultStages, getStages } from '@/app/actions/garments'
+import { getGarmentsAndStages } from '@/app/actions/garments'
 import GarmentCard from '@/components/garments/GarmentCard'
 import CustomizeStagesDialog from '@/components/garments/CustomizeStagesDialog'
+import StageBox from '@/components/garments/StageBox'
 
 export default function GarmentsPage() {
   const [garmentsData, setGarmentsData] = useState([])
@@ -64,26 +62,39 @@ export default function GarmentsPage() {
   return (
     <Box sx={{ p: 3 }}>
       {/* Stage Pipeline */}
-      <Box sx={{ display: 'flex', gap: 1, mb: 3 }}>
-        {/* "All" Chip */}
-        <Chip
-          key='all'
-          label='All'
-          color={!selectedStage ? 'primary' : 'default'}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          mb: 3,
+          overflowX: 'auto',
+          pb: 4 // Add padding at the bottom
+        }}
+      >
+        {/* "View All" Stage */}
+        <StageBox
+          stage={{ name: 'View All' }}
+          isSelected={!selectedStage}
           onClick={() => setSelectedStage(null)}
+          isLast={false} // Changed to false to maintain consistent spacing
         />
-
-        {/* Existing Stage Chips */}
-        {stages.map(stage => (
-          <Chip
+        {stages.map((stage, index) => (
+          <StageBox
             key={stage.id}
-            label={stage.name}
-            color={selectedStage?.id === stage.id ? 'primary' : 'default'}
+            stage={stage}
+            isSelected={selectedStage?.id === stage.id}
             onClick={() => setSelectedStage(stage)}
+            isLast={index === stages.length - 1}
           />
         ))}
 
-        <Button variant='outlined' onClick={() => setCustomizeDialogOpen(true)}>
+        {/* Customize Stages Button */}
+        <Button
+          variant='outlined'
+          onClick={() => setCustomizeDialogOpen(true)}
+          sx={{ marginLeft: 'auto', flexShrink: 0 }}
+          startIcon={<SettingsIcon />}
+        >
           Customize Stages
         </Button>
       </Box>
