@@ -416,7 +416,7 @@ export async function getStages(userId, token) {
   return stages
 }
 
-export async function updateStages(userId, stages, token) {
+export async function updateStages(userId, stages, token, stageToDelete = null, reassignStageId = null) {
   const supabase = await getSupabaseClient(token)
 
   // Validate all stage names are non-empty
@@ -426,28 +426,37 @@ export async function updateStages(userId, stages, token) {
     throw new Error('Stage names cannot be empty.')
   }
 
-  // Extract stage IDs
-  const stageIds = stages.filter(stage => stage.id).map(stage => stage.id)
+  // **Add this check to prevent deleting the last remaining stage**
+  if (stageToDelete && stages.length === 0) {
+    throw new Error('Cannot delete the last remaining stage.')
+  }
 
-  // Delete stages not present in the new list
-  if (stageIds.length > 0) {
-    const { error: deleteError } = await supabase
-      .from('garment_stages')
-      .delete()
-      .eq('user_id', userId)
-      .not('id', 'in', `(${stageIds.join(',')})`)
+  // If a stage is to be deleted and reassigned
+  if (stageToDelete && reassignStageId) {
+    console.log(`Reassigning garments from stage ID ${stageToDelete.id} to stage ID ${reassignStageId}`)
+
+    // Reassign garments from the stage to be deleted
+    const { error: updateError } = await supabase
+      .from('garments')
+      .update({ stage_id: reassignStageId })
+      .eq('stage_id', stageToDelete.id)
+
+    if (updateError) {
+      console.error('Reassign Error:', updateError)
+      throw new Error('Failed to reassign garments: ' + updateError.message)
+    }
+
+    console.log('Garments reassigned successfully.')
+
+    // Delete the stage after garments have been reassigned
+    const { error: deleteError } = await supabase.from('garment_stages').delete().eq('id', stageToDelete.id)
 
     if (deleteError) {
       console.error('Delete Error:', deleteError)
-      throw new Error('Failed to delete stages: ' + deleteError.message)
+      throw new Error('Failed to delete stage: ' + deleteError.message)
     }
-  } else {
-    // If no stages exist, delete all stages for the user
-    const { error: deleteAllError } = await supabase.from('garment_stages').delete().eq('user_id', userId)
 
-    if (deleteAllError) {
-      throw new Error('Failed to delete all stages: ' + deleteAllError.message)
-    }
+    console.log(`Stage ID ${stageToDelete.id} deleted successfully.`)
   }
 
   // Update existing stages and insert new ones
@@ -463,6 +472,8 @@ export async function updateStages(userId, stages, token) {
         console.error('Update Error:', error)
         throw new Error('Failed to update stage: ' + error.message)
       }
+
+      console.log(`Stage ID ${stage.id} updated successfully.`)
     } else {
       // Insert new stage
       const { error } = await supabase
@@ -473,8 +484,30 @@ export async function updateStages(userId, stages, token) {
         console.error('Insert Error:', error)
         throw new Error('Failed to insert stage: ' + error.message)
       }
+
+      console.log(`New stage "${stage.name}" inserted successfully.`)
     }
   }
+
+  return stages
+}
+
+export async function customizeStages(userId, stages, token, stageToDeleteId, reassignStageId) {
+  const supabase = await getSupabaseClient(token)
+
+  // Fetch the stage to delete
+  const { data: stageToDelete, error: fetchError } = await supabase
+    .from('garment_stages')
+    .select('*')
+    .eq('id', stageToDeleteId)
+    .single()
+
+  if (fetchError) {
+    throw new Error('Failed to fetch stage to delete: ' + fetchError.message)
+  }
+
+  // Update stages with reassignment
+  return await updateStages(userId, stages, token, stageToDelete, reassignStageId)
 }
 
 export async function initializeDefaultStages(userId, token) {

@@ -26,6 +26,9 @@ export default function CustomizeStagesDialog({ open, onClose, onStagesUpdated }
   const [isEditing, setIsEditing] = useState(null)
   const [newStageName, setNewStageName] = useState('')
   const [error, setError] = useState('')
+  const [stageToDelete, setStageToDelete] = useState(null)
+  const [reassignStageId, setReassignStageId] = useState(null)
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
 
   useEffect(() => {
     async function fetchStages() {
@@ -72,9 +75,29 @@ export default function CustomizeStagesDialog({ open, onClose, onStagesUpdated }
   }
 
   const handleDeleteStage = index => {
-    const updatedStages = stages.filter((_, i) => i !== index)
+    const stageToDelete = stages[index]
 
-    setStages(updatedStages)
+    setStageToDelete(stageToDelete)
+    setConfirmDeleteOpen(true)
+  }
+
+  const handleConfirmDelete = () => {
+    // Prevent deletion if only one stage remains
+    if (stages.length <= 1) {
+      setError('Cannot delete the last remaining stage.')
+      setConfirmDeleteOpen(false)
+
+      return
+    }
+
+    if (stageToDelete && reassignStageId && reassignStageId !== stageToDelete.id) {
+      setConfirmDeleteOpen(false)
+      handleSave()
+      setStageToDelete(null)
+      setReassignStageId(null)
+    } else {
+      setError('Please select a valid stage to reassign garments to.')
+    }
   }
 
   const handleSave = async () => {
@@ -89,7 +112,7 @@ export default function CustomizeStagesDialog({ open, onClose, onStagesUpdated }
     const token = await getToken({ template: 'supabase' })
 
     try {
-      await updateStages(userId, stages, token)
+      await updateStages(userId, stages, token, stageToDelete, reassignStageId)
       onStagesUpdated(stages)
       onClose()
     } catch (err) {
@@ -307,6 +330,35 @@ export default function CustomizeStagesDialog({ open, onClose, onStagesUpdated }
           Save
         </Button>
       </DialogActions>
+
+      {/* Confirm Delete Dialog */}
+      <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to delete the stage "{stageToDelete && stageToDelete.name}"?</Typography>
+          <Typography>Please select a stage to reassign garments to before deleting:</Typography>
+          <Box sx={{ mt: 2 }}>
+            {stages
+              .filter(stage => stage.id !== (stageToDelete && stageToDelete.id))
+              .map(stage => (
+                <Button
+                  key={stage.id}
+                  variant={reassignStageId === stage.id ? 'contained' : 'outlined'}
+                  onClick={() => setReassignStageId(stage.id)}
+                  sx={{ mr: 1, mb: 1 }}
+                >
+                  {stage.name}
+                </Button>
+              ))}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDeleteOpen(false)}>Cancel</Button>
+          <Button variant='contained' onClick={handleConfirmDelete}>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Dialog>
   )
 }
