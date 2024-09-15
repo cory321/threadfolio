@@ -345,10 +345,11 @@ export async function getGarmentById(userId, orderId, garmentId, token) {
   }
 }
 
-export async function getGarmentsAndStages(userId, token, options = {}) {
+export async function getGarmentsAndStages(userId, token) {
+  noStore() // Ensure caching is disabled
   const supabase = await getSupabaseClient(token)
 
-  // Fetch garments with garment_services
+  // Fetch garments with their associated data
   const { data: garments, error: garmentsError } = await supabase
     .from('garments')
     .select(
@@ -356,7 +357,7 @@ export async function getGarmentsAndStages(userId, token, options = {}) {
       id,
       name,
       stage_id,
-      garment_stages ( name ),
+      garment_stages ( id, name ),
       garment_services (
         id,
         name,
@@ -374,6 +375,7 @@ export async function getGarmentsAndStages(userId, token, options = {}) {
     `
     )
     .eq('user_id', userId)
+    .order('created_at', { ascending: false })
 
   if (garmentsError) {
     throw new Error('Failed to fetch garments: ' + garmentsError.message)
@@ -382,7 +384,7 @@ export async function getGarmentsAndStages(userId, token, options = {}) {
   // Fetch stages
   const { data: stages, error: stagesError } = await supabase
     .from('garment_stages')
-    .select('id, name, position')
+    .select('*')
     .eq('user_id', userId)
     .order('position')
 

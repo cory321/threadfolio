@@ -21,7 +21,6 @@ export default function GarmentsPage() {
   const [customizeDialogOpen, setCustomizeDialogOpen] = useState(false)
   const { userId, getToken } = useAuth()
 
-  // Define fetchGarmentsData function
   const fetchGarmentsData = async () => {
     try {
       setIsLoading(true)
@@ -29,9 +28,13 @@ export default function GarmentsPage() {
 
       if (!token) throw new Error('Failed to retrieve token')
 
-      const { garments } = await getGarmentsAndStages(userId, token)
+      const { garments, stages: fetchedStages } = await getGarmentsAndStages(userId, token)
+
+      console.log('Fetched garments:', garments)
+      console.log('Fetched stages:', fetchedStages)
 
       setGarmentsData(garments)
+      setStages(fetchedStages)
     } catch (error) {
       console.error('Failed to fetch garments data:', error)
     } finally {
@@ -40,39 +43,23 @@ export default function GarmentsPage() {
   }
 
   useEffect(() => {
-    async function fetchData() {
-      if (userId) {
-        try {
-          setIsLoading(true)
-          const token = await getToken({ template: 'supabase' })
-
-          if (!token) throw new Error('Failed to retrieve token')
-
-          const { garments, stages: fetchedStages } = await getGarmentsAndStages(userId, token)
-
-          setGarmentsData(garments)
-          setStages(prevStages => (prevStages.length === 0 ? fetchedStages : prevStages))
-        } catch (error) {
-          console.error('Failed to fetch data:', error)
-        } finally {
-          setIsLoading(false)
-        }
-      }
+    if (userId) {
+      fetchGarmentsData()
     }
+  }, [userId])
 
-    fetchData()
-  }, [userId, getToken])
-
-  const handleStagesUpdated = updatedStages => {
-    setStages(updatedStages)
-
-    // If not needed, you can comment out or remove the line below
-    // fetchGarmentsData()
+  const handleStagesUpdated = () => {
+    console.log('handleStagesUpdated called')
+    fetchGarmentsData()
   }
 
-  const filteredGarments = selectedStage
-    ? garmentsData.filter(garment => garment.stage_id === selectedStage.id)
-    : garmentsData
+  const filteredGarments = React.useMemo(() => {
+    if (selectedStage) {
+      return garmentsData.filter(garment => garment.stage_id === selectedStage.id)
+    }
+
+    return garmentsData
+  }, [garmentsData, selectedStage])
 
   return (
     <Box sx={{ p: 3 }}>
@@ -123,7 +110,7 @@ export default function GarmentsPage() {
         open={customizeDialogOpen}
         onClose={() => setCustomizeDialogOpen(false)}
         onStagesUpdated={handleStagesUpdated}
-        stages={stages} // Pass stages as a prop
+        stages={stages}
         userId={userId}
         getToken={getToken}
       />

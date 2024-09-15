@@ -61,6 +61,8 @@ const StatusBadge = ({ type, label }) => {
 }
 
 const GarmentCard = ({ garment, orderId }) => {
+  const stageName = garment.stage_name || 'Unknown'
+
   const dateStatus = garment.due_date ? getDateStatus(garment.due_date) : null
 
   return (
@@ -89,7 +91,7 @@ const GarmentCard = ({ garment, orderId }) => {
             <Grid item xs={4}>
               {/* Stage Chip */}
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <StatusBadge type='stage' label={garment.stage_name} />
+                <StatusBadge type='stage' label={stageName} />
               </Box>
             </Grid>
           </Grid>

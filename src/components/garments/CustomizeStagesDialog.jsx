@@ -35,6 +35,7 @@ export default function CustomizeStagesDialog({
   const [stageToDelete, setStageToDelete] = useState(null)
   const [reassignStageId, setReassignStageId] = useState(null)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
     if (open) {
@@ -136,34 +137,27 @@ export default function CustomizeStagesDialog({
   }
 
   const handleSave = async () => {
-    const hasEmptyNames = stages.some(stage => stage.name.trim() === '')
-
-    if (hasEmptyNames) {
-      setError('All stage names must be filled out.')
-
-      return
-    }
-
-    const token = await getToken({ template: 'supabase' })
+    setIsSaving(true)
 
     try {
-      // Update stages in the database
-      const updatedStages = await updateStages(userId, stages, token, stageToDelete, reassignStageId)
+      const token = await getToken({ template: 'supabase' })
 
-      // Update local stages state with data from the database (including new IDs)
-      setStages(updatedStages)
+      await updateStages(userId, stages, token, stageToDelete, reassignStageId)
 
-      // Inform parent component of the updates
-      onStagesUpdated(updatedStages)
+      console.log('Stages updated in database')
 
-      // Close dialog and reset state
+      onStagesUpdated()
       onClose()
+
+      // Reset local state
       setError('')
       setStageToDelete(null)
       setReassignStageId(null)
     } catch (err) {
       console.error(err)
       setError('Failed to save stages. Please try again.')
+    } finally {
+      setIsSaving(false)
     }
   }
 
