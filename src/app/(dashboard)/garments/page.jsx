@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import Link from 'next/link'
 
@@ -21,6 +21,24 @@ export default function GarmentsPage() {
   const [customizeDialogOpen, setCustomizeDialogOpen] = useState(false)
   const { userId, getToken } = useAuth()
 
+  // Define fetchGarmentsData function
+  const fetchGarmentsData = async () => {
+    try {
+      setIsLoading(true)
+      const token = await getToken({ template: 'supabase' })
+
+      if (!token) throw new Error('Failed to retrieve token')
+
+      const { garments } = await getGarmentsAndStages(userId, token)
+
+      setGarmentsData(garments)
+    } catch (error) {
+      console.error('Failed to fetch garments data:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   useEffect(() => {
     async function fetchData() {
       if (userId) {
@@ -30,21 +48,10 @@ export default function GarmentsPage() {
 
           if (!token) throw new Error('Failed to retrieve token')
 
-          const { garments, stages } = await getGarmentsAndStages(userId, token)
-
-          // If stages are empty, initialize default stages
-          if (stages.length === 0) {
-            await initializeDefaultStages(userId, token)
-
-            // Fetch the stages again after initialization
-            const updatedStages = await getStages(userId, token)
-
-            setStages(updatedStages)
-          } else {
-            setStages(stages)
-          }
+          const { garments, stages: fetchedStages } = await getGarmentsAndStages(userId, token)
 
           setGarmentsData(garments)
+          setStages(prevStages => (prevStages.length === 0 ? fetchedStages : prevStages))
         } catch (error) {
           console.error('Failed to fetch data:', error)
         } finally {
@@ -55,6 +62,13 @@ export default function GarmentsPage() {
 
     fetchData()
   }, [userId, getToken])
+
+  const handleStagesUpdated = updatedStages => {
+    setStages(updatedStages)
+
+    // If not needed, you can comment out or remove the line below
+    // fetchGarmentsData()
+  }
 
   const filteredGarments = selectedStage
     ? garmentsData.filter(garment => garment.stage_id === selectedStage.id)
@@ -108,7 +122,10 @@ export default function GarmentsPage() {
       <CustomizeStagesDialog
         open={customizeDialogOpen}
         onClose={() => setCustomizeDialogOpen(false)}
-        onStagesUpdated={updatedStages => setStages(updatedStages)}
+        onStagesUpdated={handleStagesUpdated}
+        stages={stages} // Pass stages as a prop
+        userId={userId}
+        getToken={getToken}
       />
     </Box>
   )

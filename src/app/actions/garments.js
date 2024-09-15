@@ -426,7 +426,7 @@ export async function updateStages(userId, stages, token, stageToDelete = null, 
     throw new Error('Stage names cannot be empty.')
   }
 
-  // **Add this check to prevent deleting the last remaining stage**
+  // Prevent deleting the last remaining stage
   if (stageToDelete && stages.length === 0) {
     throw new Error('Cannot delete the last remaining stage.')
   }
@@ -461,6 +461,8 @@ export async function updateStages(userId, stages, token, stageToDelete = null, 
 
   // Update existing stages and insert new ones
   for (const stage of stages) {
+    console.log('Processing stage:', stage)
+
     if (stage.id) {
       // Update existing stage
       const { error } = await supabase
@@ -476,20 +478,49 @@ export async function updateStages(userId, stages, token, stageToDelete = null, 
       console.log(`Stage ID ${stage.id} updated successfully.`)
     } else {
       // Insert new stage
-      const { error } = await supabase
+      const { data: insertData, error } = await supabase
         .from('garment_stages')
         .insert({ user_id: userId, name: stage.name.trim(), position: stage.position })
+        .select()
+        .single()
 
       if (error) {
         console.error('Insert Error:', error)
         throw new Error('Failed to insert stage: ' + error.message)
       }
 
+      if (!insertData) {
+        throw new Error('InsertData is undefined after inserting a new stage.')
+      }
+
+      // Update the stage in the local array with the new ID
+      stage.id = insertData.id
+
       console.log(`New stage "${stage.name}" inserted successfully.`)
     }
   }
 
-  return stages
+  // Before the fetch of updated stages
+  for (const stage of stages) {
+    if (typeof stage.position !== 'number' || isNaN(stage.position)) {
+      console.error('Invalid position for stage:', stage)
+      throw new Error('All stages must have a valid position.')
+    }
+  }
+
+  // Fetch the updated list of stages
+  const { data: updatedStages, error: fetchError } = await supabase
+    .from('garment_stages')
+    .select('*')
+    .eq('user_id', userId)
+    .order('position')
+
+  if (fetchError) {
+    console.error('Fetch Error:', fetchError)
+    throw new Error('Failed to fetch updated stages: ' + fetchError.message)
+  }
+
+  return updatedStages
 }
 
 export async function customizeStages(userId, stages, token, stageToDeleteId, reassignStageId) {

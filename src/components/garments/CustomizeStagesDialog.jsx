@@ -18,10 +18,16 @@ import { Delete, DragIndicator, Edit } from '@mui/icons-material'
 import { useAuth } from '@clerk/nextjs'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 
-import { getStages, updateStages } from '@/app/actions/garments'
+import { updateStages } from '@/app/actions/garments'
 
-export default function CustomizeStagesDialog({ open, onClose, onStagesUpdated }) {
-  const { userId, getToken } = useAuth()
+export default function CustomizeStagesDialog({
+  open,
+  onClose,
+  onStagesUpdated,
+  stages: initialStages,
+  userId,
+  getToken
+}) {
   const [stages, setStages] = useState([])
   const [isEditing, setIsEditing] = useState(null)
   const [newStageName, setNewStageName] = useState('')
@@ -31,17 +37,23 @@ export default function CustomizeStagesDialog({ open, onClose, onStagesUpdated }
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
 
   useEffect(() => {
-    async function fetchStages() {
-      const token = await getToken({ template: 'supabase' })
-      const userStages = await getStages(userId, token)
-
-      setStages(userStages)
-    }
-
     if (open) {
-      fetchStages()
+      // Initialize stages from props when the dialog opens
+      setStages(initialStages)
     }
-  }, [open, userId, getToken])
+  }, [open, initialStages])
+
+  useEffect(() => {
+    if (!open) {
+      // No need to reset stages here
+      setIsEditing(null)
+      setNewStageName('')
+      setError('')
+      setStageToDelete(null)
+      setReassignStageId(null)
+      setConfirmDeleteOpen(false)
+    }
+  }, [open])
 
   const handleDragEnd = result => {
     if (!result.destination) return
@@ -81,7 +93,7 @@ export default function CustomizeStagesDialog({ open, onClose, onStagesUpdated }
     setConfirmDeleteOpen(true)
   }
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     // Prevent deletion if only one stage remains
     if (stages.length <= 1) {
       setError('Cannot delete the last remaining stage.')
@@ -92,32 +104,19 @@ export default function CustomizeStagesDialog({ open, onClose, onStagesUpdated }
 
     if (stageToDelete && reassignStageId && reassignStageId !== stageToDelete.id) {
       setConfirmDeleteOpen(false)
-      handleSave()
-      setStageToDelete(null)
-      setReassignStageId(null)
+
+      try {
+        await handleSave()
+
+        // Reset variables after handleSave completes
+        setStageToDelete(null)
+        setReassignStageId(null)
+      } catch (err) {
+        console.error('Error during handleSave:', err)
+        setError('Failed to save stages. Please try again.')
+      }
     } else {
       setError('Please select a valid stage to reassign garments to.')
-    }
-  }
-
-  const handleSave = async () => {
-    const hasEmptyNames = stages.some(stage => stage.name.trim() === '')
-
-    if (hasEmptyNames) {
-      setError('All stage names must be filled out.')
-
-      return
-    }
-
-    const token = await getToken({ template: 'supabase' })
-
-    try {
-      await updateStages(userId, stages, token, stageToDelete, reassignStageId)
-      onStagesUpdated(stages)
-      onClose()
-    } catch (err) {
-      console.error(err)
-      setError('Failed to save stages. Please try again.')
     }
   }
 
@@ -134,6 +133,38 @@ export default function CustomizeStagesDialog({ open, onClose, onStagesUpdated }
 
     setStages(updatedStages)
     setIsEditing(null)
+  }
+
+  const handleSave = async () => {
+    const hasEmptyNames = stages.some(stage => stage.name.trim() === '')
+
+    if (hasEmptyNames) {
+      setError('All stage names must be filled out.')
+
+      return
+    }
+
+    const token = await getToken({ template: 'supabase' })
+
+    try {
+      // Update stages in the database
+      const updatedStages = await updateStages(userId, stages, token, stageToDelete, reassignStageId)
+
+      // Update local stages state with data from the database (including new IDs)
+      setStages(updatedStages)
+
+      // Inform parent component of the updates
+      onStagesUpdated(updatedStages)
+
+      // Close dialog and reset state
+      onClose()
+      setError('')
+      setStageToDelete(null)
+      setReassignStageId(null)
+    } catch (err) {
+      console.error(err)
+      setError('Failed to save stages. Please try again.')
+    }
   }
 
   return (
@@ -332,33 +363,35 @@ export default function CustomizeStagesDialog({ open, onClose, onStagesUpdated }
       </DialogActions>
 
       {/* Confirm Delete Dialog */}
-      <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
-        <DialogTitle>Confirm Delete</DialogTitle>
-        <DialogContent>
-          <Typography>Are you sure you want to delete the stage "{stageToDelete && stageToDelete.name}"?</Typography>
-          <Typography>Please select a stage to reassign garments to before deleting:</Typography>
-          <Box sx={{ mt: 2 }}>
-            {stages
-              .filter(stage => stage.id !== (stageToDelete && stageToDelete.id))
-              .map(stage => (
-                <Button
-                  key={stage.id}
-                  variant={reassignStageId === stage.id ? 'contained' : 'outlined'}
-                  onClick={() => setReassignStageId(stage.id)}
-                  sx={{ mr: 1, mb: 1 }}
-                >
-                  {stage.name}
-                </Button>
-              ))}
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setConfirmDeleteOpen(false)}>Cancel</Button>
-          <Button variant='contained' onClick={handleConfirmDelete}>
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {confirmDeleteOpen && (
+        <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
+          <DialogTitle>Confirm Delete</DialogTitle>
+          <DialogContent>
+            <Typography>Are you sure you want to delete the stage "{stageToDelete && stageToDelete.name}"?</Typography>
+            <Typography>Please select a stage to reassign garments to before deleting:</Typography>
+            <Box sx={{ mt: 2 }}>
+              {stages
+                .filter(stage => stage.id !== (stageToDelete && stageToDelete.id))
+                .map(stage => (
+                  <Button
+                    key={stage.id}
+                    variant={reassignStageId === stage.id ? 'contained' : 'outlined'}
+                    onClick={() => setReassignStageId(stage.id)}
+                    sx={{ mr: 1, mb: 1 }}
+                  >
+                    {stage.name}
+                  </Button>
+                ))}
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setConfirmDeleteOpen(false)}>Cancel</Button>
+            <Button variant='contained' color='error' onClick={handleConfirmDelete}>
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </Dialog>
   )
 }
