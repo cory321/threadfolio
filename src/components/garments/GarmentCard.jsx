@@ -89,7 +89,7 @@ const GarmentCard = ({ garment, orderId }) => {
             <Grid item xs={4}>
               {/* Stage Chip */}
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <StatusBadge type='stage' label={garment.stage} />
+                <StatusBadge type='stage' label={garment.stage_name} />
               </Box>
             </Grid>
           </Grid>
@@ -209,10 +209,10 @@ const GarmentCard = ({ garment, orderId }) => {
                     Services:
                   </Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {garment.services.slice(0, 3).map(service => (
+                    {garment.services?.slice(0, 3).map(service => (
                       <Chip key={service.id} label={service.name} size='small' variant='outlined' />
                     ))}
-                    {garment.services.length > 3 && (
+                    {garment.services?.length > 3 && (
                       <Chip label={`+${garment.services.length - 3} more`} size='small' variant='outlined' />
                     )}
                   </Box>

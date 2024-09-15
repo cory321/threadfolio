@@ -132,7 +132,7 @@ export default function GarmentPage() {
               <Typography variant='h6' gutterBottom>
                 Stage
               </Typography>
-              <Chip label={garment.stage} color='primary' />
+              <Chip label={garment.stage_name} color='primary' />
             </CardContent>
           </Card>
           <TimeTracker sx={{ mt: 2 }} />
