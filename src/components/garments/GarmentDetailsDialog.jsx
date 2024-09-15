@@ -61,7 +61,7 @@ const GarmentDetailsDialog = ({ open, handleClose, userId, selectedClient, handl
       client_id: selectedClient.id,
       name: garmentDetails.name,
       image_cloud_id: garmentDetails.image_cloud_id,
-      stage: 'new',
+      stage: 'not started',
       notes: notesRef.current ? notesRef.current.value : '',
       due_date: garmentDetails.due_date,
       is_event: garmentDetails.is_event,

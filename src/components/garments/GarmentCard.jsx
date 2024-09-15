@@ -2,116 +2,228 @@ import React from 'react'
 
 import Link from 'next/link'
 
-import { Typography, Box, Paper, Chip, Grid } from '@mui/material'
+import { Typography, Box, Card, CardContent, Chip, Grid, Avatar, CardActionArea } from '@mui/material'
 import { CldImage } from 'next-cloudinary'
-import { format } from 'date-fns'
+import { format, differenceInDays } from 'date-fns'
+import EventIcon from '@mui/icons-material/Event'
+import AccessTimeIcon from '@mui/icons-material/AccessTime'
 
-import { formatPhoneNumber } from '@/utils/formatPhoneNumber'
+/**
+ * Determines the status color and text based on the due date.
+ * @param {string | Date} date - The due date of the garment.
+ * @returns {object} - An object containing the color and status text.
+ */
+const getDateStatus = date => {
+  const today = new Date()
+  const diffDays = differenceInDays(new Date(date), today)
 
-const GarmentCard = ({ garment, orderId }) => (
-  <Link href={`/orders/${orderId}/${garment.id}`} passHref style={{ textDecoration: 'none' }}>
-    <Paper
-      elevation={0}
+  if (diffDays < 0) return { color: 'error.main', text: `${Math.abs(diffDays)} days overdue` }
+  if (diffDays <= 7) return { color: 'warning.main', text: 'Due soon' }
+
+  return { color: 'success.main', text: 'On track' }
+}
+
+/**
+ * Reusable StatusBadge component for displaying status chips.
+ * @param {object} props - Component props.
+ * @param {string} props.type - Type of status ('due' or 'stage').
+ * @param {string} props.label - Text to display inside the chip.
+ * @returns {JSX.Element}
+ */
+const StatusBadge = ({ type, label }) => {
+  const statusColors = {
+    due: {
+      Overdue: 'error.main',
+      'Due soon': 'warning.main',
+      'On track': 'success.main'
+    },
+    stage: {
+      'In Production': 'primary.main',
+      Completed: 'secondary.main'
+
+      // Add more stages and corresponding colors as needed
+    }
+  }
+
+  const color = statusColors[type][label] || 'grey.500'
+
+  return (
+    <Chip
+      label={label}
+      size='small'
       sx={{
-        display: 'flex',
-        mb: 3,
-        width: '100%',
-        border: '1px solid',
-        borderColor: 'grey.200',
-        borderRadius: 2,
-        overflow: 'hidden',
-        cursor: 'pointer',
-        '&:hover': {
-          boxShadow: 3
-        }
+        backgroundColor: color,
+        color: 'white',
+        fontWeight: 'bold'
       }}
-    >
-      <Grid container alignItems='center'>
-        {/* Left column: Image */}
-        <Grid item xs={12} sm={3} md={2}>
-          <Box sx={{ width: '100%', height: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {garment.image_cloud_id ? (
-              <CldImage
-                src={garment.image_cloud_id}
-                alt={garment.name}
-                width={100}
-                height={100}
-                crop='fill'
-                style={{ maxWidth: '100%', maxHeight: '100px', objectFit: 'contain' }}
-              />
-            ) : (
+    />
+  )
+}
+
+const GarmentCard = ({ garment, orderId }) => {
+  const dateStatus = garment.due_date ? getDateStatus(garment.due_date) : null
+
+  return (
+    <Link href={`/orders/${orderId}/${garment.id}`} passHref style={{ textDecoration: 'none', width: '100%' }}>
+      <CardActionArea sx={{ height: '100%' }}>
+        <Card
+          sx={{
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            transition: '0.3s',
+            '&:hover': { transform: 'translateY(-5px)', boxShadow: 6 },
+            padding: 2,
+            borderRadius: 2,
+            boxShadow: 1
+          }}
+        >
+          {/* Card Header: Garment Title and Stage Chip */}
+          <Grid container alignItems='center' justifyContent='space-between' spacing={1}>
+            <Grid item xs={8}>
+              {/* Garment Title */}
+              <Typography variant='h6' component='div' noWrap>
+                {garment.name}
+              </Typography>
+            </Grid>
+            <Grid item xs={4}>
+              {/* Stage Chip */}
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <StatusBadge type='stage' label={garment.stage} />
+              </Box>
+            </Grid>
+          </Grid>
+
+          {/* Divider */}
+          <Box sx={{ borderBottom: '1px solid', borderColor: 'grey.300', my: 2 }} />
+
+          {/* Main Content: Image and Details */}
+          <Grid container spacing={2} sx={{ flexGrow: 1 }}>
+            {/* Image Section */}
+            <Grid item xs={4}>
               <Box
                 sx={{
                   width: '100%',
-                  height: '100%',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  bgcolor: 'grey.100'
+                  position: 'relative',
+                  paddingBottom: '100%',
+                  borderRadius: 1,
+                  overflow: 'hidden',
+                  border: '1px solid',
+                  borderColor: 'grey.200'
                 }}
               >
-                <i className='ri-t-shirt-line' style={{ fontSize: '3rem', color: 'grey' }} />
+                {garment.image_cloud_id ? (
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%'
+                    }}
+                  >
+                    <CldImage
+                      src={garment.image_cloud_id}
+                      alt={garment.name}
+                      fill
+                      style={{
+                        objectFit: 'contain'
+                      }}
+                      options={{
+                        quality: 'auto',
+                        fetchFormat: 'auto',
+                        responsive: true
+                      }}
+                      loading='lazy'
+                    />
+                  </Box>
+                ) : (
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      bgcolor: 'grey.100'
+                    }}
+                  >
+                    <i className='ri-t-shirt-line' style={{ color: 'grey', fontSize: '3rem' }} />
+                  </Box>
+                )}
               </Box>
-            )}
-          </Box>
-        </Grid>
+            </Grid>
 
-        {/* Middle-left column: Garment Details */}
-        <Grid item xs={12} sm={3} md={3}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', p: 2, height: '100%' }}>
-            <Typography variant='h6' sx={{ mb: 1 }}>
-              {garment.name}
-            </Typography>
-            {garment.due_date && (
-              <Typography variant='body2' color='text.secondary' sx={{ mb: 1 }}>
-                Due: {format(new Date(garment.due_date), 'MMM d, yyyy')}
-              </Typography>
-            )}
-            {garment.is_event && garment.event_date && (
-              <Typography variant='body2' color='text.secondary' sx={{ mb: 1 }}>
-                Event: {format(new Date(garment.event_date), 'MMM d, yyyy')}
-              </Typography>
-            )}
-            <Chip label={garment.stage} size='small' sx={{ alignSelf: 'flex-start', mb: 1 }} />
-          </Box>
-        </Grid>
+            {/* Details Section */}
+            <Grid item xs={8}>
+              <CardContent
+                sx={{
+                  padding: 0,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  height: '100%'
+                }}
+              >
+                {/* Due Status as Text */}
+                {dateStatus && (
+                  <Typography
+                    variant='body2'
+                    sx={{
+                      color: dateStatus.color,
+                      fontWeight: 'bold',
+                      mb: 1
+                    }}
+                  >
+                    {dateStatus.text}
+                  </Typography>
+                )}
 
-        {/* Middle-right column: Services */}
-        <Grid item xs={12} sm={3} md={3}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', p: 2, height: '100%' }}>
-            <Typography variant='subtitle2' sx={{ mb: 0.5 }}>
-              Services:
-            </Typography>
-            <Box component='ul' sx={{ pl: 2, m: 0, '& li': { mb: 0.5 } }}>
-              {garment.services.map(service => (
-                <Typography component='li' variant='body2' key={service.id}>
-                  {service.name}
-                </Typography>
-              ))}
-            </Box>
-          </Box>
-        </Grid>
+                {/* Due Date */}
+                {garment.due_date && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <AccessTimeIcon
+                      fontSize='small'
+                      sx={{ mr: 1, color: 'text.secondary' }}
+                      aria-label='Due Date Icon'
+                    />
+                    <Typography variant='body2'>Due: {format(new Date(garment.due_date), 'MMM d, yyyy')}</Typography>
+                  </Box>
+                )}
 
-        {/* Right column: Client Information */}
-        <Grid item xs={12} sm={3} md={4}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', p: 2, height: '100%' }}>
-            <Typography variant='subtitle2' sx={{ mb: 0.5 }}>
-              Client:
-            </Typography>
-            {garment.client ? (
-              <>
-                <Typography variant='body2'>{garment.client.full_name}</Typography>
-                <Typography variant='body2'>{garment.client.email}</Typography>
-                <Typography variant='body2'>{formatPhoneNumber(garment.client.phone_number)}</Typography>
-              </>
-            ) : (
-              <Typography variant='body2'>No client information available</Typography>
-            )}
-          </Box>
-        </Grid>
-      </Grid>
-    </Paper>
-  </Link>
-)
+                {/* Event Info */}
+                {garment.is_event && garment.event_date && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <EventIcon fontSize='small' sx={{ mr: 1, color: 'text.secondary' }} aria-label='Event Info Icon' />
+                    <Typography variant='body2' sx={{ fontWeight: 'bold' }}>
+                      Event: {format(new Date(garment.event_date), 'MMM d, yyyy')}
+                    </Typography>
+                  </Box>
+                )}
+
+                {/* Services */}
+                <Box sx={{ mt: 'auto' }}>
+                  <Typography variant='subtitle2' sx={{ mb: 0.5 }}>
+                    Services:
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {garment.services.slice(0, 3).map(service => (
+                      <Chip key={service.id} label={service.name} size='small' variant='outlined' />
+                    ))}
+                    {garment.services.length > 3 && (
+                      <Chip label={`+${garment.services.length - 3} more`} size='small' variant='outlined' />
+                    )}
+                  </Box>
+                </Box>
+              </CardContent>
+            </Grid>
+          </Grid>
+        </Card>
+      </CardActionArea>
+    </Link>
+  )
+}
 
 export default GarmentCard
