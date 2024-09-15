@@ -30,6 +30,7 @@ export default function CustomizeStagesDialog({
   const [stages, setStages] = useState([])
   const [isEditing, setIsEditing] = useState(null)
   const [error, setError] = useState('')
+  const [deleteError, setDeleteError] = useState('') // New state for Confirm Delete dialog errors
   const [stageToDelete, setStageToDelete] = useState(null)
   const [reassignStageId, setReassignStageId] = useState(null)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
@@ -37,8 +38,8 @@ export default function CustomizeStagesDialog({
 
   useEffect(() => {
     if (open) {
-      // Initialize stages from props when the dialog opens
-      setStages(initialStages)
+      // Initialize stages from props when the dialog opens, add 'touched: false' to each stage
+      setStages(initialStages.map(stage => ({ ...stage, touched: false })))
     }
   }, [open, initialStages])
 
@@ -49,6 +50,7 @@ export default function CustomizeStagesDialog({
       setStageToDelete(null)
       setReassignStageId(null)
       setConfirmDeleteOpen(false)
+      setDeleteError('') // Reset deleteError when the main dialog closes
     }
   }, [open])
 
@@ -68,7 +70,8 @@ export default function CustomizeStagesDialog({
       id: null,
       user_id: userId,
       name: '',
-      position: stages.length + 1
+      position: stages.length + 1,
+      touched: false // Initialize 'touched' as false
     }
 
     setStages(prevStages => {
@@ -106,14 +109,14 @@ export default function CustomizeStagesDialog({
   const handleConfirmDelete = async () => {
     // Prevent deletion if only one stage remains
     if (stages.length <= 1) {
-      setError('Cannot delete the last remaining stage.')
-      setConfirmDeleteOpen(false)
+      setDeleteError('Cannot delete the last remaining stage.')
 
       return
     }
 
     if (stageToDelete && reassignStageId && reassignStageId !== stageToDelete.id) {
       setConfirmDeleteOpen(false)
+      setDeleteError('') // Clear any previous delete errors
 
       try {
         await handleSave()
@@ -126,20 +129,35 @@ export default function CustomizeStagesDialog({
         setError('Failed to save stages. Please try again.')
       }
     } else {
-      setError('Please select a valid stage to reassign garments to.')
+      setDeleteError('Please select a valid stage to reassign garments to.')
     }
   }
 
   const handleStageNameChange = (index, newName) => {
-    const updatedStages = stages.map((stage, i) => (i === index ? { ...stage, name: newName } : stage))
+    const updatedStages = stages.map((stage, i) => (i === index ? { ...stage, name: newName, touched: true } : stage))
 
     setStages(updatedStages)
   }
 
   const handleStageNameBlur = index => {
-    const updatedStages = stages.map((stage, i) =>
-      i === index && stage.name.trim() === '' ? { ...stage, name: `Stage ${i + 1}` } : stage
-    )
+    const updatedStages = stages.map((stage, i) => {
+      if (i === index) {
+        if (stage.name.trim() === '') {
+          return {
+            ...stage,
+            name: `Stage ${i + 1}`,
+            touched: true
+          }
+        } else {
+          return {
+            ...stage,
+            touched: true
+          }
+        }
+      }
+
+      return stage
+    })
 
     setStages(updatedStages)
     setIsEditing(null)
@@ -168,6 +186,13 @@ export default function CustomizeStagesDialog({
     } finally {
       setIsSaving(false)
     }
+  }
+
+  const handleCloseConfirmDelete = () => {
+    setConfirmDeleteOpen(false)
+    setDeleteError('') // Clear deleteError when the Confirm Delete dialog closes
+    setStageToDelete(null)
+    setReassignStageId(null)
   }
 
   return (
@@ -227,7 +252,7 @@ export default function CustomizeStagesDialog({
                             '&:hover .hover-actions': { opacity: 1 },
                             border: '1px solid #ccc',
                             borderRadius: 2,
-                            backgroundColor: stage.name.trim() === '' ? '#fff0f0' : 'white'
+                            backgroundColor: stage.touched && stage.name.trim() === '' ? '#fff0f0' : 'white'
                           }}
                         >
                           {isEditing === index ? (
@@ -245,8 +270,8 @@ export default function CustomizeStagesDialog({
                               variant='outlined'
                               size='small'
                               sx={{ width: '100%' }}
-                              error={stage.name.trim() === ''}
-                              helperText={stage.name.trim() === '' ? 'Stage name is required' : ''}
+                              error={stage.touched && stage.name.trim() === ''}
+                              helperText={stage.touched && stage.name.trim() === '' ? 'Stage name is required' : ''}
                             />
                           ) : (
                             <Tooltip title={stage.name.trim() === '' ? 'Click to edit' : stage.name}>
@@ -259,7 +284,7 @@ export default function CustomizeStagesDialog({
                                   userSelect: 'none',
                                   wordWrap: 'break-word',
                                   overflowWrap: 'break-word',
-                                  color: stage.name.trim() === '' ? 'red' : 'inherit',
+                                  color: stage.touched && stage.name.trim() === '' ? 'red' : 'inherit',
                                   cursor: 'pointer'
                                 }}
                               >
@@ -344,17 +369,25 @@ export default function CustomizeStagesDialog({
 
       {/* Confirm Delete Dialog */}
       {confirmDeleteOpen && (
-        <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
+        <Dialog open={confirmDeleteOpen} onClose={handleCloseConfirmDelete}>
           <DialogTitle>Confirm Delete</DialogTitle>
           <DialogContent>
             <Typography>Are you sure you want to delete the stage "{stageToDelete && stageToDelete.name}"?</Typography>
             <Typography>Please select a stage to reassign garments to before deleting:</Typography>
+
+            {/* Display deleteError inside the Confirm Delete dialog */}
+            {deleteError && (
+              <Typography variant='body2' color='error' sx={{ mt: 1 }}>
+                {deleteError}
+              </Typography>
+            )}
+
             <Box sx={{ mt: 2 }}>
               {stages
                 .filter(stage => stage.id !== (stageToDelete && stageToDelete.id))
                 .map(stage => (
                   <Button
-                    key={stage.id}
+                    key={stage.id || `temp-${stage.position}`}
                     variant={reassignStageId === stage.id ? 'contained' : 'outlined'}
                     onClick={() => setReassignStageId(stage.id)}
                     sx={{ mr: 1, mb: 1 }}
@@ -365,7 +398,7 @@ export default function CustomizeStagesDialog({
             </Box>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setConfirmDeleteOpen(false)}>Cancel</Button>
+            <Button onClick={handleCloseConfirmDelete}>Cancel</Button>
             <Button variant='contained' color='error' onClick={handleConfirmDelete}>
               Delete
             </Button>
