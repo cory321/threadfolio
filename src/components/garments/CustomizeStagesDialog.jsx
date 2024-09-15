@@ -11,9 +11,10 @@ import {
   Box,
   Card,
   Typography,
-  TextField
+  TextField,
+  Tooltip
 } from '@mui/material'
-import { Delete, DragIndicator } from '@mui/icons-material'
+import { Delete, DragIndicator, Edit } from '@mui/icons-material'
 import { useAuth } from '@clerk/nextjs'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 
@@ -24,6 +25,7 @@ export default function CustomizeStagesDialog({ open, onClose, onStagesUpdated }
   const [stages, setStages] = useState([])
   const [isEditing, setIsEditing] = useState(null)
   const [newStageName, setNewStageName] = useState('')
+  const [error, setError] = useState('')
 
   useEffect(() => {
     async function fetchStages() {
@@ -44,15 +46,17 @@ export default function CustomizeStagesDialog({ open, onClose, onStagesUpdated }
     const [removed] = reorderedStages.splice(result.source.index, 1)
 
     reorderedStages.splice(result.destination.index, 0, removed)
-
-    // Update positions
     const updatedStages = reorderedStages.map((stage, index) => ({ ...stage, position: index + 1 }))
 
     setStages(updatedStages)
   }
 
   const handleAddStage = () => {
-    if (newStageName.trim() === '') return
+    if (newStageName.trim() === '') {
+      setError('Stage name cannot be empty.')
+
+      return
+    }
 
     const newStage = {
       id: null,
@@ -63,6 +67,8 @@ export default function CustomizeStagesDialog({ open, onClose, onStagesUpdated }
 
     setStages([...stages, newStage])
     setNewStageName('')
+    setIsEditing(null)
+    setError('')
   }
 
   const handleDeleteStage = index => {
@@ -72,11 +78,24 @@ export default function CustomizeStagesDialog({ open, onClose, onStagesUpdated }
   }
 
   const handleSave = async () => {
+    const hasEmptyNames = stages.some(stage => stage.name.trim() === '')
+
+    if (hasEmptyNames) {
+      setError('All stage names must be filled out.')
+
+      return
+    }
+
     const token = await getToken({ template: 'supabase' })
 
-    await updateStages(userId, stages, token)
-    onStagesUpdated(stages)
-    onClose()
+    try {
+      await updateStages(userId, stages, token)
+      onStagesUpdated(stages)
+      onClose()
+    } catch (err) {
+      console.error(err)
+      setError('Failed to save stages. Please try again.')
+    }
   }
 
   const handleStageNameChange = (index, newName) => {
@@ -85,16 +104,33 @@ export default function CustomizeStagesDialog({ open, onClose, onStagesUpdated }
     setStages(updatedStages)
   }
 
+  const handleStageNameBlur = index => {
+    const updatedStages = stages.map((stage, i) =>
+      i === index && stage.name.trim() === '' ? { ...stage, name: `Stage ${i + 1}` } : stage
+    )
+
+    setStages(updatedStages)
+    setIsEditing(null)
+  }
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth='md' fullWidth>
-      <DialogTitle>Customize Stages</DialogTitle>
+      <DialogTitle>Customize your stages</DialogTitle>
       <DialogContent>
-        <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto' }}>
+        <Typography variant='subtitle1' sx={{ mb: 2 }}>
+          Add, rename, move, or delete stages to fit your garment flow processes.
+        </Typography>
+        {error && (
+          <Typography variant='body2' color='error' sx={{ mb: 2 }}>
+            {error}
+          </Typography>
+        )}
+        <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', mb: 2 }}>
           {/* Add Stage Box */}
           <Card
             sx={{
-              minWidth: 150,
-              height: 100,
+              width: 180,
+              height: 120,
               border: '2px dashed grey',
               display: 'flex',
               alignItems: 'center',
@@ -123,26 +159,56 @@ export default function CustomizeStagesDialog({ open, onClose, onStagesUpdated }
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           sx={{
-                            minWidth: 150,
-                            height: 100,
+                            width: 180,
+                            height: 120,
                             position: 'relative',
                             padding: 1,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             flexShrink: 0,
-                            '&:hover .hover-actions': { opacity: 1 }
+                            '&:hover .hover-actions': { opacity: 1 },
+                            cursor: 'pointer',
+                            border: '1px solid #ccc',
+                            borderRadius: 2,
+                            backgroundColor: stage.name.trim() === '' ? '#fff0f0' : 'white'
                           }}
                         >
                           {isEditing === stage.id ? (
                             <TextField
                               value={stage.name}
                               onChange={e => handleStageNameChange(index, e.target.value)}
-                              onBlur={() => setIsEditing(null)}
+                              onBlur={() => handleStageNameBlur(index)}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter') {
+                                  handleStageNameBlur(index)
+                                }
+                              }}
                               autoFocus
+                              inputProps={{ maxLength: 25 }}
+                              variant='outlined'
+                              size='small'
+                              sx={{ width: '100%' }}
+                              error={stage.name.trim() === ''}
+                              helperText={stage.name.trim() === '' ? 'Stage name is required' : ''}
                             />
                           ) : (
-                            <Typography variant='h6'>{stage.name}</Typography>
+                            <Tooltip title={stage.name.trim() === '' ? 'Click to edit' : stage.name}>
+                              <Typography
+                                variant='h6'
+                                onClick={() => setIsEditing(stage.id)}
+                                sx={{
+                                  textAlign: 'center',
+                                  width: '100%',
+                                  userSelect: 'none',
+                                  wordWrap: 'break-word',
+                                  overflowWrap: 'break-word',
+                                  color: stage.name.trim() === '' ? 'red' : 'inherit'
+                                }}
+                              >
+                                {stage.name.trim() === '' ? 'Empty Stage Name' : stage.name}
+                              </Typography>
+                            </Tooltip>
                           )}
 
                           {/* Hover Actions */}
@@ -160,17 +226,41 @@ export default function CustomizeStagesDialog({ open, onClose, onStagesUpdated }
                               display: 'flex',
                               justifyContent: 'space-between',
                               alignItems: 'flex-end',
-                              padding: 1
+                              padding: 0.5,
+                              pointerEvents: 'none'
                             }}
                           >
                             {/* Delete Icon */}
-                            <IconButton size='small' sx={{ color: 'red' }} onClick={() => handleDeleteStage(index)}>
-                              <Delete />
+                            <IconButton
+                              size='small'
+                              sx={{ color: 'red', pointerEvents: 'auto' }}
+                              onClick={e => {
+                                e.stopPropagation()
+                                handleDeleteStage(index)
+                              }}
+                            >
+                              <Delete fontSize='small' />
+                            </IconButton>
+
+                            {/* Edit Icon */}
+                            <IconButton
+                              size='small'
+                              sx={{ color: 'blue', pointerEvents: 'auto' }}
+                              onClick={e => {
+                                e.stopPropagation()
+                                setIsEditing(stage.id)
+                              }}
+                            >
+                              <Edit fontSize='small' />
                             </IconButton>
 
                             {/* Drag Handle */}
-                            <IconButton size='small' {...provided.dragHandleProps} sx={{ cursor: 'grab' }}>
-                              <DragIndicator />
+                            <IconButton
+                              size='small'
+                              {...provided.dragHandleProps}
+                              sx={{ cursor: 'grab', pointerEvents: 'auto' }}
+                            >
+                              <DragIndicator fontSize='small' />
                             </IconButton>
                           </Box>
                         </Card>
@@ -191,9 +281,20 @@ export default function CustomizeStagesDialog({ open, onClose, onStagesUpdated }
               label='Stage Name'
               value={newStageName}
               onChange={e => setNewStageName(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  handleAddStage()
+                }
+              }}
               autoFocus
+              variant='outlined'
+              size='small'
+              fullWidth
+              inputProps={{ maxLength: 25 }}
+              error={newStageName.trim() === ''}
+              helperText={newStageName.trim() === '' ? 'Stage name is required' : ''}
             />
-            <Button variant='contained' onClick={handleAddStage}>
+            <Button variant='contained' onClick={handleAddStage} disabled={newStageName.trim() === ''}>
               Add
             </Button>
             <Button onClick={() => setIsEditing(null)}>Cancel</Button>
@@ -202,7 +303,7 @@ export default function CustomizeStagesDialog({ open, onClose, onStagesUpdated }
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button variant='contained' onClick={handleSave}>
+        <Button variant='contained' onClick={handleSave} disabled={stages.some(stage => stage.name.trim() === '')}>
           Save
         </Button>
       </DialogActions>

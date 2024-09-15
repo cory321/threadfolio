@@ -419,11 +419,15 @@ export async function getStages(userId, token) {
 export async function updateStages(userId, stages, token) {
   const supabase = await getSupabaseClient(token)
 
+  // Validate all stage names are non-empty
+  const invalidStages = stages.filter(stage => !stage.name || stage.name.trim() === '')
+
+  if (invalidStages.length > 0) {
+    throw new Error('Stage names cannot be empty.')
+  }
+
   // Extract stage IDs
   const stageIds = stages.filter(stage => stage.id).map(stage => stage.id)
-
-  // Construct the string for the 'not.in' operator
-  const stageIdsString = `(${stageIds.map(id => `"${id}"`).join(',')})`
 
   // Delete stages not present in the new list
   if (stageIds.length > 0) {
@@ -431,7 +435,7 @@ export async function updateStages(userId, stages, token) {
       .from('garment_stages')
       .delete()
       .eq('user_id', userId)
-      .filter('id', 'not.in', stageIdsString)
+      .not('id', 'in', `(${stageIds.join(',')})`)
 
     if (deleteError) {
       console.error('Delete Error:', deleteError)
@@ -452,19 +456,21 @@ export async function updateStages(userId, stages, token) {
       // Update existing stage
       const { error } = await supabase
         .from('garment_stages')
-        .update({ name: stage.name, position: stage.position })
+        .update({ name: stage.name.trim(), position: stage.position })
         .eq('id', stage.id)
 
       if (error) {
+        console.error('Update Error:', error)
         throw new Error('Failed to update stage: ' + error.message)
       }
     } else {
       // Insert new stage
       const { error } = await supabase
         .from('garment_stages')
-        .insert({ user_id: userId, name: stage.name, position: stage.position })
+        .insert({ user_id: userId, name: stage.name.trim(), position: stage.position })
 
       if (error) {
+        console.error('Insert Error:', error)
         throw new Error('Failed to insert stage: ' + error.message)
       }
     }
