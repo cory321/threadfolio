@@ -64,6 +64,23 @@ const StatusBadge = ({ type, label }) => {
 
 const GarmentCard = ({ garment, orderId, stageColor }) => {
   const stageName = garment.stage_name || 'Unknown'
+  const theme = useTheme()
+  const defaultColor = theme.palette.grey[500]
+
+  // Determine background color
+  let backgroundColor = stageColor || defaultColor
+
+  // Ensure backgroundColor starts with '#'
+  if (
+    typeof backgroundColor === 'string' &&
+    !backgroundColor.startsWith('#') &&
+    /^([0-9A-F]{6}|[0-9A-F]{3})$/i.test(backgroundColor)
+  ) {
+    backgroundColor = `#${backgroundColor}`
+  }
+
+  // Calculate contrast text color
+  const textColor = getContrastText(backgroundColor)
 
   const dateStatus = garment.due_date ? getDateStatus(garment.due_date) : null
 
@@ -97,8 +114,8 @@ const GarmentCard = ({ garment, orderId, stageColor }) => {
                   label={stageName}
                   size='small'
                   sx={{
-                    backgroundColor: stageColor || 'grey.500',
-                    color: 'white',
+                    backgroundColor: backgroundColor,
+                    color: textColor,
                     fontWeight: 'bold'
                   }}
                 />
