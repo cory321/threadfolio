@@ -62,7 +62,7 @@ const OrderGarmentCard = ({ garment }) => (
               Due: {format(new Date(garment.due_date), 'MMM d, yyyy')}
             </Typography>
           )}
-          <Chip label={garment.stage} size='small' sx={{ alignSelf: 'flex-start', mt: 'auto' }} />
+          <Chip label={garment.stage_name} size='small' sx={{ alignSelf: 'flex-start', mt: 'auto' }} />
         </Box>
       </Grid>
     </Grid>

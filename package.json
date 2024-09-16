@@ -27,6 +27,7 @@
     "@fullcalendar/list": "6.1.10",
     "@fullcalendar/react": "6.1.10",
     "@fullcalendar/timegrid": "6.1.10",
+    "@hello-pangea/dnd": "^17.0.0",
     "@hookform/resolvers": "^3.4.2",
     "@iconify/iconify": "3.1.1",
     "@iconify/json": "2.2.167",

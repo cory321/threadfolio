@@ -100,7 +100,11 @@ export async function getOrders(userId, token) {
       garments (
         id,
         name,
-        stage,
+        stage_id,
+        garment_stages (
+          id,
+          name
+        ),
         image_cloud_id,
         garment_services (
           id,
@@ -128,9 +132,10 @@ export async function getOrders(userId, token) {
     garments: order.garments.map(garment => ({
       id: garment.id,
       name: garment.name,
-      stage: garment.stage,
-      image_cloud_id: garment.image_cloud_id, // Include image_cloud_id here
-      services: garment.garment_services,
+      stage_id: garment.stage_id,
+      stage_name: garment.garment_stages?.name || 'Unknown',
+      image_cloud_id: garment.image_cloud_id,
+      services: garment.garment_services || [],
       total_price: garment.garment_services.reduce((sum, service) => sum + service.qty * service.unit_price, 0)
     })),
     total_price: order.garments.reduce(
@@ -161,7 +166,11 @@ export async function getOrderById(userId, orderId, token) {
       garments (
         id,
         name,
-        stage,
+        stage_id,
+        garment_stages (
+          id,
+          name
+        ),
         image_cloud_id,
         garment_services (
           id,
@@ -190,9 +199,10 @@ export async function getOrderById(userId, orderId, token) {
     garments: order.garments.map(garment => ({
       id: garment.id,
       name: garment.name,
-      stage: garment.stage,
+      stage_id: garment.stage_id,
+      stage_name: garment.garment_stages?.name || 'Unknown',
       image_cloud_id: garment.image_cloud_id,
-      services: garment.garment_services,
+      services: garment.garment_services || [],
       total_price: garment.garment_services.reduce((sum, service) => sum + service.qty * service.unit_price, 0)
     })),
     total_price: order.garments.reduce(
@@ -216,7 +226,11 @@ export async function getGarments(userId, token, { page = 1, pageSize = 10, clie
       `
       id,
       name,
-      stage,
+      stage_id,
+      garment_stages (
+        id,
+        name
+      ),
       image_cloud_id,
       notes,
       due_date,
@@ -247,11 +261,7 @@ export async function getGarments(userId, token, { page = 1, pageSize = 10, clie
     query = query.eq('client_id', clientId)
   }
 
-  const {
-    data: garments,
-    error,
-    count
-  } = await query.range((page - 1) * pageSize, page * pageSize - 1).order('created_at', { ascending: false })
+  const { data: garments, error } = await query.range((page - 1) * pageSize, page * pageSize - 1)
 
   if (error) {
     throw new Error('Failed to fetch garments: ' + error.message)
@@ -261,7 +271,8 @@ export async function getGarments(userId, token, { page = 1, pageSize = 10, clie
   const processedGarments = garments.map(garment => ({
     id: garment.id,
     name: garment.name,
-    stage: garment.stage,
+    stage_id: garment.stage_id,
+    stage_name: garment.garment_stages?.name || 'Unknown',
     image_cloud_id: garment.image_cloud_id,
     notes: garment.notes,
     due_date: garment.due_date,
@@ -279,16 +290,10 @@ export async function getGarments(userId, token, { page = 1, pageSize = 10, clie
     total_price: garment.garment_services.reduce((sum, service) => sum + service.qty * service.unit_price, 0)
   }))
 
-  return {
-    garments: processedGarments,
-    totalCount: count,
-    page,
-    pageSize
-  }
+  return processedGarments
 }
 
 export async function getGarmentById(userId, orderId, garmentId, token) {
-  noStore()
   const supabase = await getSupabaseClient(token)
 
   const { data: garment, error } = await supabase
@@ -297,7 +302,11 @@ export async function getGarmentById(userId, orderId, garmentId, token) {
       `
       id,
       name,
-      stage,
+      stage_id,
+      garment_stages (
+        id,
+        name
+      ),
       image_cloud_id,
       notes,
       due_date,
@@ -330,7 +339,224 @@ export async function getGarmentById(userId, orderId, garmentId, token) {
 
   return {
     ...garment,
+    stage_name: garment.garment_stages?.name || 'Unknown',
     client: garment.clients,
-    services: garment.garment_services
+    services: garment.garment_services || []
+  }
+}
+
+export async function getGarmentsAndStages(userId, token) {
+  noStore() // Ensure caching is disabled
+  const supabase = await getSupabaseClient(token)
+
+  // Fetch garments with their associated data
+  const { data: garments, error: garmentsError } = await supabase
+    .from('garments')
+    .select(
+      `
+      id,
+      name,
+      stage_id,
+      garment_stages ( id, name ),
+      garment_services (
+        id,
+        name,
+        qty,
+        unit_price,
+        unit
+      ),
+      order_id,
+      image_cloud_id,
+      notes,
+      due_date,
+      is_event,
+      event_date,
+      client_id
+    `
+    )
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+
+  if (garmentsError) {
+    throw new Error('Failed to fetch garments: ' + garmentsError.message)
+  }
+
+  // Fetch stages
+  const { data: stages, error: stagesError } = await supabase
+    .from('garment_stages')
+    .select('*')
+    .eq('user_id', userId)
+    .order('position')
+
+  if (stagesError) {
+    throw new Error('Failed to fetch stages: ' + stagesError.message)
+  }
+
+  // Process garments to include stage names and services
+  const processedGarments = garments.map(garment => ({
+    ...garment,
+    stage_name: garment.garment_stages?.name || 'Unknown',
+    services: garment.garment_services || []
+  }))
+
+  return { garments: processedGarments, stages }
+}
+
+export async function getStages(userId, token) {
+  const supabase = await getSupabaseClient(token)
+
+  const { data: stages, error } = await supabase
+    .from('garment_stages')
+    .select('*')
+    .eq('user_id', userId)
+    .order('position')
+
+  if (error) {
+    throw new Error('Failed to fetch stages: ' + error.message)
+  }
+
+  return stages
+}
+
+export async function updateStages(userId, stages, token, stageToDelete = null, reassignStageId = null) {
+  const supabase = await getSupabaseClient(token)
+
+  // Validate all stage names are non-empty
+  const invalidStages = stages.filter(stage => !stage.name || stage.name.trim() === '')
+
+  if (invalidStages.length > 0) {
+    throw new Error('Stage names cannot be empty.')
+  }
+
+  // Prevent deleting the last remaining stage
+  if (stageToDelete && stages.length === 0) {
+    throw new Error('Cannot delete the last remaining stage.')
+  }
+
+  // If a stage is to be deleted and reassigned
+  if (stageToDelete && reassignStageId) {
+    console.log(`Reassigning garments from stage ID ${stageToDelete.id} to stage ID ${reassignStageId}`)
+
+    // Reassign garments from the stage to be deleted
+    const { error: updateError } = await supabase
+      .from('garments')
+      .update({ stage_id: reassignStageId })
+      .eq('stage_id', stageToDelete.id)
+
+    if (updateError) {
+      console.error('Reassign Error:', updateError)
+      throw new Error('Failed to reassign garments: ' + updateError.message)
+    }
+
+    console.log('Garments reassigned successfully.')
+
+    // Delete the stage after garments have been reassigned
+    const { error: deleteError } = await supabase.from('garment_stages').delete().eq('id', stageToDelete.id)
+
+    if (deleteError) {
+      console.error('Delete Error:', deleteError)
+      throw new Error('Failed to delete stage: ' + deleteError.message)
+    }
+
+    console.log(`Stage ID ${stageToDelete.id} deleted successfully.`)
+  }
+
+  // Update existing stages and insert new ones
+  for (const stage of stages) {
+    console.log('Processing stage:', stage)
+
+    if (stage.id) {
+      // Update existing stage
+      const { error } = await supabase
+        .from('garment_stages')
+        .update({ name: stage.name.trim(), position: stage.position })
+        .eq('id', stage.id)
+
+      if (error) {
+        console.error('Update Error:', error)
+        throw new Error('Failed to update stage: ' + error.message)
+      }
+
+      console.log(`Stage ID ${stage.id} updated successfully.`)
+    } else {
+      // Insert new stage
+      const { data: insertData, error } = await supabase
+        .from('garment_stages')
+        .insert({ user_id: userId, name: stage.name.trim(), position: stage.position })
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Insert Error:', error)
+        throw new Error('Failed to insert stage: ' + error.message)
+      }
+
+      if (!insertData) {
+        throw new Error('InsertData is undefined after inserting a new stage.')
+      }
+
+      // Update the stage in the local array with the new ID
+      stage.id = insertData.id
+
+      console.log(`New stage "${stage.name}" inserted successfully.`)
+    }
+  }
+
+  // Before the fetch of updated stages
+  for (const stage of stages) {
+    if (typeof stage.position !== 'number' || isNaN(stage.position)) {
+      console.error('Invalid position for stage:', stage)
+      throw new Error('All stages must have a valid position.')
+    }
+  }
+
+  // Fetch the updated list of stages
+  const { data: updatedStages, error: fetchError } = await supabase
+    .from('garment_stages')
+    .select('*')
+    .eq('user_id', userId)
+    .order('position')
+
+  if (fetchError) {
+    console.error('Fetch Error:', fetchError)
+    throw new Error('Failed to fetch updated stages: ' + fetchError.message)
+  }
+
+  return updatedStages
+}
+
+export async function customizeStages(userId, stages, token, stageToDeleteId, reassignStageId) {
+  const supabase = await getSupabaseClient(token)
+
+  // Fetch the stage to delete
+  const { data: stageToDelete, error: fetchError } = await supabase
+    .from('garment_stages')
+    .select('*')
+    .eq('id', stageToDeleteId)
+    .single()
+
+  if (fetchError) {
+    throw new Error('Failed to fetch stage to delete: ' + fetchError.message)
+  }
+
+  // Update stages with reassignment
+  return await updateStages(userId, stages, token, stageToDelete, reassignStageId)
+}
+
+export async function initializeDefaultStages(userId, token) {
+  const supabase = await getSupabaseClient(token)
+
+  const defaultStages = [
+    { user_id: userId, name: 'Not Started', position: 1 },
+    { user_id: userId, name: 'In Progress', position: 2 },
+    { user_id: userId, name: 'Ready for Pickup', position: 3 },
+    { user_id: userId, name: 'Stuck', position: 4 },
+    { user_id: userId, name: 'Archived', position: 5 }
+  ]
+
+  const { error } = await supabase.from('garment_stages').insert(defaultStages)
+
+  if (error) {
+    throw new Error('Failed to initialize default stages: ' + error.message)
   }
 }
