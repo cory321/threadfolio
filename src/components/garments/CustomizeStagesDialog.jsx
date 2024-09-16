@@ -1,7 +1,7 @@
 // src/components/garments/CustomizeStagesDialog.jsx
 import React, { useState, useEffect } from 'react'
 
-import { SketchPicker } from 'react-color'
+import { HexColorPicker } from 'react-colorful'
 import {
   Dialog,
   DialogTitle,
@@ -21,6 +21,29 @@ import { Delete, DragIndicator } from '@mui/icons-material'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 
 import { updateStages } from '@/app/actions/garments'
+
+const predefinedColors = [
+  { name: 'Soft Peach', hex: '#FAD4C0' },
+  { name: 'Pale Pink', hex: '#F9C8D0' },
+  { name: 'Light Lavender', hex: '#D6C4F2' },
+  { name: 'Soft Sky Blue', hex: '#A8DADC' },
+  { name: 'Misty Mint', hex: '#C7EDE5' },
+  { name: 'Pale Lemon', hex: '#FFF5BA' },
+  { name: 'Pastel Green', hex: '#B8E1C6' },
+  { name: 'Light Coral', hex: '#F7A9A8' },
+  { name: 'Soft Lilac', hex: '#E4C1F9' },
+  { name: 'Powder Blue', hex: '#B3D6F4' },
+  { name: 'Blush Pink', hex: '#F5C2C2' },
+  { name: 'Gentle Sand', hex: '#F1E1A6' },
+  { name: 'Periwinkle Blue', hex: '#C3CFF0' },
+  { name: 'Soft Seafoam', hex: '#D1F1E1' },
+  { name: 'Pastel Orange', hex: '#FFE0B5' },
+  { name: 'Pale Rose', hex: '#F5D0D0' },
+  { name: 'Light Blue Grey', hex: '#D2D9E5' },
+  { name: 'Creamy Yellow', hex: '#FDF4C9' },
+  { name: 'Mint Cream', hex: '#E0F2E9' },
+  { name: 'Warm Beige', hex: '#F6E0D5' }
+]
 
 export default function CustomizeStagesDialog({
   open,
@@ -447,12 +470,44 @@ export default function CustomizeStagesDialog({
       {/* Color Picker Dialog */}
       {colorPickerOpen && colorPickerStageIndex !== null && (
         <Dialog open={colorPickerOpen} onClose={handleCloseColorPicker}>
-          <DialogTitle>Choose Stage Color</DialogTitle>
+          <DialogTitle>Select a Color</DialogTitle>
           <DialogContent>
-            <SketchPicker
-              color={stages[colorPickerStageIndex].color || '#000000'}
-              onChangeComplete={color => handleStageColorChange(colorPickerStageIndex, color.hex)}
-            />
+            {/* HexColorPicker */}
+            <Box sx={{ mt: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <HexColorPicker
+                color={stages[colorPickerStageIndex]?.color || '#ffffff'}
+                onChange={color => {
+                  handleStageColorChange(colorPickerStageIndex, color)
+                }}
+              />
+
+              <Typography variant='body2' sx={{ mt: 2 }}>
+                Choose a custom color or select from the list below
+              </Typography>
+            </Box>
+            {/* Predefined Colors */}
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', mt: 2 }}>
+              {predefinedColors.map((colorOption, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: '50%',
+                    backgroundColor: colorOption.hex,
+                    cursor: 'pointer',
+                    border:
+                      stages[colorPickerStageIndex]?.color === colorOption.hex
+                        ? `2px solid ${theme.palette.primary.main}`
+                        : '2px solid transparent'
+                  }}
+                  onClick={() => {
+                    handleStageColorChange(colorPickerStageIndex, colorOption.hex)
+                    handleCloseColorPicker()
+                  }}
+                />
+              ))}
+            </Box>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseColorPicker}>Close</Button>
