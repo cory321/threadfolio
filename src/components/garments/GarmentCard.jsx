@@ -101,25 +101,30 @@ const GarmentCard = ({ garment, orderId, stageColor }) => {
         >
           {/* Card Header: Garment Title and Stage Chip */}
           <Grid container alignItems='center' justifyContent='space-between' spacing={1}>
-            <Grid item xs={8}>
+            <Grid item xs>
               {/* Garment Title */}
               <Typography variant='h6' component='div' noWrap>
                 {garment.name}
               </Typography>
             </Grid>
-            <Grid item xs={4}>
+            <Grid item>
               {/* Stage Chip */}
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Chip
-                  label={stageName}
-                  size='small'
-                  sx={{
-                    backgroundColor: backgroundColor,
-                    color: textColor,
-                    fontWeight: 'bold'
-                  }}
-                />
-              </Box>
+              <Chip
+                label={stageName}
+                size='small'
+                sx={{
+                  backgroundColor: backgroundColor,
+                  color: textColor,
+                  fontWeight: 'bold',
+                  maxWidth: 'none', // Prevent chip from being truncated
+                  height: 'auto', // Allow chip to expand vertically if needed
+                  '& .MuiChip-label': {
+                    whiteSpace: 'normal', // Allow text to wrap
+                    display: 'block',
+                    padding: '4px 8px' // Adjust padding as needed
+                  }
+                }}
+              />
             </Grid>
           </Grid>
 
