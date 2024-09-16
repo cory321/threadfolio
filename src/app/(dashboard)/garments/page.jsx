@@ -5,6 +5,8 @@ import React, { useEffect, useState } from 'react'
 import { useAuth } from '@clerk/nextjs'
 import { Button, Box, Typography, CircularProgress, Grid } from '@mui/material'
 import SettingsIcon from '@mui/icons-material/Settings'
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 
 import { getGarmentsAndStages } from '@/app/actions/garments'
 import GarmentCard from '@/components/garments/GarmentCard'
@@ -17,6 +19,7 @@ export default function GarmentsPage() {
   const [selectedStage, setSelectedStage] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [customizeDialogOpen, setCustomizeDialogOpen] = useState(false)
+  const [sortOrder, setSortOrder] = useState('asc')
   const { userId, getToken } = useAuth()
 
   const fetchGarmentsData = async () => {
@@ -73,12 +76,22 @@ export default function GarmentsPage() {
   const totalGarments = garmentsData.length
 
   const filteredGarments = React.useMemo(() => {
+    let garments = garmentsData
+
     if (selectedStage) {
-      return garmentsData.filter(garment => garment.stage_id === selectedStage.id)
+      garments = garments.filter(garment => garment.stage_id === selectedStage.id)
     }
 
-    return garmentsData
-  }, [garmentsData, selectedStage])
+    // Sort the garments by due_date
+    garments = garments.sort((a, b) => {
+      const dateA = a.due_date ? new Date(a.due_date) : new Date(0)
+      const dateB = b.due_date ? new Date(b.due_date) : new Date(0)
+
+      return sortOrder === 'asc' ? dateA - dateB : dateB - dateA
+    })
+
+    return garments
+  }, [garmentsData, selectedStage, sortOrder])
 
   return (
     <Box sx={{ p: 3 }}>
@@ -108,14 +121,20 @@ export default function GarmentsPage() {
             isLast={index === stages.length - 1}
           />
         ))}
+      </Box>
 
-        {/* Customize Stages Button */}
+      {/* Sorting Button Row */}
+      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Button
           variant='outlined'
-          onClick={() => setCustomizeDialogOpen(true)}
-          sx={{ marginLeft: 'auto', flexShrink: 0 }}
-          startIcon={<SettingsIcon />}
+          onClick={() => setSortOrder(prevOrder => (prevOrder === 'asc' ? 'desc' : 'asc'))}
+          startIcon={sortOrder === 'asc' ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
         >
+          Sort by Date
+        </Button>
+
+        {/* Customize Stages Button moved to the far right */}
+        <Button variant='outlined' onClick={() => setCustomizeDialogOpen(true)} startIcon={<SettingsIcon />}>
           Customize Stages
         </Button>
       </Box>
