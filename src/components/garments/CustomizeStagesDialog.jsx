@@ -240,7 +240,7 @@ export default function CustomizeStagesDialog({
             sx={{
               width: 180,
               height: 120,
-              border: '2px dashed grey',
+              border: `2px dashed ${theme.palette.primary.main}`, // Updated border color
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -280,110 +280,109 @@ export default function CustomizeStagesDialog({
                             position: 'relative',
                             padding: 1,
                             display: 'flex',
+                            flexDirection: 'column',
                             alignItems: 'center',
-                            justifyContent: 'center',
+                            justifyContent: 'space-between',
                             flexShrink: 0,
-                            '&:hover .hover-actions': { opacity: 1 },
                             border: '1px solid #ccc',
                             borderRadius: 2,
                             backgroundColor: 'white'
                           }}
                         >
-                          {isEditing === index ? (
-                            <TextField
-                              value={stage.name}
-                              onChange={e => handleStageNameChange(index, e.target.value)}
-                              onBlur={() => handleStageNameBlur(index)}
-                              onKeyDown={e => {
-                                if (e.key === 'Enter') {
-                                  handleStageNameBlur(index)
-                                }
-                              }}
-                              autoFocus
-                              inputProps={{ maxLength: 25 }}
-                              variant='outlined'
-                              size='small'
-                              sx={{ width: '100%' }}
-                              error={stage.touched && stage.name.trim() === ''}
-                              helperText={stage.touched && stage.name.trim() === '' ? 'Stage name is required' : ''}
-                            />
-                          ) : (
-                            <Tooltip title={stage.name.trim() === '' ? 'Click to edit' : stage.name}>
-                              <Typography
-                                variant='h6'
-                                onClick={() => setIsEditing(index)}
-                                sx={{
-                                  textAlign: 'center',
-                                  width: '100%',
-                                  userSelect: 'none',
-                                  wordWrap: 'break-word',
-                                  overflowWrap: 'break-word',
-                                  color: stage.touched && stage.name.trim() === '' ? 'red' : 'inherit',
-                                  cursor: 'pointer'
-                                }}
-                              >
-                                {stage.name.trim() === '' ? 'Empty Stage Name' : stage.name}
-                              </Typography>
-                            </Tooltip>
-                          )}
-
-                          {/* Hover Actions */}
-                          <Box
-                            className='hover-actions'
-                            sx={{
-                              position: 'absolute',
-                              top: 0,
-                              left: 0,
-                              width: '100%',
-                              height: '100%',
-                              bgcolor: 'rgba(0, 0, 0, 0.1)',
-                              opacity: 0,
-                              transition: 'opacity 0.3s',
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'flex-end',
-                              padding: 0.5,
-                              pointerEvents: 'none'
+                          {/* Delete Icon */}
+                          <IconButton
+                            size='small'
+                            sx={{ position: 'absolute', top: 4, left: 4, color: 'red' }}
+                            onClick={e => {
+                              e.stopPropagation()
+                              handleDeleteStage(index)
                             }}
                           >
-                            {/* Delete Icon */}
-                            <IconButton
-                              size='small'
-                              sx={{ color: 'red', pointerEvents: 'auto' }}
-                              onClick={e => {
-                                e.stopPropagation()
-                                handleDeleteStage(index)
-                              }}
-                            >
-                              <Delete fontSize='small' />
-                            </IconButton>
+                            <Delete fontSize='small' />
+                          </IconButton>
 
-                            {/* Color Box */}
-                            <Box
-                              onClick={e => {
-                                e.stopPropagation()
-                                handleOpenColorPicker(index)
-                              }}
-                              sx={{
-                                width: 24,
-                                height: 24,
-                                backgroundColor: stage.color || '#000',
-                                border: '1px solid #fff',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                pointerEvents: 'auto'
-                              }}
-                            />
+                          {/* Color Box */}
+                          <Box
+                            onClick={e => {
+                              e.stopPropagation()
+                              handleOpenColorPicker(index)
+                            }}
+                            sx={{
+                              position: 'absolute',
+                              top: 4,
+                              right: 4,
+                              width: 24,
+                              height: 24,
+                              backgroundColor: stage.color || '#000',
+                              border: '1px solid #fff',
+                              borderRadius: '4px',
+                              cursor: 'pointer'
+                            }}
+                          />
 
-                            {/* Drag Handle */}
-                            <IconButton
-                              size='small'
-                              {...provided.dragHandleProps}
-                              sx={{ cursor: 'grab', pointerEvents: 'auto' }}
-                            >
-                              <DragIndicator fontSize='small' />
-                            </IconButton>
+                          {/* Stage Name */}
+                          <Box
+                            sx={{
+                              flex: 1,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              width: '100%'
+                            }}
+                          >
+                            {isEditing === index ? (
+                              <TextField
+                                value={stage.name}
+                                onChange={e => handleStageNameChange(index, e.target.value)}
+                                onBlur={() => handleStageNameBlur(index)}
+                                onKeyDown={e => {
+                                  if (e.key === 'Enter') {
+                                    handleStageNameBlur(index)
+                                  }
+                                }}
+                                autoFocus
+                                inputProps={{ maxLength: 25 }}
+                                variant='outlined'
+                                size='small'
+                                sx={{ width: '100%' }}
+                                error={stage.touched && stage.name.trim() === ''}
+                                helperText={stage.touched && stage.name.trim() === '' ? 'Stage name is required' : ''}
+                              />
+                            ) : (
+                              <Tooltip title={stage.name.trim() === '' ? 'Click to edit' : stage.name}>
+                                <Typography
+                                  variant='h6'
+                                  onClick={() => setIsEditing(index)}
+                                  sx={{
+                                    textAlign: 'center',
+                                    width: '100%',
+                                    userSelect: 'none',
+                                    wordWrap: 'break-word',
+                                    overflowWrap: 'break-word',
+                                    color: stage.touched && stage.name.trim() === '' ? 'red' : 'inherit',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  {stage.name.trim() === '' ? 'Empty Stage Name' : stage.name}
+                                </Typography>
+                              </Tooltip>
+                            )}
                           </Box>
+
+                          {/* Drag Handle */}
+                          <IconButton
+                            size='small'
+                            {...provided.dragHandleProps}
+                            sx={{
+                              position: 'absolute',
+                              bottom: 4,
+                              left: '50%',
+                              transform: 'translateX(-50%)',
+                              cursor: 'grab'
+                            }}
+                          >
+                            <DragIndicator fontSize='small' />
+                          </IconButton>
                         </Card>
                       )}
                     </Draggable>
