@@ -36,8 +36,6 @@ export default function GarmentsPage() {
           ...garment,
           stage_name: garment.garment_stages.name,
           stage_color: garment.garment_stages.color
-
-          // ... other properties
         }))
       )
       setStages(fetchedStages)
@@ -58,6 +56,21 @@ export default function GarmentsPage() {
     console.log('handleStagesUpdated called')
     fetchGarmentsData()
   }
+
+  // Compute counts of garments per stage
+  const garmentCounts = React.useMemo(() => {
+    const counts = {}
+
+    garmentsData.forEach(garment => {
+      const stageId = garment.stage_id
+
+      counts[stageId] = (counts[stageId] || 0) + 1
+    })
+
+    return counts
+  }, [garmentsData])
+
+  const totalGarments = garmentsData.length
 
   const filteredGarments = React.useMemo(() => {
     if (selectedStage) {
@@ -81,7 +94,7 @@ export default function GarmentsPage() {
       >
         {/* "View All" Stage */}
         <StageBox
-          stage={{ name: 'View All' }}
+          stage={{ name: 'View All', count: totalGarments }}
           isSelected={!selectedStage}
           onClick={() => setSelectedStage(null)}
           isLast={false} // Changed to false to maintain consistent spacing
@@ -89,7 +102,7 @@ export default function GarmentsPage() {
         {stages.map((stage, index) => (
           <StageBox
             key={stage.id}
-            stage={stage}
+            stage={{ ...stage, count: garmentCounts[stage.id] || 0 }}
             isSelected={selectedStage?.id === stage.id}
             onClick={() => setSelectedStage(stage)}
             isLast={index === stages.length - 1}

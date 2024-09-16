@@ -573,3 +573,17 @@ export async function initializeDefaultStages(userId, token) {
     throw new Error('Failed to initialize default stages: ' + error.message)
   }
 }
+
+export async function updateGarmentStage(userId, garmentId, newStageId, token) {
+  const supabase = await getSupabaseClient(token)
+
+  const { error } = await supabase
+    .from('garments')
+    .update({ stage_id: newStageId })
+    .eq('user_id', userId)
+    .eq('id', garmentId)
+
+  if (error) {
+    throw new Error('Failed to update garment stage: ' + error.message)
+  }
+}

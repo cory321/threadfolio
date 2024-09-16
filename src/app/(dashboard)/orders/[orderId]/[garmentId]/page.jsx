@@ -5,11 +5,25 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 
 import { useAuth } from '@clerk/nextjs'
-import { Typography, Box, CircularProgress, Paper, Grid, Card, CardContent, CardHeader, Chip } from '@mui/material'
+import {
+  Typography,
+  Box,
+  CircularProgress,
+  Paper,
+  Grid,
+  Card,
+  CardContent,
+  CardHeader,
+  Chip,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel
+} from '@mui/material'
 import { CldImage } from 'next-cloudinary'
 import { format } from 'date-fns'
 
-import { getGarmentById } from '@/app/actions/garments'
+import { getGarmentById, getStages, updateGarmentStage } from '@/app/actions/garments'
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import { formatPhoneNumber } from '@/utils/formatPhoneNumber'
 import TimeTracker from '@/components/garments/TimeTracker'
@@ -17,31 +31,58 @@ import Finances from '@/components/garments/Finances'
 
 export default function GarmentPage() {
   const [garment, setGarment] = useState(null)
+  const [stages, setStages] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const { orderId, garmentId } = useParams()
   const { userId, getToken } = useAuth()
 
   useEffect(() => {
-    async function fetchGarment() {
+    async function fetchData() {
       if (userId && orderId && garmentId) {
         try {
           setIsLoading(true)
           const token = await getToken({ template: 'supabase' })
 
           if (!token) throw new Error('Failed to retrieve token')
+
           const fetchedGarment = await getGarmentById(userId, orderId, garmentId, token)
+          const fetchedStages = await getStages(userId, token)
 
           setGarment(fetchedGarment)
+          setStages(fetchedStages)
         } catch (error) {
-          console.error('Failed to fetch garment:', error)
+          console.error('Failed to fetch data:', error)
         } finally {
           setIsLoading(false)
         }
       }
     }
 
-    fetchGarment()
+    fetchData()
   }, [userId, orderId, garmentId, getToken])
+
+  // Handler for changing the stage
+  const handleStageChange = async event => {
+    const newStageId = event.target.value
+
+    try {
+      const token = await getToken({ template: 'supabase' })
+
+      if (!token) throw new Error('Failed to retrieve token')
+
+      // Update garment's stage in the database
+      await updateGarmentStage(userId, garment.id, newStageId, token)
+
+      // Update the garment state
+      setGarment(prevGarment => ({
+        ...prevGarment,
+        stage_id: newStageId,
+        stage_name: stages.find(stage => stage.id === newStageId)?.name || 'Unknown'
+      }))
+    } catch (error) {
+      console.error('Failed to update garment stage:', error)
+    }
+  }
 
   if (isLoading) {
     return (
@@ -132,7 +173,21 @@ export default function GarmentPage() {
               <Typography variant='h6' gutterBottom>
                 Stage
               </Typography>
-              <Chip label={garment.stage_name} color='primary' />
+              <FormControl fullWidth>
+                <InputLabel id='stage-select-label'>Select Stage</InputLabel>
+                <Select
+                  labelId='stage-select-label'
+                  value={garment.stage_id || ''}
+                  label='Select Stage'
+                  onChange={handleStageChange}
+                >
+                  {stages.map(stage => (
+                    <MenuItem key={stage.id} value={stage.id}>
+                      {stage.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </CardContent>
           </Card>
           <TimeTracker sx={{ mt: 2 }} />
