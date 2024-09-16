@@ -17,7 +17,7 @@ import {
   useTheme,
   useMediaQuery
 } from '@mui/material'
-import { Delete, DragIndicator } from '@mui/icons-material'
+import { Delete, DragIndicator, Close as CloseIcon } from '@mui/icons-material'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 
 import { updateStages } from '@/app/actions/garments'
@@ -250,7 +250,21 @@ export default function CustomizeStagesDialog({
         }
       }}
     >
-      <DialogTitle>Customize Stages</DialogTitle>
+      <DialogTitle>
+        Customize Stages
+        <IconButton
+          aria-label='close'
+          onClick={onClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: theme => theme.palette.grey[500]
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
       <DialogContent>
         {error && (
           <Typography variant='body2' color='error' sx={{ mb: 2 }}>
@@ -431,7 +445,21 @@ export default function CustomizeStagesDialog({
       {/* Confirm Delete Dialog */}
       {confirmDeleteOpen && (
         <Dialog open={confirmDeleteOpen} onClose={handleCloseConfirmDelete}>
-          <DialogTitle>Confirm Delete</DialogTitle>
+          <DialogTitle>
+            Confirm Delete
+            <IconButton
+              aria-label='close'
+              onClick={handleCloseConfirmDelete}
+              sx={{
+                position: 'absolute',
+                right: 8,
+                top: 8,
+                color: theme => theme.palette.grey[500]
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
           <DialogContent>
             <Typography>Are you sure you want to delete the stage "{stageToDelete && stageToDelete.name}"?</Typography>
             <Typography>Please select a stage to reassign garments to before deleting:</Typography>
@@ -470,7 +498,21 @@ export default function CustomizeStagesDialog({
       {/* Color Picker Dialog */}
       {colorPickerOpen && colorPickerStageIndex !== null && (
         <Dialog open={colorPickerOpen} onClose={handleCloseColorPicker}>
-          <DialogTitle>Select a Color</DialogTitle>
+          <DialogTitle>
+            Select a Color
+            <IconButton
+              aria-label='close'
+              onClick={handleCloseColorPicker}
+              sx={{
+                position: 'absolute',
+                right: 8,
+                top: 8,
+                color: theme => theme.palette.grey[500]
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
           <DialogContent>
             {/* HexColorPicker */}
             <Box sx={{ mt: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
