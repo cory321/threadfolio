@@ -25,13 +25,13 @@ const StageBox = ({ stage, isSelected, onClick, isLast }) => {
   const textColor = getContrastText(backgroundColor)
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', m: 1 }}>
       <Box
         onClick={onClick}
         sx={{
           minWidth: 100,
           height: 100,
-          backgroundColor,
+          backgroundColor: 'white', // Set the background color to white
           color: textColor,
           display: 'flex',
           flexDirection: 'column', // Stack items vertically
@@ -39,19 +39,48 @@ const StageBox = ({ stage, isSelected, onClick, isLast }) => {
           justifyContent: 'center',
           cursor: 'pointer',
           position: 'relative',
-          borderRadius: 1,
-
-          // Increase border size when selected
-          border: isSelected ? `3px solid ${theme.palette.primary.main}` : `1px solid ${theme.palette.grey[500]}`,
-          padding: 2
+          borderRadius: 2,
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', // Add a subtle shadow
+          overflow: 'hidden', // Ensure the top color section doesn't overflow
+          border: isSelected ? `3px solid ${backgroundColor}` : `0`,
+          transition: 'transform 0.2s, box-shadow 0.2s',
+          '&:hover': {
+            boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2)'
+          }
         }}
       >
-        <Typography variant='subtitle1' sx={{ fontWeight: 'bold', textAlign: 'center' }}>
-          {stage.name}
-        </Typography>
-        <Typography variant='h6' sx={{ textAlign: 'center' }}>
-          {stage.count}
-        </Typography>
+        {/* Top colored section */}
+        <Box
+          sx={{
+            width: '100%',
+            height: '30%',
+            backgroundColor,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderTopLeftRadius: 2,
+            borderTopRightRadius: 2,
+            padding: '8px 0'
+          }}
+        >
+          <Typography variant='subtitle1' sx={{ fontWeight: 'bold', textAlign: 'center', color: textColor, px: 2 }}>
+            {stage.name}
+          </Typography>
+        </Box>
+        {/* Bottom white section */}
+        <Box
+          sx={{
+            width: '100%',
+            height: '70%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <Typography variant='h2' sx={{ textAlign: 'center', color: 'black' }}>
+            {stage.count}
+          </Typography>
+        </Box>
       </Box>
       {!isLast && (
         <Box sx={{ width: 40, display: 'flex', justifyContent: 'center' }}>
