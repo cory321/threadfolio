@@ -2,11 +2,13 @@ import React from 'react'
 
 import Link from 'next/link'
 
-import { Typography, Box, Card, CardContent, Chip, Grid, Avatar, CardActionArea } from '@mui/material'
+import { Typography, Box, Card, CardContent, Chip, Grid, Avatar, CardActionArea, useTheme } from '@mui/material'
 import { CldImage } from 'next-cloudinary'
 import { format, differenceInDays } from 'date-fns'
 import EventIcon from '@mui/icons-material/Event'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
+
+import { getContrastText } from '@/utils/colorUtils'
 
 /**
  * Determines the status color and text based on the due date.
@@ -60,7 +62,7 @@ const StatusBadge = ({ type, label }) => {
   )
 }
 
-const GarmentCard = ({ garment, orderId }) => {
+const GarmentCard = ({ garment, orderId, stageColor }) => {
   const stageName = garment.stage_name || 'Unknown'
 
   const dateStatus = garment.due_date ? getDateStatus(garment.due_date) : null
@@ -91,7 +93,15 @@ const GarmentCard = ({ garment, orderId }) => {
             <Grid item xs={4}>
               {/* Stage Chip */}
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <StatusBadge type='stage' label={stageName} />
+                <Chip
+                  label={stageName}
+                  size='small'
+                  sx={{
+                    backgroundColor: stageColor || 'grey.500',
+                    color: 'white',
+                    fontWeight: 'bold'
+                  }}
+                />
               </Box>
             </Grid>
           </Grid>

@@ -118,7 +118,11 @@ export default function GarmentsPage() {
         <Grid container spacing={3}>
           {filteredGarments.map(garment => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={garment.id}>
-              <GarmentCard garment={garment} orderId={garment.order_id} stageColor={garment.stage_color} />
+              <GarmentCard
+                garment={garment}
+                orderId={garment.order_id}
+                stageColor={stages.find(stage => stage.id === garment.stage_id)?.color}
+              />
             </Grid>
           ))}
         </Grid>
