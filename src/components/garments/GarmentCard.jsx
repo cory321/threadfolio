@@ -2,11 +2,13 @@ import React from 'react'
 
 import Link from 'next/link'
 
-import { Typography, Box, Card, CardContent, Chip, Grid, Avatar, CardActionArea } from '@mui/material'
+import { Typography, Box, Card, CardContent, Chip, Grid, Avatar, CardActionArea, useTheme } from '@mui/material'
 import { CldImage } from 'next-cloudinary'
 import { format, differenceInDays } from 'date-fns'
 import EventIcon from '@mui/icons-material/Event'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
+
+import { getContrastText } from '@/utils/colorUtils'
 
 /**
  * Determines the status color and text based on the due date.
@@ -60,8 +62,25 @@ const StatusBadge = ({ type, label }) => {
   )
 }
 
-const GarmentCard = ({ garment, orderId }) => {
+const GarmentCard = ({ garment, orderId, stageColor }) => {
   const stageName = garment.stage_name || 'Unknown'
+  const theme = useTheme()
+  const defaultColor = theme.palette.grey[500]
+
+  // Determine background color
+  let backgroundColor = stageColor || defaultColor
+
+  // Ensure backgroundColor starts with '#'
+  if (
+    typeof backgroundColor === 'string' &&
+    !backgroundColor.startsWith('#') &&
+    /^([0-9A-F]{6}|[0-9A-F]{3})$/i.test(backgroundColor)
+  ) {
+    backgroundColor = `#${backgroundColor}`
+  }
+
+  // Calculate contrast text color
+  const textColor = getContrastText(backgroundColor)
 
   const dateStatus = garment.due_date ? getDateStatus(garment.due_date) : null
 
@@ -82,17 +101,30 @@ const GarmentCard = ({ garment, orderId }) => {
         >
           {/* Card Header: Garment Title and Stage Chip */}
           <Grid container alignItems='center' justifyContent='space-between' spacing={1}>
-            <Grid item xs={8}>
+            <Grid item xs>
               {/* Garment Title */}
               <Typography variant='h6' component='div' noWrap>
                 {garment.name}
               </Typography>
             </Grid>
-            <Grid item xs={4}>
+            <Grid item>
               {/* Stage Chip */}
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <StatusBadge type='stage' label={stageName} />
-              </Box>
+              <Chip
+                label={stageName}
+                size='small'
+                sx={{
+                  backgroundColor: backgroundColor,
+                  color: textColor,
+                  fontWeight: 'bold',
+                  maxWidth: 'none', // Prevent chip from being truncated
+                  height: 'auto', // Allow chip to expand vertically if needed
+                  '& .MuiChip-label': {
+                    whiteSpace: 'normal', // Allow text to wrap
+                    display: 'block',
+                    padding: '4px 8px' // Adjust padding as needed
+                  }
+                }}
+              />
             </Grid>
           </Grid>
 

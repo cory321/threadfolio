@@ -418,8 +418,21 @@ export async function getStages(userId, token) {
   return stages
 }
 
-export async function updateStages(userId, stages, token, stageToDelete = null, reassignStageId = null) {
+export async function updateStages(userId, stages, token, stageToDeleteId = null, reassignStageId = null) {
   const supabase = await getSupabaseClient(token)
+
+  // Fetch the stage to delete if needed
+  let stageToDelete = null
+
+  if (stageToDeleteId) {
+    const { data, error } = await supabase.from('garment_stages').select('*').eq('id', stageToDeleteId).single()
+
+    if (error) {
+      throw new Error('Failed to fetch stage to delete: ' + error.message)
+    }
+
+    stageToDelete = data
+  }
 
   // Validate all stage names are non-empty
   const invalidStages = stages.filter(stage => !stage.name || stage.name.trim() === '')
@@ -469,7 +482,7 @@ export async function updateStages(userId, stages, token, stageToDelete = null, 
       // Update existing stage
       const { error } = await supabase
         .from('garment_stages')
-        .update({ name: stage.name.trim(), position: stage.position })
+        .update({ name: stage.name.trim(), position: stage.position, color: stage.color })
         .eq('id', stage.id)
 
       if (error) {
@@ -482,7 +495,7 @@ export async function updateStages(userId, stages, token, stageToDelete = null, 
       // Insert new stage
       const { data: insertData, error } = await supabase
         .from('garment_stages')
-        .insert({ user_id: userId, name: stage.name.trim(), position: stage.position })
+        .insert({ user_id: userId, name: stage.name.trim(), position: stage.position, color: stage.color })
         .select()
         .single()
 
@@ -547,11 +560,11 @@ export async function initializeDefaultStages(userId, token) {
   const supabase = await getSupabaseClient(token)
 
   const defaultStages = [
-    { user_id: userId, name: 'Not Started', position: 1 },
-    { user_id: userId, name: 'In Progress', position: 2 },
-    { user_id: userId, name: 'Ready for Pickup', position: 3 },
-    { user_id: userId, name: 'Stuck', position: 4 },
-    { user_id: userId, name: 'Archived', position: 5 }
+    { user_id: userId, name: 'Not Started', position: 1, color: '#FF5733' },
+    { user_id: userId, name: 'In Progress', position: 2, color: '#33FF57' },
+    { user_id: userId, name: 'Ready for Pickup', position: 3, color: '#5733FF' },
+    { user_id: userId, name: 'Stuck', position: 4, color: '#FF3333' },
+    { user_id: userId, name: 'Archived', position: 5, color: '#333333' }
   ]
 
   const { error } = await supabase.from('garment_stages').insert(defaultStages)
