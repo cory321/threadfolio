@@ -461,7 +461,9 @@ export default function CustomizeStagesDialog({
             </IconButton>
           </DialogTitle>
           <DialogContent>
-            <Typography>Are you sure you want to delete the stage "{stageToDelete && stageToDelete.name}"?</Typography>
+            <Typography>
+              Are you sure you want to delete the stage &ldquo;{stageToDelete && stageToDelete.name}&rdquo;?
+            </Typography>
             <Typography>Please select a stage to reassign garments to before deleting:</Typography>
 
             {/* Display deleteError inside the Confirm Delete dialog */}
