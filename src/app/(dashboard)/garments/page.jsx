@@ -31,7 +31,15 @@ export default function GarmentsPage() {
       console.log('Fetched garments:', garments)
       console.log('Fetched stages:', fetchedStages)
 
-      setGarmentsData(garments)
+      setGarmentsData(
+        garments.map(garment => ({
+          ...garment,
+          stage_name: garment.garment_stages.name,
+          stage_color: garment.garment_stages.color
+
+          // ... other properties
+        }))
+      )
       setStages(fetchedStages)
     } catch (error) {
       console.error('Failed to fetch garments data:', error)
@@ -110,7 +118,7 @@ export default function GarmentsPage() {
         <Grid container spacing={3}>
           {filteredGarments.map(garment => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={garment.id}>
-              <GarmentCard garment={garment} orderId={garment.order_id} />
+              <GarmentCard garment={garment} orderId={garment.order_id} stageColor={garment.stage_color} />
             </Grid>
           ))}
         </Grid>

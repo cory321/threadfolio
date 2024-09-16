@@ -1,6 +1,7 @@
 // src/components/garments/CustomizeStagesDialog.jsx
 import React, { useState, useEffect } from 'react'
 
+import { SketchPicker } from 'react-color'
 import {
   Dialog,
   DialogTitle,
@@ -12,13 +13,12 @@ import {
   Card,
   Typography,
   TextField,
-  Tooltip
+  Tooltip,
+  useTheme,
+  useMediaQuery
 } from '@mui/material'
-import { Delete, DragIndicator, Edit } from '@mui/icons-material'
+import { Delete, DragIndicator } from '@mui/icons-material'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
-
-import { useTheme } from '@mui/material/styles'
-import useMediaQuery from '@mui/material/useMediaQuery'
 
 import { updateStages } from '@/app/actions/garments'
 
@@ -30,18 +30,25 @@ export default function CustomizeStagesDialog({
   userId,
   getToken
 }) {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+
   const [stages, setStages] = useState([])
   const [isEditing, setIsEditing] = useState(null)
   const [error, setError] = useState('')
-  const [deleteError, setDeleteError] = useState('') // New state for Confirm Delete dialog errors
+  const [deleteError, setDeleteError] = useState('')
   const [stageToDelete, setStageToDelete] = useState(null)
   const [reassignStageId, setReassignStageId] = useState(null)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
+  // State for Color Picker Dialog
+  const [colorPickerOpen, setColorPickerOpen] = useState(false)
+  const [colorPickerStageIndex, setColorPickerStageIndex] = useState(null)
+
   useEffect(() => {
     if (open) {
-      // Initialize stages from props when the dialog opens, add 'touched: false' to each stage
+      // Initialize stages from props when the dialog opens
       setStages(initialStages.map(stage => ({ ...stage, touched: false })))
     }
   }, [open, initialStages])
@@ -53,7 +60,7 @@ export default function CustomizeStagesDialog({
       setStageToDelete(null)
       setReassignStageId(null)
       setConfirmDeleteOpen(false)
-      setDeleteError('') // Reset deleteError when the main dialog closes
+      setDeleteError('')
     }
   }, [open])
 
@@ -74,7 +81,8 @@ export default function CustomizeStagesDialog({
       user_id: userId,
       name: '',
       position: stages.length + 1,
-      touched: false // Initialize 'touched' as false
+      touched: false,
+      color: '#000000' // Default color for new stages
     }
 
     setStages(prevStages => {
@@ -93,20 +101,70 @@ export default function CustomizeStagesDialog({
 
     if (stageToDelete.id === null) {
       // If the stage is new (unsaved), remove it from local state
-      setStages(prevStages => {
-        const updatedStages = prevStages.filter((_, i) => i !== index)
-
-        // Update positions of remaining stages
-        return updatedStages.map((stage, idx) => ({
-          ...stage,
-          position: idx + 1
-        }))
-      })
+      setStages(prevStages => prevStages.filter((_, i) => i !== index))
     } else {
       // Existing stage, proceed with confirmation dialog
       setStageToDelete(stageToDelete)
       setConfirmDeleteOpen(true)
     }
+
+    setError('')
+  }
+
+  const handleStageNameChange = (index, name) => {
+    setStages(prevStages => prevStages.map((stage, i) => (i === index ? { ...stage, name, touched: true } : stage)))
+  }
+
+  const handleStageNameBlur = index => {
+    setIsEditing(null)
+  }
+
+  const handleStageColorChange = (index, color) => {
+    setStages(prevStages => prevStages.map((stage, i) => (i === index ? { ...stage, color } : stage)))
+  }
+
+  const handleOpenColorPicker = index => {
+    setColorPickerStageIndex(index)
+    setColorPickerOpen(true)
+  }
+
+  const handleCloseColorPicker = () => {
+    setColorPickerStageIndex(null)
+    setColorPickerOpen(false)
+  }
+
+  const handleSave = async () => {
+    setIsSaving(true)
+
+    try {
+      const token = await getToken({ template: 'supabase' })
+
+      // Prepare stages for saving
+      const stagesToSave = stages.map(stage => ({
+        id: stage.id,
+        user_id: userId,
+        name: stage.name.trim(),
+        position: stage.position,
+        color: stage.color
+      }))
+
+      await updateStages(userId, stagesToSave, token)
+
+      onStagesUpdated()
+      onClose()
+    } catch (err) {
+      console.error(err)
+      setError('Failed to save stages. Please try again.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleCloseConfirmDelete = () => {
+    setStageToDelete(null)
+    setReassignStageId(null)
+    setConfirmDeleteOpen(false)
+    setDeleteError('')
   }
 
   const handleConfirmDelete = async () => {
@@ -117,109 +175,66 @@ export default function CustomizeStagesDialog({
       return
     }
 
-    if (stageToDelete && reassignStageId && reassignStageId !== stageToDelete.id) {
+    if (stageToDelete && reassignStageId) {
       setConfirmDeleteOpen(false)
       setDeleteError('') // Clear any previous delete errors
 
       try {
-        await handleSave()
+        const token = await getToken({ template: 'supabase' })
 
-        // Reset variables after handleSave completes
+        // Prepare stages for saving, excluding the stage to delete
+        const stagesToSave = stages
+          .filter(stage => stage.id !== stageToDelete.id)
+          .map(stage => ({
+            id: stage.id,
+            user_id: userId,
+            name: stage.name.trim(),
+            position: stage.position,
+            color: stage.color
+          }))
+
+        await updateStages(userId, stagesToSave, token, stageToDelete.id, reassignStageId)
+
+        onStagesUpdated()
+        onClose()
+
+        // Reset variables
         setStageToDelete(null)
         setReassignStageId(null)
       } catch (err) {
-        console.error('Error during handleSave:', err)
-        setError('Failed to save stages. Please try again.')
+        console.error('Error during handleConfirmDelete:', err)
+        setDeleteError('Failed to delete stage. Please try again.')
+      } finally {
+        setIsSaving(false)
       }
     } else {
       setDeleteError('Please select a valid stage to reassign garments to.')
     }
   }
 
-  const handleStageNameChange = (index, newName) => {
-    const updatedStages = stages.map((stage, i) => (i === index ? { ...stage, name: newName, touched: true } : stage))
-
-    setStages(updatedStages)
-  }
-
-  const handleStageNameBlur = index => {
-    const updatedStages = stages.map((stage, i) => {
-      if (i === index) {
-        if (stage.name.trim() === '') {
-          return {
-            ...stage,
-            name: `Stage ${i + 1}`,
-            touched: true
-          }
-        } else {
-          return {
-            ...stage,
-            touched: true
-          }
-        }
-      }
-
-      return stage
-    })
-
-    setStages(updatedStages)
-    setIsEditing(null)
-  }
-
-  const handleSave = async () => {
-    setIsSaving(true)
-
-    try {
-      const token = await getToken({ template: 'supabase' })
-
-      await updateStages(userId, stages, token, stageToDelete, reassignStageId)
-
-      console.log('Stages updated in database')
-
-      onStagesUpdated()
-      onClose()
-
-      // Reset local state
-      setError('')
-      setStageToDelete(null)
-      setReassignStageId(null)
-    } catch (err) {
-      console.error(err)
-      setError('Failed to save stages. Please try again.')
-    } finally {
-      setIsSaving(false)
-    }
-  }
-
-  const handleCloseConfirmDelete = () => {
-    setConfirmDeleteOpen(false)
-    setDeleteError('') // Clear deleteError when the Confirm Delete dialog closes
-    setStageToDelete(null)
-    setReassignStageId(null)
-  }
-
-  const theme = useTheme()
-
   return (
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth='lg'
+      maxWidth='xl'
       fullWidth
-      fullScreen={useMediaQuery(theme.breakpoints.down('sm'))}
+      fullScreen={isMobile}
+      PaperProps={{
+        sx: {
+          width: isMobile ? '100%' : '90%',
+          height: isMobile ? '100%' : 'auto',
+          maxWidth: 'none'
+        }
+      }}
     >
-      <DialogTitle>Customize your stages</DialogTitle>
+      <DialogTitle>Customize Stages</DialogTitle>
       <DialogContent>
-        <Typography variant='subtitle1' sx={{ mb: 2 }}>
-          Add, rename, move, or delete stages to fit your garment flow processes.
-        </Typography>
         {error && (
           <Typography variant='body2' color='error' sx={{ mb: 2 }}>
             {error}
           </Typography>
         )}
-        {/* DragDropContext for Stages */}
-        <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', mb: 2 }}>
+        <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', mb: 2, pb: 2 }}>
           {/* Add Stage Box */}
           <Card
             sx={{
@@ -240,7 +255,15 @@ export default function CustomizeStagesDialog({
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId='stages' direction='horizontal'>
               {provided => (
-                <Box ref={provided.innerRef} {...provided.droppableProps} sx={{ display: 'flex', gap: 2 }}>
+                <Box
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  sx={{
+                    display: 'flex',
+                    gap: 2,
+                    flexWrap: isMobile ? 'wrap' : 'nowrap'
+                  }}
+                >
                   {stages.map((stage, index) => (
                     <Draggable
                       key={stage.id ? stage.id.toString() : `temp-${index}`}
@@ -263,7 +286,7 @@ export default function CustomizeStagesDialog({
                             '&:hover .hover-actions': { opacity: 1 },
                             border: '1px solid #ccc',
                             borderRadius: 2,
-                            backgroundColor: stage.touched && stage.name.trim() === '' ? '#fff0f0' : 'white'
+                            backgroundColor: 'white'
                           }}
                         >
                           {isEditing === index ? (
@@ -335,17 +358,22 @@ export default function CustomizeStagesDialog({
                               <Delete fontSize='small' />
                             </IconButton>
 
-                            {/* Edit Icon */}
-                            <IconButton
-                              size='small'
-                              sx={{ color: 'blue', pointerEvents: 'auto' }}
+                            {/* Color Box */}
+                            <Box
                               onClick={e => {
                                 e.stopPropagation()
-                                setIsEditing(index)
+                                handleOpenColorPicker(index)
                               }}
-                            >
-                              <Edit fontSize='small' />
-                            </IconButton>
+                              sx={{
+                                width: 24,
+                                height: 24,
+                                backgroundColor: stage.color || '#000',
+                                border: '1px solid #fff',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                pointerEvents: 'auto'
+                              }}
+                            />
 
                             {/* Drag Handle */}
                             <IconButton
@@ -398,7 +426,7 @@ export default function CustomizeStagesDialog({
                 .filter(stage => stage.id !== (stageToDelete && stageToDelete.id))
                 .map(stage => (
                   <Button
-                    key={stage.id || `temp-${stage.position}`}
+                    key={stage.id}
                     variant={reassignStageId === stage.id ? 'contained' : 'outlined'}
                     onClick={() => setReassignStageId(stage.id)}
                     sx={{ mr: 1, mb: 1 }}
@@ -413,6 +441,22 @@ export default function CustomizeStagesDialog({
             <Button variant='contained' color='error' onClick={handleConfirmDelete}>
               Delete
             </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+
+      {/* Color Picker Dialog */}
+      {colorPickerOpen && colorPickerStageIndex !== null && (
+        <Dialog open={colorPickerOpen} onClose={handleCloseColorPicker}>
+          <DialogTitle>Choose Stage Color</DialogTitle>
+          <DialogContent>
+            <SketchPicker
+              color={stages[colorPickerStageIndex].color || '#000000'}
+              onChangeComplete={color => handleStageColorChange(colorPickerStageIndex, color.hex)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseColorPicker}>Close</Button>
           </DialogActions>
         </Dialog>
       )}
