@@ -106,6 +106,7 @@ export async function getOrders(userId, token) {
     .select(
       `
       id,
+      user_order_number,
       created_at,
       client_id,
       clients (
@@ -140,6 +141,7 @@ export async function getOrders(userId, token) {
   // Process the orders to calculate total price and format the data
   const processedOrders = orders.map(order => ({
     id: order.id,
+    user_order_number: order.user_order_number,
     created_at: order.created_at,
     client_id: order.client_id,
     client_name: order.clients?.full_name || 'Unknown',
@@ -172,6 +174,7 @@ export async function getOrderById(userId, orderId, token) {
     .select(
       `
       id,
+      user_order_number,
       created_at,
       client_id,
       clients (
@@ -207,6 +210,7 @@ export async function getOrderById(userId, orderId, token) {
   // Process the order to calculate total price and format the data
   const processedOrder = {
     id: order.id,
+    user_order_number: order.user_order_number,
     created_at: order.created_at,
     client_id: order.client_id,
     client_name: order.clients?.full_name || 'Unknown',
@@ -333,6 +337,10 @@ export async function getGarmentById(userId, orderId, garmentId, token) {
         email,
         phone_number
       ),
+      order_id,
+      garment_orders (
+        user_order_number
+      ),
       garment_services (
         id,
         name,
@@ -351,11 +359,13 @@ export async function getGarmentById(userId, orderId, garmentId, token) {
     throw new Error('Failed to fetch garment: ' + error.message)
   }
 
+  // Process and return garment data
   return {
     ...garment,
     stage_name: garment.garment_stages?.name || 'Unknown',
     client: garment.clients,
-    services: garment.garment_services || []
+    services: garment.garment_services || [],
+    user_order_number: garment.garment_orders?.user_order_number || null
   }
 }
 

@@ -9,16 +9,14 @@ import {
   Typography,
   Box,
   CircularProgress,
-  Paper,
   Grid,
   Card,
   CardContent,
   CardHeader,
-  Chip,
-  Select,
-  MenuItem,
   FormControl,
-  InputLabel
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material'
 import { CldImage } from 'next-cloudinary'
 import { format } from 'date-fns'
@@ -28,6 +26,7 @@ import Breadcrumb from '@/components/ui/Breadcrumb'
 import { formatPhoneNumber } from '@/utils/formatPhoneNumber'
 import TimeTracker from '@/components/garments/TimeTracker'
 import Finances from '@/components/garments/Finances'
+import { formatOrderNumber } from '@/utils/formatOrderNumber' // Import the utility function
 
 export default function GarmentPage() {
   const [garment, setGarment] = useState(null)
@@ -101,11 +100,15 @@ export default function GarmentPage() {
       <Breadcrumb
         items={[
           { label: 'Orders', href: '/orders' },
-          { label: `Order #${orderId}`, href: `/orders/${orderId}` },
+          {
+            label: `Order #${formatOrderNumber(garment.user_order_number)}`,
+            href: `/orders/${orderId}`
+          },
           { label: garment.name, href: `/orders/${orderId}/${garment.id}` }
         ]}
       />
       <Grid container spacing={3} sx={{ mt: 2 }}>
+        {/* Left Column */}
         <Grid item xs={12} md={3}>
           <Card>
             <CardContent>
@@ -149,6 +152,7 @@ export default function GarmentPage() {
             </CardContent>
           </Card>
         </Grid>
+        {/* Middle Column */}
         <Grid item xs={12} md={6}>
           <Card>
             <CardHeader title='Services' />
@@ -167,6 +171,7 @@ export default function GarmentPage() {
             </CardContent>
           </Card>
         </Grid>
+        {/* Right Column */}
         <Grid item xs={12} md={3}>
           <Card>
             <CardContent>

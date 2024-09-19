@@ -6,12 +6,13 @@ import { Typography, Box, Paper, Grid } from '@mui/material'
 import { format } from 'date-fns'
 
 import OrderGarmentCard from '@/components/orders/OrderGarmentCard'
+import { formatOrderNumber } from '@/utils/formatOrderNumber' // Import the utility
 
 const OrderDetails = ({ order }) => {
   return (
     <Box>
       <Typography variant='h4' gutterBottom>
-        Order #{order.id}
+        Order #{formatOrderNumber(order.user_order_number)}
       </Typography>
       <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
         <Grid container spacing={2}>

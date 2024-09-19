@@ -10,6 +10,7 @@ import { useAuth } from '@clerk/nextjs'
 
 import { getOrders } from '@/app/actions/garments'
 import OrderGarmentCard from '@/components/orders/OrderGarmentCard'
+import { formatOrderNumber } from '@/utils/formatOrderNumber'
 
 const OrderCard = ({ order }) => {
   const dueDate = addDays(new Date(order.created_at), 14)
@@ -21,7 +22,7 @@ const OrderCard = ({ order }) => {
           <Grid container spacing={2} sx={{ mb: 3 }}>
             <Grid item xs={12} sm={6} md={3}>
               <Typography variant='subtitle1' color='primary' sx={{ fontWeight: 'bold' }}>
-                #{order.id}
+                #{formatOrderNumber(order.user_order_number)}
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
