@@ -8,6 +8,20 @@ export async function addGarmentsAndServicesFromContext(userId, selectedClient, 
   noStore()
   const supabase = await getSupabaseClient(token)
 
+  // Fetch the stage at position 1
+  const { data: defaultStage, error: defaultStageError } = await supabase
+    .from('garment_stages')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('position', 1)
+    .single()
+
+  if (defaultStageError || !defaultStage) {
+    throw new Error('Failed to fetch default stage: ' + (defaultStageError?.message || 'Stage not found'))
+  }
+
+  const defaultStageId = defaultStage.id
+
   // Create a new garment order
   const { data: orderData, error: orderError } = await supabase
     .from('garment_orders')
@@ -35,7 +49,7 @@ export async function addGarmentsAndServicesFromContext(userId, selectedClient, 
           client_id: selectedClient.id,
           name: garment.name,
           image_cloud_id: garment.image_cloud_id,
-          stage: garment.stage || 'not started',
+          stage_id: defaultStageId, // Use the stage at position 1
           notes: garment.notes,
           due_date: garment.due_date,
           is_event: garment.is_event,
