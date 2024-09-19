@@ -6,8 +6,6 @@ import dynamic from 'next/dynamic'
 
 import { useMediaQuery, useTheme, Box, Grid, Card, CardContent, CardHeader, Avatar, Typography } from '@mui/material'
 
-import EventIcon from '@mui/icons-material/Event'
-
 import Greeting from '@components/todo/Greeting'
 import { defaultBreakpoints } from '@menu/defaultConfigs'
 
@@ -50,18 +48,6 @@ export default function Home() {
             </Grid>
             <Grid item xs={12}>
               <Card>
-                <CardHeader
-                  title={
-                    <Box display='flex' alignItems='center'>
-                      <Avatar>
-                        <EventIcon />
-                      </Avatar>
-                      <Typography variant='h6' ml={1}>
-                        Upcoming Appointments
-                      </Typography>
-                    </Box>
-                  }
-                />
                 <CardContent>
                   <UpcomingAppointments />
                 </CardContent>
@@ -84,18 +70,6 @@ export default function Home() {
             </Grid>
             <Grid item xs={5}>
               <Card>
-                <CardHeader
-                  title={
-                    <Box display='flex' alignItems='center'>
-                      <Avatar>
-                        <EventIcon />
-                      </Avatar>
-                      <Typography variant='h6' ml={1}>
-                        Upcoming Appointments
-                      </Typography>
-                    </Box>
-                  }
-                />
                 <CardContent>
                   <UpcomingAppointments />
                 </CardContent>
