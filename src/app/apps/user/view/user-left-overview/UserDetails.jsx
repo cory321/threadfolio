@@ -37,7 +37,6 @@ const UserDetails = ({ userData }) => {
                 )}
                 <Typography variant='h3'>{userData.full_name}</Typography>
               </div>
-              <Chip label='cute label if needed' color='success' size='small' variant='tonal' />
             </div>
             <Box mt={4} px={2}>
               {userData.phone_number && (

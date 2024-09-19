@@ -113,3 +113,26 @@ export async function addClient({ userId, fullName, email, phoneNumber, mailingA
 
   return data
 }
+
+export async function updateClient(id, clientData, token) {
+  const supabase = await getSupabaseClient(token)
+  const timestamp = new Date().toISOString()
+
+  // Include updated_at in the clientData
+  const updateData = {
+    ...clientData,
+    updated_at: timestamp
+  }
+
+  const { data, error } = await supabase.from('clients').update(updateData).eq('id', id).select().maybeSingle()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  if (!data) {
+    throw new Error('Client not found')
+  }
+
+  return data
+}

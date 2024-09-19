@@ -5,13 +5,24 @@ import React, { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { useParams } from 'next/navigation'
 
-import { Grid, CircularProgress, Typography, Alert, Box } from '@mui/material'
+import {
+  Grid,
+  CircularProgress,
+  Typography,
+  Alert,
+  Box,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent
+} from '@mui/material'
 import { useAuth } from '@clerk/nextjs'
 
-import UserLeftOverview from '@/app/apps/user/view/user-left-overview/'
+import UserLeftOverview from '@/app/apps/user/view/user-left-overview'
 import UserRight from '@/app/apps/user/view/user-right'
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import { fetchClientById } from '@actions/clients'
+import EditClientForm from '@/components/clients/EditClientForm'
 
 const OrdersTab = dynamic(() => import('@/app/apps/user/view/user-right/orders'))
 const SecurityTab = dynamic(() => import('@/app/apps/user/view/user-right/security'))
@@ -33,6 +44,7 @@ const ClientProfile = () => {
   const [client, setClient] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   useEffect(() => {
     const loadClient = async () => {
@@ -59,9 +71,22 @@ const ClientProfile = () => {
     }
   }, [id, getToken])
 
+  const handleClientUpdate = updatedClient => {
+    setClient(updatedClient)
+    setIsEditModalOpen(false)
+  }
+
+  const handleEditButtonClick = () => {
+    setIsEditModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsEditModalOpen(false)
+  }
+
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Box display='flex' justifyContent='center' alignItems='center' height='100vh'>
         <CircularProgress />
       </Box>
     )
@@ -90,11 +115,21 @@ const ClientProfile = () => {
       <Grid container spacing={6} sx={{ mt: 2 }}>
         <Grid item xs={12} lg={4} md={5}>
           <UserLeftOverview userData={client} />
+          <Button variant='contained' color='primary' onClick={handleEditButtonClick} sx={{ mt: 2 }} fullWidth>
+            Edit Client Information
+          </Button>
         </Grid>
         <Grid item xs={12} lg={8} md={7}>
           <UserRight tabContentList={tabContentList()} clientId={id} clientName={client.full_name} />
         </Grid>
       </Grid>
+
+      <Dialog open={isEditModalOpen} onClose={handleCloseModal} maxWidth='sm' fullWidth>
+        <DialogTitle>Edit Client Information</DialogTitle>
+        <DialogContent>
+          <EditClientForm client={client} onUpdate={handleClientUpdate} onCancel={handleCloseModal} />
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
