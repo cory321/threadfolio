@@ -85,7 +85,11 @@ const GarmentCard = ({ garment, orderId, stageColor }) => {
   const dateStatus = garment.due_date ? getDateStatus(garment.due_date) : null
 
   return (
-    <Link href={`/orders/${orderId}/${garment.id}`} passHref style={{ textDecoration: 'none', width: '100%' }}>
+    <Link
+      href={`/orders/${orderId}/${garment.id}?from=garments`}
+      passHref
+      style={{ textDecoration: 'none', width: '100%' }}
+    >
       <CardActionArea sx={{ height: '100%' }}>
         <Card
           sx={{
