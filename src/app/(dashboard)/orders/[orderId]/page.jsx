@@ -10,6 +10,7 @@ import { Typography, Box, CircularProgress } from '@mui/material'
 import { getOrderById } from '@/app/actions/garments'
 import OrderDetails from '@/components/orders/OrderDetails'
 import Breadcrumb from '@/components/ui/Breadcrumb'
+import { formatOrderNumber } from '@/utils/formatOrderNumber' // Import the utility
 
 export default function OrderPage() {
   const [order, setOrder] = useState(null)
@@ -56,20 +57,13 @@ export default function OrderPage() {
       <Breadcrumb
         items={[
           { label: 'Orders', href: '/orders' },
-          { label: `Order #${order.id}`, href: `/orders/${order.id}` }
+          { label: `Order #${formatOrderNumber(order.user_order_number)}`, href: `/orders/${order.id}` }
         ]}
       />
       <Box sx={{ mt: 2 }}>
         <OrderDetails order={order} />
       </Box>
-      <Box sx={{ mt: 2 }}>
-        <Typography variant='h6'>Invoicing Information</Typography>
-        <Typography>
-          Put invoicing information on this page, so that the garments in this order can be invoiced. We want to be able
-          to add all garments in the order to an invoice with their respective services. When the services are paid, we
-          can classify the garment as paid status.
-        </Typography>
-      </Box>
+      {/* Additional content */}
     </>
   )
 }

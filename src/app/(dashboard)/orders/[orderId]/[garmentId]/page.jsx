@@ -2,23 +2,24 @@
 
 import { useEffect, useState } from 'react'
 
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 
 import { useAuth } from '@clerk/nextjs'
 import {
   Typography,
   Box,
   CircularProgress,
-  Paper,
   Grid,
   Card,
   CardContent,
   CardHeader,
-  Chip,
+  FormControl,
+  InputLabel,
   Select,
   MenuItem,
-  FormControl,
-  InputLabel
+  Button,
+  Divider
 } from '@mui/material'
 import { CldImage } from 'next-cloudinary'
 import { format } from 'date-fns'
@@ -28,13 +29,18 @@ import Breadcrumb from '@/components/ui/Breadcrumb'
 import { formatPhoneNumber } from '@/utils/formatPhoneNumber'
 import TimeTracker from '@/components/garments/TimeTracker'
 import Finances from '@/components/garments/Finances'
+import { formatOrderNumber } from '@/utils/formatOrderNumber'
 
 export default function GarmentPage() {
   const [garment, setGarment] = useState(null)
   const [stages, setStages] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const { orderId, garmentId } = useParams()
+  const searchParams = useSearchParams()
   const { userId, getToken } = useAuth()
+
+  const fromPage = searchParams.get('from')
+  const showBackButton = fromPage === 'garments'
 
   useEffect(() => {
     async function fetchData() {
@@ -61,7 +67,6 @@ export default function GarmentPage() {
     fetchData()
   }, [userId, orderId, garmentId, getToken])
 
-  // Handler for changing the stage
   const handleStageChange = async event => {
     const newStageId = event.target.value
 
@@ -70,10 +75,8 @@ export default function GarmentPage() {
 
       if (!token) throw new Error('Failed to retrieve token')
 
-      // Update garment's stage in the database
       await updateGarmentStage(userId, garment.id, newStageId, token)
 
-      // Update the garment state
       setGarment(prevGarment => ({
         ...prevGarment,
         stage_id: newStageId,
@@ -98,13 +101,32 @@ export default function GarmentPage() {
 
   return (
     <>
-      <Breadcrumb
-        items={[
-          { label: 'Orders', href: '/orders' },
-          { label: `Order #${orderId}`, href: `/orders/${orderId}` },
-          { label: garment.name, href: `/orders/${orderId}/${garment.id}` }
-        ]}
-      />
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        {showBackButton && (
+          <>
+            <Link href='/garments' passHref>
+              <Button variant='text' component='a'>
+                &lt; Back to Garments
+              </Button>
+            </Link>
+            <Divider
+              orientation='vertical'
+              flexItem
+              sx={{ ml: { xs: 1, sm: 2 }, mr: 4, borderRightWidth: 2, borderColor: 'grey.300' }}
+            />
+          </>
+        )}
+        <Breadcrumb
+          items={[
+            { label: 'Orders', href: '/orders' },
+            {
+              label: `Order #${formatOrderNumber(garment.user_order_number)}`,
+              href: `/orders/${orderId}`
+            },
+            { label: garment.name, href: `/orders/${orderId}/${garment.id}` }
+          ]}
+        />
+      </Box>
       <Grid container spacing={3} sx={{ mt: 2 }}>
         <Grid item xs={12} md={3}>
           <Card>
