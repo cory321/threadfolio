@@ -24,12 +24,15 @@ import {
 import { CldImage } from 'next-cloudinary'
 import { format } from 'date-fns'
 
+import { toast } from 'react-toastify'
+
 import { getGarmentById, getStages, updateGarmentStage } from '@/app/actions/garments'
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import { formatPhoneNumber } from '@/utils/formatPhoneNumber'
 import TimeTracker from '@/components/garments/TimeTracker'
 import Finances from '@/components/garments/Finances'
 import { formatOrderNumber } from '@/utils/formatOrderNumber'
+import { getContrastText } from '@/utils/colorUtils' // Import the utility function
 
 export default function GarmentPage() {
   const [garment, setGarment] = useState(null)
@@ -69,6 +72,7 @@ export default function GarmentPage() {
 
   const handleStageChange = async event => {
     const newStageId = event.target.value
+    const newStageName = stages.find(stage => stage.id === newStageId)?.name || 'Unknown'
 
     try {
       const token = await getToken({ template: 'supabase' })
@@ -80,12 +84,20 @@ export default function GarmentPage() {
       setGarment(prevGarment => ({
         ...prevGarment,
         stage_id: newStageId,
-        stage_name: stages.find(stage => stage.id === newStageId)?.name || 'Unknown'
+        stage_name: newStageName
       }))
+
+      toast.success(`Garment stage set to ${newStageName}`)
     } catch (error) {
       console.error('Failed to update garment stage:', error)
+      toast.error('Failed to update garment stage. Please try again later.')
     }
   }
+
+  // Find the current stage and its color
+  const currentStage = stages.find(stage => stage.id === garment.stage_id)
+  const stageColor = currentStage?.color || 'grey.300'
+  const textColor = getContrastText(stageColor)
 
   if (isLoading) {
     return (
@@ -192,9 +204,19 @@ export default function GarmentPage() {
         <Grid item xs={12} md={3}>
           <Card>
             <CardContent>
-              <Typography variant='h6' gutterBottom>
-                Stage
-              </Typography>
+              {/* Display Current Stage */}
+              <Box
+                sx={{
+                  backgroundColor: stageColor,
+                  color: textColor,
+                  padding: 2,
+                  borderRadius: 1,
+                  mb: 6,
+                  textAlign: 'center'
+                }}
+              >
+                <Typography variant='h6'>{currentStage?.name || 'Stage Not Set'}</Typography>
+              </Box>
               <FormControl fullWidth>
                 <InputLabel id='stage-select-label'>Select Stage</InputLabel>
                 <Select
