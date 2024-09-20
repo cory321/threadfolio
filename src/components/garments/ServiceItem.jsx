@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import { useTheme } from '@mui/material/styles'
 import {
   Grid,
@@ -24,6 +26,16 @@ import ServiceTodoList from '@/components/garments/ServiceTodoList'
 
 export default function ServiceItem({ service, isDone, handleStatusChange }) {
   const theme = useTheme()
+
+  // State for accordion expansion
+  const [isAccordionExpanded, setIsAccordionExpanded] = useState(false)
+
+  // Function to handle task loading
+  const handleTasksLoaded = hasTasks => {
+    if (hasTasks) {
+      setIsAccordionExpanded(true)
+    }
+  }
 
   return (
     <Grid item xs={12}>
@@ -123,12 +135,12 @@ export default function ServiceItem({ service, isDone, handleStatusChange }) {
         </CardContent>
 
         {/* Collapsible ServiceTodoList */}
-        <Accordion>
+        <Accordion expanded={isAccordionExpanded} onChange={(e, expanded) => setIsAccordionExpanded(expanded)}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography variant='subtitle1'>Tasks</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <ServiceTodoList serviceId={service.id} />
+            <ServiceTodoList serviceId={service.id} onTasksLoaded={handleTasksLoaded} />
           </AccordionDetails>
         </Accordion>
       </Card>

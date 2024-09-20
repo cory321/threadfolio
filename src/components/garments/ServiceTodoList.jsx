@@ -36,7 +36,7 @@ import {
   toggleCompleteServiceTodo
 } from '@/app/actions/serviceTodos'
 
-export default function ServiceTodoList({ serviceId }) {
+export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
   const { userId, getToken } = useAuth()
   const [todos, setTodos] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -55,6 +55,11 @@ export default function ServiceTodoList({ serviceId }) {
         const fetchedTodos = await getServiceTodos(userId, serviceId, token)
 
         setTodos(fetchedTodos)
+
+        // Notify parent component about tasks
+        if (onTasksLoaded) {
+          onTasksLoaded(fetchedTodos.length > 0)
+        }
       } catch (e) {
         setError('Failed to load tasks.')
       } finally {
@@ -63,7 +68,7 @@ export default function ServiceTodoList({ serviceId }) {
     }
 
     fetchTodos()
-  }, [userId, serviceId, getToken])
+  }, [userId, serviceId, getToken, onTasksLoaded])
 
   const handleAddTodo = async () => {
     if (newTodoTitle.trim() === '') return
