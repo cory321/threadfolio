@@ -602,3 +602,42 @@ export async function updateGarmentStage(userId, garmentId, newStageId, token) {
     throw new Error('Failed to update garment stage: ' + error.message)
   }
 }
+
+export async function updateServiceDoneStatus(userId, serviceId, isDone, token) {
+  const supabase = await getSupabaseClient(token)
+
+  // Step 1: Fetch the garment_id from garment_services
+  const { data: serviceData, error: serviceError } = await supabase
+    .from('garment_services')
+    .select('garment_id')
+    .eq('id', serviceId)
+    .single()
+
+  if (serviceError || !serviceData) {
+    throw new Error('Service not found.')
+  }
+
+  const garmentId = serviceData.garment_id
+
+  // Step 2: Verify the garment belongs to the user
+  const { data: garmentData, error: garmentError } = await supabase
+    .from('garments')
+    .select('user_id')
+    .eq('id', garmentId)
+    .single()
+
+  if (garmentError || !garmentData) {
+    throw new Error('Garment not found.')
+  }
+
+  if (garmentData.user_id !== userId) {
+    throw new Error('You do not have permission to update this service.')
+  }
+
+  // Step 3: Update the service's is_done status
+  const { error: updateError } = await supabase.from('garment_services').update({ is_done: isDone }).eq('id', serviceId)
+
+  if (updateError) {
+    throw new Error('Failed to update service status: ' + updateError.message)
+  }
+}

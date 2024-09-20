@@ -39,7 +39,7 @@ import TaskAltIcon from '@mui/icons-material/TaskAlt'
 
 import { useTheme } from '@mui/material/styles'
 
-import { getGarmentById, getStages, updateGarmentStage } from '@/app/actions/garments'
+import { getGarmentById, getStages, updateGarmentStage, updateServiceDoneStatus } from '@/app/actions/garments'
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import { formatPhoneNumber } from '@/utils/formatPhoneNumber'
 import TimeTracker from '@/components/garments/TimeTracker'
@@ -60,11 +60,32 @@ export default function GarmentPage() {
 
   const [serviceStatuses, setServiceStatuses] = useState({})
 
-  const handleStatusChange = serviceId => {
+  const handleStatusChange = async serviceId => {
+    const newStatus = !serviceStatuses[serviceId]
+
+    // Update local state optimistically
     setServiceStatuses(prevStatuses => ({
       ...prevStatuses,
-      [serviceId]: !prevStatuses[serviceId]
+      [serviceId]: newStatus
     }))
+
+    try {
+      const token = await getToken({ template: 'supabase' })
+
+      if (!token) throw new Error('Failed to retrieve token')
+
+      // Update the status in the database
+      await updateServiceDoneStatus(userId, serviceId, newStatus, token)
+    } catch (error) {
+      console.error('Failed to update service status:', error)
+      toast.error('Failed to update service status. Please try again later.')
+
+      // Revert local state if update fails
+      setServiceStatuses(prevStatuses => ({
+        ...prevStatuses,
+        [serviceId]: !newStatus
+      }))
+    }
   }
 
   useEffect(() => {
@@ -79,10 +100,16 @@ export default function GarmentPage() {
           const fetchedGarment = await getGarmentById(userId, orderId, garmentId, token)
           const fetchedStages = await getStages(userId, token)
 
-          console.log('Fetched Garment:', fetchedGarment)
-
           setGarment(fetchedGarment)
           setStages(fetchedStages)
+
+          // Initialize service statuses from the fetched data
+          const statuses = {}
+
+          fetchedGarment.services.forEach(service => {
+            statuses[service.id] = service.is_done
+          })
+          setServiceStatuses(statuses)
         } catch (error) {
           console.error('Failed to fetch data:', error)
         } finally {
@@ -126,7 +153,7 @@ export default function GarmentPage() {
 
   // Calculate progress percentage
   const totalServices = garment?.services.length || 0
-  const completedServices = garment?.services.filter(service => serviceStatuses[service.id]).length || 0
+  const completedServices = Object.values(serviceStatuses).filter(status => status).length
   const progressPercentage = (completedServices / totalServices) * 100
 
   if (isLoading) {
