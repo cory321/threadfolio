@@ -57,6 +57,8 @@ export default function GarmentPage() {
           const fetchedGarment = await getGarmentById(userId, orderId, garmentId, token)
           const fetchedStages = await getStages(userId, token)
 
+          console.log('Fetched Garment:', fetchedGarment)
+
           setGarment(fetchedGarment)
           setStages(fetchedStages)
         } catch (error) {
@@ -94,8 +96,8 @@ export default function GarmentPage() {
     }
   }
 
-  // Find the current stage and its color
-  const currentStage = stages.find(stage => stage.id === garment.stage_id)
+  // Update the currentStage to use stage_name
+  const currentStage = stages.find(stage => stage.name === garment?.stage_name)
   const stageColor = currentStage?.color || 'grey.300'
   const textColor = getContrastText(stageColor)
 
@@ -185,12 +187,33 @@ export default function GarmentPage() {
         </Grid>
         <Grid item xs={12} md={6}>
           <Card>
-            <CardHeader title='Services' />
+            <CardHeader title='Garment Project Details' />
             <CardContent>
               {garment.services.map((service, index) => (
-                <Typography key={index} variant='body1'>
-                  {service.name}: {service.qty} {service.unit} - ${parseFloat(service.unit_price).toFixed(2)}
-                </Typography>
+                <Box
+                  key={index}
+                  sx={{
+                    border: 1,
+                    borderColor: 'grey.300',
+                    borderRadius: 1,
+                    p: 2,
+                    mb: 2,
+                    '&:last-child': { mb: 0 }
+                  }}
+                >
+                  <Typography variant='h5' gutterBottom>
+                    {service.name}
+                  </Typography>
+                  {service.description && (
+                    <Typography variant='body2' color='text.secondary' gutterBottom>
+                      {service.description}
+                    </Typography>
+                  )}
+                  <Typography variant='body2'>
+                    Quantity: {service.qty} {service.unit}
+                  </Typography>
+                  <Typography variant='body2'>Price: ${parseFloat(service.unit_price).toFixed(2)}</Typography>
+                </Box>
               ))}
             </CardContent>
           </Card>
@@ -233,6 +256,11 @@ export default function GarmentPage() {
                 </Select>
               </FormControl>
             </CardContent>
+          </Card>
+          <Card sx={{ mt: 2 }}>
+            <Typography variant='h6' sx={{ p: 6 }}>
+              Schedule Followup Appointment
+            </Typography>
           </Card>
           <TimeTracker sx={{ mt: 2 }} />
           <Finances sx={{ mt: 2 }} />
