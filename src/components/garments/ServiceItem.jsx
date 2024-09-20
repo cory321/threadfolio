@@ -1,5 +1,4 @@
-import { useState } from 'react'
-
+import { useTheme } from '@mui/material/styles'
 import {
   Grid,
   Card,
@@ -13,15 +12,12 @@ import {
   Box
 } from '@mui/material'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
-import ChecklistIcon from '@mui/icons-material/Checklist'
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
 import TaskAltIcon from '@mui/icons-material/TaskAlt'
-import { useTheme } from '@mui/material/styles'
 
 import ServiceTodoList from '@/components/garments/ServiceTodoList'
 
 export default function ServiceItem({ service, isDone, handleStatusChange }) {
-  const [showTodoList, setShowTodoList] = useState(false)
   const theme = useTheme()
 
   return (
@@ -96,6 +92,7 @@ export default function ServiceItem({ service, isDone, handleStatusChange }) {
               </Box>
             </Grid>
 
+            {/* Remove the toggle button and adjust spacing */}
             <Grid item xs={12} sm={6}>
               <Stack direction='row' spacing={2} justifyContent='flex-end'>
                 <ButtonBase
@@ -116,34 +113,15 @@ export default function ServiceItem({ service, isDone, handleStatusChange }) {
                     Track Time
                   </Typography>
                 </ButtonBase>
-                <ButtonBase
-                  onClick={() => setShowTodoList(prev => !prev)}
-                  sx={{
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    p: 1,
-                    borderRadius: 1,
-                    '&:hover': {
-                      bgcolor: 'action.hover',
-                      '& .MuiSvgIcon-root': { color: theme.palette.primary.main },
-                      '& .MuiTypography-root': { color: theme.palette.primary.main }
-                    }
-                  }}
-                >
-                  <ChecklistIcon sx={{ mb: 0.5, fontSize: '2rem', color: theme.palette.text.secondary }} />
-                  <Typography variant='caption' color='text.secondary'>
-                    Todo List
-                  </Typography>
-                </ButtonBase>
               </Stack>
             </Grid>
           </Grid>
         </CardContent>
-        {showTodoList && (
-          <CardContent>
-            <ServiceTodoList serviceId={service.id} />
-          </CardContent>
-        )}
+
+        {/* Render the ServiceTodoList directly */}
+        <CardContent>
+          <ServiceTodoList serviceId={service.id} />
+        </CardContent>
       </Card>
     </Grid>
   )

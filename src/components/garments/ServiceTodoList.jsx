@@ -5,13 +5,13 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@clerk/nextjs'
 import {
   Box,
-  Typography,
-  IconButton,
   TextField,
+  IconButton,
   List,
   ListItem,
   ListItemText,
-  ListItemSecondaryAction
+  ListItemSecondaryAction,
+  Typography
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import EditIcon from '@mui/icons-material/Edit'
@@ -25,6 +25,7 @@ export default function ServiceTodoList({ serviceId }) {
   const { userId, getToken } = useAuth()
   const [todos, setTodos] = useState([])
   const [isLoading, setIsLoading] = useState(false)
+  const [newTodoTitle, setNewTodoTitle] = useState('')
   const [editingTodoId, setEditingTodoId] = useState(null)
   const [editingTodoTitle, setEditingTodoTitle] = useState('')
 
@@ -40,17 +41,22 @@ export default function ServiceTodoList({ serviceId }) {
   }, [userId, serviceId, getToken])
 
   const handleAddTodo = async () => {
+    if (newTodoTitle.trim() === '') return
+
     setIsLoading(true)
     const token = await getToken({ template: 'supabase' })
-    const todo = await addServiceTodo(userId, serviceId, 'Todo item', token)
+    const todo = await addServiceTodo(userId, serviceId, newTodoTitle.trim(), token)
 
     setTodos([...todos, todo])
+    setNewTodoTitle('')
     setIsLoading(false)
   }
 
   const handleEditTodo = async id => {
+    if (editingTodoTitle.trim() === '') return
+
     const token = await getToken({ template: 'supabase' })
-    const updatedTodo = await editServiceTodo(userId, id, editingTodoTitle, token)
+    const updatedTodo = await editServiceTodo(userId, id, editingTodoTitle.trim(), token)
 
     setTodos(todos.map(todo => (todo.id === id ? updatedTodo : todo)))
     setEditingTodoId(null)
@@ -66,57 +72,74 @@ export default function ServiceTodoList({ serviceId }) {
 
   return (
     <Box>
-      <Box display='flex' alignItems='center' mb={1}>
-        <Typography variant='h6' sx={{ flexGrow: 1 }}>
-          Todo List
-        </Typography>
-        <IconButton color='primary' onClick={handleAddTodo} disabled={isLoading}>
+      <Box display='flex' alignItems='center' mb={2}>
+        <TextField
+          fullWidth
+          size='small'
+          variant='outlined'
+          placeholder='Add a new todo...'
+          value={newTodoTitle}
+          onChange={e => setNewTodoTitle(e.target.value)}
+          onKeyPress={e => {
+            if (e.key === 'Enter') {
+              handleAddTodo()
+            }
+          }}
+          disabled={isLoading}
+        />
+        <IconButton color='primary' onClick={handleAddTodo} disabled={isLoading || newTodoTitle.trim() === ''}>
           <AddIcon />
         </IconButton>
       </Box>
-      <List>
-        {todos.map(todo => (
-          <ListItem key={todo.id}>
-            {editingTodoId === todo.id ? (
-              <>
-                <TextField
-                  value={editingTodoTitle}
-                  onChange={e => setEditingTodoTitle(e.target.value)}
-                  variant='outlined'
-                  size='small'
-                  fullWidth
-                />
-                <ListItemSecondaryAction>
-                  <IconButton edge='end' onClick={() => handleEditTodo(todo.id)}>
-                    <SaveIcon />
-                  </IconButton>
-                  <IconButton edge='end' onClick={() => setEditingTodoId(null)}>
-                    <CloseIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </>
-            ) : (
-              <>
-                <ListItemText primary={todo.title} />
-                <ListItemSecondaryAction>
-                  <IconButton
-                    edge='end'
-                    onClick={() => {
-                      setEditingTodoId(todo.id)
-                      setEditingTodoTitle(todo.title)
-                    }}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton edge='end' onClick={() => handleDeleteTodo(todo.id)}>
-                    <DeleteIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </>
-            )}
-          </ListItem>
-        ))}
-      </List>
+      {todos.length > 0 ? (
+        <List>
+          {todos.map(todo => (
+            <ListItem key={todo.id}>
+              {editingTodoId === todo.id ? (
+                <>
+                  <TextField
+                    value={editingTodoTitle}
+                    onChange={e => setEditingTodoTitle(e.target.value)}
+                    variant='outlined'
+                    size='small'
+                    fullWidth
+                  />
+                  <ListItemSecondaryAction>
+                    <IconButton edge='end' onClick={() => handleEditTodo(todo.id)}>
+                      <SaveIcon />
+                    </IconButton>
+                    <IconButton edge='end' onClick={() => setEditingTodoId(null)}>
+                      <CloseIcon />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </>
+              ) : (
+                <>
+                  <ListItemText primary={todo.title} />
+                  <ListItemSecondaryAction>
+                    <IconButton
+                      edge='end'
+                      onClick={() => {
+                        setEditingTodoId(todo.id)
+                        setEditingTodoTitle(todo.title)
+                      }}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton edge='end' onClick={() => handleDeleteTodo(todo.id)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </>
+              )}
+            </ListItem>
+          ))}
+        </List>
+      ) : (
+        <Typography variant='body2' color='textSecondary'>
+          No todos available.
+        </Typography>
+      )}
     </Box>
   )
 }
