@@ -1,7 +1,7 @@
 // src/components/garments/CustomizeStagesDialog.jsx
 import React, { useState, useEffect } from 'react'
 
-import { HexColorPicker } from 'react-colorful'
+import { HexColorPicker, HexColorInput } from 'react-colorful'
 import {
   Dialog,
   DialogTitle,
@@ -520,11 +520,15 @@ export default function CustomizeStagesDialog({
             <Box sx={{ mt: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <HexColorPicker
                 color={stages[colorPickerStageIndex]?.color || '#ffffff'}
-                onChange={color => {
-                  handleStageColorChange(colorPickerStageIndex, color)
-                }}
+                onChange={color => handleStageColorChange(colorPickerStageIndex, color)}
               />
-
+              {/* HexColorInput */}
+              <HexColorInput
+                color={stages[colorPickerStageIndex]?.color || '#ffffff'}
+                onChange={color => handleStageColorChange(colorPickerStageIndex, color)}
+                prefixed
+                style={{ marginTop: '16px', width: '100px', padding: '8px', fontSize: '16px', textAlign: 'center' }}
+              />
               <Typography variant='body2' sx={{ mt: 2 }}>
                 Choose a custom color or select from the list below
               </Typography>
