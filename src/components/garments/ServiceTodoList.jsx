@@ -136,11 +136,6 @@ export default function ServiceTodoList({ serviceId }) {
 
   return (
     <Box>
-      <Box mb={2}>
-        <Typography variant='h6'>Tasks</Typography>
-        <Divider />
-      </Box>
-
       {error && (
         <Alert severity='error' onClose={() => setError(null)} sx={{ mb: 2 }}>
           {error}

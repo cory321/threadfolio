@@ -130,7 +130,7 @@ export default function GarmentsPage() {
           onClick={() => setSortOrder(prevOrder => (prevOrder === 'asc' ? 'desc' : 'asc'))}
           startIcon={sortOrder === 'asc' ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
         >
-          Sort by Date
+          Sort by Due Date
         </Button>
 
         {/* Customize Stages Button moved to the far right */}
