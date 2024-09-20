@@ -49,26 +49,36 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
   const [isAddingTodo, setIsAddingTodo] = useState(false)
 
   useEffect(() => {
+    let isMounted = true
+
     async function fetchTodos() {
       try {
         const token = await getToken({ template: 'supabase' })
         const fetchedTodos = await getServiceTodos(userId, serviceId, token)
 
-        setTodos(fetchedTodos)
+        if (isMounted) {
+          setTodos(fetchedTodos)
 
-        // Notify parent component about tasks
-        if (onTasksLoaded) {
-          onTasksLoaded(fetchedTodos.length > 0)
+          // Notify parent component about tasks
+          if (onTasksLoaded) {
+            onTasksLoaded(fetchedTodos.length > 0)
+          }
         }
       } catch (e) {
         setError('Failed to load tasks.')
       } finally {
-        setIsLoading(false)
+        if (isMounted) {
+          setIsLoading(false)
+        }
       }
     }
 
     fetchTodos()
-  }, [userId, serviceId, getToken, onTasksLoaded])
+
+    return () => {
+      isMounted = false
+    }
+  }, [userId, serviceId, getToken])
 
   const handleAddTodo = async () => {
     if (newTodoTitle.trim() === '') return

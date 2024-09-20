@@ -29,12 +29,19 @@ export default function ServiceItem({ service, isDone, handleStatusChange }) {
 
   // State for accordion expansion
   const [isAccordionExpanded, setIsAccordionExpanded] = useState(false)
+  const [initialExpansionSet, setInitialExpansionSet] = useState(false)
 
   // Function to handle task loading
   const handleTasksLoaded = hasTasks => {
-    if (hasTasks) {
+    if (hasTasks && !initialExpansionSet) {
       setIsAccordionExpanded(true)
+      setInitialExpansionSet(true) // Prevent future automatic expansions
     }
+  }
+
+  // Allow user to toggle the accordion
+  const handleAccordionChange = (event, isExpanded) => {
+    setIsAccordionExpanded(isExpanded)
   }
 
   return (
@@ -135,7 +142,7 @@ export default function ServiceItem({ service, isDone, handleStatusChange }) {
         </CardContent>
 
         {/* Collapsible ServiceTodoList */}
-        <Accordion expanded={isAccordionExpanded} onChange={(e, expanded) => setIsAccordionExpanded(expanded)}>
+        <Accordion expanded={isAccordionExpanded} onChange={handleAccordionChange}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography variant='subtitle1'>Tasks</Typography>
           </AccordionSummary>
