@@ -19,12 +19,25 @@ import {
   Select,
   MenuItem,
   Button,
-  Divider
+  Divider,
+  Stack,
+  Chip,
+  ButtonBase,
+  Checkbox,
+  FormControlLabel,
+  LinearProgress
 } from '@mui/material'
 import { CldImage } from 'next-cloudinary'
 import { format } from 'date-fns'
 
 import { toast } from 'react-toastify'
+
+import AccessTimeIcon from '@mui/icons-material/AccessTime'
+import ChecklistIcon from '@mui/icons-material/Checklist'
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
+import TaskAltIcon from '@mui/icons-material/TaskAlt'
+
+import { useTheme } from '@mui/material/styles'
 
 import { getGarmentById, getStages, updateGarmentStage } from '@/app/actions/garments'
 import Breadcrumb from '@/components/ui/Breadcrumb'
@@ -32,7 +45,7 @@ import { formatPhoneNumber } from '@/utils/formatPhoneNumber'
 import TimeTracker from '@/components/garments/TimeTracker'
 import Finances from '@/components/garments/Finances'
 import { formatOrderNumber } from '@/utils/formatOrderNumber'
-import { getContrastText } from '@/utils/colorUtils' // Import the utility function
+import { getContrastText } from '@/utils/colorUtils'
 
 export default function GarmentPage() {
   const [garment, setGarment] = useState(null)
@@ -44,6 +57,15 @@ export default function GarmentPage() {
 
   const fromPage = searchParams.get('from')
   const showBackButton = fromPage === 'garments'
+
+  const [serviceStatuses, setServiceStatuses] = useState({})
+
+  const handleStatusChange = serviceId => {
+    setServiceStatuses(prevStatuses => ({
+      ...prevStatuses,
+      [serviceId]: !prevStatuses[serviceId]
+    }))
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -96,10 +118,16 @@ export default function GarmentPage() {
     }
   }
 
-  // Update the currentStage to use stage_name
   const currentStage = stages.find(stage => stage.name === garment?.stage_name)
   const stageColor = currentStage?.color || 'grey.300'
   const textColor = getContrastText(stageColor)
+
+  const theme = useTheme()
+
+  // Calculate progress percentage
+  const totalServices = garment?.services.length || 0
+  const completedServices = garment?.services.filter(service => serviceStatuses[service.id]).length || 0
+  const progressPercentage = (completedServices / totalServices) * 100
 
   if (isLoading) {
     return (
@@ -188,33 +216,153 @@ export default function GarmentPage() {
         <Grid item xs={12} md={6}>
           <Card>
             <CardHeader title='Garment Project Details' />
+            <Box sx={{ px: 5 }}>
+              <Typography variant='subtitle1' sx={{ mt: 2, mx: 2 }}>
+                {`${Math.round(progressPercentage)}% Services Completed`}
+              </Typography>
+              <LinearProgress
+                variant='determinate'
+                value={progressPercentage}
+                sx={{
+                  height: 10,
+                  borderRadius: 5,
+                  bgcolor: 'grey.300',
+                  '& .MuiLinearProgress-bar': {
+                    bgcolor: 'primary.main'
+                  }
+                }}
+              />
+            </Box>
             <CardContent>
-              {garment.services.map((service, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    border: 1,
-                    borderColor: 'grey.300',
-                    borderRadius: 1,
-                    p: 2,
-                    mb: 2,
-                    '&:last-child': { mb: 0 }
-                  }}
-                >
-                  <Typography variant='h5' gutterBottom>
-                    {service.name}
-                  </Typography>
-                  {service.description && (
-                    <Typography variant='body2' color='text.secondary' gutterBottom>
-                      {service.description}
-                    </Typography>
-                  )}
-                  <Typography variant='body2'>
-                    Quantity: {service.qty} {service.unit}
-                  </Typography>
-                  <Typography variant='body2'>Price: ${parseFloat(service.unit_price).toFixed(2)}</Typography>
-                </Box>
-              ))}
+              <Grid container spacing={3}>
+                {garment.services.map((service, index) => {
+                  const isDone = serviceStatuses[service.id] || false
+
+                  return (
+                    <Grid item xs={12} key={index}>
+                      <Card
+                        variant='outlined'
+                        sx={{
+                          position: 'relative',
+                          border: '2px solid',
+                          borderColor: isDone ? 'success.main' : 'inherit',
+                          transition: 'border-color 0.3s'
+                        }}
+                      >
+                        {isDone && (
+                          <Chip
+                            label='Done'
+                            sx={{
+                              position: 'absolute',
+                              top: 16,
+                              right: 16,
+                              backgroundColor: '#c5f799',
+                              color: 'black'
+                            }}
+                          />
+                        )}
+
+                        <CardContent>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                icon={<RadioButtonUncheckedIcon />}
+                                checkedIcon={<TaskAltIcon />}
+                                checked={isDone}
+                                onChange={() => handleStatusChange(service.id)}
+                                sx={{
+                                  color: 'primary.main',
+                                  '&.Mui-checked': {
+                                    color: 'success.main'
+                                  }
+                                }}
+                              />
+                            }
+                            label={<Typography variant='h5'>{service.name}</Typography>}
+                            sx={{
+                              mb: 1,
+                              display: 'inline-flex',
+                              padding: '8px',
+                              borderRadius: '4px',
+                              '& .MuiTypography-root': {
+                                color: isDone ? 'text.primary' : 'primary.main',
+                                transition: 'text-decoration 0.3s'
+                              },
+                              '&:hover .MuiTypography-root': {
+                                textDecoration: 'underline'
+                              }
+                            }}
+                          />
+
+                          {service.description && (
+                            <Typography variant='body2' color='textSecondary' gutterBottom>
+                              {service.description}
+                            </Typography>
+                          )}
+
+                          <Grid container spacing={2} alignItems='center'>
+                            <Grid item xs={12} sm={6}>
+                              <Box>
+                                <Typography variant='body2'>
+                                  <strong>Quantity:</strong> {service.qty} {service.unit}
+                                </Typography>
+                                <Typography variant='body2'>
+                                  <strong>Price:</strong> ${parseFloat(service.unit_price).toFixed(2)}
+                                </Typography>
+                              </Box>
+                            </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                              <Stack direction='row' spacing={2} justifyContent='flex-end'>
+                                <ButtonBase
+                                  sx={{
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    p: 1,
+                                    borderRadius: 1,
+                                    '&:hover': {
+                                      bgcolor: 'action.hover',
+                                      '& .MuiSvgIcon-root': { color: theme.palette.primary.main },
+                                      '& .MuiTypography-root': { color: theme.palette.primary.main }
+                                    }
+                                  }}
+                                >
+                                  <AccessTimeIcon
+                                    sx={{ mb: 0.5, fontSize: '2rem', color: theme.palette.text.secondary }}
+                                  />
+                                  <Typography variant='caption' color='text.secondary'>
+                                    Track Time
+                                  </Typography>
+                                </ButtonBase>
+                                <ButtonBase
+                                  sx={{
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    p: 1,
+                                    borderRadius: 1,
+                                    '&:hover': {
+                                      bgcolor: 'action.hover',
+                                      '& .MuiSvgIcon-root': { color: theme.palette.primary.main },
+                                      '& .MuiTypography-root': { color: theme.palette.primary.main }
+                                    }
+                                  }}
+                                >
+                                  <ChecklistIcon
+                                    sx={{ mb: 0.5, fontSize: '2rem', color: theme.palette.text.secondary }}
+                                  />
+                                  <Typography variant='caption' color='text.secondary'>
+                                    Todo List
+                                  </Typography>
+                                </ButtonBase>
+                              </Stack>
+                            </Grid>
+                          </Grid>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  )
+                })}
+              </Grid>
             </CardContent>
           </Card>
           <Card sx={{ mt: 2 }}>
@@ -227,7 +375,6 @@ export default function GarmentPage() {
         <Grid item xs={12} md={3}>
           <Card>
             <CardContent>
-              {/* Display Current Stage */}
               <Box
                 sx={{
                   backgroundColor: stageColor,
@@ -241,7 +388,7 @@ export default function GarmentPage() {
                 <Typography variant='h6'>{currentStage?.name || 'Stage Not Set'}</Typography>
               </Box>
               <FormControl fullWidth>
-                <InputLabel id='stage-select-label'>Select Stage</InputLabel>
+                <InputLabel id='stage-select-label'>Garment Stage</InputLabel>
                 <Select
                   labelId='stage-select-label'
                   value={garment.stage_id || ''}
