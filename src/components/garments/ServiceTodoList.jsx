@@ -46,6 +46,7 @@ export default function ServiceTodoList({ serviceId }) {
   const [error, setError] = useState(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [todoToDelete, setTodoToDelete] = useState(null)
+  const [isAddingTodo, setIsAddingTodo] = useState(false)
 
   useEffect(() => {
     async function fetchTodos() {
@@ -67,8 +68,9 @@ export default function ServiceTodoList({ serviceId }) {
   const handleAddTodo = async () => {
     if (newTodoTitle.trim() === '') return
 
+    setIsAddingTodo(true)
+
     try {
-      setIsLoading(true)
       const token = await getToken({ template: 'supabase' })
       const todo = await addServiceTodo(userId, serviceId, newTodoTitle.trim(), token)
 
@@ -77,7 +79,7 @@ export default function ServiceTodoList({ serviceId }) {
     } catch (e) {
       setError('Failed to add task.')
     } finally {
-      setIsLoading(false)
+      setIsAddingTodo(false)
     }
   }
 
@@ -156,9 +158,16 @@ export default function ServiceTodoList({ serviceId }) {
             }
           }}
         />
-        <IconButton color='primary' onClick={handleAddTodo} disabled={newTodoTitle.trim() === ''}>
-          <AddIcon />
-        </IconButton>
+        <Button
+          variant='contained'
+          color='primary'
+          onClick={handleAddTodo}
+          disabled={newTodoTitle.trim() === '' || isAddingTodo}
+          startIcon={isAddingTodo ? <CircularProgress size={20} /> : <AddIcon />}
+          sx={{ ml: 2, whiteSpace: 'nowrap' }}
+        >
+          {isAddingTodo ? 'Adding' : 'Add Task'}
+        </Button>
       </Box>
 
       {todos.length > 0 ? (
