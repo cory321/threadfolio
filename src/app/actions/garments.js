@@ -314,40 +314,22 @@ export async function getGarments(userId, token, { page = 1, pageSize = 10, clie
 export async function getGarmentById(userId, orderId, garmentId, token) {
   const supabase = await getSupabaseClient(token)
 
-  const { data: garment, error } = await supabase
+  const { data, error } = await supabase
     .from('garments')
     .select(
       `
       id,
       name,
       stage_id,
-      garment_stages (
-        id,
-        name
-      ),
       image_cloud_id,
       notes,
       due_date,
       is_event,
       event_date,
-      client_id,
-      clients (
-        id,
-        full_name,
-        email,
-        phone_number
-      ),
-      order_id,
-      garment_orders (
-        user_order_number
-      ),
-      garment_services (
-        id,
-        name,
-        qty,
-        unit_price,
-        unit
-      )
+      garment_stages(name),
+      clients(id, email, full_name, phone_number),
+      garment_services(*),
+      garment_orders(user_order_number)
     `
     )
     .eq('user_id', userId)
@@ -356,17 +338,26 @@ export async function getGarmentById(userId, orderId, garmentId, token) {
     .single()
 
   if (error) {
-    throw new Error('Failed to fetch garment: ' + error.message)
+    throw new Error(error.message)
   }
 
-  // Process and return garment data
-  return {
-    ...garment,
-    stage_name: garment.garment_stages?.name || 'Unknown',
-    client: garment.clients,
-    services: garment.garment_services || [],
-    user_order_number: garment.garment_orders?.user_order_number || null
+  // Construct the garment object without client_id
+  const garment = {
+    id: data.id,
+    name: data.name,
+    stage_id: data.stage_id,
+    stage_name: data.garment_stages.name,
+    image_cloud_id: data.image_cloud_id,
+    notes: data.notes,
+    due_date: data.due_date,
+    is_event: data.is_event,
+    event_date: data.event_date,
+    client: data.clients,
+    services: data.garment_services,
+    user_order_number: data.garment_orders.user_order_number
   }
+
+  return garment
 }
 
 export async function getGarmentsAndStages(userId, token) {
@@ -609,5 +600,44 @@ export async function updateGarmentStage(userId, garmentId, newStageId, token) {
 
   if (error) {
     throw new Error('Failed to update garment stage: ' + error.message)
+  }
+}
+
+export async function updateServiceDoneStatus(userId, serviceId, isDone, token) {
+  const supabase = await getSupabaseClient(token)
+
+  // Step 1: Fetch the garment_id from garment_services
+  const { data: serviceData, error: serviceError } = await supabase
+    .from('garment_services')
+    .select('garment_id')
+    .eq('id', serviceId)
+    .single()
+
+  if (serviceError || !serviceData) {
+    throw new Error('Service not found.')
+  }
+
+  const garmentId = serviceData.garment_id
+
+  // Step 2: Verify the garment belongs to the user
+  const { data: garmentData, error: garmentError } = await supabase
+    .from('garments')
+    .select('user_id')
+    .eq('id', garmentId)
+    .single()
+
+  if (garmentError || !garmentData) {
+    throw new Error('Garment not found.')
+  }
+
+  if (garmentData.user_id !== userId) {
+    throw new Error('You do not have permission to update this service.')
+  }
+
+  // Step 3: Update the service's is_done status
+  const { error: updateError } = await supabase.from('garment_services').update({ is_done: isDone }).eq('id', serviceId)
+
+  if (updateError) {
+    throw new Error('Failed to update service status: ' + updateError.message)
   }
 }

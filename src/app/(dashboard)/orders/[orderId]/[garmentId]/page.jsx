@@ -19,17 +19,36 @@ import {
   Select,
   MenuItem,
   Button,
-  Divider
+  Divider,
+  Stack,
+  Chip,
+  ButtonBase,
+  Checkbox,
+  FormControlLabel,
+  LinearProgress
 } from '@mui/material'
 import { CldImage } from 'next-cloudinary'
 import { format } from 'date-fns'
 
-import { getGarmentById, getStages, updateGarmentStage } from '@/app/actions/garments'
+import { toast } from 'react-toastify'
+
+import AccessTimeIcon from '@mui/icons-material/AccessTime'
+import ChecklistIcon from '@mui/icons-material/Checklist'
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
+import TaskAltIcon from '@mui/icons-material/TaskAlt'
+
+import { useTheme } from '@mui/material/styles'
+
+import ServiceTodoList from '@/components/garments/ServiceTodoList'
+import ServiceItem from '@/components/garments/ServiceItem'
+
+import { getGarmentById, getStages, updateGarmentStage, updateServiceDoneStatus } from '@/app/actions/garments'
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import { formatPhoneNumber } from '@/utils/formatPhoneNumber'
 import TimeTracker from '@/components/garments/TimeTracker'
 import Finances from '@/components/garments/Finances'
 import { formatOrderNumber } from '@/utils/formatOrderNumber'
+import { getContrastText } from '@/utils/colorUtils'
 
 export default function GarmentPage() {
   const [garment, setGarment] = useState(null)
@@ -41,6 +60,36 @@ export default function GarmentPage() {
 
   const fromPage = searchParams.get('from')
   const showBackButton = fromPage === 'garments'
+
+  const [serviceStatuses, setServiceStatuses] = useState({})
+
+  const handleStatusChange = async serviceId => {
+    const newStatus = !serviceStatuses[serviceId]
+
+    // Update local state optimistically
+    setServiceStatuses(prevStatuses => ({
+      ...prevStatuses,
+      [serviceId]: newStatus
+    }))
+
+    try {
+      const token = await getToken({ template: 'supabase' })
+
+      if (!token) throw new Error('Failed to retrieve token')
+
+      // Update the status in the database
+      await updateServiceDoneStatus(userId, serviceId, newStatus, token)
+    } catch (error) {
+      console.error('Failed to update service status:', error)
+      toast.error('Failed to update service status. Please try again later.')
+
+      // Revert local state if update fails
+      setServiceStatuses(prevStatuses => ({
+        ...prevStatuses,
+        [serviceId]: !newStatus
+      }))
+    }
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -56,6 +105,14 @@ export default function GarmentPage() {
 
           setGarment(fetchedGarment)
           setStages(fetchedStages)
+
+          // Initialize service statuses from the fetched data
+          const statuses = {}
+
+          fetchedGarment.services.forEach(service => {
+            statuses[service.id] = service.is_done
+          })
+          setServiceStatuses(statuses)
         } catch (error) {
           console.error('Failed to fetch data:', error)
         } finally {
@@ -69,6 +126,7 @@ export default function GarmentPage() {
 
   const handleStageChange = async event => {
     const newStageId = event.target.value
+    const newStageName = stages.find(stage => stage.id === newStageId)?.name || 'Unknown'
 
     try {
       const token = await getToken({ template: 'supabase' })
@@ -80,12 +138,26 @@ export default function GarmentPage() {
       setGarment(prevGarment => ({
         ...prevGarment,
         stage_id: newStageId,
-        stage_name: stages.find(stage => stage.id === newStageId)?.name || 'Unknown'
+        stage_name: newStageName
       }))
+
+      toast.success(`Garment stage set to ${newStageName}`)
     } catch (error) {
       console.error('Failed to update garment stage:', error)
+      toast.error('Failed to update garment stage. Please try again later.')
     }
   }
+
+  const currentStage = stages.find(stage => stage.name === garment?.stage_name)
+  const stageColor = currentStage?.color || 'grey.300'
+  const textColor = getContrastText(stageColor)
+
+  const theme = useTheme()
+
+  // Calculate progress percentage
+  const totalServices = garment?.services.length || 0
+  const completedServices = Object.values(serviceStatuses).filter(status => status).length
+  const progressPercentage = (completedServices / totalServices) * 100
 
   if (isLoading) {
     return (
@@ -173,13 +245,39 @@ export default function GarmentPage() {
         </Grid>
         <Grid item xs={12} md={6}>
           <Card>
-            <CardHeader title='Services' />
+            <CardHeader title='Garment Project Details' />
+            <Box sx={{ px: 5 }}>
+              <Typography variant='subtitle1' sx={{ mt: 2, mx: 2 }}>
+                {`${Math.round(progressPercentage)}% Services Completed`}
+              </Typography>
+              <LinearProgress
+                variant='determinate'
+                value={progressPercentage}
+                sx={{
+                  height: 10,
+                  borderRadius: 5,
+                  bgcolor: 'grey.300',
+                  '& .MuiLinearProgress-bar': {
+                    bgcolor: 'primary.main'
+                  }
+                }}
+              />
+            </Box>
             <CardContent>
-              {garment.services.map((service, index) => (
-                <Typography key={index} variant='body1'>
-                  {service.name}: {service.qty} {service.unit} - ${parseFloat(service.unit_price).toFixed(2)}
-                </Typography>
-              ))}
+              <Grid container spacing={3}>
+                {garment.services.map(service => {
+                  const isDone = serviceStatuses[service.id] || false
+
+                  return (
+                    <ServiceItem
+                      key={service.id}
+                      service={service}
+                      isDone={isDone}
+                      handleStatusChange={handleStatusChange}
+                    />
+                  )
+                })}
+              </Grid>
             </CardContent>
           </Card>
           <Card sx={{ mt: 2 }}>
@@ -192,11 +290,20 @@ export default function GarmentPage() {
         <Grid item xs={12} md={3}>
           <Card>
             <CardContent>
-              <Typography variant='h6' gutterBottom>
-                Stage
-              </Typography>
+              <Box
+                sx={{
+                  backgroundColor: stageColor,
+                  color: textColor,
+                  padding: 2,
+                  borderRadius: 1,
+                  mb: 6,
+                  textAlign: 'center'
+                }}
+              >
+                <Typography variant='h6'>{currentStage?.name || 'Stage Not Set'}</Typography>
+              </Box>
               <FormControl fullWidth>
-                <InputLabel id='stage-select-label'>Select Stage</InputLabel>
+                <InputLabel id='stage-select-label'>Garment Stage</InputLabel>
                 <Select
                   labelId='stage-select-label'
                   value={garment.stage_id || ''}
@@ -211,6 +318,11 @@ export default function GarmentPage() {
                 </Select>
               </FormControl>
             </CardContent>
+          </Card>
+          <Card sx={{ mt: 2 }}>
+            <Typography variant='h6' sx={{ p: 6 }}>
+              Schedule Followup Appointment
+            </Typography>
           </Card>
           <TimeTracker sx={{ mt: 2 }} />
           <Finances sx={{ mt: 2 }} />
