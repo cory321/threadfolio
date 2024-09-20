@@ -312,6 +312,7 @@ export async function getGarments(userId, token, { page = 1, pageSize = 10, clie
 }
 
 export async function getGarmentById(userId, orderId, garmentId, token) {
+  noStore()
   const supabase = await getSupabaseClient(token)
 
   const { data, error } = await supabase
@@ -418,6 +419,7 @@ export async function getGarmentsAndStages(userId, token) {
 }
 
 export async function getStages(userId, token) {
+  noStore()
   const supabase = await getSupabaseClient(token)
 
   const { data: stages, error } = await supabase
