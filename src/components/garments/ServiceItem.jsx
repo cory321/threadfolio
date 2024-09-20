@@ -92,7 +92,6 @@ export default function ServiceItem({ service, isDone, handleStatusChange }) {
               </Box>
             </Grid>
 
-            {/* Remove the toggle button and adjust spacing */}
             <Grid item xs={12} sm={6}>
               <Stack direction='row' spacing={2} justifyContent='flex-end'>
                 <ButtonBase
@@ -118,7 +117,7 @@ export default function ServiceItem({ service, isDone, handleStatusChange }) {
           </Grid>
         </CardContent>
 
-        {/* Render the ServiceTodoList directly */}
+        {/* Render the ServiceTodoList */}
         <CardContent>
           <ServiceTodoList serviceId={service.id} />
         </CardContent>
