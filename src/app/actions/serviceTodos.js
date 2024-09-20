@@ -56,14 +56,14 @@ export async function deleteServiceTodo(userId, todoId, token) {
   return todoId
 }
 
-// Fetch todos for a specific service
+// Fetch todos for a specific service (ensure 'completed' is selected)
 export async function getServiceTodos(userId, serviceId, token) {
   noStore()
   const supabase = await getSupabaseClient(token)
 
   const { data: todos, error } = await supabase
     .from('service_todos')
-    .select('*')
+    .select('*') // Make sure 'completed' is included
     .eq('service_id', serviceId)
     .eq('user_id', userId)
     .order('created_at', { ascending: true })
@@ -73,4 +73,37 @@ export async function getServiceTodos(userId, serviceId, token) {
   }
 
   return todos
+}
+
+// Toggle completion status of a todo
+export async function toggleCompleteServiceTodo(userId, todoId, token) {
+  noStore()
+  const supabase = await getSupabaseClient(token)
+
+  // Fetch the current 'completed' status
+  const { data: existingTodo, error: fetchError } = await supabase
+    .from('service_todos')
+    .select('completed')
+    .eq('id', todoId)
+    .eq('user_id', userId)
+    .single()
+
+  if (fetchError) {
+    throw new Error(fetchError.message)
+  }
+
+  // Toggle the 'completed' status
+  const { data, error } = await supabase
+    .from('service_todos')
+    .update({ completed: !existingTodo.completed })
+    .eq('id', todoId)
+    .eq('user_id', userId)
+    .select()
+    .single()
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  return data
 }

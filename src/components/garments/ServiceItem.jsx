@@ -9,11 +9,16 @@ import {
   Stack,
   ButtonBase,
   Chip,
-  Box
+  Box,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  IconButton
 } from '@mui/material'
-import AccessTimeIcon from '@mui/icons-material/AccessTime'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
 import TaskAltIcon from '@mui/icons-material/TaskAlt'
+import AccessTimeIcon from '@mui/icons-material/AccessTime'
 
 import ServiceTodoList from '@/components/garments/ServiceTodoList'
 
@@ -117,10 +122,15 @@ export default function ServiceItem({ service, isDone, handleStatusChange }) {
           </Grid>
         </CardContent>
 
-        {/* Render the ServiceTodoList */}
-        <CardContent>
-          <ServiceTodoList serviceId={service.id} />
-        </CardContent>
+        {/* Collapsible ServiceTodoList */}
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant='subtitle1'>Tasks</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <ServiceTodoList serviceId={service.id} />
+          </AccordionDetails>
+        </Accordion>
       </Card>
     </Grid>
   )

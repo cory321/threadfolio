@@ -10,39 +10,54 @@ import {
   List,
   ListItem,
   ListItemText,
+  ListItemIcon,
   ListItemSecondaryAction,
   Typography,
-  ButtonBase,
-  Stack
+  Checkbox,
+  CircularProgress,
+  Button,
+  Divider,
+  Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
-import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
-import SaveIcon from '@mui/icons-material/Save'
-import CloseIcon from '@mui/icons-material/Close'
 import ChecklistIcon from '@mui/icons-material/Checklist'
 
-import { getServiceTodos, addServiceTodo, editServiceTodo, deleteServiceTodo } from '@/app/actions/serviceTodos'
+import {
+  getServiceTodos,
+  addServiceTodo,
+  editServiceTodo,
+  deleteServiceTodo,
+  toggleCompleteServiceTodo
+} from '@/app/actions/serviceTodos'
 
 export default function ServiceTodoList({ serviceId }) {
   const { userId, getToken } = useAuth()
   const [todos, setTodos] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [newTodoTitle, setNewTodoTitle] = useState('')
   const [editingTodoId, setEditingTodoId] = useState(null)
   const [editingTodoTitle, setEditingTodoTitle] = useState('')
-  const [showTodoInput, setShowTodoInput] = useState(false)
+  const [error, setError] = useState(null)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [todoToDelete, setTodoToDelete] = useState(null)
 
   useEffect(() => {
     async function fetchTodos() {
-      const token = await getToken({ template: 'supabase' })
-      const fetchedTodos = await getServiceTodos(userId, serviceId, token)
+      try {
+        const token = await getToken({ template: 'supabase' })
+        const fetchedTodos = await getServiceTodos(userId, serviceId, token)
 
-      setTodos(fetchedTodos)
-
-      // If there are existing todos, show the todo input
-      if (fetchedTodos.length > 0) {
-        setShowTodoInput(true)
+        setTodos(fetchedTodos)
+      } catch (e) {
+        setError('Failed to load tasks.')
+      } finally {
+        setIsLoading(false)
       }
     }
 
@@ -51,68 +66,93 @@ export default function ServiceTodoList({ serviceId }) {
 
   const handleAddTodo = async () => {
     if (newTodoTitle.trim() === '') return
-    setIsLoading(true)
-    const token = await getToken({ template: 'supabase' })
-    const todo = await addServiceTodo(userId, serviceId, newTodoTitle.trim(), token)
 
-    setTodos([...todos, todo])
-    setNewTodoTitle('')
-    setIsLoading(false)
-    setShowTodoInput(true)
+    try {
+      setIsLoading(true)
+      const token = await getToken({ template: 'supabase' })
+      const todo = await addServiceTodo(userId, serviceId, newTodoTitle.trim(), token)
+
+      setTodos([...todos, todo])
+      setNewTodoTitle('')
+    } catch (e) {
+      setError('Failed to add task.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleEditInit = todo => {
+    setEditingTodoId(todo.id)
+    setEditingTodoTitle(todo.title)
   }
 
   const handleEditTodo = async id => {
     if (editingTodoTitle.trim() === '') return
-    const token = await getToken({ template: 'supabase' })
-    const updatedTodo = await editServiceTodo(userId, id, editingTodoTitle.trim(), token)
 
-    setTodos(todos.map(todo => (todo.id === id ? updatedTodo : todo)))
-    setEditingTodoId(null)
-    setEditingTodoTitle('')
+    try {
+      const token = await getToken({ template: 'supabase' })
+      const updatedTodo = await editServiceTodo(userId, id, editingTodoTitle.trim(), token)
+
+      setTodos(todos.map(todo => (todo.id === id ? updatedTodo : todo)))
+      setEditingTodoId(null)
+      setEditingTodoTitle('')
+    } catch (e) {
+      setError('Failed to edit task.')
+    }
   }
 
-  const handleDeleteTodo = async id => {
-    const token = await getToken({ template: 'supabase' })
-
-    await deleteServiceTodo(userId, id, token)
-    setTodos(todos.filter(todo => todo.id !== id))
+  const handleDeleteClick = id => {
+    setTodoToDelete(id)
+    setConfirmOpen(true)
   }
 
-  if (!showTodoInput && todos.length === 0) {
-    // Render the "Create Todo List" button
-    return (
-      <Stack direction='row' spacing={2} justifyContent='flex-end'>
-        <ButtonBase
-          onClick={() => setShowTodoInput(true)}
-          sx={{
-            flexDirection: 'column',
-            alignItems: 'center',
-            p: 1,
-            borderRadius: 1,
-            '&:hover': {
-              bgcolor: 'action.hover',
-              '& .MuiSvgIcon-root': { color: 'primary.main' },
-              '& .MuiTypography-root': { color: 'primary.main' }
-            }
-          }}
-        >
-          <ChecklistIcon sx={{ mb: 0.5, fontSize: '2rem', color: 'text.secondary' }} />
-          <Typography variant='caption' color='text.secondary'>
-            Create Todo List
-          </Typography>
-        </ButtonBase>
-      </Stack>
-    )
+  const handleDeleteConfirm = async () => {
+    try {
+      const token = await getToken({ template: 'supabase' })
+
+      await deleteServiceTodo(userId, todoToDelete, token)
+      setTodos(todos.filter(todo => todo.id !== todoToDelete))
+      setConfirmOpen(false)
+      setTodoToDelete(null)
+    } catch (e) {
+      setError('Failed to delete task.')
+    }
+  }
+
+  const handleToggleComplete = async id => {
+    try {
+      const token = await getToken({ template: 'supabase' })
+      const updatedTodo = await toggleCompleteServiceTodo(userId, id, token)
+
+      setTodos(todos.map(todo => (todo.id === id ? updatedTodo : todo)))
+    } catch (e) {
+      setError('Failed to update task status.')
+    }
+  }
+
+  if (isLoading) {
+    return <CircularProgress />
   }
 
   return (
     <Box>
+      <Box mb={2}>
+        <Typography variant='h6'>Tasks</Typography>
+        <Divider />
+      </Box>
+
+      {error && (
+        <Alert severity='error' onClose={() => setError(null)} sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+
       <Box display='flex' alignItems='center' mb={2}>
         <TextField
           fullWidth
           size='small'
           variant='outlined'
-          placeholder='Add a new todo...'
+          placeholder='Add a new task...'
           value={newTodoTitle}
           onChange={e => setNewTodoTitle(e.target.value)}
           onKeyPress={e => {
@@ -120,61 +160,69 @@ export default function ServiceTodoList({ serviceId }) {
               handleAddTodo()
             }
           }}
-          disabled={isLoading}
         />
-        <IconButton color='primary' onClick={handleAddTodo} disabled={isLoading || newTodoTitle.trim() === ''}>
+        <IconButton color='primary' onClick={handleAddTodo} disabled={newTodoTitle.trim() === ''}>
           <AddIcon />
         </IconButton>
       </Box>
+
       {todos.length > 0 ? (
         <List>
           {todos.map(todo => (
-            <ListItem key={todo.id}>
+            <ListItem key={todo.id} disablePadding>
+              <ListItemIcon>
+                <Checkbox edge='start' checked={todo.completed} onChange={() => handleToggleComplete(todo.id)} />
+              </ListItemIcon>
               {editingTodoId === todo.id ? (
-                <>
-                  <TextField
-                    value={editingTodoTitle}
-                    onChange={e => setEditingTodoTitle(e.target.value)}
-                    variant='outlined'
-                    size='small'
-                    fullWidth
-                  />
-                  <ListItemSecondaryAction>
-                    <IconButton edge='end' onClick={() => handleEditTodo(todo.id)}>
-                      <SaveIcon />
-                    </IconButton>
-                    <IconButton edge='end' onClick={() => setEditingTodoId(null)}>
-                      <CloseIcon />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </>
+                <TextField
+                  value={editingTodoTitle}
+                  onChange={e => setEditingTodoTitle(e.target.value)}
+                  onBlur={() => handleEditTodo(todo.id)}
+                  autoFocus
+                  fullWidth
+                />
               ) : (
-                <>
-                  <ListItemText primary={todo.title} />
-                  <ListItemSecondaryAction>
-                    <IconButton
-                      edge='end'
-                      onClick={() => {
-                        setEditingTodoId(todo.id)
-                        setEditingTodoTitle(todo.title)
-                      }}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton edge='end' onClick={() => handleDeleteTodo(todo.id)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </>
+                <ListItemText
+                  primary={todo.title}
+                  onClick={() => handleEditInit(todo)}
+                  sx={{
+                    textDecoration: todo.completed ? 'line-through' : 'none',
+                    cursor: 'pointer'
+                  }}
+                />
               )}
+              <ListItemSecondaryAction>
+                <IconButton edge='end' onClick={() => handleDeleteClick(todo.id)}>
+                  <DeleteIcon />
+                </IconButton>
+              </ListItemSecondaryAction>
             </ListItem>
           ))}
         </List>
       ) : (
-        <Typography variant='body2' color='textSecondary'>
-          No todos available.
-        </Typography>
+        <Box textAlign='center' py={5}>
+          <ChecklistIcon fontSize='large' color='action' />
+          <Typography variant='h6' color='textSecondary'>
+            No tasks yet
+          </Typography>
+          <Typography variant='body2' color='textSecondary'>
+            Start by adding tasks to this service.
+          </Typography>
+        </Box>
       )}
+
+      <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText>Are you sure you want to delete this task?</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmOpen(false)}>Cancel</Button>
+          <Button onClick={handleDeleteConfirm} color='primary'>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }
