@@ -268,7 +268,8 @@ export async function getGarments(userId, token, { page = 1, pageSize = 10, clie
         name,
         qty,
         unit_price,
-        unit
+        unit,
+        is_done
       )
     `
     )
@@ -379,7 +380,8 @@ export async function getGarmentsAndStages(userId, token) {
         name,
         qty,
         unit_price,
-        unit
+        unit,
+        is_done
       ),
       order_id,
       image_cloud_id,

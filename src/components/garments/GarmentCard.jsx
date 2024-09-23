@@ -2,7 +2,7 @@ import React from 'react'
 
 import Link from 'next/link'
 
-import { Typography, Box, Card, CardContent, Chip, Grid, Avatar, CardActionArea, useTheme } from '@mui/material'
+import { Typography, Box, Card, CardContent, Chip, Grid, CardActionArea, useTheme } from '@mui/material'
 import { CldImage } from 'next-cloudinary'
 import { format, differenceInDays } from 'date-fns'
 import EventIcon from '@mui/icons-material/Event'
@@ -10,11 +10,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime'
 
 import { getContrastText } from '@/utils/colorUtils'
 
-/**
- * Determines the status color and text based on the due date.
- * @param {string | Date} date - The due date of the garment.
- * @returns {object} - An object containing the color and status text.
- */
+// Function to determine date status
 const getDateStatus = date => {
   const today = new Date()
   const diffDays = differenceInDays(new Date(date), today)
@@ -22,44 +18,8 @@ const getDateStatus = date => {
   if (diffDays < 0) return { color: 'error.main', text: `${Math.abs(diffDays)} days overdue` }
   if (diffDays <= 7) return { color: 'warning.main', text: 'Due soon' }
 
-  return { color: 'success.main', text: 'On track' }
-}
-
-/**
- * Reusable StatusBadge component for displaying status chips.
- * @param {object} props - Component props.
- * @param {string} props.type - Type of status ('due' or 'stage').
- * @param {string} props.label - Text to display inside the chip.
- * @returns {JSX.Element}
- */
-const StatusBadge = ({ type, label }) => {
-  const statusColors = {
-    due: {
-      Overdue: 'error.main',
-      'Due soon': 'warning.main',
-      'On track': 'success.main'
-    },
-    stage: {
-      'In Production': 'primary.main',
-      Completed: 'secondary.main'
-
-      // Add more stages and corresponding colors as needed
-    }
-  }
-
-  const color = statusColors[type][label] || 'grey.500'
-
-  return (
-    <Chip
-      label={label}
-      size='small'
-      sx={{
-        backgroundColor: color,
-        color: 'white',
-        fontWeight: 'bold'
-      }}
-    />
-  )
+  // Return null if the garment is not overdue or due soon
+  return null
 }
 
 const GarmentCard = ({ garment, orderId, stageColor }) => {
@@ -82,7 +42,24 @@ const GarmentCard = ({ garment, orderId, stageColor }) => {
   // Calculate contrast text color
   const textColor = getContrastText(backgroundColor)
 
+  // Get the due date status
   const dateStatus = garment.due_date ? getDateStatus(garment.due_date) : null
+
+  // Check if all services are complete
+  const allServicesComplete =
+    garment.services && garment.services.length > 0 && garment.services.every(service => service.is_done)
+
+  // Determine the status text and color
+  let statusText = ''
+  let statusColor = ''
+
+  if (allServicesComplete) {
+    statusText = 'All Services Complete'
+    statusColor = 'success.main' // Choose a color that fits your theme
+  } else if (dateStatus) {
+    statusText = dateStatus.text
+    statusColor = dateStatus.color
+  }
 
   return (
     <Link
@@ -120,12 +97,12 @@ const GarmentCard = ({ garment, orderId, stageColor }) => {
                   backgroundColor: backgroundColor,
                   color: textColor,
                   fontWeight: 'bold',
-                  maxWidth: 'none', // Prevent chip from being truncated
-                  height: 'auto', // Allow chip to expand vertically if needed
+                  maxWidth: 'none',
+                  height: 'auto',
                   '& .MuiChip-label': {
-                    whiteSpace: 'normal', // Allow text to wrap
+                    whiteSpace: 'normal',
                     display: 'block',
-                    padding: '4px 8px' // Adjust padding as needed
+                    padding: '4px 8px'
                   }
                 }}
               />
@@ -205,17 +182,17 @@ const GarmentCard = ({ garment, orderId, stageColor }) => {
                   height: '100%'
                 }}
               >
-                {/* Due Status as Text */}
-                {dateStatus && (
+                {/* Status as Text */}
+                {statusText && (
                   <Typography
                     variant='body2'
                     sx={{
-                      color: dateStatus.color,
+                      color: statusColor,
                       fontWeight: 'bold',
                       mb: 1
                     }}
                   >
-                    {dateStatus.text}
+                    {statusText}
                   </Typography>
                 )}
 
