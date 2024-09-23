@@ -55,9 +55,13 @@ export default function GarmentsPage() {
     }
   }, [userId])
 
-  const handleStagesUpdated = () => {
+  const handleStagesUpdated = async deletedStageId => {
     console.log('handleStagesUpdated called')
-    fetchGarmentsData()
+    await fetchGarmentsData()
+
+    if (deletedStageId && selectedStage && selectedStage.id === deletedStageId) {
+      setSelectedStage(null)
+    }
   }
 
   // Compute counts of garments per stage
@@ -101,7 +105,8 @@ export default function GarmentsPage() {
           display: 'flex',
           alignItems: 'center',
           mb: 3,
-          overflowX: 'auto',
+          overflowX: 'scroll', // Changed from 'auto' to 'scroll'
+          overflowY: 'hidden', // Hide vertical scrollbar
           pb: 4 // Add padding at the bottom
         }}
       >
