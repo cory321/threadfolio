@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -47,7 +47,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   padding: theme.spacing(2) // Increase padding
 }))
 
-const ClientList = ({ clients: initialClients, setClients }) => {
+const ClientList = () => {
   const { getToken, userId } = useAuth()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
@@ -55,7 +55,7 @@ const ClientList = ({ clients: initialClients, setClients }) => {
   const [page, setPage] = useState(0)
   const [totalCount, setTotalCount] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
-  const [localClients, setLocalClients] = useState(initialClients || [])
+  const [localClients, setLocalClients] = useState([])
   const [searchResults, setSearchResults] = useState(null)
   const [order, setOrder] = useState('asc')
   const [orderBy, setOrderBy] = useState('full_name')
@@ -79,7 +79,6 @@ const ClientList = ({ clients: initialClients, setClients }) => {
         )
 
         setLocalClients(clientsData)
-        setClients(clientsData)
         setTotalCount(totalCount)
       } catch (err) {
         console.error('Error fetching clients:', err)
@@ -88,8 +87,13 @@ const ClientList = ({ clients: initialClients, setClients }) => {
         setIsLoading(false)
       }
     },
-    [getToken, setClients, userId]
+    [getToken, userId]
   )
+
+  useEffect(() => {
+    // Fetch clients when component is mounted
+    loadClients(page, rowsPerPage, orderBy, order)
+  }, [loadClients, page, rowsPerPage, orderBy, order])
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage)
