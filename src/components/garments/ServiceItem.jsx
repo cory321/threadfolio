@@ -14,13 +14,13 @@ import {
   Box,
   Accordion,
   AccordionSummary,
-  AccordionDetails,
-  IconButton
+  AccordionDetails
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
 import TaskAltIcon from '@mui/icons-material/TaskAlt'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
+import { format } from 'date-fns' // Import the format function
 
 import ServiceTodoList from '@/components/garments/ServiceTodoList'
 
@@ -43,6 +43,9 @@ export default function ServiceItem({ service, isDone, handleStatusChange }) {
   const handleAccordionChange = (event, isExpanded) => {
     setIsAccordionExpanded(isExpanded)
   }
+
+  // Format the created_at date
+  const formattedDate = service.created_at ? format(new Date(service.created_at), 'EEEE, MMMM d, yyyy') : ''
 
   return (
     <Grid item xs={12}>
@@ -99,6 +102,12 @@ export default function ServiceItem({ service, isDone, handleStatusChange }) {
               }
             }}
           />
+          {/* Conditionally display the formatted date */}
+          {formattedDate && (
+            <Typography variant='body2' color='textSecondary' gutterBottom>
+              Service requested on {formattedDate}
+            </Typography>
+          )}
           {service.description && (
             <Typography variant='body2' color='textSecondary' gutterBottom>
               {service.description}

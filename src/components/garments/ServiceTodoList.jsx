@@ -27,6 +27,8 @@ import {
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import ChecklistIcon from '@mui/icons-material/Checklist'
+import { WarningAmberRounded } from '@mui/icons-material'
+import CloseIcon from '@mui/icons-material/Close' // Add this import
 
 import {
   getServiceTodos,
@@ -230,14 +232,40 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
         </Box>
       )}
 
-      <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
-        <DialogTitle>Confirm Delete</DialogTitle>
-        <DialogContent>
+      <Dialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        PaperProps={{
+          sx: {
+            width: '100%',
+            maxWidth: 400 // Adjust this value as needed
+          }
+        }}
+      >
+        <DialogTitle sx={{ m: 0, p: 2 }}>
+          Confirm Delete
+          <IconButton
+            aria-label='close'
+            onClick={() => setConfirmOpen(false)}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: theme => theme.palette.grey[500]
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+          <WarningAmberRounded sx={{ fontSize: 64, color: 'warning.main', mb: 2 }} />
           <DialogContentText>Are you sure you want to delete this task?</DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setConfirmOpen(false)}>Cancel</Button>
-          <Button onClick={handleDeleteConfirm} color='primary'>
+        <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
+          <Button onClick={() => setConfirmOpen(false)} variant='outlined'>
+            Cancel
+          </Button>
+          <Button onClick={handleDeleteConfirm} color='primary' variant='contained'>
             Delete
           </Button>
         </DialogActions>
