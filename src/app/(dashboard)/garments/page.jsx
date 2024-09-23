@@ -55,9 +55,13 @@ export default function GarmentsPage() {
     }
   }, [userId])
 
-  const handleStagesUpdated = () => {
+  const handleStagesUpdated = async deletedStageId => {
     console.log('handleStagesUpdated called')
-    fetchGarmentsData()
+    await fetchGarmentsData()
+
+    if (deletedStageId && selectedStage && selectedStage.id === deletedStageId) {
+      setSelectedStage(null)
+    }
   }
 
   // Compute counts of garments per stage

@@ -15,9 +15,10 @@ import {
   TextField,
   Tooltip,
   useTheme,
-  useMediaQuery
+  useMediaQuery,
+  CircularProgress
 } from '@mui/material'
-import { Delete, DragIndicator, Close as CloseIcon } from '@mui/icons-material'
+import { Delete, DragIndicator, Close as CloseIcon, WarningAmberRounded } from '@mui/icons-material'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 
 import { updateStages } from '@/app/actions/garments'
@@ -64,6 +65,7 @@ export default function CustomizeStagesDialog({
   const [reassignStageId, setReassignStageId] = useState(null)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // State for Color Picker Dialog
   const [colorPickerOpen, setColorPickerOpen] = useState(false)
@@ -99,6 +101,12 @@ export default function CustomizeStagesDialog({
   }
 
   const handleAddStage = () => {
+    if (stages.length >= 20) {
+      setError('A maximum of 20 stages are allowed.')
+
+      return
+    }
+
     const newStage = {
       id: null,
       user_id: userId,
@@ -191,17 +199,17 @@ export default function CustomizeStagesDialog({
   }
 
   const handleConfirmDelete = async () => {
+    setIsDeleting(true)
+
     // Prevent deletion if only one stage remains
     if (stages.length <= 1) {
       setDeleteError('Cannot delete the last remaining stage.')
+      setIsDeleting(false)
 
       return
     }
 
     if (stageToDelete && reassignStageId) {
-      setConfirmDeleteOpen(false)
-      setDeleteError('') // Clear any previous delete errors
-
       try {
         const token = await getToken({ template: 'supabase' })
 
@@ -218,7 +226,7 @@ export default function CustomizeStagesDialog({
 
         await updateStages(userId, stagesToSave, token, stageToDelete.id, reassignStageId)
 
-        onStagesUpdated()
+        onStagesUpdated(stageToDelete.id) // Pass the deleted stage ID
         onClose()
 
         // Reset variables
@@ -228,10 +236,11 @@ export default function CustomizeStagesDialog({
         console.error('Error during handleConfirmDelete:', err)
         setDeleteError('Failed to delete stage. Please try again.')
       } finally {
-        setIsSaving(false)
+        setIsDeleting(false)
       }
     } else {
       setDeleteError('Please select a valid stage to reassign garments to.')
+      setIsDeleting(false)
     }
   }
 
@@ -285,6 +294,7 @@ export default function CustomizeStagesDialog({
               flexShrink: 0
             }}
             onClick={handleAddStage}
+            disabled={stages.length >= 20}
           >
             <Typography variant='button'>Add Stage</Typography>
           </Card>
@@ -329,7 +339,12 @@ export default function CustomizeStagesDialog({
                           {/* Delete Icon */}
                           <IconButton
                             size='small'
-                            sx={{ position: 'absolute', top: 4, left: 4, color: 'red' }}
+                            sx={{
+                              position: 'absolute',
+                              bottom: 4,
+                              left: 4,
+                              color: theme => theme.palette.grey[500]
+                            }}
                             onClick={e => {
                               e.stopPropagation()
                               handleDeleteStage(index)
@@ -413,8 +428,7 @@ export default function CustomizeStagesDialog({
                             sx={{
                               position: 'absolute',
                               bottom: 4,
-                              left: '50%',
-                              transform: 'translateX(-50%)',
+                              right: 4,
                               cursor: 'grab'
                             }}
                           >
@@ -450,6 +464,7 @@ export default function CustomizeStagesDialog({
             <IconButton
               aria-label='close'
               onClick={handleCloseConfirmDelete}
+              disabled={isDeleting}
               sx={{
                 position: 'absolute',
                 right: 8,
@@ -460,10 +475,18 @@ export default function CustomizeStagesDialog({
               <CloseIcon />
             </IconButton>
           </DialogTitle>
-          <DialogContent>
-            <Typography>
-              Are you sure you want to delete the stage &ldquo;{stageToDelete && stageToDelete.name}&rdquo;?
-            </Typography>
+          <DialogContent
+            sx={{
+              position: 'relative',
+              ...(isDeleting && { pointerEvents: 'none', opacity: 0.5 })
+            }}
+          >
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
+              <WarningAmberRounded sx={{ fontSize: 64, color: 'warning.main', mb: 2 }} />
+              <Typography variant='h6' align='center'>
+                Are you sure you want to delete the stage &ldquo;{stageToDelete && stageToDelete.name}&rdquo;?
+              </Typography>
+            </Box>
             <Typography>Please select a stage to reassign garments to before deleting:</Typography>
 
             {/* Display deleteError inside the Confirm Delete dialog */}
@@ -482,15 +505,38 @@ export default function CustomizeStagesDialog({
                     variant={reassignStageId === stage.id ? 'contained' : 'outlined'}
                     onClick={() => setReassignStageId(stage.id)}
                     sx={{ mr: 1, mb: 1 }}
+                    disabled={isDeleting}
                   >
                     {stage.name}
                   </Button>
                 ))}
             </Box>
+
+            {/* Loading indicator overlay */}
+            {isDeleting && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 10
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            )}
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseConfirmDelete}>Cancel</Button>
-            <Button variant='contained' color='error' onClick={handleConfirmDelete}>
+            <Button onClick={handleCloseConfirmDelete} disabled={isDeleting}>
+              Cancel
+            </Button>
+            <Button variant='contained' color='error' onClick={handleConfirmDelete} disabled={isDeleting}>
               Delete
             </Button>
           </DialogActions>
