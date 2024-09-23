@@ -390,7 +390,10 @@ export async function getGarmentsAndStages(userId, token) {
       created_at,
       is_event,
       event_date,
-      client_id
+      client_id,
+      clients (
+        full_name
+      )
     `
     )
     .eq('user_id', userId)
@@ -415,7 +418,8 @@ export async function getGarmentsAndStages(userId, token) {
   const processedGarments = garments.map(garment => ({
     ...garment,
     stage_name: garment.garment_stages?.name || 'Unknown',
-    services: garment.garment_services || []
+    services: garment.garment_services || [],
+    client_name: garment.clients?.full_name || 'Unknown Client'
   }))
 
   return { garments: processedGarments, stages }

@@ -14,7 +14,9 @@ import {
   FormControl,
   InputLabel,
   IconButton,
-  Tooltip
+  Tooltip,
+  Paper, // Imported for alternative styling
+  Divider // Imported for additional separation
 } from '@mui/material'
 import SettingsIcon from '@mui/icons-material/Settings'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
@@ -50,8 +52,9 @@ export default function GarmentsPage() {
       setGarmentsData(
         garments.map(garment => ({
           ...garment,
-          stage_name: garment.garment_stages.name,
-          stage_color: garment.garment_stages.color
+          stage_name: garment.garment_stages?.name,
+          stage_color: garment.garment_stages?.color,
+          client_name: garment.client_name || 'Unknown Client'
         }))
       )
       setStages(fetchedStages)
@@ -63,10 +66,8 @@ export default function GarmentsPage() {
   }
 
   useEffect(() => {
-    if (userId) {
-      fetchGarmentsData()
-    }
-  }, [userId])
+    fetchGarmentsData()
+  }, [])
 
   const handleStagesUpdated = async deletedStageId => {
     console.log('handleStagesUpdated called')
@@ -101,14 +102,58 @@ export default function GarmentsPage() {
 
     // Sort the garments by the selected field
     garments = garments.sort((a, b) => {
-      const valueA = a[sortField] ? new Date(a[sortField]) : new Date(0)
-      const valueB = b[sortField] ? new Date(b[sortField]) : new Date(0)
+      let valueA = a[sortField]
+      let valueB = b[sortField]
 
-      return sortOrder === 'asc' ? valueA - valueB : valueB - valueA
+      if (sortField === 'client_name' || sortField === 'name') {
+        // For string fields, use localeCompare
+        valueA = valueA ? valueA.toLowerCase() : ''
+        valueB = valueB ? valueB.toLowerCase() : ''
+
+        return sortOrder === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA)
+      } else {
+        // For date fields
+        valueA = valueA ? new Date(valueA) : new Date(0)
+        valueB = valueB ? new Date(valueB) : new Date(0)
+
+        return sortOrder === 'asc' ? valueA - valueB : valueB - valueA
+      }
     })
 
     return garments
   }, [garmentsData, selectedStage, sortOrder, sortField])
+
+  // Group garments by client name if sorting by client_name
+  const groupedGarments = React.useMemo(() => {
+    if (sortField !== 'client_name') {
+      // Do not group if not sorting by client_name
+      return null
+    }
+
+    // Group garments by client name
+    const groups = filteredGarments.reduce((acc, garment) => {
+      const clientName = garment.client_name || 'Unknown Client'
+
+      if (!acc[clientName]) {
+        acc[clientName] = []
+      }
+
+      acc[clientName].push(garment)
+
+      return acc
+    }, {})
+
+    // Extract and sort client names
+    const sortedClientNames = Object.keys(groups).sort((a, b) => {
+      if (sortOrder === 'asc') {
+        return a.localeCompare(b)
+      } else {
+        return b.localeCompare(a)
+      }
+    })
+
+    return { groups, sortedClientNames } // Return both groups and the sorted client names
+  }, [filteredGarments, sortOrder, sortField])
 
   return (
     <Box sx={{ p: 3 }}>
@@ -150,6 +195,8 @@ export default function GarmentsPage() {
             <Select value={sortField} onChange={e => setSortField(e.target.value)} label='Sort By'>
               <MenuItem value='due_date'>Due Date</MenuItem>
               <MenuItem value='created_at'>Date Created</MenuItem>
+              <MenuItem value='client_name'>Client Name</MenuItem>
+              {/* Add other sorting options if needed */}
             </Select>
           </FormControl>
 
@@ -173,7 +220,40 @@ export default function GarmentsPage() {
         </Box>
       ) : filteredGarments.length === 0 ? (
         <Typography>No garments found for this stage.</Typography>
+      ) : sortField === 'client_name' ? (
+        // Render grouped garments with client name headings
+        groupedGarments.sortedClientNames.map(clientName => (
+          <Box key={clientName} sx={{ mb: 4 }}>
+            {/* Styled Container for Client Name */}
+            <Box
+              sx={{
+                backgroundColor: '#e3e5f1', // Light primary color for background
+                p: 2, // Padding
+                borderRadius: 1, // Rounded corners
+                mb: 2 // Margin bottom for spacing
+              }}
+            >
+              <Typography variant='h5' sx={{ color: '#000' }}>
+                {clientName}
+              </Typography>
+            </Box>
+
+            {/* Garments Grid for the Client */}
+            <Grid container spacing={3}>
+              {groupedGarments.groups[clientName].map(garment => (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={garment.id}>
+                  <GarmentCard
+                    garment={garment}
+                    orderId={garment.order_id}
+                    stageColor={stages.find(stage => stage.id === garment.stage_id)?.color}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        ))
       ) : (
+        // Render garments without client name headings
         <Grid container spacing={3}>
           {filteredGarments.map(garment => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={garment.id}>
