@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 
 import { useAuth } from '@clerk/nextjs'
 import { Box, Typography, Card, CardContent, Switch, FormControlLabel } from '@mui/material'
@@ -44,6 +44,16 @@ const ClientAppointments = ({ clientId, clientName }) => {
     setShowCancelled(!showCancelled)
   }
 
+  // Add this function to handle new appointments
+  const handleAddAppointment = newAppointment => {
+    setUpcomingAppointments(prevAppointments => {
+      const updatedAppointments = [...prevAppointments, newAppointment]
+
+      // Sort appointments by start time to maintain order
+      return updatedAppointments.sort((a, b) => new Date(a.start) - new Date(b.start))
+    })
+  }
+
   if (isLoading) {
     return (
       <Card>
@@ -74,7 +84,9 @@ const ClientAppointments = ({ clientId, clientName }) => {
       <UpcomingClientAppointments
         appointments={upcomingAppointments}
         clientName={clientName}
+        clientId={clientId}
         showCancelled={showCancelled}
+        onAddAppointment={handleAddAppointment} // Pass the handler down
       />
       <AppointmentHistory clientId={clientId} userId={userId} showCancelled={showCancelled} />
     </Box>

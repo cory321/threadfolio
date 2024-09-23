@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 
 import {
   Dialog,
@@ -14,7 +14,8 @@ import {
   Typography,
   useTheme,
   useMediaQuery,
-  IconButton
+  IconButton,
+  Box
 } from '@mui/material'
 import { useForm } from 'react-hook-form'
 import { useAuth } from '@clerk/nextjs'
@@ -25,6 +26,8 @@ import { toast } from 'react-toastify'
 
 import CloseIcon from '@mui/icons-material/Close'
 
+import InitialsAvatar from '@/components/InitialsAvatar' // Import the Avatar component
+
 import { addAppointment } from '@/app/actions/appointments'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 import DatePickerInput from './DatePickerInput'
@@ -34,7 +37,15 @@ import ClientSearch from '@/components/clients/ClientSearch'
 import { adjustEndTimeIfNeeded } from '@/utils/dateTimeUtils'
 
 const AddAppointmentModal = props => {
-  const { addEventModalOpen, handleAddEventModalToggle, selectedDate, dispatch, onAddAppointment } = props
+  const {
+    addEventModalOpen,
+    handleAddEventModalToggle,
+    selectedDate,
+    dispatch,
+    onAddAppointment = () => {},
+    client
+  } = props
+
   const { userId, getToken } = useAuth()
   const theme = useTheme()
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'))
@@ -49,8 +60,10 @@ const AddAppointmentModal = props => {
     return now
   }
 
+  // Set default state with client info if provided
   const defaultState = {
-    clientId: null,
+    clientId: client ? client.id : null,
+    clientName: client ? client.full_name : '',
     startTime: getNextNearestHour(),
     endTime: new Date(getNextNearestHour().getTime() + 60 * 60 * 1000), // 1 hour later
     location: '1234 Seamstress Shop Ave. Paso Robles, CA 93446',
@@ -177,7 +190,7 @@ const AddAppointmentModal = props => {
         }
       }
 
-      onAddAppointment(transformedAppointment)
+      onAddAppointment(transformedAppointment) // Update the appointments in parent
       handleAddEventModalToggle()
       toast.success('Appointment added successfully')
     } catch (error) {
@@ -251,22 +264,48 @@ const AddAppointmentModal = props => {
       </DialogTitle>
       <DialogContent dividers>
         <form onSubmit={handleSubmit(onSubmit)} autoComplete='off'>
-          <FormControl fullWidth margin='normal' style={{ marginBottom: '8px' }}>
+          {/* Conditional Rendering: Show Typography with Avatar if client is passed, else show ClientSearch */}
+          {client ? (
+            <Box
+              sx={{
+                mb: 2,
+                textAlign: 'center'
+              }}
+            >
+              <Typography
+                variant='h6'
+                component='div'
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+              >
+                <InitialsAvatar
+                  fullName={values.clientName}
+                  sx={{ mr: 1, bgcolor: 'primary.main', color: 'white', width: 40, height: 40, fontSize: 16 }}
+                />
+                <span style={{ color: theme.palette.primary.main, fontWeight: 'bold' }}>{values.clientName}</span>
+              </Typography>
+            </Box>
+          ) : (
+            <FormControl fullWidth margin='normal' style={{ marginBottom: '16px' }}>
+              <ClientSearch userId={userId} onClientSelect={handleClientSelect} />
+              {clientError && (
+                <Typography color='error' variant='caption' style={{ marginTop: '8px' }}>
+                  {clientError}
+                </Typography>
+              )}
+            </FormControl>
+          )}
+
+          {/* Appointment Date Picker */}
+          <FormControl fullWidth margin='normal' style={{ marginBottom: '16px' }}>
             <AppReactDatepicker
               selected={values.appointmentDate}
               onChange={date => setValues({ ...values, appointmentDate: date })}
               customInput={<DatePickerInput label='Appointment Date' dateFormat='EEEE, MMMM d, yyyy' />}
               minDate={new Date()}
             />
-          </FormControl>
-
-          <FormControl fullWidth margin='normal' style={{ marginBottom: '16px' }}>
-            <ClientSearch userId={userId} onClientSelect={handleClientSelect} />
-            {clientError && (
-              <Typography color='error' variant='caption' style={{ marginTop: '8px' }}>
-                {clientError}
-              </Typography>
-            )}
           </FormControl>
 
           <Grid container spacing={2} style={{ marginTop: '0' }}>

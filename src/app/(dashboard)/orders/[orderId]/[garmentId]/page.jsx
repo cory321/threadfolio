@@ -34,6 +34,10 @@ import { toast } from 'react-toastify'
 
 import { useTheme } from '@mui/material/styles'
 
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
+
+import AddAppointmentModal from '@/views/apps/calendar/AddAppointmentModal'
+
 import ServiceItem from '@/components/garments/ServiceItem'
 import ServicesSearch from '@/components/services/ServicesSearch'
 import CreateServiceDialog from '@/components/garments/garment-service-table/CreateServiceDialog'
@@ -67,6 +71,16 @@ export default function GarmentPage() {
   const [isCreateServiceDialogOpen, setCreateServiceDialogOpen] = useState(false)
 
   const theme = useTheme()
+
+  const [isAddAppointmentModalOpen, setIsAddAppointmentModalOpen] = useState(false)
+
+  const handleOpenAddAppointmentModal = () => {
+    setIsAddAppointmentModalOpen(true)
+  }
+
+  const handleCloseAddAppointmentModal = () => {
+    setIsAddAppointmentModalOpen(false)
+  }
 
   // Function to handle adding a new service to the garment
   const handleServiceSelect = async service => {
@@ -365,9 +379,18 @@ export default function GarmentPage() {
             </CardContent>
           </Card>
           <Card sx={{ mt: 2 }}>
-            <Typography variant='h6' sx={{ p: 6 }}>
-              Schedule Followup Appointment
-            </Typography>
+            <CardHeader title='Schedule Appointment' />
+            <CardContent>
+              {/* Add a button to open the modal */}
+              <Button
+                variant='outlined'
+                color='primary'
+                onClick={handleOpenAddAppointmentModal}
+                startIcon={<CalendarMonthIcon />}
+              >
+                Schedule Appointment
+              </Button>
+            </CardContent>
           </Card>
           <TimeTracker sx={{ mt: 2 }} />
           <Finances sx={{ mt: 2 }} />
@@ -392,6 +415,13 @@ export default function GarmentPage() {
         open={isCreateServiceDialogOpen}
         onClose={() => setCreateServiceDialogOpen(false)}
         onServiceSelect={handleServiceSelect}
+      />
+
+      {/* Include the AddAppointmentModal and pass the client information */}
+      <AddAppointmentModal
+        addEventModalOpen={isAddAppointmentModalOpen}
+        handleAddEventModalToggle={handleCloseAddAppointmentModal}
+        client={{ id: garment.client.id, full_name: garment.client.full_name }}
       />
     </>
   )
