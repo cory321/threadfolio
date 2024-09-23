@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 
 import { useAuth } from '@clerk/nextjs'
 import {
@@ -37,7 +37,7 @@ export default function GarmentsPage() {
   const [sortField, setSortField] = useState('due_date')
   const { userId, getToken } = useAuth()
 
-  const fetchGarmentsData = async () => {
+  const fetchGarmentsData = useCallback(async () => {
     try {
       setIsLoading(true)
       const token = await getToken({ template: 'supabase' })
@@ -63,11 +63,11 @@ export default function GarmentsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [userId, getToken])
 
   useEffect(() => {
     fetchGarmentsData()
-  }, [])
+  }, [fetchGarmentsData])
 
   const handleStagesUpdated = async deletedStageId => {
     console.log('handleStagesUpdated called')
@@ -79,7 +79,7 @@ export default function GarmentsPage() {
   }
 
   // Compute counts of garments per stage
-  const garmentCounts = React.useMemo(() => {
+  const garmentCounts = useMemo(() => {
     const counts = {}
 
     garmentsData.forEach(garment => {
@@ -93,7 +93,7 @@ export default function GarmentsPage() {
 
   const totalGarments = garmentsData.length
 
-  const filteredGarments = React.useMemo(() => {
+  const filteredGarments = useMemo(() => {
     let garments = garmentsData
 
     if (selectedStage) {
@@ -124,7 +124,7 @@ export default function GarmentsPage() {
   }, [garmentsData, selectedStage, sortOrder, sortField])
 
   // Group garments by client name if sorting by client_name
-  const groupedGarments = React.useMemo(() => {
+  const groupedGarments = useMemo(() => {
     if (sortField !== 'client_name') {
       // Do not group if not sorting by client_name
       return null
@@ -221,16 +221,15 @@ export default function GarmentsPage() {
       ) : filteredGarments.length === 0 ? (
         <Typography>No garments found for this stage.</Typography>
       ) : sortField === 'client_name' ? (
-        // Render grouped garments with client name headings
         groupedGarments.sortedClientNames.map(clientName => (
           <Box key={clientName} sx={{ mb: 4 }}>
             {/* Styled Container for Client Name */}
             <Box
               sx={{
-                backgroundColor: '#e3e5f1', // Light primary color for background
+                backgroundColor: '#e3e5f1',
                 p: 2, // Padding
-                borderRadius: 1, // Rounded corners
-                mb: 2 // Margin bottom for spacing
+                borderRadius: 1,
+                mb: 2
               }}
             >
               <Typography variant='h5' sx={{ color: '#000' }}>
@@ -253,7 +252,6 @@ export default function GarmentsPage() {
           </Box>
         ))
       ) : (
-        // Render garments without client name headings
         <Grid container spacing={3}>
           {filteredGarments.map(garment => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={garment.id}>
