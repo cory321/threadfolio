@@ -34,6 +34,8 @@ import { toast } from 'react-toastify'
 
 import { useTheme } from '@mui/material/styles'
 
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
+
 import AddAppointmentModal from '@/views/apps/calendar/AddAppointmentModal'
 
 import ServiceItem from '@/components/garments/ServiceItem'
@@ -377,10 +379,15 @@ export default function GarmentPage() {
             </CardContent>
           </Card>
           <Card sx={{ mt: 2 }}>
-            <CardHeader title='Schedule Followup Appointment' />
+            <CardHeader title='Schedule Appointment' />
             <CardContent>
               {/* Add a button to open the modal */}
-              <Button variant='contained' color='primary' onClick={handleOpenAddAppointmentModal}>
+              <Button
+                variant='outlined'
+                color='primary'
+                onClick={handleOpenAddAppointmentModal}
+                startIcon={<CalendarMonthIcon />}
+              >
                 Schedule Appointment
               </Button>
             </CardContent>
