@@ -34,7 +34,14 @@ import ClientSearch from '@/components/clients/ClientSearch'
 import { adjustEndTimeIfNeeded } from '@/utils/dateTimeUtils'
 
 const AddAppointmentModal = props => {
-  const { addEventModalOpen, handleAddEventModalToggle, selectedDate, dispatch, onAddAppointment, client } = props
+  const {
+    addEventModalOpen,
+    handleAddEventModalToggle,
+    selectedDate,
+    dispatch,
+    onAddAppointment = () => {},
+    client
+  } = props
 
   const { userId, getToken } = useAuth()
   const theme = useTheme()
