@@ -243,7 +243,7 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
         }}
       >
         <DialogTitle sx={{ m: 0, p: 2 }}>
-          Confirm Delete
+          Delete Task?
           <IconButton
             aria-label='close'
             onClick={() => setConfirmOpen(false)}
@@ -259,7 +259,7 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
         </DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
           <WarningAmberRounded sx={{ fontSize: 64, color: 'warning.main', mb: 2 }} />
-          <DialogContentText>Are you sure you want to delete this task?</DialogContentText>
+          <DialogContentText>Deleting this task cannot be undone.</DialogContentText>
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
           <Button onClick={() => setConfirmOpen(false)} variant='outlined'>
