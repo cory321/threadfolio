@@ -484,10 +484,13 @@ export default function CustomizeStagesDialog({
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
               <WarningAmberRounded sx={{ fontSize: 64, color: 'warning.main', mb: 2 }} />
               <Typography variant='h6' align='center'>
-                Are you sure you want to delete the stage &ldquo;{stageToDelete && stageToDelete.name}&rdquo;?
+                Are you sure you want to delete the &ldquo;{stageToDelete && stageToDelete.name}&rdquo; stage?
               </Typography>
             </Box>
-            <Typography>Please select a stage to reassign garments to before deleting:</Typography>
+            <Typography sx={{ textAlign: 'center' }}>
+              Please select a new stage to move all garments in the &ldquo;
+              {stageToDelete && stageToDelete.name}&rdquo; stage to before deleting it:
+            </Typography>
 
             {/* Display deleteError inside the Confirm Delete dialog */}
             {deleteError && (
@@ -496,7 +499,7 @@ export default function CustomizeStagesDialog({
               </Typography>
             )}
 
-            <Box sx={{ mt: 2 }}>
+            <Box sx={{ mt: 2, textAlign: 'center' }}>
               {stages
                 .filter(stage => stage.id !== (stageToDelete && stageToDelete.id))
                 .map(stage => (

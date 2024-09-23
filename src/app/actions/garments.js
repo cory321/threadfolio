@@ -268,7 +268,8 @@ export async function getGarments(userId, token, { page = 1, pageSize = 10, clie
         name,
         qty,
         unit_price,
-        unit
+        unit,
+        is_done
       )
     `
     )
@@ -379,15 +380,20 @@ export async function getGarmentsAndStages(userId, token) {
         name,
         qty,
         unit_price,
-        unit
+        unit,
+        is_done
       ),
       order_id,
       image_cloud_id,
       notes,
       due_date,
+      created_at,
       is_event,
       event_date,
-      client_id
+      client_id,
+      clients (
+        full_name
+      )
     `
     )
     .eq('user_id', userId)
@@ -412,7 +418,8 @@ export async function getGarmentsAndStages(userId, token) {
   const processedGarments = garments.map(garment => ({
     ...garment,
     stage_name: garment.garment_stages?.name || 'Unknown',
-    services: garment.garment_services || []
+    services: garment.garment_services || [],
+    client_name: garment.clients?.full_name || 'Unknown Client'
   }))
 
   return { garments: processedGarments, stages }
@@ -642,4 +649,36 @@ export async function updateServiceDoneStatus(userId, serviceId, isDone, token) 
   if (updateError) {
     throw new Error('Failed to update service status: ' + updateError.message)
   }
+}
+
+export async function addGarmentService(userId, serviceData, token) {
+  const supabase = await getSupabaseClient(token)
+
+  // Verify that the garment belongs to the user
+  const { data: garment, error: garmentError } = await supabase
+    .from('garments')
+    .select('user_id')
+    .eq('id', serviceData.garment_id)
+    .single()
+
+  if (garmentError || !garment) {
+    throw new Error('Garment not found or you do not have permission to modify it.')
+  }
+
+  if (garment.user_id !== userId) {
+    throw new Error('You do not have permission to add services to this garment.')
+  }
+
+  // Insert the new service into the garment_services table
+  const { data: newService, error: insertError } = await supabase
+    .from('garment_services')
+    .insert(serviceData)
+    .select('*')
+    .single()
+
+  if (insertError) {
+    throw new Error('Failed to add service: ' + insertError.message)
+  }
+
+  return newService
 }
