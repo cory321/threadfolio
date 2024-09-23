@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 
 import {
   Dialog,
@@ -14,7 +14,8 @@ import {
   Typography,
   useTheme,
   useMediaQuery,
-  IconButton
+  IconButton,
+  Box
 } from '@mui/material'
 import { useForm } from 'react-hook-form'
 import { useAuth } from '@clerk/nextjs'
@@ -24,6 +25,8 @@ import { setHours, setMinutes } from 'date-fns'
 import { toast } from 'react-toastify'
 
 import CloseIcon from '@mui/icons-material/Close'
+
+import InitialsAvatar from '@/components/InitialsAvatar' // Import the Avatar component
 
 import { addAppointment } from '@/app/actions/appointments'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
@@ -187,7 +190,7 @@ const AddAppointmentModal = props => {
         }
       }
 
-      onAddAppointment(transformedAppointment)
+      onAddAppointment(transformedAppointment) // Update the appointments in parent
       handleAddEventModalToggle()
       toast.success('Appointment added successfully')
     } catch (error) {
@@ -235,7 +238,6 @@ const AddAppointmentModal = props => {
     })
   }
 
-  // Adjust rendering of the client selection
   return (
     <Dialog
       open={addEventModalOpen}
@@ -262,30 +264,48 @@ const AddAppointmentModal = props => {
       </DialogTitle>
       <DialogContent dividers>
         <form onSubmit={handleSubmit(onSubmit)} autoComplete='off'>
-          <FormControl fullWidth margin='normal' style={{ marginBottom: '8px' }}>
+          {/* Conditional Rendering: Show Typography with Avatar if client is passed, else show ClientSearch */}
+          {client ? (
+            <Box
+              sx={{
+                mb: 2,
+                textAlign: 'center'
+              }}
+            >
+              <Typography
+                variant='h6'
+                component='div'
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+              >
+                <InitialsAvatar
+                  fullName={values.clientName}
+                  sx={{ mr: 1, bgcolor: 'primary.main', color: 'white', width: 40, height: 40, fontSize: 16 }}
+                />
+                <span style={{ color: theme.palette.primary.main, fontWeight: 'bold' }}>{values.clientName}</span>
+              </Typography>
+            </Box>
+          ) : (
+            <FormControl fullWidth margin='normal' style={{ marginBottom: '16px' }}>
+              <ClientSearch userId={userId} onClientSelect={handleClientSelect} />
+              {clientError && (
+                <Typography color='error' variant='caption' style={{ marginTop: '8px' }}>
+                  {clientError}
+                </Typography>
+              )}
+            </FormControl>
+          )}
+
+          {/* Appointment Date Picker */}
+          <FormControl fullWidth margin='normal' style={{ marginBottom: '16px' }}>
             <AppReactDatepicker
               selected={values.appointmentDate}
               onChange={date => setValues({ ...values, appointmentDate: date })}
               customInput={<DatePickerInput label='Appointment Date' dateFormat='EEEE, MMMM d, yyyy' />}
               minDate={new Date()}
             />
-          </FormControl>
-
-          <FormControl fullWidth margin='normal' style={{ marginBottom: '16px' }}>
-            {values.clientId ? (
-              // Display the selected client's name
-              <Typography variant='body1'>Scheduling appointment for {values.clientName}</Typography>
-            ) : (
-              // If no client is selected, show the ClientSearch component
-              <>
-                <ClientSearch userId={userId} onClientSelect={handleClientSelect} />
-                {clientError && (
-                  <Typography color='error' variant='caption' style={{ marginTop: '8px' }}>
-                    {clientError}
-                  </Typography>
-                )}
-              </>
-            )}
           </FormControl>
 
           <Grid container spacing={2} style={{ marginTop: '0' }}>
