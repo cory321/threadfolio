@@ -4,6 +4,8 @@ import Link from 'next/link'
 
 import { Card, CardHeader, CardContent, Typography, Button, Box } from '@mui/material'
 
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
+
 import AddAppointmentModal from '@/views/apps/calendar/AddAppointmentModal'
 
 import AppointmentList from './AppointmentList'
@@ -26,17 +28,23 @@ const UpcomingClientAppointments = ({ appointments, clientName, clientId, showCa
   return (
     <>
       <Card sx={{ mb: 4 }}>
-        <CardHeader title='Upcoming Appointments' />
-        <CardContent>
-          {filteredAppointments.length === 0 ? (
-            <Box display='flex' flexDirection='column' alignItems='center' mt={2}>
-              <Typography variant='body1' color='textSecondary'>
-                {clientName} has no upcoming appointments scheduled
-              </Typography>
-              {/* Use a button to open the modal instead of a Link */}
-              <Button variant='text' color='primary' onClick={handleOpenAddAppointmentModal}>
+        <CardHeader
+          title={
+            <Box display='flex' justifyContent='space-between' alignItems='center' width='100%'>
+              <Typography variant='h5'>Upcoming Appointments</Typography>
+              <Button variant='outlined' color='primary' onClick={handleOpenAddAppointmentModal}>
                 Schedule an Appointment
               </Button>
+            </Box>
+          }
+        />
+        <CardContent>
+          {filteredAppointments.length === 0 ? (
+            <Box display='flex' flexDirection='column' alignItems='center' mt={1} p={10}>
+              <CalendarTodayIcon color='action' sx={{ fontSize: 48, mb: 5 }} />
+              <Typography variant='body1' color='textSecondary' align='center' gutterBottom>
+                {clientName} has no upcoming appointments scheduled
+              </Typography>
             </Box>
           ) : (
             <AppointmentList appointments={filteredAppointments} />
