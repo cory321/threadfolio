@@ -387,6 +387,7 @@ export async function getGarmentsAndStages(userId, token) {
       image_cloud_id,
       notes,
       due_date,
+      created_at,
       is_event,
       event_date,
       client_id

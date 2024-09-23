@@ -3,7 +3,19 @@
 import React, { useEffect, useState } from 'react'
 
 import { useAuth } from '@clerk/nextjs'
-import { Button, Box, Typography, CircularProgress, Grid } from '@mui/material'
+import {
+  Button,
+  Box,
+  Typography,
+  CircularProgress,
+  Grid,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  IconButton,
+  Tooltip
+} from '@mui/material'
 import SettingsIcon from '@mui/icons-material/Settings'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
@@ -20,6 +32,7 @@ export default function GarmentsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [customizeDialogOpen, setCustomizeDialogOpen] = useState(false)
   const [sortOrder, setSortOrder] = useState('asc')
+  const [sortField, setSortField] = useState('due_date')
   const { userId, getToken } = useAuth()
 
   const fetchGarmentsData = async () => {
@@ -86,16 +99,16 @@ export default function GarmentsPage() {
       garments = garments.filter(garment => garment.stage_id === selectedStage.id)
     }
 
-    // Sort the garments by due_date
+    // Sort the garments by the selected field
     garments = garments.sort((a, b) => {
-      const dateA = a.due_date ? new Date(a.due_date) : new Date(0)
-      const dateB = b.due_date ? new Date(b.due_date) : new Date(0)
+      const valueA = a[sortField] ? new Date(a[sortField]) : new Date(0)
+      const valueB = b[sortField] ? new Date(b[sortField]) : new Date(0)
 
-      return sortOrder === 'asc' ? dateA - dateB : dateB - dateA
+      return sortOrder === 'asc' ? valueA - valueB : valueB - valueA
     })
 
     return garments
-  }, [garmentsData, selectedStage, sortOrder])
+  }, [garmentsData, selectedStage, sortOrder, sortField])
 
   return (
     <Box sx={{ p: 3 }}>
@@ -105,9 +118,9 @@ export default function GarmentsPage() {
           display: 'flex',
           alignItems: 'center',
           mb: 3,
-          overflowX: 'scroll', // Changed from 'auto' to 'scroll'
-          overflowY: 'hidden', // Hide vertical scrollbar
-          pb: 4 // Add padding at the bottom
+          overflowX: 'scroll',
+          overflowY: 'hidden',
+          pb: 4
         }}
       >
         {/* "View All" Stage */}
@@ -115,7 +128,7 @@ export default function GarmentsPage() {
           stage={{ name: 'View All', count: totalGarments }}
           isSelected={!selectedStage}
           onClick={() => setSelectedStage(null)}
-          isLast={false} // Changed to false to maintain consistent spacing
+          isLast={false}
         />
         {stages.map((stage, index) => (
           <StageBox
@@ -128,17 +141,26 @@ export default function GarmentsPage() {
         ))}
       </Box>
 
-      {/* Sorting Button Row */}
+      {/* Sorting Options */}
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Button
-          variant='outlined'
-          onClick={() => setSortOrder(prevOrder => (prevOrder === 'asc' ? 'desc' : 'asc'))}
-          startIcon={sortOrder === 'asc' ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
-        >
-          Sort by Due Date
-        </Button>
+        {/* Sorting Controls */}
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <FormControl variant='outlined' size='small' sx={{ mr: 2, minWidth: 200 }}>
+            <InputLabel>Sort By</InputLabel>
+            <Select value={sortField} onChange={e => setSortField(e.target.value)} label='Sort By'>
+              <MenuItem value='due_date'>Due Date</MenuItem>
+              <MenuItem value='created_at'>Date Created</MenuItem>
+            </Select>
+          </FormControl>
 
-        {/* Customize Stages Button moved to the far right */}
+          <Tooltip title={sortOrder === 'asc' ? 'Ascending' : 'Descending'}>
+            <IconButton onClick={() => setSortOrder(prevOrder => (prevOrder === 'asc' ? 'desc' : 'asc'))}>
+              {sortOrder === 'asc' ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
+            </IconButton>
+          </Tooltip>
+        </Box>
+
+        {/* Customize Stages Button */}
         <Button variant='outlined' onClick={() => setCustomizeDialogOpen(true)} startIcon={<SettingsIcon />}>
           Customize Stages
         </Button>
