@@ -34,7 +34,8 @@ import ClientSearch from '@/components/clients/ClientSearch'
 import { adjustEndTimeIfNeeded } from '@/utils/dateTimeUtils'
 
 const AddAppointmentModal = props => {
-  const { addEventModalOpen, handleAddEventModalToggle, selectedDate, dispatch, onAddAppointment } = props
+  const { addEventModalOpen, handleAddEventModalToggle, selectedDate, dispatch, onAddAppointment, client } = props
+
   const { userId, getToken } = useAuth()
   const theme = useTheme()
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'))
@@ -49,8 +50,10 @@ const AddAppointmentModal = props => {
     return now
   }
 
+  // Set default state with client info if provided
   const defaultState = {
-    clientId: null,
+    clientId: client ? client.id : null,
+    clientName: client ? client.full_name : '',
     startTime: getNextNearestHour(),
     endTime: new Date(getNextNearestHour().getTime() + 60 * 60 * 1000), // 1 hour later
     location: '1234 Seamstress Shop Ave. Paso Robles, CA 93446',
@@ -225,6 +228,7 @@ const AddAppointmentModal = props => {
     })
   }
 
+  // Adjust rendering of the client selection
   return (
     <Dialog
       open={addEventModalOpen}
@@ -261,11 +265,19 @@ const AddAppointmentModal = props => {
           </FormControl>
 
           <FormControl fullWidth margin='normal' style={{ marginBottom: '16px' }}>
-            <ClientSearch userId={userId} onClientSelect={handleClientSelect} />
-            {clientError && (
-              <Typography color='error' variant='caption' style={{ marginTop: '8px' }}>
-                {clientError}
-              </Typography>
+            {values.clientId ? (
+              // Display the selected client's name
+              <Typography variant='body1'>Scheduling appointment for {values.clientName}</Typography>
+            ) : (
+              // If no client is selected, show the ClientSearch component
+              <>
+                <ClientSearch userId={userId} onClientSelect={handleClientSelect} />
+                {clientError && (
+                  <Typography color='error' variant='caption' style={{ marginTop: '8px' }}>
+                    {clientError}
+                  </Typography>
+                )}
+              </>
             )}
           </FormControl>
 

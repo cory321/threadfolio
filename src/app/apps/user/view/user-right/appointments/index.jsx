@@ -74,6 +74,7 @@ const ClientAppointments = ({ clientId, clientName }) => {
       <UpcomingClientAppointments
         appointments={upcomingAppointments}
         clientName={clientName}
+        clientId={clientId}
         showCancelled={showCancelled}
       />
       <AppointmentHistory clientId={clientId} userId={userId} showCancelled={showCancelled} />
