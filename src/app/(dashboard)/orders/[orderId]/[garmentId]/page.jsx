@@ -285,50 +285,43 @@ export default function GarmentPage() {
           </Card>
         </Grid>
         <Grid item xs={12} md={6}>
-          <Card>
-            <CardHeader title='Garment Project Details' />
-            {/* Add Service Button */}
-            <Box display='flex' justifyContent='flex-end' mt={2}>
-              <Button
-                variant='outlined'
-                color='primary'
-                startIcon={<AddIcon />}
-                onClick={() => setServiceDialogOpen(true)}
-              >
-                Add a Service
-              </Button>
-            </Box>
-            <Box sx={{ px: 5 }}>
-              <Typography variant='subtitle1' sx={{ mt: 2, mx: 2 }}>
-                {`${Math.round(progressPercentage)}% Services Completed`}
-              </Typography>
+          <Card elevation={3} sx={{ mb: 4 }}>
+            <CardContent sx={{ p: 3 }}>
+              <Box display='flex' justifyContent='space-between' alignItems='center' mb={2}>
+                <Box>
+                  <Typography variant='h5' gutterBottom>
+                    Requested Services for Garment
+                  </Typography>
+                  <Typography variant='body2' color='textSecondary'>
+                    {`${completedServices}/${totalServices} Services Completed`}
+                  </Typography>
+                </Box>
+                <Button
+                  variant='outlined'
+                  color='primary'
+                  startIcon={<AddIcon />}
+                  onClick={() => setServiceDialogOpen(true)}
+                >
+                  Add Service
+                </Button>
+              </Box>
+
               <LinearProgress
                 variant='determinate'
-                value={progressPercentage}
-                sx={{
-                  height: 10,
-                  borderRadius: 5,
-                  bgcolor: 'grey.300',
-                  '& .MuiLinearProgress-bar': {
-                    bgcolor: 'primary.main'
-                  }
-                }}
+                value={(completedServices / totalServices) * 100}
+                sx={{ mt: 2, mb: 3, height: 10, borderRadius: 5 }}
               />
-            </Box>
-            <CardContent>
-              <Grid container spacing={3}>
-                {garment.services.map(service => {
-                  const isDone = serviceStatuses[service.id] || false
 
-                  return (
-                    <ServiceItem
-                      key={service.id}
-                      service={service}
-                      isDone={isDone}
-                      handleStatusChange={handleStatusChange}
-                    />
-                  )
-                })}
+              {/* List of services */}
+              <Grid container spacing={2}>
+                {garment.services.map(service => (
+                  <ServiceItem
+                    key={service.id}
+                    service={service}
+                    isDone={serviceStatuses[service.id]}
+                    handleStatusChange={handleStatusChange}
+                  />
+                ))}
               </Grid>
             </CardContent>
           </Card>
