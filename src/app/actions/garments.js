@@ -643,3 +643,35 @@ export async function updateServiceDoneStatus(userId, serviceId, isDone, token) 
     throw new Error('Failed to update service status: ' + updateError.message)
   }
 }
+
+export async function addGarmentService(userId, serviceData, token) {
+  const supabase = await getSupabaseClient(token)
+
+  // Verify that the garment belongs to the user
+  const { data: garment, error: garmentError } = await supabase
+    .from('garments')
+    .select('user_id')
+    .eq('id', serviceData.garment_id)
+    .single()
+
+  if (garmentError || !garment) {
+    throw new Error('Garment not found or you do not have permission to modify it.')
+  }
+
+  if (garment.user_id !== userId) {
+    throw new Error('You do not have permission to add services to this garment.')
+  }
+
+  // Insert the new service into the garment_services table
+  const { data: newService, error: insertError } = await supabase
+    .from('garment_services')
+    .insert(serviceData)
+    .select('*')
+    .single()
+
+  if (insertError) {
+    throw new Error('Failed to add service: ' + insertError.message)
+  }
+
+  return newService
+}

@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react'
 
-import { useParams, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { useParams, useSearchParams } from 'next/navigation'
 
 import { useAuth } from '@clerk/nextjs'
 import {
@@ -20,29 +20,30 @@ import {
   MenuItem,
   Button,
   Divider,
-  Stack,
-  Chip,
-  ButtonBase,
-  Checkbox,
-  FormControlLabel,
-  LinearProgress
+  LinearProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material'
+
 import { CldImage } from 'next-cloudinary'
 import { format } from 'date-fns'
-
+import AddIcon from '@mui/icons-material/Add'
 import { toast } from 'react-toastify'
-
-import AccessTimeIcon from '@mui/icons-material/AccessTime'
-import ChecklistIcon from '@mui/icons-material/Checklist'
-import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
-import TaskAltIcon from '@mui/icons-material/TaskAlt'
 
 import { useTheme } from '@mui/material/styles'
 
-import ServiceTodoList from '@/components/garments/ServiceTodoList'
 import ServiceItem from '@/components/garments/ServiceItem'
-
-import { getGarmentById, getStages, updateGarmentStage, updateServiceDoneStatus } from '@/app/actions/garments'
+import ServicesSearch from '@/components/services/ServicesSearch'
+import CreateServiceDialog from '@/components/garments/garment-service-table/CreateServiceDialog'
+import {
+  getGarmentById,
+  getStages,
+  updateGarmentStage,
+  updateServiceDoneStatus,
+  addGarmentService // Import the new action
+} from '@/app/actions/garments'
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import { formatPhoneNumber } from '@/utils/formatPhoneNumber'
 import TimeTracker from '@/components/garments/TimeTracker'
@@ -62,6 +63,48 @@ export default function GarmentPage() {
   const showBackButton = fromPage === 'garments'
 
   const [serviceStatuses, setServiceStatuses] = useState({})
+  const [isServiceDialogOpen, setServiceDialogOpen] = useState(false)
+  const [isCreateServiceDialogOpen, setCreateServiceDialogOpen] = useState(false)
+
+  const theme = useTheme()
+
+  // Function to handle adding a new service to the garment
+  const handleServiceSelect = async service => {
+    try {
+      setIsLoading(true)
+      const token = await getToken({ template: 'supabase' })
+
+      // Prepare the new service data
+      const newService = {
+        garment_id: garmentId,
+        name: service.name,
+        description: service.description || '',
+        qty: service.qty || 1,
+        unit_price: parseFloat(service.unit_price),
+        unit: service.unit
+      }
+
+      // Add the service to the database
+      const addedService = await addGarmentService(userId, newService, token)
+
+      // Update the garment's services in state
+      setGarment(prevGarment => ({
+        ...prevGarment,
+        services: [...prevGarment.services, addedService]
+      }))
+
+      // Close the dialog
+      setServiceDialogOpen(false)
+      setCreateServiceDialogOpen(false)
+
+      toast.success(`Service "${addedService.name}" added to the garment.`)
+    } catch (error) {
+      console.error('Error adding service to garment:', error)
+      toast.error('Failed to add service. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handleStatusChange = async serviceId => {
     const newStatus = !serviceStatuses[serviceId]
@@ -151,8 +194,6 @@ export default function GarmentPage() {
   const currentStage = stages.find(stage => stage.name === garment?.stage_name)
   const stageColor = currentStage?.color || 'grey.300'
   const textColor = getContrastText(stageColor)
-
-  const theme = useTheme()
 
   // Calculate progress percentage
   const totalServices = garment?.services.length || 0
@@ -246,6 +287,17 @@ export default function GarmentPage() {
         <Grid item xs={12} md={6}>
           <Card>
             <CardHeader title='Garment Project Details' />
+            {/* Add Service Button */}
+            <Box display='flex' justifyContent='flex-end' mt={2}>
+              <Button
+                variant='outlined'
+                color='primary'
+                startIcon={<AddIcon />}
+                onClick={() => setServiceDialogOpen(true)}
+              >
+                Add a Service
+              </Button>
+            </Box>
             <Box sx={{ px: 5 }}>
               <Typography variant='subtitle1' sx={{ mt: 2, mx: 2 }}>
                 {`${Math.round(progressPercentage)}% Services Completed`}
@@ -328,6 +380,26 @@ export default function GarmentPage() {
           <Finances sx={{ mt: 2 }} />
         </Grid>
       </Grid>
+
+      {/* Service Selection Dialog */}
+      <Dialog open={isServiceDialogOpen} onClose={() => setServiceDialogOpen(false)} fullWidth maxWidth='sm'>
+        <DialogTitle>Select or Create a Service</DialogTitle>
+        <DialogContent>
+          <ServicesSearch userId={userId} onServiceSelect={handleServiceSelect} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setServiceDialogOpen(false)} color='primary'>
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Create Service Dialog */}
+      <CreateServiceDialog
+        open={isCreateServiceDialogOpen}
+        onClose={() => setCreateServiceDialogOpen(false)}
+        onServiceSelect={handleServiceSelect}
+      />
     </>
   )
 }
