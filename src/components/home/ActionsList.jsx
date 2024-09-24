@@ -67,7 +67,7 @@ const ActionsList = ({ isMobile }) => {
     <Card>
       <CardContent>
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={isMobile ? 12 : 5}>
+          <Grid item xs={12}>
             <Typography variant='h6' gutterBottom>
               Quick Actions
             </Typography>
@@ -83,11 +83,6 @@ const ActionsList = ({ isMobile }) => {
               </List>
             )}
           </Grid>
-          {!isMobile && (
-            <Grid item sm={7}>
-              {/* Add your BlendedImage component here */}
-            </Grid>
-          )}
         </Grid>
       </CardContent>
       {/* Modal Components */}

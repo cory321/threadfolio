@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
 import { useAuth } from '@clerk/nextjs'
-import { Typography, Box, Grid, CircularProgress } from '@mui/material'
+import { Typography, Box, CircularProgress } from '@mui/material'
 
 import GarmentCard from '@/components/garments/GarmentCard'
 import { getPrioritizedGarments } from '@/app/actions/garments'
@@ -49,13 +49,13 @@ export default function GarmentPriority() {
       <Typography variant='h6' gutterBottom>
         Garment Priority
       </Typography>
-      <Grid container spacing={2}>
+      <Box>
         {garments.map(garment => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={garment.id}>
+          <Box key={garment.id} mb={2}>
             <GarmentCard garment={garment} orderId={garment.order_id} stageColor={garment.stage_color} />
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
     </Box>
   )
 }

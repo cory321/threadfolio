@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 import dynamic from 'next/dynamic'
 
-import { useMediaQuery, useTheme, Box, Grid, Card, CardContent, CardHeader, Avatar, Typography } from '@mui/material'
+import { useMediaQuery, useTheme, Box, Grid, Card, CardContent } from '@mui/material'
 
 import Greeting from '@components/todo/Greeting'
 import { defaultBreakpoints } from '@menu/defaultConfigs'
@@ -12,7 +12,6 @@ import { defaultBreakpoints } from '@menu/defaultConfigs'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
 import UpcomingAppointments from '@/components/home/UpcomingAppointments'
-
 import GarmentPriority from '@/components/home/GarmentPriority'
 
 const ActionsList = dynamic(() => import('@components/home/ActionsList'), {
@@ -21,60 +20,74 @@ const ActionsList = dynamic(() => import('@components/home/ActionsList'), {
 })
 
 export default function Home() {
-  const [todos, setTodos] = useState(null)
   const theme = useTheme()
   const isMobile = useMediaQuery(`(max-width: ${defaultBreakpoints.sm})`)
   const isStacked = useMediaQuery(`(max-width: ${defaultBreakpoints.lg})`)
 
-  return (
-    <Box>
-      <Grid container spacing={4} alignItems='flex-start'>
-        <Grid item xs={12}>
-          <Greeting />
+  if (isMobile) {
+    // For mobile view, stack components vertically
+    return (
+      <Box>
+        <Grid container spacing={4} alignItems='flex-start'>
+          <Grid item xs={12}>
+            <Greeting />
+          </Grid>
+          <Grid item xs={12}>
+            <ActionsList isMobile={isMobile} />
+          </Grid>
+          <Grid item xs={12}>
+            <Card>
+              <CardContent>
+                <GarmentPriority />
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12}>
+            <Card>
+              <CardContent>
+                <UpcomingAppointments />
+              </CardContent>
+            </Card>
+          </Grid>
         </Grid>
-        {isMobile || isStacked ? (
-          <>
-            <Grid item xs={12}>
-              <ActionsList isMobile={isMobile} />
-            </Grid>
-            <Grid item xs={12}>
-              <Card>
-                <CardContent>
-                  <UpcomingAppointments />
-                </CardContent>
-              </Card>
-            </Grid>
-            {/* Add the GarmentPriority section */}
-            <Grid item xs={12}>
-              <Card>
-                <CardContent>
-                  <GarmentPriority />
-                </CardContent>
-              </Card>
-            </Grid>
-          </>
-        ) : (
-          <>
-            <Grid item xs={7}>
-              <ActionsList isMobile={isMobile} />
-            </Grid>
-            <Grid item xs={5}>
-              <Card>
-                <CardContent>
-                  <UpcomingAppointments />
-                </CardContent>
-              </Card>
-              <Box mt={4}>
+      </Box>
+    )
+  } else {
+    // For desktop view, create a three-column layout
+    return (
+      <Box>
+        <Grid container spacing={4}>
+          <Grid item xs={12}>
+            <Greeting />
+          </Grid>
+          <Grid item xs={12}>
+            <Grid container spacing={4}>
+              {/* Quick Actions Column */}
+              <Grid item xs={12} md={3}>
+                <ActionsList isMobile={isMobile} />
+              </Grid>
+
+              {/* Upcoming Appointments Column */}
+              <Grid item xs={12} md={5}>
+                <Card>
+                  <CardContent>
+                    <UpcomingAppointments />
+                  </CardContent>
+                </Card>
+              </Grid>
+
+              {/* Garment Priority Column */}
+              <Grid item xs={12} md={4}>
                 <Card>
                   <CardContent>
                     <GarmentPriority />
                   </CardContent>
                 </Card>
-              </Box>
+              </Grid>
             </Grid>
-          </>
-        )}
-      </Grid>
-    </Box>
-  )
+          </Grid>
+        </Grid>
+      </Box>
+    )
+  }
 }
