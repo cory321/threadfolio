@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, Suspense, useTransition } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 
-import { Box, CircularProgress, IconButton, List, ListItem, TextField } from '@mui/material'
+import { Box, CircularProgress, IconButton, List, ListItem, TextField, Typography } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SaveIcon from '@mui/icons-material/Save'
@@ -65,13 +65,16 @@ const TodoListContent = ({ todos, setTodos }) => {
       {todos && todos.length > 0 ? (
         <List>
           {todos.map(todo => (
-            <ListItem key={todo.id}>
+            <ListItem
+              key={todo.id}
+              sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}
+            >
               <TodoItem todo={todo} onDelete={handleDelete} onEdit={handleEdit} />
             </ListItem>
           ))}
         </List>
       ) : (
-        <Box>No todos available!</Box>
+        <Typography>No todos available!</Typography>
       )}
     </Box>
   )
@@ -105,26 +108,39 @@ const TodoItem = ({ todo, onDelete, onEdit }) => {
   }
 
   return (
-    <Box display='flex' alignItems='center' justifyContent='space-between'>
+    <Box display='flex' alignItems='center' justifyContent='space-between' width='100%'>
       {isEditing ? (
         <>
-          <TextField value={newTitle} onChange={e => setNewTitle(e.target.value)} disabled={loading} />
-          <IconButton onClick={handleSave} disabled={loading}>
-            {loading ? <CircularProgress size={24} /> : <SaveIcon />}
-          </IconButton>
-          <IconButton onClick={handleCancel} disabled={loading}>
-            <CancelIcon />
-          </IconButton>
+          <TextField
+            value={newTitle}
+            onChange={e => setNewTitle(e.target.value)}
+            disabled={loading}
+            size='small'
+            fullWidth
+            sx={{ marginRight: 1 }}
+          />
+          <Box display='flex' alignItems='center'>
+            <IconButton onClick={handleSave} disabled={loading}>
+              {loading ? <CircularProgress size={24} /> : <SaveIcon />}
+            </IconButton>
+            <IconButton onClick={handleCancel} disabled={loading}>
+              <CancelIcon />
+            </IconButton>
+          </Box>
         </>
       ) : (
         <>
-          <Box>{todo.title}</Box>
-          <IconButton onClick={handleEdit} disabled={loading}>
-            <EditIcon />
-          </IconButton>
-          <IconButton onClick={handleDelete} disabled={loading}>
-            {loading ? <CircularProgress size={24} /> : <DeleteIcon />}
-          </IconButton>
+          <Box flexGrow={1}>
+            <Typography variant='body1'>{todo.title}</Typography>
+          </Box>
+          <Box display='flex' alignItems='center'>
+            <IconButton onClick={handleEdit} disabled={loading}>
+              <EditIcon />
+            </IconButton>
+            <IconButton onClick={handleDelete} disabled={loading}>
+              {loading ? <CircularProgress size={24} /> : <DeleteIcon />}
+            </IconButton>
+          </Box>
         </>
       )}
     </Box>

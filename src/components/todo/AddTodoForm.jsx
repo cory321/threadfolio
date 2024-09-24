@@ -33,10 +33,18 @@ const AddTodoForm = ({ setTodos }) => {
   }
 
   return (
-    <Box component='form' onSubmit={handleSubmit} display='flex' alignItems='center'>
-      <TextField onChange={e => setNewTodo(e.target.value)} value={newTodo} disabled={isLoading} />
-      <Button type='submit' disabled={isLoading}>
-        {isLoading ? 'Adding...' : 'Add Todo'}
+    <Box component='form' onSubmit={handleSubmit} display='flex' alignItems='center' mb={2}>
+      <TextField
+        onChange={e => setNewTodo(e.target.value)}
+        value={newTodo}
+        disabled={isLoading}
+        fullWidth
+        placeholder='Add a new task...'
+        size='small'
+        sx={{ mr: 2 }}
+      />
+      <Button type='submit' variant='contained' color='primary' disabled={isLoading} sx={{ whiteSpace: 'nowrap' }}>
+        Add Todo
       </Button>
     </Box>
   )

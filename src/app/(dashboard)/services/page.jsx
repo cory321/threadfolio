@@ -2,13 +2,12 @@
 
 import { Suspense } from 'react'
 
-import { CircularProgress, Button, Grid, Box } from '@mui/material'
+import { CircularProgress, Grid, Box } from '@mui/material'
 
 import AddServiceDialog from '@/components/dialogs/add-service'
 import ServiceList from '@/components/services/ServiceList'
-import { fetchAllServices } from '@/app/actions/services'
 
-export default async function ServicePage() {
+export default function ServicePage() {
   return (
     <main>
       <div>
