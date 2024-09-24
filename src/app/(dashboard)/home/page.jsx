@@ -13,17 +13,6 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
 import UpcomingAppointments from '@/components/home/UpcomingAppointments'
 
-// Dynamically import components with loading spinner
-const AddTodoForm = dynamic(() => import('@components/todo/AddTodoForm'), {
-  ssr: false,
-  loading: LoadingSpinner
-})
-
-const TodoList = dynamic(() => import('@components/todo/TodoList'), {
-  ssr: false,
-  loading: LoadingSpinner
-})
-
 const ActionsList = dynamic(() => import('@components/home/ActionsList'), {
   ssr: false,
   loading: LoadingSpinner
@@ -53,15 +42,6 @@ export default function Home() {
                 </CardContent>
               </Card>
             </Grid>
-            <Grid item xs={12}>
-              <Card>
-                <CardHeader title='To do list' />
-                <CardContent>
-                  <AddTodoForm todos={todos} setTodos={setTodos} />
-                  <TodoList todos={todos} setTodos={setTodos} />
-                </CardContent>
-              </Card>
-            </Grid>
           </>
         ) : (
           <>
@@ -72,15 +52,6 @@ export default function Home() {
               <Card>
                 <CardContent>
                   <UpcomingAppointments />
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12}>
-              <Card>
-                <CardHeader title='To do list' />
-                <CardContent>
-                  <AddTodoForm todos={todos} setTodos={setTodos} />
-                  <TodoList todos={todos} setTodos={setTodos} />
                 </CardContent>
               </Card>
             </Grid>
