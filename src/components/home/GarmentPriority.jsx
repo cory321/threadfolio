@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 
 import { useAuth } from '@clerk/nextjs'
-import { Typography, Box, CircularProgress } from '@mui/material'
+import { Typography, Box, CircularProgress, Avatar } from '@mui/material'
+import CheckroomIcon from '@mui/icons-material/Checkroom'
 
 import GarmentCard from '@/components/garments/GarmentCard'
 import { getPrioritizedGarments } from '@/app/actions/garments'
@@ -9,7 +10,6 @@ import { getPrioritizedGarments } from '@/app/actions/garments'
 export default function GarmentPriority() {
   const [garments, setGarments] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-
   const { userId, getToken } = useAuth()
 
   useEffect(() => {
@@ -18,7 +18,6 @@ export default function GarmentPriority() {
         const token = await getToken({ template: 'supabase' })
 
         if (!token) throw new Error('Failed to retrieve token')
-
         const fetchedGarments = await getPrioritizedGarments(userId, token)
 
         setGarments(fetchedGarments)
@@ -46,13 +45,16 @@ export default function GarmentPriority() {
 
   return (
     <Box>
-      <Typography variant='h6' gutterBottom>
-        Garment Priority
-      </Typography>
+      <Box display='flex' alignItems='center' mb={2}>
+        <Avatar sx={{ mr: 1 }}>
+          <CheckroomIcon />
+        </Avatar>
+        <Typography variant='h6'>High Priority Garments</Typography>
+      </Box>
       <Box>
         {garments.map(garment => (
           <Box key={garment.id} mb={2}>
-            <GarmentCard garment={garment} orderId={garment.order_id} stageColor={garment.stage_color} />
+            <GarmentCard garment={garment} orderId={garment.order_id} stageColor={garment.stage_color} from='home' />
           </Box>
         ))}
       </Box>

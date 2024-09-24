@@ -64,7 +64,7 @@ export default function GarmentPage() {
   const { userId, getToken } = useAuth()
 
   const fromPage = searchParams.get('from')
-  const showBackButton = fromPage === 'garments'
+  const showBackButton = fromPage === 'garments' || fromPage === 'home'
 
   const [serviceStatuses, setServiceStatuses] = useState({})
   const [isServiceDialogOpen, setServiceDialogOpen] = useState(false)
@@ -231,9 +231,9 @@ export default function GarmentPage() {
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         {showBackButton && (
           <>
-            <Link href='/garments' passHref>
+            <Link href={fromPage === 'home' ? '/' : '/garments'} passHref>
               <Button variant='text' component='a'>
-                &lt; Back to Garments
+                &lt; Back to {fromPage === 'home' ? 'Home' : 'Garments'}
               </Button>
             </Link>
             <Divider

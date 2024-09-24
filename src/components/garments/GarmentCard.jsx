@@ -22,7 +22,7 @@ const getDateStatus = date => {
   return null
 }
 
-const GarmentCard = ({ garment, orderId, stageColor }) => {
+const GarmentCard = ({ garment, orderId, stageColor, from = 'garments' }) => {
   const stageName = garment.stage_name || 'Unknown'
   const theme = useTheme()
   const defaultColor = theme.palette.grey[500]
@@ -63,7 +63,7 @@ const GarmentCard = ({ garment, orderId, stageColor }) => {
 
   return (
     <Link
-      href={`/orders/${orderId}/${garment.id}?from=garments`}
+      href={`/orders/${orderId}/${garment.id}?from=${from}`}
       passHref
       style={{ textDecoration: 'none', width: '100%' }}
     >
