@@ -682,3 +682,66 @@ export async function addGarmentService(userId, serviceData, token) {
 
   return newService
 }
+
+export async function getPrioritizedGarments(userId, token) {
+  noStore()
+  const supabase = await getSupabaseClient(token)
+
+  const { data: garments, error } = await supabase
+    .from('garments')
+    .select(
+      `
+      id,
+      name,
+      due_date,
+      stage_id,
+      garment_stages (
+        id,
+        name,
+        color
+      ),
+      image_cloud_id,
+      notes,
+      order_id,
+      created_at,
+      client_id,
+      clients (
+        full_name
+      ),
+      garment_services (
+        id,
+        name,
+        qty,
+        unit_price,
+        unit,
+        is_done
+      )
+    `
+    )
+    .eq('user_id', userId)
+    .order('due_date', { ascending: true })
+
+  if (error) {
+    throw new Error('Failed to fetch garments: ' + error.message)
+  }
+
+  // Filter garments where not all services are done
+  const filteredGarments = garments.filter(garment => {
+    // Exclude garments where all services are done
+    const allServicesDone = garment.garment_services?.every(service => service.is_done)
+
+    // Include garments that have at least one incomplete service
+    return !allServicesDone
+  })
+
+  // Limit to the next 5 garments
+  const prioritizedGarments = filteredGarments.slice(0, 5).map(garment => ({
+    ...garment,
+    stage_name: garment.garment_stages?.name || 'Unknown',
+    stage_color: garment.garment_stages?.color,
+    services: garment.garment_services || [],
+    client_name: garment.clients?.full_name || 'Unknown Client'
+  }))
+
+  return prioritizedGarments
+}

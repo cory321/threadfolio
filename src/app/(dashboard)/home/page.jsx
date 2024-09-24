@@ -13,6 +13,8 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
 import UpcomingAppointments from '@/components/home/UpcomingAppointments'
 
+import GarmentPriority from '@/components/home/GarmentPriority'
+
 const ActionsList = dynamic(() => import('@components/home/ActionsList'), {
   ssr: false,
   loading: LoadingSpinner
@@ -42,6 +44,14 @@ export default function Home() {
                 </CardContent>
               </Card>
             </Grid>
+            {/* Add the GarmentPriority section */}
+            <Grid item xs={12}>
+              <Card>
+                <CardContent>
+                  <GarmentPriority />
+                </CardContent>
+              </Card>
+            </Grid>
           </>
         ) : (
           <>
@@ -54,6 +64,13 @@ export default function Home() {
                   <UpcomingAppointments />
                 </CardContent>
               </Card>
+              <Box mt={4}>
+                <Card>
+                  <CardContent>
+                    <GarmentPriority />
+                  </CardContent>
+                </Card>
+              </Box>
             </Grid>
           </>
         )}
