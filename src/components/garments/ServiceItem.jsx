@@ -111,7 +111,7 @@ export default function ServiceItem({
       setIsConfirmDialogOpen(false)
       toast.success(`${service.name} has been removed from ${garmentName}`)
     } catch (error) {
-      toast.error(`Error removing ${service.name} from ${garmentName}`)
+      toast.error(`${error.message}`)
     } finally {
       setIsDeleting(false)
     }
@@ -195,25 +195,26 @@ export default function ServiceItem({
             {/* Buttons on the left */}
             <Grid item xs={12} sm={6}>
               <Stack direction='column' spacing={1}>
-                {/* Edit Service Button (remains unchanged) */}
-                <ButtonBase
-                  sx={{
-                    justifyContent: 'flex-start',
-                    p: 1,
-                    borderRadius: 1,
-                    '&:hover': {
-                      bgcolor: 'action.hover',
-                      '& .MuiSvgIcon-root': { color: theme.palette.primary.main },
-                      '& .MuiTypography-root': { color: theme.palette.primary.main }
-                    }
-                  }}
-                >
-                  <EditIcon sx={{ mr: 1, fontSize: '1.25rem', color: theme.palette.text.secondary }} />
-                  <Typography variant='body2' color='text.secondary'>
-                    Edit Service
-                  </Typography>
-                </ButtonBase>
-
+                {/* Conditionally Render Remove Service Button */}
+                {!isDone && !service.is_paid && (
+                  <ButtonBase
+                    sx={{
+                      justifyContent: 'flex-start',
+                      p: 1,
+                      borderRadius: 1,
+                      '&:hover': {
+                        bgcolor: 'action.hover',
+                        '& .MuiSvgIcon-root': { color: theme.palette.primary.main },
+                        '& .MuiTypography-root': { color: theme.palette.primary.main }
+                      }
+                    }}
+                  >
+                    <EditIcon sx={{ mr: 1, fontSize: '1.25rem', color: theme.palette.text.secondary }} />
+                    <Typography variant='body2' color='text.secondary'>
+                      Edit Service
+                    </Typography>
+                  </ButtonBase>
+                )}
                 {/* Conditionally Render Remove Service Button */}
                 {!isDone && !service.is_paid && (
                   <ButtonBase
