@@ -72,7 +72,8 @@ export async function addGarmentsAndServicesFromContext(userId, selectedClient, 
         description: service.description,
         qty: service.qty,
         unit_price: service.unit_price,
-        unit: service.unit
+        unit: service.unit,
+        is_paid: service.is_paid || false
       }))
 
       const { data: garmentServicesData, error: garmentServicesError } = await supabase
@@ -194,7 +195,8 @@ export async function getOrderById(userId, orderId, token) {
           name,
           qty,
           unit_price,
-          unit
+          unit,
+          is_paid
         )
       )
     `
@@ -269,7 +271,8 @@ export async function getGarments(userId, token, { page = 1, pageSize = 10, clie
         qty,
         unit_price,
         unit,
-        is_done
+        is_done,
+        is_paid
       )
     `
     )
@@ -381,7 +384,8 @@ export async function getGarmentsAndStages(userId, token) {
         qty,
         unit_price,
         unit,
-        is_done
+        is_done,
+        is_paid
       ),
       order_id,
       image_cloud_id,
@@ -714,7 +718,8 @@ export async function getPrioritizedGarments(userId, token) {
         qty,
         unit_price,
         unit,
-        is_done
+        is_done,
+        is_paid
       )
     `
     )

@@ -51,6 +51,12 @@ export default function ServiceItem({ service, isDone, handleStatusChange }) {
   // Calculate total price
   const totalPrice = service.qty * parseFloat(service.unit_price)
 
+  // Define colors for PAID and UNPAID status
+  const paidColor = '#C5F799'
+  const paidTextColor = '#293320'
+  const unpaidColor = '#FDDF92'
+  const unpaidTextColor = '#66593b'
+
   return (
     <Grid item xs={12}>
       <Card
@@ -167,20 +173,32 @@ export default function ServiceItem({ service, isDone, handleStatusChange }) {
                 <Typography variant='subtitle2' gutterBottom>
                   Service Subtotal
                 </Typography>
-                <Typography variant='h6'>
+                <Typography variant='h6' component='div' sx={{ display: 'inline-flex', alignItems: 'center' }}>
                   {service.qty} {service.unit} x ${parseFloat(service.unit_price).toFixed(2)} ={' '}
                   <Box
                     component='span'
                     sx={{
                       border: '1px solid',
-                      borderColor: 'text.secondary',
+                      borderColor: service.is_paid ? paidColor : unpaidColor,
                       borderRadius: '4px',
                       padding: '2px 6px',
-                      display: 'inline-block'
+                      display: 'inline-block',
+                      ml: 1
                     }}
                   >
                     <strong>${totalPrice.toFixed(2)}</strong>
                   </Box>
+                  {/* Display the PAID/UNPAID chip */}
+                  <Chip
+                    label={service.is_paid ? 'PAID' : 'NOT PAID'}
+                    sx={{
+                      ml: 1,
+                      bgcolor: service.is_paid ? paidColor : unpaidColor,
+                      color: service.is_paid ? paidTextColor : unpaidTextColor,
+                      fontWeight: 'bold'
+                    }}
+                    size='small'
+                  />
                 </Typography>
               </Box>
             </Grid>
