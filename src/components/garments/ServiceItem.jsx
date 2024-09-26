@@ -20,6 +20,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
 import TaskAltIcon from '@mui/icons-material/TaskAlt'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
+import CancelIcon from '@mui/icons-material/Cancel'
+import EditIcon from '@mui/icons-material/Edit'
 import { format } from 'date-fns' // Import the format function
 
 import ServiceTodoList from '@/components/garments/ServiceTodoList'
@@ -143,6 +145,42 @@ export default function ServiceItem({ service, isDone, handleStatusChange }) {
                   <AccessTimeIcon sx={{ mb: 0.5, fontSize: '2rem', color: theme.palette.text.secondary }} />
                   <Typography variant='caption' color='text.secondary'>
                     Track Time
+                  </Typography>
+                </ButtonBase>
+                <ButtonBase
+                  sx={{
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    p: 1,
+                    borderRadius: 1,
+                    '&:hover': {
+                      bgcolor: 'action.hover',
+                      '& .MuiSvgIcon-root': { color: theme.palette.error.main },
+                      '& .MuiTypography-root': { color: theme.palette.error.main }
+                    }
+                  }}
+                >
+                  <CancelIcon sx={{ mb: 0.5, fontSize: '2rem', color: theme.palette.text.secondary }} />
+                  <Typography variant='caption' color='text.secondary'>
+                    Cancel Service
+                  </Typography>
+                </ButtonBase>
+                <ButtonBase
+                  sx={{
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    p: 1,
+                    borderRadius: 1,
+                    '&:hover': {
+                      bgcolor: 'action.hover',
+                      '& .MuiSvgIcon-root': { color: theme.palette.primary.main },
+                      '& .MuiTypography-root': { color: theme.palette.primary.main }
+                    }
+                  }}
+                >
+                  <EditIcon sx={{ mb: 0.5, fontSize: '2rem', color: theme.palette.text.secondary }} />
+                  <Typography variant='caption' color='text.secondary'>
+                    Edit Service
                   </Typography>
                 </ButtonBase>
               </Stack>
