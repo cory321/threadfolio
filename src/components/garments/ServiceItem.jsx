@@ -19,10 +19,9 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
 import TaskAltIcon from '@mui/icons-material/TaskAlt'
-import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import CancelIcon from '@mui/icons-material/Cancel'
 import EditIcon from '@mui/icons-material/Edit'
-import { format } from 'date-fns' // Import the format function
+import { format } from 'date-fns'
 
 import ServiceTodoList from '@/components/garments/ServiceTodoList'
 
@@ -48,6 +47,9 @@ export default function ServiceItem({ service, isDone, handleStatusChange }) {
 
   // Format the created_at date
   const formattedDate = service.created_at ? format(new Date(service.created_at), 'EEEE, MMMM d, yyyy') : ''
+
+  // Calculate total price
+  const totalPrice = service.qty * parseFloat(service.unit_price)
 
   return (
     <Grid item xs={12}>
@@ -104,35 +106,27 @@ export default function ServiceItem({ service, isDone, handleStatusChange }) {
               }
             }}
           />
+
           {/* Conditionally display the formatted date */}
           {formattedDate && (
             <Typography variant='body2' color='textSecondary' gutterBottom>
-              Service requested on {formattedDate}
+              Requested on {formattedDate}
             </Typography>
           )}
+
           {service.description && (
             <Typography variant='body2' color='textSecondary' gutterBottom>
               {service.description}
             </Typography>
           )}
-          <Grid container spacing={2} alignItems='center'>
-            <Grid item xs={12} sm={6}>
-              <Box>
-                <Typography variant='body2'>
-                  <strong>Quantity:</strong> {service.qty} {service.unit}
-                </Typography>
-                <Typography variant='body2'>
-                  <strong>Price:</strong> ${parseFloat(service.unit_price).toFixed(2)}
-                </Typography>
-              </Box>
-            </Grid>
 
+          <Grid container spacing={2} alignItems='center'>
+            {/* Buttons on the left, side by side */}
             <Grid item xs={12} sm={6}>
-              <Stack direction='row' spacing={2} justifyContent='flex-end'>
+              <Stack direction='row' spacing={2}>
                 <ButtonBase
                   sx={{
-                    flexDirection: 'column',
-                    alignItems: 'center',
+                    justifyContent: 'flex-start',
                     p: 1,
                     borderRadius: 1,
                     '&:hover': {
@@ -142,15 +136,14 @@ export default function ServiceItem({ service, isDone, handleStatusChange }) {
                     }
                   }}
                 >
-                  <AccessTimeIcon sx={{ mb: 0.5, fontSize: '2rem', color: theme.palette.text.secondary }} />
-                  <Typography variant='caption' color='text.secondary'>
-                    Track Time
+                  <EditIcon sx={{ mr: 1, fontSize: '1.25rem', color: theme.palette.text.secondary }} />
+                  <Typography variant='body2' color='text.secondary'>
+                    Edit Service
                   </Typography>
                 </ButtonBase>
                 <ButtonBase
                   sx={{
-                    flexDirection: 'column',
-                    alignItems: 'center',
+                    justifyContent: 'flex-start',
                     p: 1,
                     borderRadius: 1,
                     '&:hover': {
@@ -160,30 +153,36 @@ export default function ServiceItem({ service, isDone, handleStatusChange }) {
                     }
                   }}
                 >
-                  <CancelIcon sx={{ mb: 0.5, fontSize: '2rem', color: theme.palette.text.secondary }} />
-                  <Typography variant='caption' color='text.secondary'>
+                  <CancelIcon sx={{ mr: 1, fontSize: '1.25rem', color: theme.palette.text.secondary }} />
+                  <Typography variant='body2' color='text.secondary'>
                     Cancel Service
                   </Typography>
                 </ButtonBase>
-                <ButtonBase
-                  sx={{
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    p: 1,
-                    borderRadius: 1,
-                    '&:hover': {
-                      bgcolor: 'action.hover',
-                      '& .MuiSvgIcon-root': { color: theme.palette.primary.main },
-                      '& .MuiTypography-root': { color: theme.palette.primary.main }
-                    }
-                  }}
-                >
-                  <EditIcon sx={{ mb: 0.5, fontSize: '2rem', color: theme.palette.text.secondary }} />
-                  <Typography variant='caption' color='text.secondary'>
-                    Edit Service
-                  </Typography>
-                </ButtonBase>
               </Stack>
+            </Grid>
+
+            {/* Quantity and Price on the right */}
+            <Grid item xs={12} sm={6}>
+              <Box textAlign={{ xs: 'left', sm: 'right' }}>
+                <Typography variant='subtitle2' gutterBottom>
+                  Service Subtotal
+                </Typography>
+                <Typography variant='h6'>
+                  {service.qty} {service.unit} x ${parseFloat(service.unit_price).toFixed(2)} ={' '}
+                  <Box
+                    component='span'
+                    sx={{
+                      border: '1px solid',
+                      borderColor: 'text.secondary',
+                      borderRadius: '4px',
+                      padding: '2px 6px',
+                      display: 'inline-block'
+                    }}
+                  >
+                    <strong>${totalPrice.toFixed(2)}</strong>
+                  </Box>
+                </Typography>
+              </Box>
             </Grid>
           </Grid>
         </CardContent>
