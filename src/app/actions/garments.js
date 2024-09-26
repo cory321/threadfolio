@@ -750,3 +750,45 @@ export async function getPrioritizedGarments(userId, token) {
 
   return prioritizedGarments
 }
+
+export async function deleteGarmentService(userId, serviceId, token) {
+  const supabase = await getSupabaseClient(token)
+
+  // Fetch the service to check `is_done` and `is_paid`
+  const { data: service, error: serviceError } = await supabase
+    .from('garment_services')
+    .select('garment_id, is_done, is_paid')
+    .eq('id', serviceId)
+    .single()
+
+  if (serviceError || !service) {
+    throw new Error('Service not found.')
+  }
+
+  // Prevent deletion if `is_done` or `is_paid` is TRUE
+  if (service.is_done || service.is_paid) {
+    throw new Error('Cannot remove a service that is completed or paid.')
+  }
+
+  // Verify that the garment belongs to the user
+  const { data: garment, error: garmentError } = await supabase
+    .from('garments')
+    .select('user_id')
+    .eq('id', service.garment_id)
+    .single()
+
+  if (garmentError || !garment) {
+    throw new Error('Garment not found.')
+  }
+
+  if (garment.user_id !== userId) {
+    throw new Error('You do not have permission to delete this service.')
+  }
+
+  // Proceed to delete the service
+  const { error: deleteError } = await supabase.from('garment_services').delete().eq('id', serviceId)
+
+  if (deleteError) {
+    throw new Error('Failed to delete service: ' + deleteError.message)
+  }
+}

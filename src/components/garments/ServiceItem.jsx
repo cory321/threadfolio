@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import { useTheme } from '@mui/material/styles'
+import { useAuth } from '@clerk/nextjs'
 import {
   Grid,
   Card,
@@ -14,23 +15,45 @@ import {
   Box,
   Accordion,
   AccordionSummary,
-  AccordionDetails
+  AccordionDetails,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
+  IconButton,
+  CircularProgress
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
 import TaskAltIcon from '@mui/icons-material/TaskAlt'
 import CancelIcon from '@mui/icons-material/Cancel'
 import EditIcon from '@mui/icons-material/Edit'
+import CloseIcon from '@mui/icons-material/Close'
 import { format } from 'date-fns'
+import { toast } from 'react-toastify'
 
+import { deleteGarmentService } from '@/app/actions/garments'
 import ServiceTodoList from '@/components/garments/ServiceTodoList'
 
-export default function ServiceItem({ service, isDone, handleStatusChange }) {
+export default function ServiceItem({
+  service,
+  isDone,
+  handleStatusChange,
+  onServiceDeleted,
+  garmentName = 'Garment'
+}) {
+  const { userId, getToken } = useAuth()
   const theme = useTheme()
 
   // State for accordion expansion
   const [isAccordionExpanded, setIsAccordionExpanded] = useState(false)
   const [initialExpansionSet, setInitialExpansionSet] = useState(false)
+
+  // State for the confirmation dialog
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false) // Add loading state
 
   // Function to handle task loading
   const handleTasksLoaded = hasTasks => {
@@ -57,6 +80,48 @@ export default function ServiceItem({ service, isDone, handleStatusChange }) {
   const unpaidColor = '#FDDF92'
   const unpaidTextColor = '#66593b'
 
+  // Function to open the confirmation dialog
+  const handleRemoveService = () => {
+    setIsConfirmDialogOpen(true)
+  }
+
+  // Function to remove the service
+  const removeService = async serviceId => {
+    const token = await getToken({ template: 'supabase' })
+
+    try {
+      await deleteGarmentService(userId, serviceId, token)
+
+      // Optionally update your state or give feedback to the user here
+      if (onServiceDeleted) {
+        onServiceDeleted(serviceId)
+      }
+    } catch (error) {
+      console.error('Error deleting service:', error)
+      throw error // Rethrow to handle in handleConfirmRemove
+    }
+  }
+
+  // Function to handle confirmation
+  const handleConfirmRemove = async () => {
+    setIsDeleting(true)
+
+    try {
+      await removeService(service.id)
+      setIsConfirmDialogOpen(false)
+      toast.success(`${service.name} has been removed from ${garmentName}`)
+    } catch (error) {
+      toast.error(`Error removing ${service.name} from ${garmentName}`)
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  // Function to handle cancellation
+  const handleCancelRemove = () => {
+    setIsConfirmDialogOpen(false)
+  }
+
   return (
     <Grid item xs={12}>
       <Card
@@ -70,7 +135,7 @@ export default function ServiceItem({ service, isDone, handleStatusChange }) {
       >
         {isDone && (
           <Chip
-            label='Done'
+            label='Service Complete'
             sx={{
               position: 'absolute',
               top: 16,
@@ -127,9 +192,10 @@ export default function ServiceItem({ service, isDone, handleStatusChange }) {
           )}
 
           <Grid container spacing={2} alignItems='center'>
-            {/* Buttons on the left, side by side */}
+            {/* Buttons on the left */}
             <Grid item xs={12} sm={6}>
-              <Stack direction='row' spacing={2}>
+              <Stack direction='column' spacing={1}>
+                {/* Edit Service Button (remains unchanged) */}
                 <ButtonBase
                   sx={{
                     justifyContent: 'flex-start',
@@ -147,23 +213,28 @@ export default function ServiceItem({ service, isDone, handleStatusChange }) {
                     Edit Service
                   </Typography>
                 </ButtonBase>
-                <ButtonBase
-                  sx={{
-                    justifyContent: 'flex-start',
-                    p: 1,
-                    borderRadius: 1,
-                    '&:hover': {
-                      bgcolor: 'action.hover',
-                      '& .MuiSvgIcon-root': { color: theme.palette.error.main },
-                      '& .MuiTypography-root': { color: theme.palette.error.main }
-                    }
-                  }}
-                >
-                  <CancelIcon sx={{ mr: 1, fontSize: '1.25rem', color: theme.palette.text.secondary }} />
-                  <Typography variant='body2' color='text.secondary'>
-                    Cancel Service
-                  </Typography>
-                </ButtonBase>
+
+                {/* Conditionally Render Remove Service Button */}
+                {!isDone && !service.is_paid && (
+                  <ButtonBase
+                    sx={{
+                      justifyContent: 'flex-start',
+                      p: 1,
+                      borderRadius: 1,
+                      '&:hover': {
+                        bgcolor: 'action.hover',
+                        '& .MuiSvgIcon-root': { color: theme.palette.error.main },
+                        '& .MuiTypography-root': { color: theme.palette.error.main }
+                      }
+                    }}
+                    onClick={handleRemoveService}
+                  >
+                    <CancelIcon sx={{ mr: 1, fontSize: '1.25rem', color: theme.palette.text.secondary }} />
+                    <Typography variant='body2' color='text.secondary'>
+                      Remove Service
+                    </Typography>
+                  </ButtonBase>
+                )}
               </Stack>
             </Grid>
 
@@ -214,6 +285,48 @@ export default function ServiceItem({ service, isDone, handleStatusChange }) {
             <ServiceTodoList serviceId={service.id} onTasksLoaded={handleTasksLoaded} />
           </AccordionDetails>
         </Accordion>
+
+        {/* Confirmation Dialog */}
+        <Dialog
+          open={isConfirmDialogOpen}
+          onClose={handleCancelRemove}
+          PaperProps={{
+            sx: {
+              width: '100%',
+              maxWidth: 400 // Adjust as needed
+            }
+          }}
+        >
+          <DialogTitle sx={{ m: 0, p: 2 }}>
+            Remove Service From Garment?
+            <IconButton
+              aria-label='close'
+              onClick={handleCancelRemove}
+              sx={{
+                position: 'absolute',
+                right: 8,
+                top: 8,
+                color: theme => theme.palette.grey[500]
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Removing this service will permanently delete its association with the garment. This operation cannot be
+              undone.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
+            <Button onClick={handleCancelRemove} variant='outlined'>
+              Go Back
+            </Button>
+            <Button onClick={handleConfirmRemove} color='error' variant='contained' disabled={isDeleting}>
+              {isDeleting ? <CircularProgress size={24} color='inherit' /> : 'Remove Service'}
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Card>
     </Grid>
   )
