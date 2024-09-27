@@ -39,6 +39,8 @@ import { toast } from 'react-toastify'
 import { deleteGarmentService, updateGarmentService } from '@/app/actions/garments'
 import ServiceTodoList from '@/components/garments/ServiceTodoList'
 import EditServiceDialog from '@/components/garments/EditServiceDialog'
+import { formatAsCurrency } from '@/utils/currencyUtils'
+import { pluralizeUnit } from '@/utils/unitUtils'
 
 export default function ServiceItem({
   service,
@@ -80,6 +82,8 @@ export default function ServiceItem({
 
   // Calculate total price
   const totalPrice = service.qty * parseFloat(service.unit_price)
+  const formattedTotalPrice = formatAsCurrency(totalPrice.toFixed(2))
+  const formattedUnitPrice = formatAsCurrency(parseFloat(service.unit_price).toFixed(2))
 
   // Define colors for PAID and UNPAID status
   const paidColor = '#C5F799'
@@ -223,7 +227,7 @@ export default function ServiceItem({
 
           <Grid container spacing={2}>
             {/* Left Column: Edit and Remove Buttons */}
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={3}>
               {/* Edit and Remove Service Buttons */}
               <Stack direction='column' spacing={1}>
                 {/* Conditionally Render Edit Service Button */}
@@ -292,13 +296,13 @@ export default function ServiceItem({
             </Grid>
 
             {/* Right Column: Service Subtotal */}
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={9}>
               <Box textAlign={{ xs: 'left', sm: 'right' }}>
                 <Typography variant='subtitle2' gutterBottom>
                   Service Subtotal
                 </Typography>
                 <Typography variant='h6' component='div' sx={{ display: 'inline-flex', alignItems: 'center' }}>
-                  {service.qty} {service.unit} x ${parseFloat(service.unit_price).toFixed(2)} ={' '}
+                  {service.qty} {pluralizeUnit(service.unit, service.qty)} x ${formattedUnitPrice} ={' '}
                   <Box
                     component='span'
                     sx={{
@@ -310,7 +314,7 @@ export default function ServiceItem({
                       ml: 1
                     }}
                   >
-                    <strong>${totalPrice.toFixed(2)}</strong>
+                    <strong>${formattedTotalPrice}</strong>
                   </Box>
                   {/* Display the PAID/UNPAID chip */}
                   <Chip
