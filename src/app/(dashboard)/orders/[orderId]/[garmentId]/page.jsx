@@ -123,6 +123,12 @@ export default function GarmentPage() {
   const handleStatusChange = async serviceId => {
     const newStatus = !serviceStatuses[serviceId]
 
+    // Update local state optimistically
+    setServiceStatuses(prevStatuses => ({
+      ...prevStatuses,
+      [serviceId]: newStatus
+    }))
+
     try {
       const token = await getToken({ template: 'supabase' })
 
@@ -130,17 +136,15 @@ export default function GarmentPage() {
 
       // Update the status in the database
       await updateServiceDoneStatus(userId, serviceId, newStatus, token)
-
-      // Update local state only after success
-      setServiceStatuses(prevStatuses => ({
-        ...prevStatuses,
-        [serviceId]: newStatus
-      }))
     } catch (error) {
       console.error('Failed to update service status:', error)
       toast.error('Failed to update service status. Please try again later.')
 
-      // Do not update state because the operation failed
+      // Revert local state if update fails
+      setServiceStatuses(prevStatuses => ({
+        ...prevStatuses,
+        [serviceId]: !newStatus
+      }))
     }
   }
 
