@@ -58,6 +58,13 @@ export default function ServiceItem({
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
+  // Combine the expansion states
+  const [expandedPanel, setExpandedPanel] = useState(false)
+
+  const handleChange = panel => (event, isExpanded) => {
+    setExpandedPanel(isExpanded ? panel : false)
+  }
+
   // Function to handle task loading
   const handleTasksLoaded = hasTasks => {
     if (hasTasks && !initialExpansionSet) {
@@ -283,33 +290,45 @@ export default function ServiceItem({
           </Grid>
         </CardContent>
 
-        {/* Conditionally Render Service Description Accordion */}
-        {(formattedDate || service.description) && (
-          <Accordion
-            expanded={isDescriptionExpanded}
-            onChange={(event, isExpanded) => setIsDescriptionExpanded(isExpanded)}
-          >
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant='subtitle1'>Description</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              {service.description && (
-                <Typography variant='body2' color='textSecondary'>
-                  {service.description}
-                </Typography>
-              )}
-              {formattedDate && (
-                <Typography variant='body2' color='textSecondary' gutterBottom sx={{ mt: service.description ? 4 : 0 }}>
-                  <EventIcon fontSize='small' sx={{ verticalAlign: 'middle', mr: 0.5 }} />
-                  This service was requested on {formattedDate}
-                </Typography>
-              )}
-            </AccordionDetails>
-          </Accordion>
-        )}
+        {/* Combined Accordion */}
+        <Accordion
+          expanded={expandedPanel === 'description'}
+          onChange={handleChange('description')}
+          disableGutters
+          elevation={0}
+          sx={{
+            '&:before': { display: 'none' },
+            borderTop: '1px solid rgba(0, 0, 0, .125)'
+          }}
+        >
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant='subtitle1'>Description</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            {service.description && (
+              <Typography variant='body2' color='textSecondary'>
+                {service.description}
+              </Typography>
+            )}
+            {formattedDate && (
+              <Typography variant='body2' color='textSecondary' gutterBottom sx={{ mt: service.description ? 4 : 0 }}>
+                <EventIcon fontSize='small' sx={{ verticalAlign: 'middle', mr: 0.5 }} />
+                This service was requested on {formattedDate}
+              </Typography>
+            )}
+          </AccordionDetails>
+        </Accordion>
 
-        {/* Collapsible ServiceTodoList Accordion */}
-        <Accordion expanded={isTasksExpanded} onChange={(event, isExpanded) => setIsTasksExpanded(isExpanded)}>
+        <Accordion
+          expanded={expandedPanel === 'tasks'}
+          onChange={handleChange('tasks')}
+          disableGutters
+          elevation={0}
+          sx={{
+            '&:before': { display: 'none' },
+            borderTop: '1px solid rgba(0, 0, 0, .125)'
+          }}
+        >
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography variant='subtitle1'>Tasks</Typography>
           </AccordionSummary>
