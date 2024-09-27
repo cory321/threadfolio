@@ -123,10 +123,18 @@ export default function GarmentPage() {
   const handleStatusChange = async serviceId => {
     const newStatus = !serviceStatuses[serviceId]
 
-    // Update local state optimistically
+    // Optimistic update of serviceStatuses
     setServiceStatuses(prevStatuses => ({
       ...prevStatuses,
       [serviceId]: newStatus
+    }))
+
+    // Optimistic update of garment.services
+    setGarment(prevGarment => ({
+      ...prevGarment,
+      services: prevGarment.services.map(service =>
+        service.id === serviceId ? { ...service, is_done: newStatus } : service
+      )
     }))
 
     try {
@@ -144,6 +152,14 @@ export default function GarmentPage() {
       setServiceStatuses(prevStatuses => ({
         ...prevStatuses,
         [serviceId]: !newStatus
+      }))
+
+      // Revert the garment.services state
+      setGarment(prevGarment => ({
+        ...prevGarment,
+        services: prevGarment.services.map(service =>
+          service.id === serviceId ? { ...service, is_done: !newStatus } : service
+        )
       }))
     }
   }
@@ -358,6 +374,7 @@ export default function GarmentPage() {
                         handleStatusChange={handleStatusChange}
                         onServiceDeleted={handleServiceDeleted}
                         onServiceUpdated={handleServiceUpdated}
+                        garmentName={garment.name}
                       />
                     ))}
                   </Grid>
