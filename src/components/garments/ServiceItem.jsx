@@ -36,30 +36,30 @@ import WarningAmberRounded from '@mui/icons-material/WarningAmberRounded'
 import { format } from 'date-fns'
 import { toast } from 'react-toastify'
 
-import { deleteGarmentService } from '@/app/actions/garments'
+import { deleteGarmentService, updateGarmentService } from '@/app/actions/garments'
 import ServiceTodoList from '@/components/garments/ServiceTodoList'
+import EditServiceDialog from '@/components/garments/EditServiceDialog'
 
 export default function ServiceItem({
   service,
   isDone,
   handleStatusChange,
   onServiceDeleted,
+  onServiceUpdated,
   garmentName = 'Garment'
 }) {
   const { userId, getToken } = useAuth()
   const theme = useTheme()
 
   // State for accordion expansion
-  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
-  const [isTasksExpanded, setIsTasksExpanded] = useState(false)
-  const [initialExpansionSet, setInitialExpansionSet] = useState(false)
+  const [expandedPanel, setExpandedPanel] = useState(false)
 
   // State for the confirmation dialog
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  // Combine the expansion states
-  const [expandedPanel, setExpandedPanel] = useState(false)
+  // State for edit dialog
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 
   const handleChange = panel => (event, isExpanded) => {
     setExpandedPanel(isExpanded ? panel : false)
@@ -67,10 +67,7 @@ export default function ServiceItem({
 
   // Function to handle task loading
   const handleTasksLoaded = hasTasks => {
-    if (hasTasks && !initialExpansionSet) {
-      setIsTasksExpanded(true)
-      setInitialExpansionSet(true) // Prevent future automatic expansions
-    }
+    // logic...
   }
 
   // Format the created_at date
@@ -97,13 +94,17 @@ export default function ServiceItem({
     try {
       await deleteGarmentService(userId, serviceId, token)
 
-      // Optionally update your state or give feedback to the user here
+      // Update parent state after successful deletion
       if (onServiceDeleted) {
         onServiceDeleted(serviceId)
       }
+
+      // Remove toast notifications from here
     } catch (error) {
       console.error('Error deleting service:', error)
-      throw error // Rethrow to handle in handleConfirmRemove
+    } finally {
+      setIsDeleting(false)
+      setIsConfirmDialogOpen(false)
     }
   }
 
@@ -116,7 +117,7 @@ export default function ServiceItem({
       setIsConfirmDialogOpen(false)
       toast.success(`${service.name} has been removed from ${garmentName}`)
     } catch (error) {
-      toast.error(`${error.message}`)
+      toast.error(`Failed to delete service: ${error.message}`)
     } finally {
       setIsDeleting(false)
     }
@@ -125,6 +126,38 @@ export default function ServiceItem({
   // Function to handle cancellation
   const handleCancelRemove = () => {
     setIsConfirmDialogOpen(false)
+  }
+
+  // Function to open the edit dialog
+  const handleEditService = () => {
+    setIsEditDialogOpen(true)
+  }
+
+  // Function to handle closing the edit dialog
+  const handleCloseEditDialog = () => {
+    setIsEditDialogOpen(false)
+  }
+
+  // Function to handle saving the edited service
+  const handleSaveEditedService = async updatedServiceData => {
+    const token = await getToken({ template: 'supabase' })
+
+    try {
+      await updateGarmentService(userId, service.id, updatedServiceData, token)
+
+      // Update parent state after successful edit
+      if (onServiceUpdated) {
+        onServiceUpdated(service.id, updatedServiceData)
+      }
+
+      setIsEditDialogOpen(false)
+      toast.success(`${service.name} has been updated`)
+    } catch (error) {
+      console.error('Error updating service:', error)
+      toast.error(`Failed to update service: ${error.message}`)
+
+      // Do not update state because the operation failed
+    }
   }
 
   return (
@@ -205,6 +238,7 @@ export default function ServiceItem({
                         }
                       }
                     }}
+                    onClick={handleEditService}
                   >
                     <EditIcon
                       sx={{
@@ -336,6 +370,16 @@ export default function ServiceItem({
             <ServiceTodoList serviceId={service.id} onTasksLoaded={handleTasksLoaded} />
           </AccordionDetails>
         </Accordion>
+
+        {/* Edit Service Dialog */}
+        {isEditDialogOpen && (
+          <EditServiceDialog
+            open={isEditDialogOpen}
+            onClose={handleCloseEditDialog}
+            service={service}
+            onSave={handleSaveEditedService}
+          />
+        )}
 
         {/* Confirmation Dialog */}
         <Dialog
