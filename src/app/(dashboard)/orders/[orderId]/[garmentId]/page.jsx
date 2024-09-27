@@ -59,6 +59,7 @@ export default function GarmentPage() {
   const [garment, setGarment] = useState(null)
   const [stages, setStages] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isAddingService, setIsAddingService] = useState(false)
   const { orderId, garmentId } = useParams()
   const searchParams = useSearchParams()
   const { userId, getToken } = useAuth()
@@ -69,8 +70,6 @@ export default function GarmentPage() {
   const [serviceStatuses, setServiceStatuses] = useState({})
   const [isServiceDialogOpen, setServiceDialogOpen] = useState(false)
   const [isCreateServiceDialogOpen, setCreateServiceDialogOpen] = useState(false)
-
-  const theme = useTheme()
 
   const [isAddAppointmentModalOpen, setIsAddAppointmentModalOpen] = useState(false)
 
@@ -85,7 +84,7 @@ export default function GarmentPage() {
   // Function to handle adding a new service to the garment
   const handleServiceSelect = async service => {
     try {
-      setIsLoading(true)
+      setIsAddingService(true)
       const token = await getToken({ template: 'supabase' })
 
       // Prepare the new service data
@@ -116,7 +115,7 @@ export default function GarmentPage() {
       console.error('Error adding service to garment:', error)
       toast.error('Failed to add service. Please try again.')
     } finally {
-      setIsLoading(false)
+      setIsAddingService(false)
     }
   }
 
@@ -351,8 +350,9 @@ export default function GarmentPage() {
                   color='primary'
                   startIcon={<AddIcon />}
                   onClick={() => setServiceDialogOpen(true)}
+                  disabled={isAddingService}
                 >
-                  Add Service
+                  {isAddingService ? 'Adding Service...' : 'Add Service'}
                 </Button>
               </Box>
 
