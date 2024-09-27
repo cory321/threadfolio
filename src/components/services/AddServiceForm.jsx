@@ -66,7 +66,7 @@ const AddServiceForm = ({ setServices = () => {}, onClose }) => {
       setNewService({ name: '', description: '', qty: 0, unit: serviceUnitTypes.ITEM, unit_price: 0 })
       setDisplayUnitPrice('0.00')
       onClose()
-      toast.success(`${newServiceItem.name} has been added!`)
+      toast.success(`${newServiceItem.name} has been added to your service catalog.`)
     } catch (error) {
       toast.error(`Error adding service: ${error}`)
       console.error('Error adding service:', error)

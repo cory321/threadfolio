@@ -110,7 +110,7 @@ export default function GarmentPage() {
       setServiceDialogOpen(false)
       setCreateServiceDialogOpen(false)
 
-      toast.success(`Service "${addedService.name}" added to the garment.`)
+      toast.success(`${addedService.name} was added to the garment.`)
     } catch (error) {
       console.error('Error adding service to garment:', error)
       toast.error('Failed to add service. Please try again.')
