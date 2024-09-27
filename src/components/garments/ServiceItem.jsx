@@ -335,6 +335,26 @@ export default function ServiceItem({
 
         {/* Combined Accordion */}
         <Accordion
+          expanded={expandedPanel === 'tasks'}
+          onChange={handleChange('tasks')}
+          disableGutters
+          elevation={0}
+          sx={{
+            '&:before': { display: 'none' },
+            borderTop: '1px solid rgba(0, 0, 0, .125)'
+          }}
+        >
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant='subtitle1'>
+              Tasks
+              {totalTasks > 0 ? ` (${completedTasks}/${totalTasks})` : ''}
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <ServiceTodoList serviceId={service.id} onTasksLoaded={handleTasksLoaded} />
+          </AccordionDetails>
+        </Accordion>
+        <Accordion
           expanded={expandedPanel === 'description'}
           onChange={handleChange('description')}
           disableGutters
@@ -359,27 +379,6 @@ export default function ServiceItem({
                 This service was requested on {formattedDate}
               </Typography>
             )}
-          </AccordionDetails>
-        </Accordion>
-
-        <Accordion
-          expanded={expandedPanel === 'tasks'}
-          onChange={handleChange('tasks')}
-          disableGutters
-          elevation={0}
-          sx={{
-            '&:before': { display: 'none' },
-            borderTop: '1px solid rgba(0, 0, 0, .125)'
-          }}
-        >
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant='subtitle1'>
-              Tasks
-              {totalTasks > 0 ? ` (${completedTasks}/${totalTasks})` : ''}
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <ServiceTodoList serviceId={service.id} onTasksLoaded={handleTasksLoaded} />
           </AccordionDetails>
         </Accordion>
 

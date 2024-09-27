@@ -24,15 +24,23 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  Stack,
+  Tooltip
 } from '@mui/material'
+
+import CloseIcon from '@mui/icons-material/Close'
+import IconButton from '@mui/material/IconButton'
+import PersonIcon from '@mui/icons-material/Person'
+import EmailIcon from '@mui/icons-material/Email'
+import PhoneIcon from '@mui/icons-material/Phone'
+import AccessTimeIcon from '@mui/icons-material/AccessTime'
+import EventIcon from '@mui/icons-material/Event'
 
 import { CldImage } from 'next-cloudinary'
 import { format } from 'date-fns'
 import AddIcon from '@mui/icons-material/Add'
 import { toast } from 'react-toastify'
-
-import { useTheme } from '@mui/material/styles'
 
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
 
@@ -291,6 +299,9 @@ export default function GarmentPage() {
         <Grid item xs={12} md={3}>
           <Card>
             <CardContent>
+              <Typography variant='h4' gutterBottom sx={{ mt: 2, textAlign: 'center' }}>
+                {garment.name}
+              </Typography>
               {garment.image_cloud_id ? (
                 <CldImage src={garment.image_cloud_id} alt={garment.name} width={300} height={300} crop='fill' />
               ) : (
@@ -307,27 +318,43 @@ export default function GarmentPage() {
                   <i className='ri-t-shirt-line' style={{ fontSize: '5rem', color: 'grey' }} />
                 </Box>
               )}
-              <Typography variant='h5' gutterBottom sx={{ mt: 2 }}>
-                {garment.name}
-              </Typography>
-              <Typography variant='body1' gutterBottom>
-                Due Date: {garment.due_date ? format(new Date(garment.due_date), 'PPP') : 'Not set'}
-              </Typography>
-              {garment.is_event && garment.event_date && (
-                <Typography variant='body1' gutterBottom>
-                  Event Date: {format(new Date(garment.event_date), 'PPP')}
+
+              {/* Enhanced Garment Details */}
+              <Stack direction='row' alignItems='center' spacing={1} sx={{ mt: 1 }}>
+                <AccessTimeIcon color='action' />
+                <Typography variant='body1'>
+                  <strong>Due Date:</strong> {garment.due_date ? format(new Date(garment.due_date), 'PPP') : 'Not set'}
                 </Typography>
+              </Stack>
+              {garment.is_event && garment.event_date && (
+                <Stack direction='row' alignItems='center' spacing={1} sx={{ mt: 1 }}>
+                  <EventIcon color='action' />
+                  <Typography variant='body1'>
+                    <strong>Event Date:</strong> {format(new Date(garment.event_date), 'PPP')}
+                  </Typography>
+                </Stack>
               )}
             </CardContent>
           </Card>
+
+          {/* Enhanced Client Information */}
           <Card sx={{ mt: 2 }}>
             <CardContent>
-              <Typography variant='h6' gutterBottom>
+              <Typography variant='h5' gutterBottom>
                 Client Information
               </Typography>
-              <Typography variant='body1'>Name: {garment.client.full_name}</Typography>
-              <Typography variant='body1'>Email: {garment.client.email}</Typography>
-              <Typography variant='body1'>Phone: {formatPhoneNumber(garment.client.phone_number)}</Typography>
+              <Stack direction='row' alignItems='center' spacing={1} sx={{ mb: 1 }}>
+                <PersonIcon color='action' />
+                <Typography variant='body1'>{garment.client.full_name}</Typography>
+              </Stack>
+              <Stack direction='row' alignItems='center' spacing={1} sx={{ mb: 1 }}>
+                <EmailIcon color='action' />
+                <Typography variant='body1'>{garment.client.email}</Typography>
+              </Stack>
+              <Stack direction='row' alignItems='center' spacing={1}>
+                <PhoneIcon color='action' />
+                <Typography variant='body1'>{formatPhoneNumber(garment.client.phone_number)}</Typography>
+              </Stack>
             </CardContent>
           </Card>
         </Grid>
@@ -337,7 +364,7 @@ export default function GarmentPage() {
               <Box display='flex' justifyContent='space-between' alignItems='center' mb={2}>
                 <Box>
                   <Typography variant='h5' gutterBottom>
-                    Requested Services for Garment
+                    Services Requested
                   </Typography>
                   {garment.services && garment.services.length > 0 && (
                     <Typography variant='body2' color='textSecondary'>
@@ -384,12 +411,6 @@ export default function GarmentPage() {
                   This garment has no services attached to it.
                 </Typography>
               )}
-            </CardContent>
-          </Card>
-          <Card sx={{ mt: 2 }}>
-            <CardHeader title='Notes' />
-            <CardContent>
-              <Typography variant='body1'>{garment.notes || 'No notes'}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -441,12 +462,33 @@ export default function GarmentPage() {
           </Card>
           <TimeTracker sx={{ mt: 2 }} />
           <Finances sx={{ mt: 2 }} />
+          <Card sx={{ mt: 2 }}>
+            <CardHeader title='Garment Notes' />
+            <CardContent>
+              <Typography variant='body1'>{garment.notes || 'No notes'}</Typography>
+            </CardContent>
+          </Card>
         </Grid>
       </Grid>
 
       {/* Service Selection Dialog */}
       <Dialog open={isServiceDialogOpen} onClose={() => setServiceDialogOpen(false)} fullWidth maxWidth='sm'>
-        <DialogTitle>Select or Create a Service</DialogTitle>
+        <DialogTitle>
+          Select or Create a Service
+          <IconButton
+            edge='end'
+            color='inherit'
+            onClick={() => setServiceDialogOpen(false)}
+            aria-label='close'
+            sx={{
+              position: 'absolute',
+              right: 16,
+              top: 8
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
         <DialogContent>
           <ServicesSearch userId={userId} onServiceSelect={handleServiceSelect} />
         </DialogContent>
