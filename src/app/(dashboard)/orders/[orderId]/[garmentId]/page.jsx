@@ -123,10 +123,18 @@ export default function GarmentPage() {
   const handleStatusChange = async serviceId => {
     const newStatus = !serviceStatuses[serviceId]
 
-    // Update local state optimistically
+    // Optimistic update of serviceStatuses
     setServiceStatuses(prevStatuses => ({
       ...prevStatuses,
       [serviceId]: newStatus
+    }))
+
+    // Optimistic update of garment.services
+    setGarment(prevGarment => ({
+      ...prevGarment,
+      services: prevGarment.services.map(service =>
+        service.id === serviceId ? { ...service, is_done: newStatus } : service
+      )
     }))
 
     try {
@@ -145,7 +153,33 @@ export default function GarmentPage() {
         ...prevStatuses,
         [serviceId]: !newStatus
       }))
+
+      // Revert the garment.services state
+      setGarment(prevGarment => ({
+        ...prevGarment,
+        services: prevGarment.services.map(service =>
+          service.id === serviceId ? { ...service, is_done: !newStatus } : service
+        )
+      }))
     }
+  }
+
+  // Function to handle service deletion
+  const handleServiceDeleted = serviceId => {
+    setGarment(prevGarment => ({
+      ...prevGarment,
+      services: prevGarment.services.filter(service => service.id !== serviceId)
+    }))
+  }
+
+  // Function to handle service updates
+  const handleServiceUpdated = (serviceId, updatedData) => {
+    setGarment(prevGarment => ({
+      ...prevGarment,
+      services: prevGarment.services.map(service =>
+        service.id === serviceId ? { ...service, ...updatedData } : service
+      )
+    }))
   }
 
   useEffect(() => {
@@ -306,9 +340,11 @@ export default function GarmentPage() {
                   <Typography variant='h5' gutterBottom>
                     Requested Services for Garment
                   </Typography>
-                  <Typography variant='body2' color='textSecondary'>
-                    {`${completedServices}/${totalServices} Services Completed`}
-                  </Typography>
+                  {garment.services && garment.services.length > 0 && (
+                    <Typography variant='body2' color='textSecondary'>
+                      {`${completedServices}/${totalServices} Services Completed`}
+                    </Typography>
+                  )}
                 </Box>
                 <Button
                   variant='outlined'
@@ -320,23 +356,34 @@ export default function GarmentPage() {
                 </Button>
               </Box>
 
-              <LinearProgress
-                variant='determinate'
-                value={(completedServices / totalServices) * 100}
-                sx={{ mt: 2, mb: 3, height: 10, borderRadius: 5 }}
-              />
-
-              {/* List of services */}
-              <Grid container spacing={2}>
-                {garment.services.map(service => (
-                  <ServiceItem
-                    key={service.id}
-                    service={service}
-                    isDone={serviceStatuses[service.id]}
-                    handleStatusChange={handleStatusChange}
+              {garment.services && garment.services.length > 0 ? (
+                <>
+                  <LinearProgress
+                    variant='determinate'
+                    value={(completedServices / totalServices) * 100}
+                    sx={{ mt: 2, mb: 3, height: 10, borderRadius: 5 }}
                   />
-                ))}
-              </Grid>
+
+                  {/* List of services */}
+                  <Grid container spacing={2}>
+                    {garment.services.map(service => (
+                      <ServiceItem
+                        key={service.id}
+                        service={service}
+                        isDone={serviceStatuses[service.id]}
+                        handleStatusChange={handleStatusChange}
+                        onServiceDeleted={handleServiceDeleted}
+                        onServiceUpdated={handleServiceUpdated}
+                        garmentName={garment.name}
+                      />
+                    ))}
+                  </Grid>
+                </>
+              ) : (
+                <Typography variant='body1' color='textSecondary' sx={{ mt: 2 }}>
+                  This garment has no services attached to it.
+                </Typography>
+              )}
             </CardContent>
           </Card>
           <Card sx={{ mt: 2 }}>
