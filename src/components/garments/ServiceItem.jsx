@@ -31,6 +31,8 @@ import TaskAltIcon from '@mui/icons-material/TaskAlt'
 import CancelIcon from '@mui/icons-material/Cancel'
 import EditIcon from '@mui/icons-material/Edit'
 import CloseIcon from '@mui/icons-material/Close'
+import EventIcon from '@mui/icons-material/Event'
+import WarningAmberRounded from '@mui/icons-material/WarningAmberRounded'
 import { format } from 'date-fns'
 import { toast } from 'react-toastify'
 
@@ -48,24 +50,20 @@ export default function ServiceItem({
   const theme = useTheme()
 
   // State for accordion expansion
-  const [isAccordionExpanded, setIsAccordionExpanded] = useState(false)
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
+  const [isTasksExpanded, setIsTasksExpanded] = useState(false)
   const [initialExpansionSet, setInitialExpansionSet] = useState(false)
 
   // State for the confirmation dialog
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false) // Add loading state
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // Function to handle task loading
   const handleTasksLoaded = hasTasks => {
     if (hasTasks && !initialExpansionSet) {
-      setIsAccordionExpanded(true)
+      setIsTasksExpanded(true)
       setInitialExpansionSet(true) // Prevent future automatic expansions
     }
-  }
-
-  // Allow user to toggle the accordion
-  const handleAccordionChange = (event, isExpanded) => {
-    setIsAccordionExpanded(isExpanded)
   }
 
   // Format the created_at date
@@ -178,24 +176,12 @@ export default function ServiceItem({
             }}
           />
 
-          {/* Conditionally display the formatted date */}
-          {formattedDate && (
-            <Typography variant='body2' color='textSecondary' gutterBottom>
-              Requested on {formattedDate}
-            </Typography>
-          )}
-
-          {service.description && (
-            <Typography variant='body2' color='textSecondary' gutterBottom>
-              {service.description}
-            </Typography>
-          )}
-
-          <Grid container spacing={2} alignItems='center'>
-            {/* Buttons on the left */}
+          <Grid container spacing={2}>
+            {/* Left Column: Edit and Remove Buttons */}
             <Grid item xs={12} sm={6}>
+              {/* Edit and Remove Service Buttons */}
               <Stack direction='column' spacing={1}>
-                {/* Conditionally Render Remove Service Button */}
+                {/* Conditionally Render Edit Service Button */}
                 {!isDone && !service.is_paid && (
                   <ButtonBase
                     sx={{
@@ -204,12 +190,22 @@ export default function ServiceItem({
                       borderRadius: 1,
                       '&:hover': {
                         bgcolor: 'action.hover',
-                        '& .MuiSvgIcon-root': { color: theme.palette.primary.main },
-                        '& .MuiTypography-root': { color: theme.palette.primary.main }
+                        '& .MuiSvgIcon-root': {
+                          color: theme.palette.primary.main
+                        },
+                        '& .MuiTypography-root': {
+                          color: theme.palette.primary.main
+                        }
                       }
                     }}
                   >
-                    <EditIcon sx={{ mr: 1, fontSize: '1.25rem', color: theme.palette.text.secondary }} />
+                    <EditIcon
+                      sx={{
+                        mr: 1,
+                        fontSize: '1.25rem',
+                        color: theme.palette.text.secondary
+                      }}
+                    />
                     <Typography variant='body2' color='text.secondary'>
                       Edit Service
                     </Typography>
@@ -224,13 +220,23 @@ export default function ServiceItem({
                       borderRadius: 1,
                       '&:hover': {
                         bgcolor: 'action.hover',
-                        '& .MuiSvgIcon-root': { color: theme.palette.error.main },
-                        '& .MuiTypography-root': { color: theme.palette.error.main }
+                        '& .MuiSvgIcon-root': {
+                          color: theme.palette.error.main
+                        },
+                        '& .MuiTypography-root': {
+                          color: theme.palette.error.main
+                        }
                       }
                     }}
                     onClick={handleRemoveService}
                   >
-                    <CancelIcon sx={{ mr: 1, fontSize: '1.25rem', color: theme.palette.text.secondary }} />
+                    <CancelIcon
+                      sx={{
+                        mr: 1,
+                        fontSize: '1.25rem',
+                        color: theme.palette.text.secondary
+                      }}
+                    />
                     <Typography variant='body2' color='text.secondary'>
                       Remove Service
                     </Typography>
@@ -239,7 +245,7 @@ export default function ServiceItem({
               </Stack>
             </Grid>
 
-            {/* Quantity and Price on the right */}
+            {/* Right Column: Service Subtotal */}
             <Grid item xs={12} sm={6}>
               <Box textAlign={{ xs: 'left', sm: 'right' }}>
                 <Typography variant='subtitle2' gutterBottom>
@@ -277,8 +283,33 @@ export default function ServiceItem({
           </Grid>
         </CardContent>
 
-        {/* Collapsible ServiceTodoList */}
-        <Accordion expanded={isAccordionExpanded} onChange={handleAccordionChange}>
+        {/* Conditionally Render Service Description Accordion */}
+        {(formattedDate || service.description) && (
+          <Accordion
+            expanded={isDescriptionExpanded}
+            onChange={(event, isExpanded) => setIsDescriptionExpanded(isExpanded)}
+          >
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography variant='subtitle1'>Description</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              {service.description && (
+                <Typography variant='body2' color='textSecondary'>
+                  {service.description}
+                </Typography>
+              )}
+              {formattedDate && (
+                <Typography variant='body2' color='textSecondary' gutterBottom sx={{ mt: service.description ? 4 : 0 }}>
+                  <EventIcon fontSize='small' sx={{ verticalAlign: 'middle', mr: 0.5 }} />
+                  This service was requested on {formattedDate}
+                </Typography>
+              )}
+            </AccordionDetails>
+          </Accordion>
+        )}
+
+        {/* Collapsible ServiceTodoList Accordion */}
+        <Accordion expanded={isTasksExpanded} onChange={(event, isExpanded) => setIsTasksExpanded(isExpanded)}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography variant='subtitle1'>Tasks</Typography>
           </AccordionSummary>
@@ -313,7 +344,8 @@ export default function ServiceItem({
               <CloseIcon />
             </IconButton>
           </DialogTitle>
-          <DialogContent>
+          <DialogContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+            <WarningAmberRounded sx={{ fontSize: 64, color: 'warning.main', mb: 2 }} />
             <DialogContentText>
               Removing this service will permanently delete its association with the garment. This operation cannot be
               undone.
@@ -323,7 +355,7 @@ export default function ServiceItem({
             <Button onClick={handleCancelRemove} variant='outlined'>
               Go Back
             </Button>
-            <Button onClick={handleConfirmRemove} color='error' variant='contained' disabled={isDeleting}>
+            <Button onClick={handleConfirmRemove} color='primary' variant='contained' disabled={isDeleting}>
               {isDeleting ? <CircularProgress size={24} color='inherit' /> : 'Remove Service'}
             </Button>
           </DialogActions>
