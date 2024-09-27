@@ -9,8 +9,11 @@ import {
   TextField,
   MenuItem,
   InputAdornment,
-  Typography
+  Typography,
+  IconButton
 } from '@mui/material'
+
+import CloseIcon from '@mui/icons-material/Close'
 
 import serviceUnitTypes from '@/utils/serviceUnitTypes'
 import { formatAsCurrency, parseFloatFromCurrency, formatUnitPrice } from '@/utils/currencyUtils'
@@ -69,7 +72,21 @@ export default function EditServiceDialog({ open, onClose, service, onSave }) {
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth='sm'>
-      <DialogTitle>Edit Service</DialogTitle>
+      <DialogTitle>
+        Edit Service
+        <IconButton
+          aria-label='close'
+          onClick={onClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: theme => theme.palette.grey[500]
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
       <DialogContent>
         <TextField
           autoFocus

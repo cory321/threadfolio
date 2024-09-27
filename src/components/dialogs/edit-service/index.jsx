@@ -11,8 +11,10 @@ import {
   MenuItem,
   CircularProgress,
   InputAdornment,
-  Typography
+  Typography,
+  IconButton // Add this import
 } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close' // Add this import
 
 import { handleChange, handleUnitPriceBlur, calculateTotalPrice } from '@/utils/serviceUtils'
 import serviceUnitTypes from '@/utils/serviceUnitTypes'
@@ -52,7 +54,21 @@ const EditServiceModal = ({ service, onClose, onSave, onDelete }) => {
 
   return (
     <Dialog open onClose={onClose} maxWidth='sm' fullWidth>
-      <DialogTitle>Edit Service</DialogTitle>
+      <DialogTitle>
+        Edit Service
+        <IconButton
+          aria-label='close'
+          onClick={onClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: theme => theme.palette.grey[500]
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
       <DialogContent>
         <Box display='flex' flexDirection='column' gap={2}>
           <TextField
