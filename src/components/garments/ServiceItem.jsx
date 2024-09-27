@@ -61,13 +61,18 @@ export default function ServiceItem({
   // State for edit dialog
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 
+  // State variables for task counts
+  const [totalTasks, setTotalTasks] = useState(null)
+  const [completedTasks, setCompletedTasks] = useState(null)
+
   const handleChange = panel => (event, isExpanded) => {
     setExpandedPanel(isExpanded ? panel : false)
   }
 
   // Function to handle task loading
-  const handleTasksLoaded = hasTasks => {
-    // logic...
+  const handleTasksLoaded = (total, completed) => {
+    setTotalTasks(total)
+    setCompletedTasks(completed)
   }
 
   // Format the created_at date
@@ -364,7 +369,10 @@ export default function ServiceItem({
           }}
         >
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant='subtitle1'>Tasks</Typography>
+            <Typography variant='subtitle1'>
+              Tasks
+              {totalTasks > 0 ? ` (${completedTasks}/${totalTasks})` : ''}
+            </Typography>
           </AccordionSummary>
           <AccordionDetails>
             <ServiceTodoList serviceId={service.id} onTasksLoaded={handleTasksLoaded} />

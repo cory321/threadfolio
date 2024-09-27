@@ -50,6 +50,16 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
   const [todoToDelete, setTodoToDelete] = useState(null)
   const [isAddingTodo, setIsAddingTodo] = useState(false)
 
+  // Utility function to update task counts
+  const updateTaskCounts = () => {
+    if (onTasksLoaded) {
+      const totalTasks = todos.length
+      const completedTasks = todos.filter(todo => todo.completed).length
+
+      onTasksLoaded(totalTasks, completedTasks)
+    }
+  }
+
   useEffect(() => {
     let isMounted = true
 
@@ -60,11 +70,7 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
 
         if (isMounted) {
           setTodos(fetchedTodos)
-
-          // Notify parent component about tasks
-          if (onTasksLoaded) {
-            onTasksLoaded(fetchedTodos.length > 0)
-          }
+          updateTaskCounts() // Update task counts after fetching
         }
       } catch (e) {
         setError('Failed to load tasks.')
@@ -82,6 +88,11 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
     }
   }, [userId, serviceId, getToken])
 
+  // Update task counts whenever todos change
+  useEffect(() => {
+    updateTaskCounts()
+  }, [todos])
+
   const handleAddTodo = async () => {
     if (newTodoTitle.trim() === '') return
 
@@ -93,6 +104,7 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
 
       setTodos([...todos, todo])
       setNewTodoTitle('')
+      updateTaskCounts() // Update the task counts
     } catch (e) {
       setError('Failed to add task.')
     } finally {
@@ -133,19 +145,34 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
       setTodos(todos.filter(todo => todo.id !== todoToDelete))
       setConfirmOpen(false)
       setTodoToDelete(null)
+      updateTaskCounts() // Update the task counts
     } catch (e) {
       setError('Failed to delete task.')
     }
   }
 
   const handleToggleComplete = async id => {
+    // Optimistic update
+    const todoIndex = todos.findIndex(todo => todo.id === id)
+    const updatedTodos = [...todos]
+
+    updatedTodos[todoIndex] = {
+      ...updatedTodos[todoIndex],
+      completed: !updatedTodos[todoIndex].completed
+    }
+    const previousTodos = todos
+
+    setTodos(updatedTodos)
+    updateTaskCounts() // Update the task counts
+
     try {
       const token = await getToken({ template: 'supabase' })
-      const updatedTodo = await toggleCompleteServiceTodo(userId, id, token)
 
-      setTodos(todos.map(todo => (todo.id === id ? updatedTodo : todo)))
+      await toggleCompleteServiceTodo(userId, id, token)
     } catch (e) {
       setError('Failed to update task status.')
+      setTodos(previousTodos) // Revert the optimistic update
+      updateTaskCounts() // Update the task counts after reverting
     }
   }
 
