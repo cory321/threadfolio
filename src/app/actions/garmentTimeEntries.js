@@ -150,3 +150,35 @@ export async function getTimeEntriesGroupedByServiceForGarment(userId, garmentId
 
   return groupedServiceTime
 }
+
+// Function to update a time entry
+export async function updateTimeEntry(userId, entryId, minutes, token) {
+  const supabase = await getSupabaseClient(token)
+
+  const { error } = await supabase
+    .from('garment_service_time_entries')
+    .update({ minutes })
+    .eq('id', entryId)
+    .eq('user_id', userId)
+
+  if (error) {
+    throw new Error('Failed to update time entry: ' + error.message)
+  }
+
+  // Optionally revalidate cache if needed
+  revalidateTag(`time-entry-${entryId}`)
+}
+
+// Function to delete a time entry
+export async function deleteTimeEntry(userId, entryId, token) {
+  const supabase = await getSupabaseClient(token)
+
+  const { error } = await supabase.from('garment_service_time_entries').delete().eq('id', entryId).eq('user_id', userId)
+
+  if (error) {
+    throw new Error('Failed to delete time entry: ' + error.message)
+  }
+
+  // Optionally revalidate cache if needed
+  revalidateTag(`time-entry-${entryId}`)
+}
