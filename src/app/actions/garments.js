@@ -1,6 +1,6 @@
 'use server'
 
-import { unstable_noStore as noStore } from 'next/cache'
+import { unstable_noStore as noStore, revalidateTag } from 'next/cache'
 
 import { getSupabaseClient } from './utils'
 
@@ -316,7 +316,6 @@ export async function getGarments(userId, token, { page = 1, pageSize = 10, clie
 }
 
 export async function getGarmentById(userId, orderId, garmentId, token) {
-  noStore()
   const supabase = await getSupabaseClient(token)
 
   const { data, error } = await supabase
@@ -430,7 +429,6 @@ export async function getGarmentsAndStages(userId, token) {
 }
 
 export async function getStages(userId, token) {
-  noStore()
   const supabase = await getSupabaseClient(token)
 
   const { data: stages, error } = await supabase
@@ -581,7 +579,12 @@ export async function customizeStages(userId, stages, token, stageToDeleteId, re
   }
 
   // Update stages with reassignment
-  return await updateStages(userId, stages, token, stageToDelete, reassignStageId)
+  const updatedStages = await updateStages(userId, stages, token, stageToDelete, reassignStageId)
+
+  // After successfully customizing stages, invalidate the stages cache for the user
+  revalidateTag(`stages-${userId}`)
+
+  return updatedStages
 }
 
 export async function initializeDefaultStages(userId, token) {
@@ -614,6 +617,9 @@ export async function updateGarmentStage(userId, garmentId, newStageId, token) {
   if (error) {
     throw new Error('Failed to update garment stage: ' + error.message)
   }
+
+  // Invalidate the cache for this specific garment
+  revalidateTag(`garment-${garmentId}`)
 }
 
 export async function updateServiceDoneStatus(userId, serviceId, isDone, token) {
@@ -683,6 +689,9 @@ export async function addGarmentService(userId, serviceData, token) {
   if (insertError) {
     throw new Error('Failed to add service: ' + insertError.message)
   }
+
+  // Invalidate the cache for the associated garment
+  revalidateTag(`garment-${serviceData.garment_id}`)
 
   return newService
 }
