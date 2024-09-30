@@ -1,5 +1,5 @@
 import { getUserAndToken } from '@/utils/getUserAndToken'
-import { getGarmentById, getStages } from '@/app/actions/garments'
+import { getGarmentById, getStages, addGarmentService, updateServiceDoneStatus } from '@/app/actions/garments'
 import GarmentPageContent from '@/components/garments/GarmentPageContent'
 
 export default async function GarmentPage({ params }) {
@@ -20,7 +20,40 @@ export default async function GarmentPage({ params }) {
       return <div>Garment not found.</div>
     }
 
-    return <GarmentPageContent initialGarment={garment} initialStages={stages} />
+    // Define server actions to pass down
+    async function handleAddGarmentService(service) {
+      'use server' // This directive indicates that this function runs on the server
+
+      // You have access to userId and token here
+      const newService = {
+        garment_id: garment.id,
+        name: service.name,
+        description: service.description || '',
+        qty: service.qty || 1,
+        unit_price: parseFloat(service.unit_price),
+        unit: service.unit
+      }
+
+      const addedService = await addGarmentService(userId, newService, token)
+
+      return addedService
+    }
+
+    async function handleUpdateServiceDoneStatus(serviceId, newStatus) {
+      'use server'
+
+      await updateServiceDoneStatus(userId, serviceId, newStatus, token)
+    }
+
+    return (
+      <GarmentPageContent
+        initialGarment={garment}
+        initialStages={stages}
+        handleAddGarmentService={handleAddGarmentService}
+        handleUpdateServiceDoneStatus={handleUpdateServiceDoneStatus}
+        userId={userId} // Pass userId down
+      />
+    )
   } catch (error) {
     console.error('Failed to fetch data:', error)
 

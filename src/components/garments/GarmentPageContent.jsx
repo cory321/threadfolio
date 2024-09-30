@@ -5,7 +5,6 @@ import { useState } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-import { useAuth } from '@clerk/nextjs'
 import { Box, Typography, Card, CardContent, CircularProgress, Grid, Button, Divider } from '@mui/material'
 
 import Breadcrumb from '@/components/ui/Breadcrumb'
@@ -20,9 +19,15 @@ import ScheduleAppointment from '@/components/garments/garment-single-view/Sched
 import TimeTracker from '@/components/garments/garment-single-view/TimeTracker'
 import Finances from '@/components/garments/garment-single-view/Finances'
 
-export default function GarmentPageContent({ initialGarment, initialStages }) {
+export default function GarmentPageContent({
+  initialGarment,
+  initialStages,
+  handleAddGarmentService,
+  handleUpdateServiceDoneStatus,
+  userId
+}) {
   const [garment, setGarment] = useState(initialGarment)
-  const [stages, setStages] = useState(initialStages)
+  const [stages] = useState(initialStages)
   const [isLoading, setIsLoading] = useState(false)
   const { orderId } = useParams()
   const searchParams = useSearchParams()
@@ -85,7 +90,13 @@ export default function GarmentPageContent({ initialGarment, initialStages }) {
 
         {/* Middle Column */}
         <Grid item xs={12} md={6}>
-          <ServicesSection garment={garment} setGarment={setGarment} />
+          <ServicesSection
+            garment={garment}
+            setGarment={setGarment}
+            handleAddGarmentService={handleAddGarmentService}
+            handleUpdateServiceDoneStatus={handleUpdateServiceDoneStatus}
+            userId={userId} // Pass userId down
+          />
         </Grid>
 
         {/* Right Column */}

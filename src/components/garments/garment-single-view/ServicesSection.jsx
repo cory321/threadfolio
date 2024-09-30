@@ -2,17 +2,13 @@ import { useState } from 'react'
 
 import { Card, CardContent, Typography, Box, Button, Grid, LinearProgress } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
-import { useAuth } from '@clerk/nextjs'
 import { toast } from 'react-toastify'
 
 import ServiceItem from '@/components/garments/ServiceItem'
 import ServiceSelectionDialog from '@/components/garments/garment-single-view/ServiceSelectionDialog'
 import CreateServiceDialog from '@/components/garments/garment-service-table/CreateServiceDialog'
 
-import { addGarmentService, updateServiceDoneStatus } from '@/app/actions/garments'
-
-const ServicesSection = ({ garment, setGarment }) => {
-  const { userId, getToken } = useAuth()
+const ServicesSection = ({ garment, setGarment, handleAddGarmentService, handleUpdateServiceDoneStatus, userId }) => {
   const [isServiceDialogOpen, setServiceDialogOpen] = useState(false)
   const [isCreateServiceDialogOpen, setCreateServiceDialogOpen] = useState(false)
   const [isAddingService, setIsAddingService] = useState(false)
@@ -25,18 +21,8 @@ const ServicesSection = ({ garment, setGarment }) => {
   const handleServiceSelect = async service => {
     try {
       setIsAddingService(true)
-      const token = await getToken({ template: 'supabase' })
 
-      const newService = {
-        garment_id: garment.id,
-        name: service.name,
-        description: service.description || '',
-        qty: service.qty || 1,
-        unit_price: parseFloat(service.unit_price),
-        unit: service.unit
-      }
-
-      const addedService = await addGarmentService(userId, newService, token)
+      const addedService = await handleAddGarmentService(service)
 
       setGarment(prevGarment => ({
         ...prevGarment,
@@ -73,9 +59,7 @@ const ServicesSection = ({ garment, setGarment }) => {
     }))
 
     try {
-      const token = await getToken({ template: 'supabase' })
-
-      await updateServiceDoneStatus(userId, serviceId, newStatus, token)
+      await handleUpdateServiceDoneStatus(serviceId, newStatus)
 
       toast.success(`Service marked as ${newStatus ? 'completed' : 'incomplete'}.`)
     } catch (error) {
@@ -170,9 +154,9 @@ const ServicesSection = ({ garment, setGarment }) => {
       <ServiceSelectionDialog
         isOpen={isServiceDialogOpen}
         onClose={() => setServiceDialogOpen(false)}
-        userId={userId}
         handleServiceSelect={handleServiceSelect}
         isAddingService={isAddingService}
+        userId={userId}
       />
 
       {/* Create Service Dialog */}
