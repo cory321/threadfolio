@@ -50,6 +50,7 @@ export default async function GarmentPage({ params }) {
         handleAddGarmentService={handleAddGarmentService}
         handleUpdateServiceDoneStatus={handleUpdateServiceDoneStatus}
         userId={userId}
+        token={token}
       />
     )
   } catch (error) {

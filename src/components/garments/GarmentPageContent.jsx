@@ -24,7 +24,8 @@ export default function GarmentPageContent({
   initialStages,
   handleAddGarmentService,
   handleUpdateServiceDoneStatus,
-  userId
+  userId,
+  token
 }) {
   const [garment, setGarment] = useState(initialGarment)
   const [stages] = useState(initialStages)
@@ -95,7 +96,7 @@ export default function GarmentPageContent({
             setGarment={setGarment}
             handleAddGarmentService={handleAddGarmentService}
             handleUpdateServiceDoneStatus={handleUpdateServiceDoneStatus}
-            userId={userId} // Pass userId down
+            userId={userId}
           />
         </Grid>
 
@@ -103,7 +104,13 @@ export default function GarmentPageContent({
         <Grid item xs={12} md={3}>
           <StageSelector garment={garment} setGarment={setGarment} stages={stages} />
           <ScheduleAppointment client={{ id: garment.client.id, full_name: garment.client.full_name }} />
-          <TimeTracker sx={{ mt: 2 }} />
+          <TimeTracker
+            sx={{ mt: 2 }}
+            garmentId={garment.id}
+            services={garment.services}
+            userId={userId}
+            token={token}
+          />
           <Finances sx={{ mt: 2 }} />
           <GarmentNotes notes={garment.notes} />
         </Grid>
