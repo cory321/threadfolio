@@ -1,55 +1,46 @@
-'use client'
+import dynamic from 'next/dynamic'
 
-import { useEffect, useState } from 'react'
+const OrderDetails = dynamic(
+  () =>
+    import('@/components/orders/OrderDetails').catch(err => {
+      console.error('Failed to load OrderDetails component:', err)
 
-import { useParams } from 'next/navigation'
+      return () => <p>Failed to load component</p>
+    }),
+  {
+    loading: () => <p>Loading...</p>
+  }
+)
 
-import { useAuth } from '@clerk/nextjs'
-import { Typography, Box, CircularProgress } from '@mui/material'
-
-import { getOrderById } from '@/app/actions/garments'
-import OrderDetails from '@/components/orders/OrderDetails'
 import Breadcrumb from '@/components/ui/Breadcrumb'
-import { formatOrderNumber } from '@/utils/formatOrderNumber' // Import the utility
+import { formatOrderNumber } from '@/utils/formatOrderNumber'
+import { getUserAndToken } from '@/utils/getUserAndToken'
+import { getOrderById } from '@/app/actions/garments'
 
-export default function OrderPage() {
-  const [order, setOrder] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const { orderId } = useParams()
-  const { userId, getToken } = useAuth()
+export default async function OrderPage({ params }) {
+  const { orderId } = params
+  const { userId, token } = await getUserAndToken()
 
-  useEffect(() => {
-    async function fetchOrder() {
-      if (userId && orderId) {
-        try {
-          setIsLoading(true)
-          const token = await getToken({ template: 'supabase' })
-
-          if (!token) throw new Error('Failed to retrieve token')
-          const fetchedOrder = await getOrderById(userId, orderId, token)
-
-          setOrder(fetchedOrder)
-        } catch (error) {
-          console.error('Failed to fetch order:', error)
-        } finally {
-          setIsLoading(false)
-        }
-      }
-    }
-
-    fetchOrder()
-  }, [userId, orderId, getToken])
-
-  if (isLoading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <CircularProgress />
-      </Box>
-    )
+  if (!userId) {
+    return <div>You must be logged in to view this page.</div>
   }
 
-  if (!order) {
-    return <Typography>Order not found.</Typography>
+  if (!token) {
+    return <div>Failed to retrieve token.</div>
+  }
+
+  let order = null
+
+  try {
+    order = await getOrderById(userId, orderId, token)
+
+    if (!order) {
+      return <>Order not found.</>
+    }
+  } catch (error) {
+    console.error('Failed to fetch order:', error)
+
+    return <>Error loading order. Please try again later.</>
   }
 
   return (
@@ -60,10 +51,7 @@ export default function OrderPage() {
           { label: `Order #${formatOrderNumber(order.user_order_number)}`, href: `/orders/${order.id}` }
         ]}
       />
-      <Box sx={{ mt: 2 }}>
-        <OrderDetails order={order} />
-      </Box>
-      {/* Additional content */}
+      <OrderDetails order={order} />
     </>
   )
 }

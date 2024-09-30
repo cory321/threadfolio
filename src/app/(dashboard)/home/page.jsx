@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 import dynamic from 'next/dynamic'
 
-import { useMediaQuery, useTheme, Box, Grid, Card, CardContent, CardHeader, Typography } from '@mui/material'
+import { useMediaQuery, Box, Grid, Card, CardContent, CardHeader } from '@mui/material'
 
 import Greeting from '@components/todo/Greeting'
 import { defaultBreakpoints } from '@menu/defaultConfigs'
@@ -29,13 +29,7 @@ const TodoList = dynamic(() => import('@components/todo/TodoList'), {
 
 export default function Home() {
   const [todos, setTodos] = useState(null)
-  const theme = useTheme()
   const isMobile = useMediaQuery(`(max-width: ${defaultBreakpoints.sm})`)
-  const isStacked = useMediaQuery(`(max-width: ${defaultBreakpoints.lg})`)
-
-  const handleAddTodoModalClose = () => {
-    setAddTodoModalOpen(false)
-  }
 
   if (isMobile) {
     return (

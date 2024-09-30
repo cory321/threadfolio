@@ -1,4 +1,4 @@
-import React from 'react'
+'use client'
 
 import Link from 'next/link'
 
@@ -10,7 +10,7 @@ import { formatOrderNumber } from '@/utils/formatOrderNumber' // Import the util
 
 const OrderDetails = ({ order }) => {
   return (
-    <Box>
+    <Box sx={{ mt: 2 }}>
       <Typography variant='h4' gutterBottom>
         Order #{formatOrderNumber(order.user_order_number)}
       </Typography>
