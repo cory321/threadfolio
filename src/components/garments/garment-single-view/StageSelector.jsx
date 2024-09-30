@@ -64,7 +64,7 @@ const StageSelector = ({ garment, setGarment, stages }) => {
     }
   }
 
-  const currentStage = stages.find(stage => stage.name === garment?.stage_name)
+  const currentStage = stages.find(stage => stage.id === garment?.stage_id)
   const stageColor = currentStage?.color || 'grey.300'
   const textColor = getContrastText(stageColor)
 
@@ -81,15 +81,17 @@ const StageSelector = ({ garment, setGarment, stages }) => {
             mb: 2
           }}
         >
-          <Typography variant='h6'>Current Stage: {currentStage?.name || 'Unknown'}</Typography>
+          <Typography variant='h6'>{currentStage?.name || 'Unknown Stage'}</Typography>
         </Box>
-        <FormControl fullWidth>
+
+        <FormControl fullWidth sx={{ position: 'relative' }}>
           <InputLabel id='stage-select-label'>Update Stage</InputLabel>
           <Select
             labelId='stage-select-label'
             value={garment.stage_id || ''}
             label='Update Stage'
             onChange={handleStageChange}
+            disabled={isStageChanging}
           >
             {stages.map(stage => (
               <MenuItem key={stage.id} value={stage.id}>
@@ -97,8 +99,21 @@ const StageSelector = ({ garment, setGarment, stages }) => {
               </MenuItem>
             ))}
           </Select>
+
+          {isStageChanging && (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: '50%',
+                right: '40px',
+                transform: 'translateY(-50%)',
+                pointerEvents: 'none'
+              }}
+            >
+              <CircularProgress size={20} />
+            </Box>
+          )}
         </FormControl>
-        {isStageChanging && <CircularProgress size={24} sx={{ mt: 2 }} />}
       </CardContent>
     </Card>
   )
