@@ -20,11 +20,9 @@ export default async function GarmentPage({ params }) {
       return <div>Garment not found.</div>
     }
 
-    // Define server actions to pass down
     async function handleAddGarmentService(service) {
-      'use server' // This directive indicates that this function runs on the server
+      'use server'
 
-      // You have access to userId and token here
       const newService = {
         garment_id: garment.id,
         name: service.name,
@@ -51,7 +49,7 @@ export default async function GarmentPage({ params }) {
         initialStages={stages}
         handleAddGarmentService={handleAddGarmentService}
         handleUpdateServiceDoneStatus={handleUpdateServiceDoneStatus}
-        userId={userId} // Pass userId down
+        userId={userId}
       />
     )
   } catch (error) {

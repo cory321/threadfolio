@@ -684,7 +684,7 @@ export async function updateServiceDoneStatus(userId, serviceId, isDone, token) 
     throw new Error('Failed to update service status: ' + updateError.message)
   }
 
-  revalidateTag('services')
+  revalidateTag(`service-${serviceId}`)
 }
 
 export async function addGarmentService(userId, serviceData, token) {
@@ -827,7 +827,7 @@ export async function deleteGarmentService(userId, serviceId, token) {
     throw new Error('Failed to delete service: ' + deleteError.message)
   }
 
-  revalidateTag('services')
+  revalidateTag(`service-${serviceId}`)
 }
 
 export async function updateGarmentService(userId, serviceId, updatedData, token) {
@@ -880,5 +880,5 @@ export async function updateGarmentService(userId, serviceId, updatedData, token
     throw new Error('Failed to update service: ' + updateError.message)
   }
 
-  revalidateTag('services')
+  revalidateTag(`service-${serviceId}`)
 }
