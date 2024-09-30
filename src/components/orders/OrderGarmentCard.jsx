@@ -1,4 +1,4 @@
-import React from 'react'
+'use client'
 
 import { Typography, Box, Paper, Chip, Grid } from '@mui/material'
 import { CldImage } from 'next-cloudinary'
