@@ -72,6 +72,7 @@ export default function GarmentPageContent({ initialGarment, initialStages }) {
   const [isServiceDialogOpen, setServiceDialogOpen] = useState(false)
   const [isCreateServiceDialogOpen, setCreateServiceDialogOpen] = useState(false)
   const [isAddAppointmentModalOpen, setIsAddAppointmentModalOpen] = useState(false)
+  const [isStageChanging, setIsStageChanging] = useState(false)
 
   const handleOpenAddAppointmentModal = () => setIsAddAppointmentModalOpen(true)
   const handleCloseAddAppointmentModal = () => setIsAddAppointmentModalOpen(false)
@@ -166,27 +167,43 @@ export default function GarmentPageContent({ initialGarment, initialStages }) {
 
   const handleStageChange = async event => {
     const newStageId = event.target.value
-    const newStageName = stages.find(stage => stage.id === newStageId)?.name || 'Unknown'
+    const newStage = stages.find(stage => stage.id === newStageId)
+    const newStageName = newStage?.name || 'Unknown'
+    const oldStageId = garment.stage_id
+    const oldStageName = garment.stage_name
+
+    // Optimistically update the UI
+    setGarment(prevGarment => ({
+      ...prevGarment,
+      stage_id: newStageId,
+      stage_name: newStageName
+    }))
+
+    setIsStageChanging(true)
 
     try {
       const token = await getToken({ template: 'supabase' })
 
       if (!token) throw new Error('Failed to retrieve token')
 
-      // Corrected function call with aligned parameters
+      // Perform the actual update
       await updateGarmentStage(userId, garment.id, newStageId, token)
 
-      // Update the local state to reflect the change
-      setGarment(prevGarment => ({
-        ...prevGarment,
-        stage_id: newStageId,
-        stage_name: newStageName
-      }))
-
+      // If successful, show a success message
       toast.success(`Garment stage set to ${newStageName}`)
     } catch (error) {
       console.error('Failed to update garment stage:', error)
+
+      // If the update fails, revert the optimistic update
+      setGarment(prevGarment => ({
+        ...prevGarment,
+        stage_id: oldStageId,
+        stage_name: oldStageName
+      }))
+
       toast.error('Failed to update garment stage. Please try again later.')
+    } finally {
+      setIsStageChanging(false)
     }
   }
 
@@ -372,23 +389,27 @@ export default function GarmentPageContent({ initialGarment, initialStages }) {
                   textAlign: 'center'
                 }}
               >
-                <Typography variant='h6'>{currentStage?.name || 'Stage Not Set'}</Typography>
+                <Typography variant='h6'>{garment.stage_name || 'Stage Not Set'}</Typography>
               </Box>
-              <FormControl fullWidth>
-                <InputLabel id='stage-select-label'>Garment Stage</InputLabel>
-                <Select
-                  labelId='stage-select-label'
-                  value={garment.stage_id || ''}
-                  label='Select Stage'
-                  onChange={handleStageChange}
-                >
-                  {stages.map(stage => (
-                    <MenuItem key={stage.id} value={stage.id}>
-                      {stage.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <FormControl fullWidth>
+                  <InputLabel id='stage-select-label'>Garment Stage</InputLabel>
+                  <Select
+                    labelId='stage-select-label'
+                    value={garment.stage_id || ''}
+                    label='Select Stage'
+                    onChange={handleStageChange}
+                    disabled={isStageChanging}
+                  >
+                    {stages.map(stage => (
+                      <MenuItem key={stage.id} value={stage.id}>
+                        {stage.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                {isStageChanging && <CircularProgress size={24} sx={{ ml: 2 }} />}
+              </Box>
             </CardContent>
           </Card>
           <Card sx={{ mt: 2 }}>
