@@ -5,7 +5,7 @@ import { Typography, Box, CircularProgress, Avatar } from '@mui/material'
 import CheckroomIcon from '@mui/icons-material/Checkroom'
 
 import GarmentCard from '@/components/garments/GarmentCard'
-import { getPrioritizedGarments } from '@/app/actions/garments'
+import { getPrioritizedGarments } from '@/app/actions/garmentServices'
 
 export default function GarmentPriority() {
   const [garments, setGarments] = useState([])

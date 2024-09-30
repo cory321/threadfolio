@@ -16,7 +16,7 @@ import { useAuth } from '@clerk/nextjs'
 import { toast } from 'react-toastify'
 
 import { getContrastText } from '@/utils/colorUtils'
-import { updateGarmentStage } from '@/app/actions/garments'
+import { updateGarmentStage } from '@/app/actions/garmentStages'
 
 const StageSelector = ({ garment, setGarment, stages }) => {
   const { userId, getToken } = useAuth()

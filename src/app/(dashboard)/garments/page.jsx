@@ -22,7 +22,7 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 
-import { getGarmentsAndStages } from '@/app/actions/garments'
+import { getGarmentsAndStages } from '@/app/actions/garmentStages'
 import GarmentCard from '@/components/garments/GarmentCard'
 import CustomizeStagesDialog from '@/components/garments/CustomizeStagesDialog'
 import StageBox from '@/components/garments/StageBox'

@@ -1,5 +1,7 @@
 import { getUserAndToken } from '@/utils/getUserAndToken'
-import { getGarmentById, getStages, addGarmentService, updateServiceDoneStatus } from '@/app/actions/garments'
+import { addGarmentService, updateServiceDoneStatus } from '@/app/actions/garmentServices'
+import { getGarmentById } from '@/app/actions/garments'
+import { getStages } from '@/app/actions/garmentStages'
 import GarmentPageContent from '@/components/garments/GarmentPageContent'
 
 export default async function GarmentPage({ params }) {

@@ -6,7 +6,7 @@ import { Card, CardHeader, CardContent, Typography, Button, Stack, List, ListIte
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import ListAltIcon from '@mui/icons-material/ListAlt'
 
-import { getTotalTimeForGarment, getTimeEntriesGroupedByServiceForGarment } from '@/app/actions/garments'
+import { getTotalTimeForGarment, getTimeEntriesGroupedByServiceForGarment } from '@/app/actions/garmentTimeEntries'
 import TimeEntryDialog from './TimeEntryDialog'
 import TimeLogsDialog from './TimeLogsDialog'
 

@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { useAuth } from '@clerk/nextjs'
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, MenuItem } from '@mui/material'
 
-import { addTimeEntry } from '@/app/actions/garments'
+import { addTimeEntry } from '@/app/actions/garmentTimeEntries'
 
 const TimeEntryDialog = ({ open, handleClose, services }) => {
   const { userId, getToken } = useAuth()

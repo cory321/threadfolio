@@ -1,4 +1,4 @@
-import { getOrders } from '@/app/actions/garments'
+import { getOrders } from '@/app/actions/orders'
 import { getUserAndToken } from '@/utils/getUserAndToken'
 import OrdersPageContent from '@/components/orders/OrdersHeader'
 

@@ -23,7 +23,7 @@ import {
 } from '@mui/material'
 import { format } from 'date-fns'
 
-import { getTimeEntriesForGarment } from '@/app/actions/garments'
+import { getTimeEntriesForGarment } from '@/app/actions/garmentTimeEntries'
 
 const TimeLogsDialog = ({ open, handleClose, garmentId }) => {
   const [timeEntries, setTimeEntries] = useState([])
