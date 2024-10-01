@@ -16,6 +16,7 @@ import {
   Typography
 } from '@mui/material'
 import { Close } from '@mui/icons-material'
+import { toast } from 'react-toastify'
 
 import { addTimeEntry } from '@/app/actions/garmentTimeEntries'
 
@@ -58,10 +59,12 @@ const TimeEntryDialog = ({ open, handleClose, services }) => {
       const totalMinutes = parseInt(hours || '0') * 60 + parseInt(minutes || '0')
 
       await addTimeEntry(userId, selectedServiceId, totalMinutes, token)
+      toast.success('Time entry added successfully!')
       handleClose(true)
     } catch (error) {
       console.error('Failed to log time:', error)
       setErrors({ submit: 'Failed to log time. Please try again.' })
+      toast.error('Failed to add time entry. Please try again.')
     } finally {
       setIsSubmitting(false)
     }

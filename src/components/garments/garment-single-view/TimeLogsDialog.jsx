@@ -25,6 +25,7 @@ import {
 } from '@mui/material'
 import { format } from 'date-fns'
 import { Edit, Delete, WarningAmberRounded, Close } from '@mui/icons-material'
+import { toast } from 'react-toastify'
 
 import { getTimeEntriesForGarment, updateTimeEntry, deleteTimeEntry } from '@/app/actions/garmentTimeEntries'
 
@@ -88,7 +89,7 @@ const TimeLogsDialog = ({ open, handleClose, garmentId, onChange }) => {
       const totalMinutes = parseInt(editHours || '0') * 60 + parseInt(editMinutes || '0')
 
       if (totalMinutes <= 0) {
-        alert('Please enter valid hours or minutes.')
+        toast.error('Please enter valid hours or minutes.')
         setIsSubmitting(false)
 
         return
@@ -104,11 +105,12 @@ const TimeLogsDialog = ({ open, handleClose, garmentId, onChange }) => {
       )
 
       handleCloseEditDialog()
+      toast.success('Time entry updated successfully!')
 
       if (onChange) onChange() // Notify parent component
     } catch (error) {
       console.error('Failed to update time entry:', error)
-      alert('Failed to update time entry. Please try again.')
+      toast.error('Failed to update time entry. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -139,11 +141,12 @@ const TimeLogsDialog = ({ open, handleClose, garmentId, onChange }) => {
       setTimeEntries(prevEntries => prevEntries.filter(entry => entry.id !== selectedEntry.id))
 
       handleCloseDeleteDialog()
+      toast.success('Time entry deleted successfully!')
 
       if (onChange) onChange() // Notify parent component
     } catch (error) {
       console.error('Failed to delete time entry:', error)
-      alert('Failed to delete time entry. Please try again.')
+      toast.error('Failed to delete time entry. Please try again.')
     } finally {
       setIsSubmitting(false)
     }

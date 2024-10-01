@@ -15,7 +15,6 @@ import ServicesSection from '@/components/garments/garment-single-view/ServicesS
 import StageSelector from '@/components/garments/garment-single-view/StageSelector'
 import GarmentNotes from '@/components/garments/garment-single-view/GarmentNotes'
 import GarmentDates from '@/components/garments/garment-single-view/GarmentDates'
-import ScheduleAppointment from '@/components/garments/garment-single-view/ScheduleAppointment'
 import TimeTracker from '@/components/garments/garment-single-view/TimeTracker'
 import Finances from '@/components/garments/garment-single-view/Finances'
 
@@ -103,7 +102,6 @@ export default function GarmentPageContent({
         {/* Right Column */}
         <Grid item xs={12} md={3}>
           <StageSelector garment={garment} setGarment={setGarment} stages={stages} />
-          <ScheduleAppointment client={{ id: garment.client.id, full_name: garment.client.full_name }} />
           <TimeTracker
             sx={{ mt: 2 }}
             garmentId={garment.id}

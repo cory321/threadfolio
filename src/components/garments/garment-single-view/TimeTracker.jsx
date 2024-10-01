@@ -152,14 +152,16 @@ const TimeTracker = ({ sx, garmentId, services, garmentName }) => {
                 <Grid container spacing={2} alignItems='center' sx={{ mt: 2 }}>
                   <Grid item xs={12}>
                     <Stack direction='row' spacing={2} justifyContent='center'>
-                      <Button
-                        variant='outlined'
-                        startIcon={<ListAltIcon />}
-                        onClick={handleLogsDialogOpen}
-                        aria-label='View time logs'
-                      >
-                        View Logs
-                      </Button>
+                      {filteredServiceTimeData.length > 0 && (
+                        <Button
+                          variant='outlined'
+                          startIcon={<ListAltIcon />}
+                          onClick={handleLogsDialogOpen}
+                          aria-label='View time logs'
+                        >
+                          View Logs
+                        </Button>
+                      )}
                       <Button
                         variant='contained'
                         startIcon={<AccessTimeIcon />}
