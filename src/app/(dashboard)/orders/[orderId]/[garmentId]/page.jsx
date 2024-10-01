@@ -1,6 +1,6 @@
 import { getUserAndToken } from '@/utils/getUserAndToken'
 import { addGarmentService, updateServiceDoneStatus } from '@/app/actions/garmentServices'
-import { getGarmentById } from '@/app/actions/garments'
+import { getGarmentById, updateGarment } from '@/app/actions/garments'
 import { getStages } from '@/app/actions/garmentStages'
 import GarmentPageContent from '@/components/garments/GarmentPageContent'
 
@@ -45,6 +45,12 @@ export default async function GarmentPage({ params }) {
       await updateServiceDoneStatus(userId, serviceId, newStatus, token)
     }
 
+    async function updateGarmentNotes(newNotes) {
+      'use server'
+
+      await updateGarment(userId, garment.id, { notes: newNotes }, token)
+    }
+
     return (
       <GarmentPageContent
         initialGarment={garment}
@@ -53,6 +59,7 @@ export default async function GarmentPage({ params }) {
         handleUpdateServiceDoneStatus={handleUpdateServiceDoneStatus}
         userId={userId}
         token={token}
+        updateGarmentNotes={updateGarmentNotes}
       />
     )
   } catch (error) {

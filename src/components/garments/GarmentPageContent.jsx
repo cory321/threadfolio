@@ -7,6 +7,11 @@ import Link from 'next/link'
 
 import { Box, Typography, Card, CardContent, CircularProgress, Grid, Button, Divider } from '@mui/material'
 
+import { toast } from 'react-toastify'
+import { useAuth } from '@clerk/nextjs' // Assuming you're using Clerk for authentication
+
+import { updateGarment } from '@/app/actions/garments' // Adjust the import path as needed
+
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import { formatOrderNumber } from '@/utils/formatOrderNumber'
 import GarmentImage from '@/components/garments/garment-single-view/GarmentImage'
@@ -24,13 +29,15 @@ export default function GarmentPageContent({
   handleAddGarmentService,
   handleUpdateServiceDoneStatus,
   userId,
-  token
+  token,
+  updateGarmentNotes // Receive the function as a prop
 }) {
   const [garment, setGarment] = useState(initialGarment)
   const [stages] = useState(initialStages)
   const [isLoading, setIsLoading] = useState(false)
   const { orderId } = useParams()
   const searchParams = useSearchParams()
+  const { getToken } = useAuth()
 
   const fromPage = searchParams.get('from')
   const showBackButton = fromPage === 'garments' || fromPage === 'home'
@@ -45,6 +52,31 @@ export default function GarmentPageContent({
 
   if (!garment) {
     return <Typography>Garment not found.</Typography>
+  }
+
+  // Function to handle updating notes
+  const handleUpdateNotes = async newNotes => {
+    try {
+      // Optimistically update the UI
+      setGarment(prevGarment => ({
+        ...prevGarment,
+        notes: newNotes
+      }))
+
+      // Call the update function passed down from the server component
+      await updateGarmentNotes(newNotes)
+
+      toast.success('Notes updated successfully.')
+    } catch (error) {
+      console.error('Failed to update notes:', error)
+      toast.error('Failed to update notes. Please try again.')
+
+      // Revert to previous notes on error
+      setGarment(prevGarment => ({
+        ...prevGarment,
+        notes: prevGarment.notes
+      }))
+    }
   }
 
   return (
@@ -111,7 +143,7 @@ export default function GarmentPageContent({
             garmentName={garment.name}
           />
           <Finances sx={{ mt: 2 }} />
-          <GarmentNotes notes={garment.notes} />
+          <GarmentNotes notes={garment.notes} onUpdateNotes={handleUpdateNotes} />
         </Grid>
       </Grid>
     </>

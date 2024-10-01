@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import {
   Card,
+  CardHeader,
   CardContent,
   Box,
   FormControl,
@@ -70,6 +71,7 @@ const StageSelector = ({ garment, setGarment, stages }) => {
 
   return (
     <Card>
+      <CardHeader title='Garment Stage' />
       <CardContent>
         <Box
           sx={{

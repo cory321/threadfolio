@@ -235,3 +235,38 @@ export async function addGarmentsAndServicesFromContext(userId, selectedClient, 
     garments: results
   }
 }
+
+export async function updateGarment(userId, garmentId, updatedData, token) {
+  const supabase = await getSupabaseClient(token)
+
+  // Verify that the garment belongs to the user
+  const { data: garment, error: garmentError } = await supabase
+    .from('garments')
+    .select('user_id')
+    .eq('id', garmentId)
+    .single()
+
+  if (garmentError || !garment) {
+    throw new Error('Garment not found or you do not have permission to modify it.')
+  }
+
+  if (garment.user_id !== userId) {
+    throw new Error('You do not have permission to edit this garment.')
+  }
+
+  // Update the garment with the new data
+  const { error: updateError } = await supabase
+    .from('garments')
+    .update({
+      ...updatedData,
+      updated_at: new Date().toISOString() // Update the timestamp
+    })
+    .eq('id', garmentId)
+
+  if (updateError) {
+    throw new Error('Failed to update garment: ' + updateError.message)
+  }
+
+  // Revalidate caches if necessary
+  revalidateTag(`garment-${garmentId}`)
+}
