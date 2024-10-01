@@ -30,7 +30,7 @@ export default function GarmentPageContent({
   handleUpdateServiceDoneStatus,
   userId,
   token,
-  updateGarmentNotes // Receive the function as a prop
+  updateGarmentNotes
 }) {
   const [garment, setGarment] = useState(initialGarment)
   const [stages] = useState(initialStages)
@@ -129,6 +129,7 @@ export default function GarmentPageContent({
             handleUpdateServiceDoneStatus={handleUpdateServiceDoneStatus}
             userId={userId}
           />
+          <GarmentNotes notes={garment.notes} onUpdateNotes={handleUpdateNotes} />
         </Grid>
 
         {/* Right Column */}
@@ -143,7 +144,6 @@ export default function GarmentPageContent({
             garmentName={garment.name}
           />
           <Finances sx={{ mt: 2 }} />
-          <GarmentNotes notes={garment.notes} onUpdateNotes={handleUpdateNotes} />
         </Grid>
       </Grid>
     </>

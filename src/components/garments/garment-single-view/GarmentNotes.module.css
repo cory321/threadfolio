@@ -1,0 +1,57 @@
+.content h1 {
+  /* Assuming theme.typography.h3 */
+  font-size: 2rem;
+  font-weight: 600;
+  margin-block-end: 16px;
+}
+
+.content h2 {
+  /* Assuming theme.typography.h4 */
+  font-size: 1.75rem;
+  font-weight: 500;
+  margin-block-end: 12px;
+}
+
+.content h3 {
+  /* Assuming theme.typography.h5 */
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-block-end: 12px;
+}
+
+.content p {
+  /* Assuming theme.typography.body1 */
+  font-size: 1rem;
+  margin-block-end: 8px;
+}
+
+.content ul {
+  margin-inline-start: 24px;
+  margin-block-end: 16px;
+}
+
+.content ol {
+  margin-inline-start: 64px;
+  margin-block-end: 16px;
+}
+
+.content li {
+  margin-block-end: 4px;
+}
+
+.content strong {
+  font-weight: bold;
+}
+
+.content em {
+  font-style: italic;
+}
+
+.content u {
+  text-decoration: underline;
+}
+
+.content a {
+  color: #1976d2;
+  text-decoration: underline;
+}

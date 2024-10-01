@@ -1,0 +1,59 @@
+/* Base editor styles */
+.ql-editor {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Headings */
+.ql-editor h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-block-end: 16px;
+}
+
+.ql-editor h2 {
+  font-size: 1.75rem;
+  font-weight: 500;
+  margin-block-end: 12px;
+}
+
+.ql-editor h3 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-block-end: 12px;
+}
+
+/* Paragraphs */
+.ql-editor p {
+  margin-block-end: 8px;
+}
+
+/* Lists */
+.ql-editor ul,
+.ql-editor ol {
+  margin-inline-start: 16px;
+  margin-block-end: 16px;
+}
+
+.ql-editor li {
+  margin-block-end: 4px;
+}
+
+/* Text formatting */
+.ql-editor strong {
+  font-weight: bold;
+}
+
+.ql-editor em {
+  font-style: italic;
+}
+
+.ql-editor u {
+  text-decoration: underline;
+}
+
+/* Links */
+.ql-editor a {
+  color: #1976d2;
+  text-decoration: underline;
+}
