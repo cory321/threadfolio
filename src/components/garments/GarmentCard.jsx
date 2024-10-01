@@ -141,6 +141,7 @@ const GarmentCard = ({ garment, orderId, stageColor, from = 'garments' }) => {
                       src={garment.image_cloud_id}
                       alt={garment.name}
                       fill
+                      sizes='(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw'
                       style={{
                         objectFit: 'contain'
                       }}
