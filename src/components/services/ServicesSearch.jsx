@@ -22,11 +22,11 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
   }
 }))
 
-const ServicesSearch = ({ userId, onServiceSelect = () => {}, isGarmentSaving = false }) => {
+const ServicesSearch = ({ onServiceSelect = () => {}, isGarmentSaving = false }) => {
+  const { userId, getToken } = useAuth()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [selectedService, setSelectedService] = useState(null)
-  const { getToken } = useAuth()
   const [loading, setLoading] = useState(false)
   const [openCreateDialog, setOpenCreateDialog] = useState(false)
 

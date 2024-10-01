@@ -6,7 +6,7 @@ import { Button, Box } from '@mui/material'
 
 import OrderCard from '@/components/orders/OrderCard'
 
-export default function OrdersHeader({ orders }) {
+export default function OrdersPage({ orders }) {
   return (
     <>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, mt: 2 }}>

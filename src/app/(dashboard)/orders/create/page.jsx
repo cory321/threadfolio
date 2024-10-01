@@ -17,7 +17,7 @@ const ClientGarmentServiceOrderStepper = dynamic(
   }
 )
 
-const CreateServiceOrderPage = () => {
+const CreateServiceOrderViewPage = () => {
   const { userId } = useAuth()
   const [isClient, setIsClient] = useState(false)
 
@@ -49,4 +49,4 @@ const CreateServiceOrderPage = () => {
   )
 }
 
-export default CreateServiceOrderPage
+export default CreateServiceOrderViewPage

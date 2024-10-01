@@ -17,17 +17,9 @@ import { formatOrderNumber } from '@/utils/formatOrderNumber'
 import { getUserAndToken } from '@/utils/getUserAndToken'
 import { getOrderById } from '@/app/actions/orders'
 
-export default async function OrderPage({ params }) {
-  const { orderId } = params
+export default async function OrderViewPage({ params }) {
   const { userId, token } = await getUserAndToken()
-
-  if (!userId) {
-    return <div>You must be logged in to view this page.</div>
-  }
-
-  if (!token) {
-    return <div>Failed to retrieve token.</div>
-  }
+  const { orderId } = params
 
   let order = null
 

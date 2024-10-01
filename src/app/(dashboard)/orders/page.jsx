@@ -1,17 +1,9 @@
 import { getOrders } from '@/app/actions/orders'
 import { getUserAndToken } from '@/utils/getUserAndToken'
-import OrdersPageContent from '@/components/orders/OrdersHeader'
+import OrdersPage from '@/components/orders/OrdersPage'
 
-export default async function OrdersPage() {
+export default async function Orders() {
   const { userId, token } = await getUserAndToken()
-
-  if (!userId) {
-    return <div>You must be logged in to view this page.</div>
-  }
-
-  if (!token) {
-    return <div>Failed to retrieve token.</div>
-  }
 
   let orders = []
 
@@ -23,5 +15,5 @@ export default async function OrdersPage() {
     return <div>Error loading orders. Please try again later.</div>
   }
 
-  return <OrdersPageContent orders={orders} />
+  return <OrdersPage orders={orders} />
 }

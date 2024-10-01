@@ -3,7 +3,7 @@ import CloseIcon from '@mui/icons-material/Close'
 
 import ServicesSearch from '@/components/services/ServicesSearch'
 
-const ServiceSelectionDialog = ({ isOpen, onClose, userId, handleServiceSelect, isAddingService }) => {
+const ServiceSelectionDialog = ({ isOpen, onClose, handleServiceSelect, isAddingService }) => {
   return (
     <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth='sm'>
       <DialogTitle>
@@ -23,7 +23,7 @@ const ServiceSelectionDialog = ({ isOpen, onClose, userId, handleServiceSelect, 
         </IconButton>
       </DialogTitle>
       <DialogContent>
-        <ServicesSearch userId={userId} onServiceSelect={handleServiceSelect} />
+        <ServicesSearch onServiceSelect={handleServiceSelect} />
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} color='primary' disabled={isAddingService}>

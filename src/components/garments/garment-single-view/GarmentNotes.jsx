@@ -9,19 +9,25 @@ import 'react-quill/dist/quill.snow.css'
 import './quillEditor.css'
 import DOMPurify from 'isomorphic-dompurify'
 
+import { useAuth } from '@clerk/nextjs'
+import { toast } from 'react-toastify'
+
+import { updateGarment } from '@/app/actions/garments'
+
 import styles from './GarmentNotes.module.css'
 
-const GarmentNotes = ({ notes, onUpdateNotes, marginTop = 0 }) => {
+const GarmentNotes = ({ garment, setGarment, marginTop = 0 }) => {
+  const { userId, getToken } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
-  const [editedNotes, setEditedNotes] = useState(notes || '')
+  const [editedNotes, setEditedNotes] = useState(garment.notes || '')
   const [isSaving, setIsSaving] = useState(false)
   const quillRef = useRef(null)
 
   useEffect(() => {
     if (!isEditing) {
-      setEditedNotes(notes || '')
+      setEditedNotes(garment.notes || '')
     }
-  }, [notes, isEditing])
+  }, [garment.notes, isEditing])
 
   useEffect(() => {
     if (isEditing) {
@@ -78,31 +84,43 @@ const GarmentNotes = ({ notes, onUpdateNotes, marginTop = 0 }) => {
 
   const handleCancelClick = () => {
     setIsEditing(false)
-    setEditedNotes(notes || '')
+    setEditedNotes(garment.notes || '')
   }
 
   const handleSaveClick = async () => {
-    if (onUpdateNotes) {
-      setIsSaving(true)
+    setIsSaving(true)
 
-      try {
-        // Add target and rel attributes to all <a> tags
-        const updatedNotes = addTargetBlankToLinks(editedNotes)
+    try {
+      const token = await getToken({ template: 'supabase' })
 
-        // Sanitize and allow target and rel attributes
-        const sanitizedNotes = DOMPurify.sanitize(updatedNotes, {
-          ADD_ATTR: ['target', 'rel']
-        })
+      // Add target and rel attributes to all <a> tags
+      const updatedNotes = addTargetBlankToLinks(editedNotes)
 
-        await onUpdateNotes(sanitizedNotes)
-        setIsEditing(false)
-      } finally {
-        setIsSaving(false)
-      }
+      // Sanitize and allow target and rel attributes
+      const sanitizedNotes = DOMPurify.sanitize(updatedNotes, {
+        ADD_ATTR: ['target', 'rel']
+      })
+
+      // Update the garment notes in the backend
+      await updateGarment(userId, garment.id, { notes: sanitizedNotes }, token)
+
+      // Update the garment state locally
+      setGarment(prevGarment => ({
+        ...prevGarment,
+        notes: sanitizedNotes
+      }))
+
+      setIsEditing(false)
+      toast.success('Notes updated successfully.')
+    } catch (error) {
+      console.error('Failed to update notes:', error)
+      toast.error('Failed to update notes. Please try again.')
+    } finally {
+      setIsSaving(false)
     }
   }
 
-  if (!notes && !isEditing) {
+  if (!garment.notes && !isEditing) {
     return (
       <Box sx={{ mt: 2, display: 'flex', justifyContent: 'right' }}>
         <Button
@@ -129,7 +147,7 @@ const GarmentNotes = ({ notes, onUpdateNotes, marginTop = 0 }) => {
                 variant='text'
                 color='primary'
                 onClick={handleSaveClick}
-                disabled={isSaving || editedNotes === notes}
+                disabled={isSaving || editedNotes === garment.notes}
                 startIcon={isSaving ? <CircularProgress size={20} /> : null}
               >
                 Save
@@ -159,7 +177,9 @@ const GarmentNotes = ({ notes, onUpdateNotes, marginTop = 0 }) => {
             <div
               className={styles.content}
               dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(notes, { ADD_ATTR: ['target', 'rel'] })
+                __html: DOMPurify.sanitize(garment.notes, {
+                  ADD_ATTR: ['target', 'rel']
+                })
               }}
             />
           )}
