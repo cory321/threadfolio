@@ -110,6 +110,7 @@ export default function GarmentPageContent({
             services={garment.services}
             userId={userId}
             token={token}
+            garmentName={garment.name}
           />
           <Finances sx={{ mt: 2 }} />
           <GarmentNotes notes={garment.notes} />

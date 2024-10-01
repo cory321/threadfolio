@@ -109,12 +109,20 @@ const TimeEntryDialog = ({ open, handleClose, services }) => {
           type='number'
           value={hours}
           onChange={e => {
-            setHours(e.target.value)
+            // Allow only integer values
+            const value = e.target.value.replace(/\D/g, '')
+
+            setHours(value)
             setErrors(prev => ({ ...prev, time: '' }))
           }}
           fullWidth
           margin='normal'
-          inputProps={{ min: 0, step: 1 }}
+          inputProps={{
+            min: 0,
+            step: 1,
+            inputMode: 'numeric',
+            pattern: '[0-9]*'
+          }}
           error={!!errors.time}
         />
         <TextField
@@ -122,12 +130,21 @@ const TimeEntryDialog = ({ open, handleClose, services }) => {
           type='number'
           value={minutes}
           onChange={e => {
-            setMinutes(e.target.value)
+            // Allow only integer values
+            const value = e.target.value.replace(/\D/g, '')
+
+            setMinutes(value)
             setErrors(prev => ({ ...prev, time: '' }))
           }}
           fullWidth
           margin='normal'
-          inputProps={{ min: 0, max: 59, step: 1 }}
+          inputProps={{
+            min: 0,
+            max: 59,
+            step: 1,
+            inputMode: 'numeric',
+            pattern: '[0-9]*'
+          }}
           error={!!errors.time}
           helperText={errors.time}
         />

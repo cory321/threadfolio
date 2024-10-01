@@ -28,7 +28,7 @@ import { Edit, Delete, WarningAmberRounded, Close } from '@mui/icons-material'
 
 import { getTimeEntriesForGarment, updateTimeEntry, deleteTimeEntry } from '@/app/actions/garmentTimeEntries'
 
-const TimeLogsDialog = ({ open, handleClose, garmentId }) => {
+const TimeLogsDialog = ({ open, handleClose, garmentId, onChange }) => {
   const theme = useTheme()
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'))
 
@@ -56,7 +56,7 @@ const TimeLogsDialog = ({ open, handleClose, garmentId }) => {
     } finally {
       setIsLoading(false)
     }
-  }, [garmentId, userId])
+  }, [garmentId, userId, getToken])
 
   useEffect(() => {
     if (open) {
@@ -97,8 +97,15 @@ const TimeLogsDialog = ({ open, handleClose, garmentId }) => {
       const token = await getToken({ template: 'supabase' })
 
       await updateTimeEntry(userId, selectedEntry.id, totalMinutes, token)
-      fetchTimeEntries()
+
+      // Update the local state
+      setTimeEntries(prevEntries =>
+        prevEntries.map(entry => (entry.id === selectedEntry.id ? { ...entry, minutes: totalMinutes } : entry))
+      )
+
       handleCloseEditDialog()
+
+      if (onChange) onChange() // Notify parent component
     } catch (error) {
       console.error('Failed to update time entry:', error)
       alert('Failed to update time entry. Please try again.')
@@ -127,8 +134,13 @@ const TimeLogsDialog = ({ open, handleClose, garmentId }) => {
       const token = await getToken({ template: 'supabase' })
 
       await deleteTimeEntry(userId, selectedEntry.id, token)
-      fetchTimeEntries()
+
+      // Update the local state
+      setTimeEntries(prevEntries => prevEntries.filter(entry => entry.id !== selectedEntry.id))
+
       handleCloseDeleteDialog()
+
+      if (onChange) onChange() // Notify parent component
     } catch (error) {
       console.error('Failed to delete time entry:', error)
       alert('Failed to delete time entry. Please try again.')
@@ -234,8 +246,14 @@ const TimeLogsDialog = ({ open, handleClose, garmentId }) => {
           <Button onClick={handleCloseDeleteDialog} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button onClick={handleConfirmDelete} color='error' variant='contained' disabled={isSubmitting}>
-            Delete
+          <Button
+            onClick={handleConfirmDelete}
+            color='error'
+            variant='contained'
+            disabled={isSubmitting}
+            startIcon={isSubmitting ? <CircularProgress size={20} color='inherit' /> : null}
+          >
+            {isSubmitting ? 'Deleting...' : 'Delete'}
           </Button>
         </DialogActions>
       </Dialog>
