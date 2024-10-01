@@ -26,7 +26,7 @@ import { toast } from 'react-toastify'
 
 import CloseIcon from '@mui/icons-material/Close'
 
-import InitialsAvatar from '@/components/InitialsAvatar' // Import the Avatar component
+import InitialsAvatar from '@/components/InitialsAvatar'
 
 import { addAppointment } from '@/app/actions/appointments'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'

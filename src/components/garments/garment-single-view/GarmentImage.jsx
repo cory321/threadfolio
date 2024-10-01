@@ -8,19 +8,45 @@ const GarmentImage = ({ garment }) => {
         {garment.name}
       </Typography>
       {garment.image_cloud_id ? (
-        <CldImage src={garment.image_cloud_id} alt={garment.name} width={300} height={300} crop='fill' />
+        <Box
+          sx={{
+            position: 'relative',
+            width: '100%',
+            paddingTop: '100%', // Maintains aspect ratio
+            overflow: 'hidden'
+          }}
+        >
+          <CldImage
+            src={garment.image_cloud_id}
+            alt={garment.name}
+            fill
+            style={{ objectFit: 'contain' }}
+            sizes='(max-width: 600px) 100vw, 600px'
+          />
+        </Box>
       ) : (
         <Box
           sx={{
-            width: 300,
-            height: 300,
+            position: 'relative',
+            width: '100%',
+            paddingTop: '100%',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
             bgcolor: 'grey.200'
           }}
         >
-          <i className='ri-t-shirt-line' style={{ fontSize: '5rem', color: 'grey' }} />
+          <i
+            className='ri-t-shirt-line'
+            style={{
+              fontSize: '5rem',
+              color: 'grey',
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)'
+            }}
+          />
         </Box>
       )}
     </>

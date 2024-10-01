@@ -21,7 +21,7 @@ import {
 import { Delete, DragIndicator, Close as CloseIcon, WarningAmberRounded } from '@mui/icons-material'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 
-import { updateStages } from '@/app/actions/garments'
+import { updateStages } from '@/app/actions/garmentStages'
 
 const predefinedColors = [
   { name: 'Soft Peach', hex: '#FAD4C0' },

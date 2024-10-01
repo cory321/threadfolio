@@ -98,7 +98,7 @@ const ServicesSection = ({ garment, setGarment, handleAddGarmentService, handleU
   }
 
   return (
-    <Card elevation={3} sx={{ mb: 4 }}>
+    <Card elevation={3} sx={{ mb: 3 }}>
       <CardContent sx={{ p: 3 }}>
         <Box display='flex' justifyContent='space-between' alignItems='center' mb={2}>
           <Box>

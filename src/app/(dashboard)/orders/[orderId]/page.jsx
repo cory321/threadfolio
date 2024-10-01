@@ -15,7 +15,7 @@ const OrderDetails = dynamic(
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import { formatOrderNumber } from '@/utils/formatOrderNumber'
 import { getUserAndToken } from '@/utils/getUserAndToken'
-import { getOrderById } from '@/app/actions/garments'
+import { getOrderById } from '@/app/actions/orders'
 
 export default async function OrderPage({ params }) {
   const { orderId } = params

@@ -36,7 +36,7 @@ import WarningAmberRounded from '@mui/icons-material/WarningAmberRounded'
 import { format } from 'date-fns'
 import { toast } from 'react-toastify'
 
-import { deleteGarmentService, updateGarmentService } from '@/app/actions/garments'
+import { deleteGarmentService, updateGarmentService } from '@/app/actions/garmentServices'
 import ServiceTodoList from '@/components/garments/ServiceTodoList'
 import EditServiceDialog from '@/components/garments/EditServiceDialog'
 import { formatAsCurrency } from '@/utils/currencyUtils'
