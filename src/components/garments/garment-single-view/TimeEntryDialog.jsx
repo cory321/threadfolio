@@ -70,7 +70,7 @@ const TimeEntryDialog = ({ open, handleClose, services }) => {
   return (
     <Dialog open={open} onClose={() => handleClose()} fullScreen={fullScreen}>
       <DialogTitle>
-        Add Work Hours
+        Log time spent on this garment
         <IconButton
           aria-label='close'
           onClick={() => handleClose()}
