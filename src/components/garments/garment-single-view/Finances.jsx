@@ -4,7 +4,7 @@ import { Card, CardHeader, CardContent, Typography } from '@mui/material'
 
 const Finances = ({ sx }) => {
   return (
-    <Card sx={sx}>
+    <Card sx={{ mt: 3 }}>
       <CardHeader title='Collect Payment' />
       <CardContent>
         <Typography>

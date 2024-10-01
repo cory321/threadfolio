@@ -16,7 +16,7 @@ const ClientInformation = ({ client }) => {
   const handleCloseAddAppointmentModal = () => setIsAddAppointmentModalOpen(false)
 
   return (
-    <Card sx={{ mt: 2 }}>
+    <Card sx={{ mt: 3 }}>
       <CardContent>
         <Typography variant='h5' gutterBottom>
           Client Information

@@ -19,7 +19,7 @@ import { toast } from 'react-toastify'
 import { getContrastText } from '@/utils/colorUtils'
 import { updateGarmentStage } from '@/app/actions/garmentStages'
 
-const StageSelector = ({ garment, setGarment, stages }) => {
+const StageSelector = ({ garment, setGarment, stages, marginTop = 0 }) => {
   const { userId, getToken } = useAuth()
   const [isStageChanging, setIsStageChanging] = useState(false)
 
@@ -70,7 +70,7 @@ const StageSelector = ({ garment, setGarment, stages }) => {
   const textColor = getContrastText(stageColor)
 
   return (
-    <Card>
+    <Card sx={{ mt: marginTop }}>
       <CardHeader title='Garment Stage' />
       <CardContent>
         <Box
@@ -86,7 +86,7 @@ const StageSelector = ({ garment, setGarment, stages }) => {
           <Typography variant='h6'>{currentStage?.name || 'Unknown Stage'}</Typography>
         </Box>
 
-        <FormControl fullWidth sx={{ position: 'relative' }}>
+        <FormControl fullWidth sx={{ position: 'relative', mt: 4 }}>
           <InputLabel id='stage-select-label'>Update Stage</InputLabel>
           <Select
             labelId='stage-select-label'

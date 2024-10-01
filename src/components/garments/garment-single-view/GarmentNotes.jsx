@@ -11,7 +11,7 @@ import DOMPurify from 'isomorphic-dompurify'
 
 import styles from './GarmentNotes.module.css'
 
-const GarmentNotes = ({ notes, onUpdateNotes }) => {
+const GarmentNotes = ({ notes, onUpdateNotes, marginTop = 0 }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [editedNotes, setEditedNotes] = useState(notes || '')
   const [isSaving, setIsSaving] = useState(false)
@@ -119,7 +119,7 @@ const GarmentNotes = ({ notes, onUpdateNotes }) => {
   }
 
   return (
-    <Card sx={{ mt: 2 }}>
+    <Card sx={{ mt: marginTop }}>
       <CardHeader
         title='Garment Notes'
         action={

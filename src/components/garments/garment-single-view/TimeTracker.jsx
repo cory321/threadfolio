@@ -83,7 +83,7 @@ const TimeTracker = ({ sx, garmentId, services, garmentName }) => {
   const hasServices = services && services.length > 0
 
   return (
-    <Card sx={sx}>
+    <Card sx={{ mt: 3 }}>
       <CardHeader title='Time Tracker' />
       <CardContent>
         {/* Loading State */}

@@ -5,12 +5,21 @@ import { useState } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-import { Box, Typography, Card, CardContent, CircularProgress, Grid, Button, Divider } from '@mui/material'
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  CircularProgress,
+  Grid,
+  Button,
+  Divider,
+  useMediaQuery,
+  useTheme
+} from '@mui/material'
 
 import { toast } from 'react-toastify'
-import { useAuth } from '@clerk/nextjs' // Assuming you're using Clerk for authentication
-
-import { updateGarment } from '@/app/actions/garments' // Adjust the import path as needed
+import { useAuth } from '@clerk/nextjs'
 
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import { formatOrderNumber } from '@/utils/formatOrderNumber'
@@ -41,6 +50,9 @@ export default function GarmentPageContent({
 
   const fromPage = searchParams.get('from')
   const showBackButton = fromPage === 'garments' || fromPage === 'home'
+
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
   if (isLoading) {
     return (
@@ -114,10 +126,20 @@ export default function GarmentPageContent({
           <Card>
             <CardContent>
               <GarmentImage garment={garment} />
+
               <GarmentDates garment={garment} />
             </CardContent>
           </Card>
+
+          {/* Render StageSelector below GarmentImage on mobile */}
+
+          {isMobile && <StageSelector garment={garment} setGarment={setGarment} stages={stages} marginTop={3} />}
+
           <ClientInformation client={garment.client} />
+
+          {/* Render Finances below ClientInformation on mobile */}
+
+          {isMobile && <Finances sx={{ mt: 2 }} />}
         </Grid>
 
         {/* Middle Column */}
@@ -129,21 +151,40 @@ export default function GarmentPageContent({
             handleUpdateServiceDoneStatus={handleUpdateServiceDoneStatus}
             userId={userId}
           />
-          <GarmentNotes notes={garment.notes} onUpdateNotes={handleUpdateNotes} />
+          {/* Render TimeTracker above GarmentNotes on mobile */}
+          {isMobile && (
+            <Box sx={{ mt: 2 }}>
+              <TimeTracker
+                garmentId={garment.id}
+                services={garment.services}
+                userId={userId}
+                token={token}
+                garmentName={garment.name}
+              />
+            </Box>
+          )}
+          <GarmentNotes notes={garment.notes} onUpdateNotes={handleUpdateNotes} marginTop={3} />
         </Grid>
 
         {/* Right Column */}
         <Grid item xs={12} md={3}>
-          <StageSelector garment={garment} setGarment={setGarment} stages={stages} />
-          <TimeTracker
-            sx={{ mt: 2 }}
-            garmentId={garment.id}
-            services={garment.services}
-            userId={userId}
-            token={token}
-            garmentName={garment.name}
-          />
-          <Finances sx={{ mt: 2 }} />
+          {/* Render StageSelector on desktop screens */}
+          {!isMobile && <StageSelector garment={garment} setGarment={setGarment} stages={stages} />}
+
+          {/* Render TimeTracker on desktop screens */}
+          {!isMobile && (
+            <Box sx={{ mt: 2 }}>
+              <TimeTracker
+                garmentId={garment.id}
+                services={garment.services}
+                userId={userId}
+                token={token}
+                garmentName={garment.name}
+              />
+            </Box>
+          )}
+          {/* Render Finances on desktop screens */}
+          {!isMobile && <Finances sx={{ mt: 2 }} />}
         </Grid>
       </Grid>
     </>
