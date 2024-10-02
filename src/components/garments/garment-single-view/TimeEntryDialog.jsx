@@ -24,7 +24,7 @@ const TimeEntryDialog = ({ open, handleClose, services }) => {
   const theme = useTheme()
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'))
 
-  const { userId, getToken } = useAuth()
+  const { userId } = useAuth()
   const [selectedServiceId, setSelectedServiceId] = useState('')
   const [hours, setHours] = useState('')
   const [minutes, setMinutes] = useState('')
@@ -55,10 +55,9 @@ const TimeEntryDialog = ({ open, handleClose, services }) => {
     setIsSubmitting(true)
 
     try {
-      const token = await getToken({ template: 'supabase' })
       const totalMinutes = parseInt(hours || '0') * 60 + parseInt(minutes || '0')
 
-      await addTimeEntry(userId, selectedServiceId, totalMinutes, token)
+      await addTimeEntry(userId, selectedServiceId, totalMinutes)
       toast.success('Time entry added successfully!')
       handleClose(true)
     } catch (error) {

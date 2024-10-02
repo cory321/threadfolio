@@ -16,21 +16,20 @@ import { getAppointments } from '@/app/actions/appointments'
 import CalendarWrapper from '@views/apps/calendar/CalendarWrapper'
 
 const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
-  const { userId, getToken } = useAuth()
+  const { userId } = useAuth()
   const [events, setEvents] = useState([])
   const [visibleDateRange, setVisibleDateRange] = useState({ start: null, end: null })
 
   const fetchEvents = useCallback(
     async currentDate => {
       try {
-        const token = await getToken({ template: 'supabase' })
         const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
         const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
 
         const startDate = prevMonth.toISOString()
         const endDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0).toISOString()
 
-        const appointmentEvents = await getAppointments(userId, token, startDate, endDate)
+        const appointmentEvents = await getAppointments(userId, startDate, endDate)
 
         setEvents(appointmentEvents)
 
@@ -41,7 +40,7 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
         return []
       }
     },
-    [getToken, userId]
+    [userId]
   )
 
   const handleDatesSet = useCallback(

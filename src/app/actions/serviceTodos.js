@@ -5,9 +5,9 @@ import { unstable_noStore as noStore } from 'next/cache'
 import { getSupabaseClient } from './utils'
 
 // Add a new todo for a service
-export async function addServiceTodo(userId, serviceId, title, token) {
+export async function addServiceTodo(userId, serviceId, title) {
   noStore()
-  const supabase = await getSupabaseClient(token)
+  const supabase = await getSupabaseClient()
 
   const { data, error } = await supabase
     .from('service_todos')
@@ -23,9 +23,9 @@ export async function addServiceTodo(userId, serviceId, title, token) {
 }
 
 // Edit an existing todo
-export async function editServiceTodo(userId, todoId, title, token) {
+export async function editServiceTodo(userId, todoId, title) {
   noStore()
-  const supabase = await getSupabaseClient(token)
+  const supabase = await getSupabaseClient()
 
   const { data, error } = await supabase
     .from('service_todos')
@@ -43,9 +43,9 @@ export async function editServiceTodo(userId, todoId, title, token) {
 }
 
 // Delete a todo
-export async function deleteServiceTodo(userId, todoId, token) {
+export async function deleteServiceTodo(userId, todoId) {
   noStore()
-  const supabase = await getSupabaseClient(token)
+  const supabase = await getSupabaseClient()
 
   const { error } = await supabase.from('service_todos').delete().eq('id', todoId).eq('user_id', userId)
 
@@ -57,9 +57,9 @@ export async function deleteServiceTodo(userId, todoId, token) {
 }
 
 // Fetch todos for a specific service (ensure 'completed' is selected)
-export async function getServiceTodos(userId, serviceId, token) {
+export async function getServiceTodos(userId, serviceId) {
   noStore()
-  const supabase = await getSupabaseClient(token)
+  const supabase = await getSupabaseClient()
 
   const { data: todos, error } = await supabase
     .from('service_todos')
@@ -76,9 +76,9 @@ export async function getServiceTodos(userId, serviceId, token) {
 }
 
 // Toggle completion status of a todo
-export async function toggleCompleteServiceTodo(userId, todoId, token) {
+export async function toggleCompleteServiceTodo(userId, todoId) {
   noStore()
-  const supabase = await getSupabaseClient(token)
+  const supabase = await getSupabaseClient()
 
   // Fetch the current 'completed' status
   const { data: existingTodo, error: fetchError } = await supabase

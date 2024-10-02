@@ -9,7 +9,7 @@ import { toast } from 'react-toastify'
 import { addClient } from '@actions/clients'
 
 const AddClientInlineForm = ({ onClose, onClientSelect }) => {
-  const { userId, getToken } = useAuth()
+  const { userId } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const validationSchema = Yup.object({
@@ -34,13 +34,11 @@ const AddClientInlineForm = ({ onClose, onClientSelect }) => {
     validationSchema,
     onSubmit: async (values, { setSubmitting, resetForm, setFieldError }) => {
       setIsSubmitting(true)
-      const token = await getToken({ template: 'supabase' })
 
       try {
         const newClient = await addClient({
           userId,
-          ...values,
-          token
+          ...values
         })
 
         resetForm()

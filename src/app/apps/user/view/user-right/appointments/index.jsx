@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { useAuth } from '@clerk/nextjs'
 import { Box, Typography, Card, CardContent, Switch, FormControlLabel } from '@mui/material'
@@ -9,7 +9,7 @@ import UpcomingClientAppointments from './UpcomingClientAppointments'
 import AppointmentHistory from './AppointmentHistory'
 
 const ClientAppointments = ({ clientId, clientName }) => {
-  const { getToken, userId } = useAuth()
+  const { userId } = useAuth()
   const [upcomingAppointments, setUpcomingAppointments] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -19,8 +19,7 @@ const ClientAppointments = ({ clientId, clientName }) => {
     const fetchUpcomingAppointments = async () => {
       try {
         setIsLoading(true)
-        const token = await getToken({ template: 'supabase' })
-        const { appointments } = await getClientAppointments(userId, clientId, token, 1, 10, false)
+        const { appointments } = await getClientAppointments(userId, clientId, 1, 10, false)
 
         setUpcomingAppointments(appointments)
         setError(null)
@@ -38,7 +37,7 @@ const ClientAppointments = ({ clientId, clientName }) => {
       console.log('Missing userId or clientId')
       setIsLoading(false)
     }
-  }, [getToken, userId, clientId])
+  }, [userId, clientId])
 
   const handleToggleShowCancelled = () => {
     setShowCancelled(!showCancelled)

@@ -1,10 +1,31 @@
+import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 
 // Function to get Supabase client
-export async function getSupabaseClient(token) {
-  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_KEY, {
-    global: { headers: { Authorization: `Bearer ${token}` } }
+export async function getSupabaseClient() {
+  const { getToken } = auth()
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY
+
+  const supabase = createClient(supabaseUrl, supabaseKey, {
+    global: {
+      fetch: async (url, options = {}) => {
+        const clerkToken = await getToken({ template: 'supabase' })
+
+        const headers = new Headers(options?.headers)
+
+        headers.set('Authorization', `Bearer ${clerkToken}`)
+
+        return fetch(url, {
+          ...options,
+          headers
+        })
+      }
+    }
   })
+
+  return supabase
 }
 
 // Function to validate email format

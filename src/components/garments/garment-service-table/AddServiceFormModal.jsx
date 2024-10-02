@@ -12,7 +12,7 @@ import { handleChange, handleUnitPriceBlur, calculateTotalPrice } from '@/utils/
 import serviceUnitTypes from '@/utils/serviceUnitTypes'
 
 const AddServiceFormModal = ({ setResults, onClose }) => {
-  const { userId, getToken } = useAuth()
+  const { userId } = useAuth()
 
   const [newService, setNewService] = useState({
     name: '',
@@ -28,12 +28,10 @@ const AddServiceFormModal = ({ setResults, onClose }) => {
     e.preventDefault()
     if (newService.name === '' || newService.unit_price <= 0) return
 
-    const token = await getToken({ template: 'supabase' })
-
     setIsLoading(true)
 
     try {
-      const newServiceItem = await addService(userId, newService, token)
+      const newServiceItem = await addService(userId, newService)
 
       setResults(prevResults => [...prevResults, newServiceItem])
       setNewService({ name: '', description: '', qty: 0, unit: serviceUnitTypes.ITEM, unit_price: 0 })

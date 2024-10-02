@@ -1,24 +1,9 @@
 'use client'
 
-import React, { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 
-import {
-  Box,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  Grid,
-  Button,
-  IconButton,
-  useMediaQuery,
-  CircularProgress,
-  Typography
-} from '@mui/material'
-import { useTheme } from '@mui/material/styles'
-import CloseIcon from '@mui/icons-material/Close'
-import { useAuth } from '@clerk/nextjs'
+import { Box, Grid, Button } from '@mui/material'
 
-import { fetchClients } from '@actions/clients'
 import ClientList from '@/components/clients/ClientList'
 import AddClientModal from '@/components/clients/AddClientModal'
 

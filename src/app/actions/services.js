@@ -4,9 +4,9 @@ import { unstable_noStore as noStore } from 'next/cache'
 
 import { getSupabaseClient } from './utils'
 
-export async function searchServices(query, userId, token) {
+export async function searchServices(query, userId) {
   noStore()
-  const supabase = await getSupabaseClient(token)
+  const supabase = await getSupabaseClient()
 
   const { data, error } = await supabase
     .from('service_catalog')
@@ -21,9 +21,9 @@ export async function searchServices(query, userId, token) {
   return data
 }
 
-export async function addService(userId, service, token) {
+export async function addService(userId, service) {
   noStore()
-  const supabase = await getSupabaseClient(token)
+  const supabase = await getSupabaseClient()
 
   const { data, error } = await supabase
     .from('service_catalog')
@@ -45,9 +45,9 @@ export async function addService(userId, service, token) {
   return data
 }
 
-export async function editService(id, updatedService, token) {
+export async function editService(id, updatedService) {
   noStore()
-  const supabase = await getSupabaseClient(token)
+  const supabase = await getSupabaseClient()
 
   const { data, error } = await supabase
     .from('service_catalog')
@@ -69,9 +69,9 @@ export async function editService(id, updatedService, token) {
   return data
 }
 
-export async function deleteService(id, token) {
+export async function deleteService(id) {
   noStore()
-  const supabase = await getSupabaseClient(token)
+  const supabase = await getSupabaseClient()
   const { error } = await supabase.from('service_catalog').delete().eq('id', id)
 
   if (error) {
@@ -81,9 +81,9 @@ export async function deleteService(id, token) {
   return id
 }
 
-export async function fetchAllServices(token) {
+export async function fetchAllServices() {
   noStore()
-  const supabase = await getSupabaseClient(token)
+  const supabase = await getSupabaseClient()
   const { data: services, error } = await supabase.from('service_catalog').select('*')
 
   if (error) {
@@ -93,9 +93,9 @@ export async function fetchAllServices(token) {
   return services
 }
 
-export async function duplicateService(id, token) {
+export async function duplicateService(id) {
   noStore()
-  const supabase = await getSupabaseClient(token)
+  const supabase = await getSupabaseClient()
 
   // Fetch the service by ID
   const { data: service, error: fetchError } = await supabase.from('service_catalog').select('*').eq('id', id).single()

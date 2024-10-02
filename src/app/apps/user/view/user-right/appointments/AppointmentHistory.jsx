@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 
-import { Card, CardHeader, CardContent, Typography, Box, TablePagination, Skeleton } from '@mui/material'
-import { useAuth } from '@clerk/nextjs'
+import { Card, CardHeader, CardContent, Typography, Box, TablePagination } from '@mui/material'
 
 import debounce from 'lodash/debounce'
 
@@ -11,7 +10,6 @@ import AppointmentList from './AppointmentList'
 import { getClientAppointments } from '@/app/actions/appointments'
 
 const AppointmentHistory = ({ clientId, userId, showCancelled }) => {
-  const { getToken } = useAuth()
   const [appointments, setAppointments] = useState([])
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
@@ -19,54 +17,44 @@ const AppointmentHistory = ({ clientId, userId, showCancelled }) => {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const pageSize = 10
+  // const pageSize = 10
 
-  const fetchAppointments = useCallback(
-    async (pageNumber, pageSize) => {
-      try {
-        setIsLoading(true)
-        const token = await getToken({ template: 'supabase' })
+  // const fetchAppointments = useCallback(
+  //   async (pageNumber, pageSize) => {
+  //     try {
+  //       setIsLoading(true)
 
-        const { appointments: newAppointments, totalCount } = await getClientAppointments(
-          userId,
-          clientId,
-          token,
-          pageNumber + 1,
-          pageSize,
-          true
-        )
+  //       const { appointments: newAppointments, totalCount } = await getClientAppointments(
+  //         userId,
+  //         clientId,
+  //         pageNumber + 1,
+  //         pageSize,
+  //         true
+  //       )
 
-        const filteredAppointments = showCancelled
-          ? newAppointments
-          : newAppointments.filter(app => app.extendedProps.status !== 'cancelled')
+  //       const filteredAppointments = showCancelled
+  //         ? newAppointments
+  //         : newAppointments.filter(app => app.extendedProps.status !== 'cancelled')
 
-        setAppointments(filteredAppointments)
-        setTotalCount(totalCount)
-        setError(null)
-      } catch (error) {
-        console.error('Error fetching appointments:', error)
-        setError('Failed to load appointment history. Please try again later.')
-      } finally {
-        setIsLoading(false)
-      }
-    },
-    [getToken, userId, clientId]
-  )
+  //       setAppointments(filteredAppointments)
+  //       setTotalCount(totalCount)
+  //       setError(null)
+  //     } catch (error) {
+  //       console.error('Error fetching appointments:', error)
+  //       setError('Failed to load appointment history. Please try again later.')
+  //     } finally {
+  //       setIsLoading(false)
+  //     }
+  //   },
+  //   [userId, clientId]
+  // )
 
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
         setIsLoading(true)
-        const token = await getToken({ template: 'supabase' })
 
-        const { appointments, totalCount } = await getClientAppointments(
-          userId,
-          clientId,
-          token,
-          page + 1,
-          rowsPerPage,
-          true
-        )
+        const { appointments, totalCount } = await getClientAppointments(userId, clientId, page + 1, rowsPerPage, true)
 
         const filteredAppointments = showCancelled
           ? appointments
@@ -86,14 +74,14 @@ const AppointmentHistory = ({ clientId, userId, showCancelled }) => {
     if (userId && clientId) {
       fetchAppointments()
     }
-  }, [getToken, userId, clientId, page, rowsPerPage, showCancelled])
+  }, [userId, clientId, page, rowsPerPage, showCancelled])
 
-  const debouncedHandlePageChange = useCallback(
-    debounce((event, value) => {
-      setPage(value)
-    }, 300),
-    []
-  )
+  // const debouncedHandlePageChange = useCallback(
+  //   debounce((event, value) => {
+  //     setPage(value)
+  //   }, 300),
+  //   []
+  // )
 
   const handleChangeRowsPerPage = event => {
     const newRowsPerPage = parseInt(event.target.value, 10)

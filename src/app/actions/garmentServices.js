@@ -1,11 +1,9 @@
 'use server'
 
-import { revalidateTag } from 'next/cache'
-
 import { getSupabaseClient } from './utils'
 
-export async function updateServiceDoneStatus(userId, serviceId, isDone, token) {
-  const supabase = await getSupabaseClient(token)
+export async function updateServiceDoneStatus(userId, serviceId, isDone) {
+  const supabase = await getSupabaseClient()
 
   // Step 1: Fetch the garment_id from garment_services
   const { data: serviceData, error: serviceError } = await supabase
@@ -41,12 +39,10 @@ export async function updateServiceDoneStatus(userId, serviceId, isDone, token) 
   if (updateError) {
     throw new Error('Failed to update service status: ' + updateError.message)
   }
-
-  revalidateTag(`service-${serviceId}`)
 }
 
-export async function addGarmentService(userId, serviceData, token) {
-  const supabase = await getSupabaseClient(token)
+export async function addGarmentService(userId, serviceData) {
+  const supabase = await getSupabaseClient()
 
   // Verify that the garment belongs to the user
   const { data: garment, error: garmentError } = await supabase
@@ -71,18 +67,14 @@ export async function addGarmentService(userId, serviceData, token) {
     .single()
 
   if (insertError) {
-    throw new Error('Failed to add service: ' + insertError.message)
+    throw new Error('Failed to add new service: ' + insertError.message)
   }
-
-  // Invalidate caches tagged with 'garments' and 'services'
-  revalidateTag('garments')
-  revalidateTag('services')
 
   return newService
 }
 
-export async function getPrioritizedGarments(userId, token) {
-  const supabase = await getSupabaseClient(token)
+export async function getPrioritizedGarments(userId) {
+  const supabase = await getSupabaseClient()
 
   const { data: garments, error } = await supabase
     .from('garments')
@@ -144,8 +136,8 @@ export async function getPrioritizedGarments(userId, token) {
   return prioritizedGarments
 }
 
-export async function deleteGarmentService(userId, serviceId, token) {
-  const supabase = await getSupabaseClient(token)
+export async function deleteGarmentService(userId, serviceId) {
+  const supabase = await getSupabaseClient()
 
   // Fetch the service to check `is_done` and `is_paid`
   const { data: service, error: serviceError } = await supabase
@@ -184,12 +176,10 @@ export async function deleteGarmentService(userId, serviceId, token) {
   if (deleteError) {
     throw new Error('Failed to delete service: ' + deleteError.message)
   }
-
-  revalidateTag(`service-${serviceId}`)
 }
 
-export async function updateGarmentService(userId, serviceId, updatedData, token) {
-  const supabase = await getSupabaseClient(token)
+export async function updateGarmentService(userId, serviceId, updatedData) {
+  const supabase = await getSupabaseClient()
 
   // Fetch the service to check `is_done` and `is_paid`
   const { data: service, error: serviceError } = await supabase
@@ -237,6 +227,4 @@ export async function updateGarmentService(userId, serviceId, updatedData, token
   if (updateError) {
     throw new Error('Failed to update service: ' + updateError.message)
   }
-
-  revalidateTag(`service-${serviceId}`)
 }

@@ -1,14 +1,15 @@
+import { auth } from '@clerk/nextjs/server'
+
 import { getOrders } from '@/app/actions/orders'
-import { getUserAndToken } from '@/utils/getUserAndToken'
 import OrdersPage from '@/components/orders/OrdersPage'
 
 export default async function Orders() {
-  const { userId, token } = await getUserAndToken()
+  const { userId } = auth()
 
   let orders = []
 
   try {
-    orders = await getOrders(userId, token)
+    orders = await getOrders(userId)
   } catch (error) {
     console.error('Failed to fetch orders:', error)
 

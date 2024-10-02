@@ -5,8 +5,8 @@ import { unstable_cache } from 'next/cache'
 import { getSupabaseClient } from './utils'
 
 export const getOrders = unstable_cache(
-  async (userId, token) => {
-    const supabase = await getSupabaseClient(token)
+  async userId => {
+    const supabase = await getSupabaseClient()
 
     const { data: orders, error } = await supabase
       .from('garment_orders')
@@ -77,8 +77,8 @@ export const getOrders = unstable_cache(
   }
 )
 
-export async function getOrderById(userId, orderId, token) {
-  const supabase = await getSupabaseClient(token)
+export async function getOrderById(userId, orderId) {
+  const supabase = await getSupabaseClient()
 
   const { data: order, error } = await supabase
     .from('garment_orders')

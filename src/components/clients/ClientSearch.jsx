@@ -3,7 +3,6 @@
 import React, { useState, useCallback, useTransition } from 'react'
 
 import throttle from 'lodash/throttle'
-import { useAuth } from '@clerk/nextjs'
 import { TextField, CircularProgress, Autocomplete, Typography, Box, InputAdornment } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import { styled } from '@mui/material/styles'
@@ -25,7 +24,6 @@ const ClientSearch = ({ userId, onClientSelect = () => {}, onClose = () => {} })
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [selectedClient, setSelectedClient] = useState(null)
-  const { getToken } = useAuth()
   const [loading, setLoading] = useState(false)
   const [isPending, startTransition] = useTransition()
 
@@ -34,10 +32,8 @@ const ClientSearch = ({ userId, onClientSelect = () => {}, onClose = () => {} })
       setLoading(true)
 
       try {
-        const token = await getToken({ template: 'supabase' })
-
-        if (token) {
-          const data = await searchClients(query, userId, token)
+        if (userId) {
+          const data = await searchClients(query, userId)
 
           setResults(data.length > 0 ? data : [])
         }
@@ -48,7 +44,7 @@ const ClientSearch = ({ userId, onClientSelect = () => {}, onClose = () => {} })
         setLoading(false)
       }
     },
-    [getToken, userId]
+    [userId]
   )
 
   const handleSearch = useCallback(throttle(fetchClients, 300), [fetchClients])

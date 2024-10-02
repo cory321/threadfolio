@@ -8,7 +8,7 @@ import { Box, Button, TextField } from '@mui/material'
 import { addTodo } from '@/app/actions/todos'
 
 const AddTodoForm = ({ setTodos }) => {
-  const { userId, getToken } = useAuth()
+  const { userId } = useAuth()
   const [newTodo, setNewTodo] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -16,12 +16,10 @@ const AddTodoForm = ({ setTodos }) => {
     e.preventDefault()
     if (newTodo === '') return
 
-    const token = await getToken({ template: 'supabase' })
-
     setIsLoading(true)
 
     try {
-      const newTodoItem = await addTodo(userId, newTodo, token)
+      const newTodoItem = await addTodo(userId, newTodo)
 
       setTodos(prevTodos => (prevTodos ? [...prevTodos, newTodoItem] : [newTodoItem]))
       setNewTodo('')

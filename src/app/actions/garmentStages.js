@@ -1,11 +1,9 @@
 'use server'
 
-import { revalidateTag, unstable_cache } from 'next/cache'
-
 import { getSupabaseClient } from './utils'
 
-export async function getStages(userId, token) {
-  const supabase = await getSupabaseClient(token)
+export async function getStages(userId) {
+  const supabase = await getSupabaseClient()
 
   const { data: stages, error } = await supabase
     .from('garment_stages')
@@ -20,8 +18,8 @@ export async function getStages(userId, token) {
   return stages
 }
 
-export async function updateStages(userId, stages, token, stageToDeleteId = null, reassignStageId = null) {
-  const supabase = await getSupabaseClient(token)
+export async function updateStages(userId, stages, stageToDeleteId = null, reassignStageId = null) {
+  const supabase = await getSupabaseClient()
 
   // Fetch the stage to delete if needed
   let stageToDelete = null
@@ -84,7 +82,11 @@ export async function updateStages(userId, stages, token, stageToDeleteId = null
       // Update existing stage
       const { error } = await supabase
         .from('garment_stages')
-        .update({ name: stage.name.trim(), position: stage.position, color: stage.color })
+        .update({
+          name: stage.name.trim(),
+          position: stage.position,
+          color: stage.color
+        })
         .eq('id', stage.id)
 
       if (error) {
@@ -137,8 +139,6 @@ export async function updateStages(userId, stages, token, stageToDeleteId = null
     throw new Error('Failed to fetch updated stages: ' + fetchError.message)
   }
 
-  revalidateTag(['stages'])
-
   return updatedStages
 }
 
@@ -158,9 +158,6 @@ export async function customizeStages(userId, stages, token, stageToDeleteId, re
 
   // Update stages with reassignment
   const updatedStages = await updateStages(userId, stages, token, stageToDelete, reassignStageId)
-
-  // After successfully customizing stages, invalidate the stages cache for the user
-  revalidateTag(`stages-${userId}`)
 
   return updatedStages
 }
@@ -183,15 +180,14 @@ export async function initializeDefaultStages(userId, token) {
   }
 }
 
-export const getGarmentsAndStages = unstable_cache(
-  async (userId, token) => {
-    const supabase = await getSupabaseClient(token)
+export const getGarmentsAndStages = async userId => {
+  const supabase = await getSupabaseClient()
 
-    // Fetch garments with their associated data
-    const { data: garments, error: garmentsError } = await supabase
-      .from('garments')
-      .select(
-        `
+  // Fetch garments with their associated data
+  const { data: garments, error: garmentsError } = await supabase
+    .from('garments')
+    .select(
+      `
         id,
         name,
         stage_id,
@@ -217,45 +213,38 @@ export const getGarmentsAndStages = unstable_cache(
           full_name
         )
       `
-      )
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
+    )
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
 
-    if (garmentsError) {
-      throw new Error('Failed to fetch garments: ' + garmentsError.message)
-    }
-
-    // Fetch stages
-    const { data: stages, error: stagesError } = await supabase
-      .from('garment_stages')
-      .select('*')
-      .eq('user_id', userId)
-      .order('position')
-
-    if (stagesError) {
-      throw new Error('Failed to fetch stages: ' + stagesError.message)
-    }
-
-    // Process garments to include stage names and services
-    const processedGarments = garments.map(garment => ({
-      ...garment,
-      stage_name: garment.garment_stages?.name || 'Unknown',
-      services: garment.garment_services || [],
-      client_name: garment.clients?.full_name || 'Unknown Client'
-    }))
-
-    return { garments: processedGarments, stages }
-  },
-
-  // Cache options
-  {
-    revalidate: 10800,
-    tags: ['garments', 'stages']
+  if (garmentsError) {
+    throw new Error('Failed to fetch garments: ' + garmentsError.message)
   }
-)
 
-export async function updateGarmentStage(userId, garmentId, newStageId, token) {
-  const supabase = await getSupabaseClient(token)
+  // Fetch stages
+  const { data: stages, error: stagesError } = await supabase
+    .from('garment_stages')
+    .select('*')
+    .eq('user_id', userId)
+    .order('position')
+
+  if (stagesError) {
+    throw new Error('Failed to fetch stages: ' + stagesError.message)
+  }
+
+  // Process garments to include stage names and services
+  const processedGarments = garments.map(garment => ({
+    ...garment,
+    stage_name: garment.garment_stages?.name || 'Unknown',
+    services: garment.garment_services || [],
+    client_name: garment.clients?.full_name || 'Unknown Client'
+  }))
+
+  return { garments: processedGarments, stages }
+}
+
+export async function updateGarmentStage(userId, garmentId, newStageId) {
+  const supabase = await getSupabaseClient()
 
   const { error } = await supabase
     .from('garments')
@@ -266,7 +255,4 @@ export async function updateGarmentStage(userId, garmentId, newStageId, token) {
   if (error) {
     throw new Error('Failed to update garment stage: ' + error.message)
   }
-
-  // Invalidate the cache for this specific garment
-  revalidateTag(`garment-${garmentId}`)
 }

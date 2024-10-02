@@ -2,7 +2,6 @@ import React, { useContext, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
-import { useAuth } from '@clerk/nextjs'
 import { toast } from 'react-toastify'
 
 import Step1ClientSelection from './Step1ClientSelection'
@@ -35,7 +34,6 @@ const StepContent = ({
     setGarments
   } = useContext(GarmentServiceOrderContext)
 
-  const { getToken } = useAuth()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -98,8 +96,7 @@ const StepContent = ({
     setIsLoading(true)
 
     try {
-      const token = await getToken({ template: 'supabase' })
-      const result = await addGarmentsAndServicesFromContext(userId, selectedClient, garments, token)
+      const result = await addGarmentsAndServicesFromContext(userId, selectedClient, garments)
 
       console.log('Saved successfully:', result)
       toast.success('Garments and services saved successfully!')

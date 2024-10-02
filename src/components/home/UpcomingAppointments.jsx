@@ -12,16 +12,15 @@ import EventIcon from '@mui/icons-material/Event'
 import { getAppointments } from '@/app/actions/appointments'
 
 const UpcomingAppointments = () => {
-  const { getToken, userId } = useAuth()
+  const { userId } = useAuth()
   const [appointments, setAppointments] = useState([])
   const theme = useTheme()
 
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const token = await getToken({ template: 'supabase' })
         const today = new Date().toISOString()
-        const appointmentEvents = await getAppointments(userId, token, today)
+        const appointmentEvents = await getAppointments(userId, today)
 
         setAppointments(appointmentEvents)
       } catch (error) {
@@ -32,7 +31,7 @@ const UpcomingAppointments = () => {
     if (userId) {
       fetchAppointments()
     }
-  }, [getToken, userId])
+  }, [userId])
 
   const appointmentTypeMap = {
     initial: 'Initial Consultation',

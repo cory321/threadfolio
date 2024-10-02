@@ -12,19 +12,20 @@ const OrderDetails = dynamic(
   }
 )
 
+import { auth } from '@clerk/nextjs/server'
+
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import { formatOrderNumber } from '@/utils/formatOrderNumber'
-import { getUserAndToken } from '@/utils/getUserAndToken'
 import { getOrderById } from '@/app/actions/orders'
 
 export default async function OrderViewPage({ params }) {
-  const { userId, token } = await getUserAndToken()
+  const { userId } = auth()
   const { orderId } = params
 
   let order = null
 
   try {
-    order = await getOrderById(userId, orderId, token)
+    order = await getOrderById(userId, orderId)
 
     if (!order) {
       return <>Order not found.</>

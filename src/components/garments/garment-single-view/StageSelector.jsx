@@ -20,7 +20,7 @@ import { getContrastText } from '@/utils/colorUtils'
 import { updateGarmentStage } from '@/app/actions/garmentStages'
 
 const StageSelector = ({ garment, setGarment, stages, marginTop = 0 }) => {
-  const { userId, getToken } = useAuth()
+  const { userId } = useAuth()
   const [isStageChanging, setIsStageChanging] = useState(false)
 
   const handleStageChange = async event => {
@@ -40,12 +40,8 @@ const StageSelector = ({ garment, setGarment, stages, marginTop = 0 }) => {
     setIsStageChanging(true)
 
     try {
-      const token = await getToken({ template: 'supabase' })
-
-      if (!token) throw new Error('Failed to retrieve token')
-
       // Perform the actual update
-      await updateGarmentStage(userId, garment.id, newStageId, token)
+      await updateGarmentStage(userId, garment.id, newStageId)
 
       // If successful, show a success message
       toast.success(`Garment stage set to ${newStageName}`)

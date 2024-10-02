@@ -23,7 +23,7 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
 }))
 
 const ServicesSearch = ({ onServiceSelect = () => {}, isGarmentSaving = false }) => {
-  const { userId, getToken } = useAuth()
+  const { userId } = useAuth()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [selectedService, setSelectedService] = useState(null)
@@ -35,10 +35,8 @@ const ServicesSearch = ({ onServiceSelect = () => {}, isGarmentSaving = false })
       setLoading(true)
 
       try {
-        const token = await getToken({ template: 'supabase' })
-
-        if (token) {
-          const data = await searchServices(query, userId, token)
+        if (userId) {
+          const data = await searchServices(query, userId)
 
           setResults(data.length > 0 ? data : [])
         }
@@ -49,7 +47,7 @@ const ServicesSearch = ({ onServiceSelect = () => {}, isGarmentSaving = false })
         setLoading(false)
       }
     },
-    [getToken, userId]
+    [userId]
   )
 
   const handleSearch = useCallback(throttle(fetchServices, 300), [fetchServices])

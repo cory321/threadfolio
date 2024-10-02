@@ -39,7 +39,7 @@ import {
 } from '@/app/actions/serviceTodos'
 
 export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
-  const { userId, getToken } = useAuth()
+  const { userId } = useAuth()
   const [todos, setTodos] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [newTodoTitle, setNewTodoTitle] = useState('')
@@ -65,8 +65,7 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
 
     async function fetchTodos() {
       try {
-        const token = await getToken({ template: 'supabase' })
-        const fetchedTodos = await getServiceTodos(userId, serviceId, token)
+        const fetchedTodos = await getServiceTodos(userId, serviceId)
 
         if (isMounted) {
           setTodos(fetchedTodos)
@@ -86,7 +85,7 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
     return () => {
       isMounted = false
     }
-  }, [userId, serviceId, getToken])
+  }, [userId, serviceId])
 
   // Update task counts whenever todos change
   useEffect(() => {
@@ -99,8 +98,7 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
     setIsAddingTodo(true)
 
     try {
-      const token = await getToken({ template: 'supabase' })
-      const todo = await addServiceTodo(userId, serviceId, newTodoTitle.trim(), token)
+      const todo = await addServiceTodo(userId, serviceId, newTodoTitle.trim())
 
       setTodos([...todos, todo])
       setNewTodoTitle('')
@@ -121,8 +119,7 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
     if (editingTodoTitle.trim() === '') return
 
     try {
-      const token = await getToken({ template: 'supabase' })
-      const updatedTodo = await editServiceTodo(userId, id, editingTodoTitle.trim(), token)
+      const updatedTodo = await editServiceTodo(userId, id, editingTodoTitle.trim())
 
       setTodos(todos.map(todo => (todo.id === id ? updatedTodo : todo)))
       setEditingTodoId(null)
@@ -139,9 +136,7 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
 
   const handleDeleteConfirm = async () => {
     try {
-      const token = await getToken({ template: 'supabase' })
-
-      await deleteServiceTodo(userId, todoToDelete, token)
+      await deleteServiceTodo(userId, todoToDelete)
       setTodos(todos.filter(todo => todo.id !== todoToDelete))
       setConfirmOpen(false)
       setTodoToDelete(null)
@@ -166,9 +161,7 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
     updateTaskCounts() // Update the task counts
 
     try {
-      const token = await getToken({ template: 'supabase' })
-
-      await toggleCompleteServiceTodo(userId, id, token)
+      await toggleCompleteServiceTodo(userId, id)
     } catch (e) {
       setError('Failed to update task status.')
       setTodos(previousTodos) // Revert the optimistic update

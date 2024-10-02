@@ -9,7 +9,6 @@ import { toast } from 'react-toastify'
 import { updateClient } from '@actions/clients'
 
 const EditClientForm = ({ client, onUpdate, onCancel }) => {
-  const { getToken } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const validationSchema = Yup.object({
@@ -33,19 +32,13 @@ const EditClientForm = ({ client, onUpdate, onCancel }) => {
       setIsSubmitting(true)
 
       try {
-        const token = await getToken({ template: 'supabase' })
-
-        const updatedClient = await updateClient(
-          client.id,
-          {
-            full_name: values.fullName,
-            email: values.email,
-            phone_number: values.phoneNumber,
-            mailing_address: values.mailingAddress,
-            notes: values.notes
-          },
-          token
-        )
+        const updatedClient = await updateClient(client.id, {
+          full_name: values.fullName,
+          email: values.email,
+          phone_number: values.phoneNumber,
+          mailing_address: values.mailingAddress,
+          notes: values.notes
+        })
 
         onUpdate(updatedClient)
         toast.success('Client information updated successfully.')

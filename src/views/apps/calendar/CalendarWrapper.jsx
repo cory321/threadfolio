@@ -134,8 +134,7 @@ const AppCalendar = ({
         defaultAppointment.type,
         defaultAppointment.sendEmail,
         defaultAppointment.sendSms,
-        defaultAppointment.notes,
-        token
+        defaultAppointment.notes
       )
 
       handleAddEvent(data)
