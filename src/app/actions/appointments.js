@@ -1,7 +1,5 @@
 'use server'
 
-import { unstable_noStore as noStore } from 'next/cache'
-
 import { getSupabaseClient } from './utils'
 import { adjustEndTimeIfNeeded } from '@/utils/dateTimeUtils'
 
@@ -52,8 +50,6 @@ export async function addAppointment(
   sendEmail,
   sendSms
 ) {
-  noStore()
-
   try {
     const supabase = await getSupabaseClient()
 
@@ -87,7 +83,6 @@ export async function addAppointment(
 }
 
 export async function getAppointments(userId, start, end) {
-  noStore()
   const supabase = await getSupabaseClient()
 
   let query = supabase
@@ -121,7 +116,6 @@ export async function getAppointments(userId, start, end) {
 }
 
 export async function getClientAppointments(userId, clientId, page = 1, pageSize = 10, isPastAppointments = false) {
-  noStore()
   const supabase = await getSupabaseClient()
 
   const now = new Date().toISOString()
@@ -158,8 +152,6 @@ export async function getClientAppointments(userId, clientId, page = 1, pageSize
 }
 
 export async function updateAppointmentStatus(appointmentId, status) {
-  noStore()
-
   try {
     const supabase = await getSupabaseClient()
 
@@ -183,8 +175,6 @@ export async function updateAppointmentStatus(appointmentId, status) {
 }
 
 export async function cancelAppointment(appointmentId) {
-  noStore()
-
   try {
     const supabase = await getSupabaseClient()
 

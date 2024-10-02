@@ -1,11 +1,8 @@
 'use server'
 
-import { unstable_noStore as noStore } from 'next/cache'
-
 import { getSupabaseClient } from './utils'
 
 export async function searchServices(query, userId) {
-  noStore()
   const supabase = await getSupabaseClient()
 
   const { data, error } = await supabase
@@ -22,7 +19,6 @@ export async function searchServices(query, userId) {
 }
 
 export async function addService(userId, service) {
-  noStore()
   const supabase = await getSupabaseClient()
 
   const { data, error } = await supabase
@@ -46,7 +42,6 @@ export async function addService(userId, service) {
 }
 
 export async function editService(id, updatedService) {
-  noStore()
   const supabase = await getSupabaseClient()
 
   const { data, error } = await supabase
@@ -70,7 +65,6 @@ export async function editService(id, updatedService) {
 }
 
 export async function deleteService(id) {
-  noStore()
   const supabase = await getSupabaseClient()
   const { error } = await supabase.from('service_catalog').delete().eq('id', id)
 
@@ -82,7 +76,6 @@ export async function deleteService(id) {
 }
 
 export async function fetchAllServices() {
-  noStore()
   const supabase = await getSupabaseClient()
   const { data: services, error } = await supabase.from('service_catalog').select('*')
 
@@ -94,7 +87,6 @@ export async function fetchAllServices() {
 }
 
 export async function duplicateService(id) {
-  noStore()
   const supabase = await getSupabaseClient()
 
   // Fetch the service by ID

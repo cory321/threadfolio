@@ -57,7 +57,7 @@ export default function LandingPage() {
             Threadfolio
           </Typography>
           <Typography variant='h5' gutterBottom>
-            This is the public landing page accessible by everyone.
+            This is the public landing page accessible by everyone. Page is currently under development.
           </Typography>
           {userId ? (
             <Box sx={{ mt: 4 }}>

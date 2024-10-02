@@ -1,13 +1,9 @@
 'use server'
 
-import { unstable_noStore as noStore } from 'next/cache'
-
 import { getSupabaseClient } from './utils'
 
 // Function to create a new time entry
 export async function addTimeEntry(userId, serviceId, minutes) {
-  noStore()
-
   const supabase = await getSupabaseClient()
 
   const { data, error } = await supabase.from('garment_service_time_entries').insert({
@@ -25,8 +21,6 @@ export async function addTimeEntry(userId, serviceId, minutes) {
 
 // Function to fetch total time logged for a garment
 export async function getTotalTimeForGarment(userId, garmentId) {
-  noStore()
-
   const supabase = await getSupabaseClient()
 
   // Get all services related to the garment
@@ -59,8 +53,6 @@ export async function getTotalTimeForGarment(userId, garmentId) {
 
 // Function to fetch all time entries for a garment
 export async function getTimeEntriesForGarment(userId, garmentId) {
-  noStore()
-
   const supabase = await getSupabaseClient()
 
   // Get all services related to the garment
@@ -100,7 +92,6 @@ export async function getTimeEntriesForGarment(userId, garmentId) {
 }
 
 export async function getTimeEntriesGroupedByServiceForGarment(userId, garmentId) {
-  noStore()
   const supabase = await getSupabaseClient()
 
   // Fetch all services related to the garment
@@ -157,8 +148,6 @@ export async function getTimeEntriesGroupedByServiceForGarment(userId, garmentId
 
 // Function to update a time entry
 export async function updateTimeEntry(userId, entryId, minutes) {
-  noStore()
-
   const supabase = await getSupabaseClient()
 
   const { error } = await supabase
@@ -174,8 +163,6 @@ export async function updateTimeEntry(userId, entryId, minutes) {
 
 // Function to delete a time entry
 export async function deleteTimeEntry(userId, entryId) {
-  noStore()
-
   const supabase = await getSupabaseClient()
 
   const { error } = await supabase.from('garment_service_time_entries').delete().eq('id', entryId).eq('user_id', userId)

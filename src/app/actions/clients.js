@@ -1,11 +1,8 @@
 'use server'
 
-import { unstable_noStore as noStore } from 'next/cache'
-
 import { getSupabaseClient, isValidEmail, isValidPhoneNumber } from './utils'
 
 export async function searchClients(query, userId) {
-  noStore()
   const supabase = await getSupabaseClient()
 
   const { data, error } = await supabase
@@ -28,7 +25,6 @@ export async function searchClients(query, userId) {
 }
 
 export async function fetchClients(page = 1, pageSize = 10, userId, orderBy = 'full_name', order = 'asc') {
-  noStore()
   const supabase = await getSupabaseClient()
 
   const start = (page - 1) * pageSize
@@ -49,7 +45,6 @@ export async function fetchClients(page = 1, pageSize = 10, userId, orderBy = 'f
 }
 
 export async function fetchClientById(id) {
-  noStore()
   const supabase = await getSupabaseClient()
 
   const { data, error } = await supabase.from('clients').select('*').eq('id', id).single()
@@ -65,7 +60,6 @@ export async function fetchClientById(id) {
 }
 
 export async function addClient({ userId, fullName, email, phoneNumber, mailingAddress, notes }) {
-  noStore()
   const supabase = await getSupabaseClient()
   const timestamp = new Date().toISOString()
 
