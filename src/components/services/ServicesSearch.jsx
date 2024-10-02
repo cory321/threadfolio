@@ -50,7 +50,7 @@ const ServicesSearch = ({ onServiceSelect = () => {}, isGarmentSaving = false })
     [userId]
   )
 
-  const handleSearch = useCallback(throttle(fetchServices, 300), [fetchServices])
+  const handleSearch = useCallback(() => throttle(fetchServices, 300), [fetchServices])
 
   const handleQueryChange = (event, newValue) => {
     const newQuery = (event ? event.target.value : newValue) || ''

@@ -1,6 +1,5 @@
 import React from 'react'
 
-import PropTypes from 'prop-types'
 import { Box, Checkbox, TableCell, TableHead, TableRow, TableSortLabel } from '@mui/material'
 import { visuallyHidden } from '@mui/utils'
 
@@ -55,15 +54,6 @@ function EnhancedTableHead(props) {
       </TableRow>
     </TableHead>
   )
-}
-
-EnhancedTableHead.propTypes = {
-  numSelected: PropTypes.number.isRequired,
-  onRequestSort: PropTypes.func.isRequired,
-  onSelectAllClick: PropTypes.func.isRequired,
-  order: PropTypes.oneOf(['asc', 'desc']).isRequired,
-  orderBy: PropTypes.string.isRequired,
-  rowCount: PropTypes.number.isRequired
 }
 
 export default EnhancedTableHead

@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useState, useCallback, useTransition } from 'react'
+import { useState, useMemo, useTransition } from 'react'
 
 import throttle from 'lodash/throttle'
-import { TextField, CircularProgress, Autocomplete, Typography, Box, InputAdornment } from '@mui/material'
+import { TextField, CircularProgress, Autocomplete, Typography, Box } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import { styled } from '@mui/material/styles'
 
@@ -47,7 +47,7 @@ const ClientSearch = ({ userId, onClientSelect = () => {}, onClose = () => {} })
     [userId]
   )
 
-  const handleSearch = useCallback(throttle(fetchClients, 300), [fetchClients])
+  const handleSearch = useMemo(() => throttle(fetchClients, 300), [fetchClients])
 
   const handleChange = (event, newValue) => {
     const newQuery = (event ? event.target.value : newValue) || ''

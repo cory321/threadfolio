@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 
 import { Autocomplete, TextField, CircularProgress } from '@mui/material'
 import throttle from 'lodash/throttle'
@@ -30,7 +30,7 @@ const ClientLookup = ({ onClientSelect, userId }) => {
     [userId]
   )
 
-  const handleSearch = useCallback(throttle(fetchClients, 300), [fetchClients])
+  const handleSearch = useMemo(() => throttle(fetchClients, 300), [fetchClients])
 
   const handleInputChange = (event, newInputValue) => {
     setQuery(newInputValue)

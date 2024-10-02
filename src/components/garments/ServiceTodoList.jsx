@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
 
 import { useAuth } from '@clerk/nextjs'
 import {
@@ -51,14 +51,14 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
   const [isAddingTodo, setIsAddingTodo] = useState(false)
 
   // Utility function to update task counts
-  const updateTaskCounts = () => {
+  const updateTaskCounts = useCallback(() => {
     if (onTasksLoaded) {
       const totalTasks = todos.length
       const completedTasks = todos.filter(todo => todo.completed).length
 
       onTasksLoaded(totalTasks, completedTasks)
     }
-  }
+  }, [onTasksLoaded, todos])
 
   useEffect(() => {
     let isMounted = true
@@ -85,12 +85,12 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
     return () => {
       isMounted = false
     }
-  }, [userId, serviceId])
+  }, [userId, serviceId, updateTaskCounts])
 
   // Update task counts whenever todos change
   useEffect(() => {
     updateTaskCounts()
-  }, [todos])
+  }, [todos, updateTaskCounts])
 
   const handleAddTodo = async () => {
     if (newTodoTitle.trim() === '') return
