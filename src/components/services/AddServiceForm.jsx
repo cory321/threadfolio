@@ -13,7 +13,7 @@ import serviceUnitTypes from '@/utils/serviceUnitTypes'
 import { formatAsCurrency, parseFloatFromCurrency, formatUnitPrice } from '@/utils/currencyUtils'
 
 const AddServiceForm = ({ setServices = () => {}, onClose }) => {
-  const { userId, getToken } = useAuth()
+  const { userId } = useAuth()
 
   const [newService, setNewService] = useState({
     name: '',
@@ -52,12 +52,10 @@ const AddServiceForm = ({ setServices = () => {}, onClose }) => {
     e.preventDefault()
     if (newService.name === '' || newService.unit_price <= 0) return
 
-    const token = await getToken({ template: 'supabase' })
-
     setIsLoading(true)
 
     try {
-      const newServiceItem = await addService(userId, newService, token)
+      const newServiceItem = await addService(userId, newService)
 
       if (typeof setServices === 'function') {
         setServices(prevServices => (prevServices ? [...prevServices, newServiceItem] : [newServiceItem]))

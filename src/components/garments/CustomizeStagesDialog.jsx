@@ -46,14 +46,7 @@ const predefinedColors = [
   { name: 'Warm Beige', hex: '#F6E0D5' }
 ]
 
-export default function CustomizeStagesDialog({
-  open,
-  onClose,
-  onStagesUpdated,
-  stages: initialStages,
-  userId,
-  getToken
-}) {
+export default function CustomizeStagesDialog({ open, onClose, onStagesUpdated, stages: initialStages, userId }) {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
@@ -168,8 +161,6 @@ export default function CustomizeStagesDialog({
     setIsSaving(true)
 
     try {
-      const token = await getToken({ template: 'supabase' })
-
       // Prepare stages for saving
       const stagesToSave = stages.map(stage => ({
         id: stage.id,
@@ -179,7 +170,7 @@ export default function CustomizeStagesDialog({
         color: stage.color
       }))
 
-      await updateStages(userId, stagesToSave, token)
+      await updateStages(userId, stagesToSave)
 
       onStagesUpdated()
       onClose()
@@ -211,8 +202,6 @@ export default function CustomizeStagesDialog({
 
     if (stageToDelete && reassignStageId) {
       try {
-        const token = await getToken({ template: 'supabase' })
-
         // Prepare stages for saving, excluding the stage to delete
         const stagesToSave = stages
           .filter(stage => stage.id !== stageToDelete.id)
@@ -224,7 +213,7 @@ export default function CustomizeStagesDialog({
             color: stage.color
           }))
 
-        await updateStages(userId, stagesToSave, token, stageToDelete.id, reassignStageId)
+        await updateStages(userId, stagesToSave, stageToDelete.id, reassignStageId)
 
         onStagesUpdated(stageToDelete.id) // Pass the deleted stage ID
         onClose()

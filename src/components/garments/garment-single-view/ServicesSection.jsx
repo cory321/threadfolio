@@ -10,7 +10,7 @@ import ServiceSelectionDialog from '@/components/garments/garment-single-view/Se
 import { addGarmentService, updateServiceDoneStatus } from '@/app/actions/garmentServices'
 
 const ServicesSection = ({ garment, setGarment }) => {
-  const { userId, getToken } = useAuth()
+  const { userId } = useAuth()
   const [isServiceDialogOpen, setServiceDialogOpen] = useState(false)
   const [isAddingService, setIsAddingService] = useState(false)
   const [isUpdatingStatus, setIsUpdatingStatus] = useState({})
@@ -22,7 +22,6 @@ const ServicesSection = ({ garment, setGarment }) => {
   const handleServiceSelect = async service => {
     try {
       setIsAddingService(true)
-      const token = await getToken({ template: 'supabase' })
 
       const newService = {
         garment_id: garment.id,
@@ -33,7 +32,7 @@ const ServicesSection = ({ garment, setGarment }) => {
         unit: service.unit
       }
 
-      const addedService = await addGarmentService(userId, newService, token)
+      const addedService = await addGarmentService(userId, newService)
 
       setGarment(prevGarment => ({
         ...prevGarment,
@@ -67,9 +66,7 @@ const ServicesSection = ({ garment, setGarment }) => {
     }))
 
     try {
-      const token = await getToken({ template: 'supabase' })
-
-      await updateServiceDoneStatus(userId, serviceId, newStatus, token)
+      await updateServiceDoneStatus(userId, serviceId, newStatus)
       toast.success(`Service marked as ${newStatus ? 'completed' : 'incomplete'}.`)
     } catch (error) {
       console.error('Error updating service status:', error)

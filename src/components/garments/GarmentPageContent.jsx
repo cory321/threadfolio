@@ -36,7 +36,7 @@ export default function GarmentPageContent({ initialGarment, initialStages }) {
   const { orderId } = useParams()
   const searchParams = useSearchParams()
   const fromPage = searchParams.get('from')
-  const showBackButton = fromPage === 'garments' || fromPage === 'home'
+  const showBackButton = fromPage === 'garments' || fromPage === 'dashboard'
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
@@ -59,7 +59,7 @@ export default function GarmentPageContent({ initialGarment, initialStages }) {
           <>
             <Link href={fromPage === 'home' ? '/' : '/garments'} passHref>
               <Button variant='text' component='a'>
-                &lt; Back to {fromPage === 'home' ? 'Home' : 'Garments'}
+                &lt; Back to {fromPage === 'dashboard' ? 'Home' : 'Garments'}
               </Button>
             </Link>
             <Divider

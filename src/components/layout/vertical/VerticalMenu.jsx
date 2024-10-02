@@ -60,7 +60,7 @@ const VerticalMenu = ({ scrollMenu }) => {
         renderExpandedMenuItemIcon={{ icon: <i className='ri-circle-line' /> }}
         menuSectionStyles={menuSectionStyles(verticalNavOptions, theme)}
       >
-        <MenuItem href='/home' icon={<i className='ri-home-smile-line' />}>
+        <MenuItem href='/dashboard' icon={<i className='ri-home-smile-line' />}>
           Home
         </MenuItem>
         <MenuItem href='/clients' icon={<i className='ri-group-line' />}>

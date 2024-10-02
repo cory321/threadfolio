@@ -1,6 +1,5 @@
 import React from 'react'
 
-import PropTypes from 'prop-types'
 import { alpha, IconButton, Toolbar, Tooltip, Typography } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import FilterListIcon from '@mui/icons-material/FilterList'
@@ -49,11 +48,6 @@ function EnhancedTableToolbar(props) {
       )}
     </Toolbar>
   )
-}
-
-EnhancedTableToolbar.propTypes = {
-  numSelected: PropTypes.number.isRequired,
-  onDelete: PropTypes.func.isRequired
 }
 
 export default EnhancedTableToolbar

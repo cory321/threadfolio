@@ -50,7 +50,7 @@ export default function ServiceItem({
   onServiceUpdated,
   garmentName = 'Garment'
 }) {
-  const { userId, getToken } = useAuth()
+  const { userId } = useAuth()
   const theme = useTheme()
 
   // State for accordion expansion
@@ -98,10 +98,8 @@ export default function ServiceItem({
 
   // Function to remove the service
   const removeService = async serviceId => {
-    const token = await getToken({ template: 'supabase' })
-
     try {
-      await deleteGarmentService(userId, serviceId, token)
+      await deleteGarmentService(userId, serviceId)
 
       // Update parent state after successful deletion
       if (onServiceDeleted) {
@@ -149,10 +147,8 @@ export default function ServiceItem({
 
   // Function to handle saving the edited service
   const handleSaveEditedService = async updatedServiceData => {
-    const token = await getToken({ template: 'supabase' })
-
     try {
-      await updateGarmentService(userId, service.id, updatedServiceData, token)
+      await updateGarmentService(userId, service.id, updatedServiceData)
 
       // Update parent state after successful edit
       if (onServiceUpdated) {

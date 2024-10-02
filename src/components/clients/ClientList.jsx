@@ -48,7 +48,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 }))
 
 const ClientList = () => {
-  const { getToken, userId } = useAuth()
+  const { userId } = useAuth()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -67,10 +67,7 @@ const ClientList = () => {
       setError(null)
 
       try {
-        const token = await getToken({ template: 'supabase' })
-
         const { clients: clientsData, totalCount } = await fetchClients(
-          token,
           newPage + 1,
           newRowsPerPage,
           userId,
@@ -87,7 +84,7 @@ const ClientList = () => {
         setIsLoading(false)
       }
     },
-    [getToken, userId]
+    [userId]
   )
 
   useEffect(() => {

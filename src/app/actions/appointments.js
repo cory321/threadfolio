@@ -1,7 +1,5 @@
 'use server'
 
-import { unstable_noStore as noStore } from 'next/cache'
-
 import { getSupabaseClient } from './utils'
 import { adjustEndTimeIfNeeded } from '@/utils/dateTimeUtils'
 
@@ -40,27 +38,6 @@ const transformAppointment = appointment => {
   }
 }
 
-const fetchAppointments = async (supabase, query) => {
-  const { data: appointments, error } = await supabase
-    .from('appointments')
-    .select(
-      `
-      *,
-      clients (
-        id,
-        full_name
-      )
-    `
-    )
-    .match(query)
-    .order('appointment_date', { ascending: true })
-    .order('start_time', { ascending: true })
-
-  if (error) throw new Error(error.message)
-
-  return appointments.map(transformAppointment)
-}
-
 export async function addAppointment(
   clientId,
   userId,
@@ -71,16 +48,10 @@ export async function addAppointment(
   type,
   notes,
   sendEmail,
-  sendSms,
-  token
+  sendSms
 ) {
-  noStore()
-
   try {
-    console.log('Token received:', token ? 'Yes' : 'No')
-    const supabase = await getSupabaseClient(token)
-
-    console.log('Supabase client initialized')
+    const supabase = await getSupabaseClient()
 
     const { data, error } = await supabase
       .from('appointments')
@@ -111,9 +82,8 @@ export async function addAppointment(
   }
 }
 
-export async function getAppointments(userId, token, start, end) {
-  noStore()
-  const supabase = await getSupabaseClient(token)
+export async function getAppointments(userId, start, end) {
+  const supabase = await getSupabaseClient()
 
   let query = supabase
     .from('appointments')
@@ -145,16 +115,8 @@ export async function getAppointments(userId, token, start, end) {
   return appointments.map(transformAppointment)
 }
 
-export async function getClientAppointments(
-  userId,
-  clientId,
-  token,
-  page = 1,
-  pageSize = 10,
-  isPastAppointments = false
-) {
-  noStore()
-  const supabase = await getSupabaseClient(token)
+export async function getClientAppointments(userId, clientId, page = 1, pageSize = 10, isPastAppointments = false) {
+  const supabase = await getSupabaseClient()
 
   const now = new Date().toISOString()
 
@@ -189,11 +151,9 @@ export async function getClientAppointments(
   }
 }
 
-export async function updateAppointmentStatus(appointmentId, status, token) {
-  noStore()
-
+export async function updateAppointmentStatus(appointmentId, status) {
   try {
-    const supabase = await getSupabaseClient(token)
+    const supabase = await getSupabaseClient()
 
     const { data, error } = await supabase
       .from('appointments')
@@ -214,11 +174,9 @@ export async function updateAppointmentStatus(appointmentId, status, token) {
   }
 }
 
-export async function cancelAppointment(appointmentId, token) {
-  noStore()
-
+export async function cancelAppointment(appointmentId) {
   try {
-    const supabase = await getSupabaseClient(token)
+    const supabase = await getSupabaseClient()
 
     const { data, error } = await supabase
       .from('appointments')

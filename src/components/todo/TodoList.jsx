@@ -7,20 +7,17 @@ import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Cancel'
-import { useAuth } from '@clerk/nextjs'
 
 import { deleteTodo, editTodo, loadTodosAction } from '@/app/actions/todos'
 
 const TodoListContent = ({ todos, setTodos }) => {
-  const { getToken } = useAuth()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const loadTodos = async () => {
       try {
         setLoading(true)
-        const token = await getToken({ template: 'supabase' })
-        const todos = await loadTodosAction(token)
+        const todos = await loadTodosAction()
 
         setTodos(todos)
       } catch (e) {
@@ -31,13 +28,11 @@ const TodoListContent = ({ todos, setTodos }) => {
     }
 
     loadTodos()
-  }, [setTodos, getToken])
+  }, [setTodos])
 
   const handleDelete = async id => {
-    const token = await getToken({ template: 'supabase' })
-
     try {
-      await deleteTodo(id, token)
+      await deleteTodo(id)
       setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id))
     } catch (error) {
       console.error('Error deleting todo:', error)
@@ -45,10 +40,8 @@ const TodoListContent = ({ todos, setTodos }) => {
   }
 
   const handleEdit = async (id, newTitle) => {
-    const token = await getToken({ template: 'supabase' })
-
     try {
-      const updatedTodo = await editTodo(id, newTitle, token)
+      const updatedTodo = await editTodo(id, newTitle)
 
       setTodos(prevTodos => prevTodos.map(todo => (todo.id === id ? updatedTodo : todo)))
     } catch (error) {

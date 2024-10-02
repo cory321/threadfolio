@@ -25,7 +25,7 @@ import TimeEntryDialog from './TimeEntryDialog'
 import TimeLogsDialog from './TimeLogsDialog'
 
 const TimeTracker = ({ sx, garmentId, services, garmentName }) => {
-  const { userId, getToken } = useAuth()
+  const { userId } = useAuth()
   const [totalMinutes, setTotalMinutes] = useState(0)
   const [serviceTimeData, setServiceTimeData] = useState([])
   const [isEntryDialogOpen, setIsEntryDialogOpen] = useState(false)
@@ -36,11 +36,9 @@ const TimeTracker = ({ sx, garmentId, services, garmentName }) => {
     setIsLoading(true)
 
     try {
-      const token = await getToken({ template: 'supabase' })
-
       const [totalTime, serviceData] = await Promise.all([
-        getTotalTimeForGarment(userId, garmentId, token),
-        getTimeEntriesGroupedByServiceForGarment(userId, garmentId, token)
+        getTotalTimeForGarment(userId, garmentId),
+        getTimeEntriesGroupedByServiceForGarment(userId, garmentId)
       ])
 
       setTotalMinutes(totalTime)
@@ -50,7 +48,7 @@ const TimeTracker = ({ sx, garmentId, services, garmentName }) => {
     } finally {
       setIsLoading(false)
     }
-  }, [getToken, garmentId, userId])
+  }, [, garmentId, userId])
 
   useEffect(() => {
     refreshTotalTimeAndServiceData()

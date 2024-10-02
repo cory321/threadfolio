@@ -1,12 +1,9 @@
 'use server'
 
-import { unstable_noStore as noStore } from 'next/cache'
-
 import { getSupabaseClient, isValidEmail, isValidPhoneNumber } from './utils'
 
-export async function searchClients(query, userId, token) {
-  noStore()
-  const supabase = await getSupabaseClient(token)
+export async function searchClients(query, userId) {
+  const supabase = await getSupabaseClient()
 
   const { data, error } = await supabase
     .from('clients')
@@ -27,9 +24,8 @@ export async function searchClients(query, userId, token) {
   return clients
 }
 
-export async function fetchClients(token, page = 1, pageSize = 10, userId, orderBy = 'full_name', order = 'asc') {
-  noStore()
-  const supabase = await getSupabaseClient(token)
+export async function fetchClients(page = 1, pageSize = 10, userId, orderBy = 'full_name', order = 'asc') {
+  const supabase = await getSupabaseClient()
 
   const start = (page - 1) * pageSize
   const end = start + pageSize - 1
@@ -48,9 +44,8 @@ export async function fetchClients(token, page = 1, pageSize = 10, userId, order
   return { clients: data, totalCount: count }
 }
 
-export async function fetchClientById(id, token) {
-  noStore()
-  const supabase = await getSupabaseClient(token)
+export async function fetchClientById(id) {
+  const supabase = await getSupabaseClient()
 
   const { data, error } = await supabase.from('clients').select('*').eq('id', id).single()
 
@@ -64,9 +59,8 @@ export async function fetchClientById(id, token) {
   return data
 }
 
-export async function addClient({ userId, fullName, email, phoneNumber, mailingAddress, notes, token }) {
-  noStore()
-  const supabase = await getSupabaseClient(token)
+export async function addClient({ userId, fullName, email, phoneNumber, mailingAddress, notes }) {
+  const supabase = await getSupabaseClient()
   const timestamp = new Date().toISOString()
 
   if (!userId || typeof userId !== 'string') {
@@ -114,8 +108,8 @@ export async function addClient({ userId, fullName, email, phoneNumber, mailingA
   return data
 }
 
-export async function updateClient(id, clientData, token) {
-  const supabase = await getSupabaseClient(token)
+export async function updateClient(id, clientData) {
+  const supabase = await getSupabaseClient()
   const timestamp = new Date().toISOString()
 
   // Include updated_at in the clientData

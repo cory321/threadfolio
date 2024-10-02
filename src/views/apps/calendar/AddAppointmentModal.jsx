@@ -46,7 +46,7 @@ const AddAppointmentModal = props => {
     client
   } = props
 
-  const { userId, getToken } = useAuth()
+  const { userId } = useAuth()
   const theme = useTheme()
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'))
 
@@ -137,8 +137,6 @@ const AddAppointmentModal = props => {
     setIsLoading(true)
 
     try {
-      const token = await getToken({ template: 'supabase' })
-
       let startDateTime = combineDateAndTime(values.appointmentDate, values.startTime)
       let endDateTime = combineDateAndTime(values.appointmentDate, values.endTime)
 
@@ -170,8 +168,7 @@ const AddAppointmentModal = props => {
         newAppointment.type,
         newAppointment.notes,
         newAppointment.sendEmail,
-        newAppointment.sendSms,
-        token
+        newAppointment.sendSms
       )
 
       const transformedAppointment = {

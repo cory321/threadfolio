@@ -16,7 +16,6 @@ import {
   DialogTitle,
   DialogContent
 } from '@mui/material'
-import { useAuth } from '@clerk/nextjs'
 
 import UserLeftOverview from '@/app/apps/user/view/user-left-overview'
 import UserRight from '@/app/apps/user/view/user-right'
@@ -40,7 +39,7 @@ const tabContentList = () => ({
 
 const ClientProfile = () => {
   const { id } = useParams()
-  const { getToken } = useAuth()
+
   const [client, setClient] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -52,10 +51,7 @@ const ClientProfile = () => {
       setError(null)
 
       try {
-        const token = await getToken({ template: 'supabase' })
-
-        if (!token) throw new Error('Failed to retrieve token')
-        const clientData = await fetchClientById(id, token)
+        const clientData = await fetchClientById(id)
 
         setClient(clientData)
       } catch (err) {
@@ -69,7 +65,7 @@ const ClientProfile = () => {
     if (id) {
       loadClient()
     }
-  }, [id, getToken])
+  }, [id])
 
   const handleClientUpdate = updatedClient => {
     setClient(updatedClient)

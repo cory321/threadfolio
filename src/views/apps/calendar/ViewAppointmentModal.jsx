@@ -1,14 +1,12 @@
 import React, { useState } from 'react'
 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Grid } from '@mui/material'
-import { useAuth } from '@clerk/nextjs'
 
 import { toast } from 'react-toastify'
 
 import { cancelAppointment } from '@/app/actions/appointments'
 
 const ViewAppointmentModal = ({ open, handleClose, selectedEvent, onAppointmentCancelled, refreshEvents }) => {
-  const { getToken } = useAuth()
   const [isCancelling, setIsCancelling] = useState(false)
 
   if (!selectedEvent) {
@@ -19,9 +17,7 @@ const ViewAppointmentModal = ({ open, handleClose, selectedEvent, onAppointmentC
     setIsCancelling(true)
 
     try {
-      const token = await getToken({ template: 'supabase' })
-
-      await cancelAppointment(selectedEvent.id, token)
+      await cancelAppointment(selectedEvent.id)
       onAppointmentCancelled(selectedEvent.id)
       toast.success('Appointment successfully cancelled')
       handleClose()

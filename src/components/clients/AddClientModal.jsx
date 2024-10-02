@@ -25,7 +25,7 @@ import { addClient } from '@actions/clients'
 const AddClientModal = ({ open, onClose = () => {}, setClients = () => {}, onClientSelect = null }) => {
   const theme = useTheme()
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'))
-  const { userId, getToken } = useAuth()
+  const { userId } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const validationSchema = Yup.object({
@@ -50,13 +50,11 @@ const AddClientModal = ({ open, onClose = () => {}, setClients = () => {}, onCli
     validationSchema,
     onSubmit: async (values, { setSubmitting, resetForm, setFieldError }) => {
       setIsSubmitting(true)
-      const token = await getToken({ template: 'supabase' })
 
       try {
         const newClient = await addClient({
           userId,
-          ...values,
-          token
+          ...values
         })
 
         setClients(prevClients => (prevClients ? [...prevClients, newClient] : [newClient]))

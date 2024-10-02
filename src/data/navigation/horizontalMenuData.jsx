@@ -1,7 +1,7 @@
 const horizontalMenuData = () => [
   {
     label: 'Home',
-    href: '/home',
+    href: '/dashboard',
     icon: 'ri-home-smile-line'
   },
   {

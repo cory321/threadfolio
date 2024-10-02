@@ -17,7 +17,7 @@ import { updateGarment } from '@/app/actions/garments'
 import styles from './GarmentNotes.module.css'
 
 const GarmentNotes = ({ garment, setGarment, marginTop = 0 }) => {
-  const { userId, getToken } = useAuth()
+  const { userId } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
   const [editedNotes, setEditedNotes] = useState(garment.notes || '')
   const [isSaving, setIsSaving] = useState(false)
@@ -91,8 +91,6 @@ const GarmentNotes = ({ garment, setGarment, marginTop = 0 }) => {
     setIsSaving(true)
 
     try {
-      const token = await getToken({ template: 'supabase' })
-
       // Add target and rel attributes to all <a> tags
       const updatedNotes = addTargetBlankToLinks(editedNotes)
 
@@ -102,7 +100,7 @@ const GarmentNotes = ({ garment, setGarment, marginTop = 0 }) => {
       })
 
       // Update the garment notes in the backend
-      await updateGarment(userId, garment.id, { notes: sanitizedNotes }, token)
+      await updateGarment(userId, garment.id, { notes: sanitizedNotes })
 
       // Update the garment state locally
       setGarment(prevGarment => ({

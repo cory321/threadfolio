@@ -15,8 +15,8 @@ import {
   InputLabel,
   IconButton,
   Tooltip,
-  Paper, // Imported for alternative styling
-  Divider // Imported for additional separation
+  Paper,
+  Divider
 } from '@mui/material'
 import SettingsIcon from '@mui/icons-material/Settings'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
@@ -35,16 +35,13 @@ export default function GarmentsPage() {
   const [customizeDialogOpen, setCustomizeDialogOpen] = useState(false)
   const [sortOrder, setSortOrder] = useState('asc')
   const [sortField, setSortField] = useState('due_date')
-  const { userId, getToken } = useAuth()
+  const { userId } = useAuth()
 
   const fetchGarmentsData = useCallback(async () => {
     try {
       setIsLoading(true)
-      const token = await getToken({ template: 'supabase' })
 
-      if (!token) throw new Error('Failed to retrieve token')
-
-      const { garments, stages: fetchedStages } = await getGarmentsAndStages(userId, token)
+      const { garments, stages: fetchedStages } = await getGarmentsAndStages(userId)
 
       console.log('Fetched garments:', garments)
       console.log('Fetched stages:', fetchedStages)
@@ -63,7 +60,7 @@ export default function GarmentsPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [userId, getToken])
+  }, [userId])
 
   useEffect(() => {
     fetchGarmentsData()
@@ -272,7 +269,6 @@ export default function GarmentsPage() {
         onStagesUpdated={handleStagesUpdated}
         stages={stages}
         userId={userId}
-        getToken={getToken}
       />
     </Box>
   )

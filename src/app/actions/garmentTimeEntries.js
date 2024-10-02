@@ -1,14 +1,10 @@
 'use server'
 
-import { unstable_noStore as noStore } from 'next/cache'
-
 import { getSupabaseClient } from './utils'
 
 // Function to create a new time entry
-export async function addTimeEntry(userId, serviceId, minutes, token) {
-  noStore()
-
-  const supabase = await getSupabaseClient(token)
+export async function addTimeEntry(userId, serviceId, minutes) {
+  const supabase = await getSupabaseClient()
 
   const { data, error } = await supabase.from('garment_service_time_entries').insert({
     user_id: userId,
@@ -24,10 +20,8 @@ export async function addTimeEntry(userId, serviceId, minutes, token) {
 }
 
 // Function to fetch total time logged for a garment
-export async function getTotalTimeForGarment(userId, garmentId, token) {
-  noStore()
-
-  const supabase = await getSupabaseClient(token)
+export async function getTotalTimeForGarment(userId, garmentId) {
+  const supabase = await getSupabaseClient()
 
   // Get all services related to the garment
   const { data: services, error: servicesError } = await supabase
@@ -58,10 +52,8 @@ export async function getTotalTimeForGarment(userId, garmentId, token) {
 }
 
 // Function to fetch all time entries for a garment
-export async function getTimeEntriesForGarment(userId, garmentId, token) {
-  noStore()
-
-  const supabase = await getSupabaseClient(token)
+export async function getTimeEntriesForGarment(userId, garmentId) {
+  const supabase = await getSupabaseClient()
 
   // Get all services related to the garment
   const { data: services, error: servicesError } = await supabase
@@ -91,7 +83,6 @@ export async function getTimeEntriesForGarment(userId, garmentId, token) {
     )
     .in('service_id', serviceIds)
     .eq('user_id', userId)
-    .order('logged_at', { ascending: false })
 
   if (timeEntriesError) {
     throw new Error('Failed to fetch time entries: ' + timeEntriesError.message)
@@ -100,9 +91,8 @@ export async function getTimeEntriesForGarment(userId, garmentId, token) {
   return timeEntries
 }
 
-export async function getTimeEntriesGroupedByServiceForGarment(userId, garmentId, token) {
-  noStore()
-  const supabase = await getSupabaseClient(token)
+export async function getTimeEntriesGroupedByServiceForGarment(userId, garmentId) {
+  const supabase = await getSupabaseClient()
 
   // Fetch all services related to the garment
   const { data: services, error: servicesError } = await supabase
@@ -157,10 +147,8 @@ export async function getTimeEntriesGroupedByServiceForGarment(userId, garmentId
 }
 
 // Function to update a time entry
-export async function updateTimeEntry(userId, entryId, minutes, token) {
-  noStore()
-
-  const supabase = await getSupabaseClient(token)
+export async function updateTimeEntry(userId, entryId, minutes) {
+  const supabase = await getSupabaseClient()
 
   const { error } = await supabase
     .from('garment_service_time_entries')
@@ -174,10 +162,8 @@ export async function updateTimeEntry(userId, entryId, minutes, token) {
 }
 
 // Function to delete a time entry
-export async function deleteTimeEntry(userId, entryId, token) {
-  noStore()
-
-  const supabase = await getSupabaseClient(token)
+export async function deleteTimeEntry(userId, entryId) {
+  const supabase = await getSupabaseClient()
 
   const { error } = await supabase.from('garment_service_time_entries').delete().eq('id', entryId).eq('user_id', userId)
 

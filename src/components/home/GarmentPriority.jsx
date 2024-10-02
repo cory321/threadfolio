@@ -10,15 +10,12 @@ import { getPrioritizedGarments } from '@/app/actions/garmentServices'
 export default function GarmentPriority() {
   const [garments, setGarments] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const { userId, getToken } = useAuth()
+  const { userId } = useAuth()
 
   useEffect(() => {
     const fetchGarments = async () => {
       try {
-        const token = await getToken({ template: 'supabase' })
-
-        if (!token) throw new Error('Failed to retrieve token')
-        const fetchedGarments = await getPrioritizedGarments(userId, token)
+        const fetchedGarments = await getPrioritizedGarments(userId)
 
         setGarments(fetchedGarments)
       } catch (error) {
@@ -29,7 +26,7 @@ export default function GarmentPriority() {
     }
 
     fetchGarments()
-  }, [userId, getToken])
+  }, [userId])
 
   if (isLoading) {
     return (
@@ -54,7 +51,12 @@ export default function GarmentPriority() {
       <Box>
         {garments.map(garment => (
           <Box key={garment.id} mb={2}>
-            <GarmentCard garment={garment} orderId={garment.order_id} stageColor={garment.stage_color} from='home' />
+            <GarmentCard
+              garment={garment}
+              orderId={garment.order_id}
+              stageColor={garment.stage_color}
+              from='dashboard'
+            />
           </Box>
         ))}
       </Box>

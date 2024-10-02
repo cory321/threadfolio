@@ -27,7 +27,7 @@ import serviceUnitTypes from '@/utils/serviceUnitTypes'
 import { formatAsCurrency, parseFloatFromCurrency, formatUnitPrice } from '@/utils/currencyUtils'
 
 const CreateServiceDialog = ({ open, onClose, onServiceSelect }) => {
-  const { userId, getToken } = useAuth()
+  const { userId } = useAuth()
 
   const [newService, setNewService] = useState({
     name: '',
@@ -66,12 +66,10 @@ const CreateServiceDialog = ({ open, onClose, onServiceSelect }) => {
   const handleSubmit = async () => {
     if (newService.name === '' || newService.unit_price <= 0) return
 
-    const token = await getToken({ template: 'supabase' })
-
     setIsLoading(true)
 
     try {
-      const newServiceItem = await addService(userId, newService, token)
+      const newServiceItem = await addService(userId, newService)
 
       onServiceSelect(newServiceItem) // Add the new service to the table
       setNewService({

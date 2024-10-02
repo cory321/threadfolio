@@ -35,7 +35,7 @@ const TimeLogsDialog = ({ open, handleClose, garmentId, onChange }) => {
 
   const [timeEntries, setTimeEntries] = useState([])
   const [isLoading, setIsLoading] = useState(false)
-  const { userId, getToken } = useAuth()
+  const { userId } = useAuth()
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [selectedEntry, setSelectedEntry] = useState(null)
@@ -47,8 +47,7 @@ const TimeLogsDialog = ({ open, handleClose, garmentId, onChange }) => {
     setIsLoading(true)
 
     try {
-      const token = await getToken({ template: 'supabase' })
-      const entries = await getTimeEntriesForGarment(userId, garmentId, token)
+      const entries = await getTimeEntriesForGarment(userId, garmentId)
 
       setTimeEntries(entries)
     } catch (error) {
@@ -57,7 +56,7 @@ const TimeLogsDialog = ({ open, handleClose, garmentId, onChange }) => {
     } finally {
       setIsLoading(false)
     }
-  }, [garmentId, userId, getToken])
+  }, [garmentId, userId])
 
   useEffect(() => {
     if (open) {
@@ -95,9 +94,7 @@ const TimeLogsDialog = ({ open, handleClose, garmentId, onChange }) => {
         return
       }
 
-      const token = await getToken({ template: 'supabase' })
-
-      await updateTimeEntry(userId, selectedEntry.id, totalMinutes, token)
+      await updateTimeEntry(userId, selectedEntry.id, totalMinutes)
 
       // Update the local state
       setTimeEntries(prevEntries =>
@@ -133,9 +130,7 @@ const TimeLogsDialog = ({ open, handleClose, garmentId, onChange }) => {
     setIsSubmitting(true)
 
     try {
-      const token = await getToken({ template: 'supabase' })
-
-      await deleteTimeEntry(userId, selectedEntry.id, token)
+      await deleteTimeEntry(userId, selectedEntry.id)
 
       // Update the local state
       setTimeEntries(prevEntries => prevEntries.filter(entry => entry.id !== selectedEntry.id))

@@ -1,17 +1,14 @@
 'use server'
 
-import { revalidateTag, unstable_cache } from 'next/cache'
-
 import { getSupabaseClient } from './utils'
 
-export const getGarments = unstable_cache(
-  async (userId, token, { page = 1, pageSize = 10, clientId = null } = {}) => {
-    const supabase = await getSupabaseClient(token)
+export const getGarments = async (userId, { page = 1, pageSize = 10, clientId = null } = {}) => {
+  const supabase = await getSupabaseClient()
 
-    let query = supabase
-      .from('garments')
-      .select(
-        `
+  let query = supabase
+    .from('garments')
+    .select(
+      `
         id,
         name,
         stage_id,
@@ -43,59 +40,53 @@ export const getGarments = unstable_cache(
           is_paid
         )
       `
-      )
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
+    )
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
 
-    if (clientId) {
-      query = query.eq('client_id', clientId)
-    }
-
-    const { data: garments, error } = await query.range((page - 1) * pageSize, page * pageSize - 1)
-
-    if (error) {
-      throw new Error('Failed to fetch garments: ' + error.message)
-    }
-
-    // Process the garments to calculate total price and format the data
-    const processedGarments = garments.map(garment => ({
-      id: garment.id,
-      name: garment.name,
-      stage_id: garment.stage_id,
-      stage_name: garment.garment_stages?.name || 'Unknown',
-      image_cloud_id: garment.image_cloud_id,
-      notes: garment.notes,
-      due_date: garment.due_date,
-      is_event: garment.is_event,
-      event_date: garment.event_date,
-      order_id: garment.order_id,
-      created_at: garment.created_at,
-      client: {
-        id: garment.clients.id,
-        full_name: garment.clients.full_name,
-        email: garment.clients.email,
-        phone_number: garment.clients.phone_number
-      },
-      services: garment.garment_services,
-      total_price: garment.garment_services.reduce((sum, service) => sum + service.qty * service.unit_price, 0)
-    }))
-
-    return processedGarments
-  },
-  {
-    revalidate: 10800, // Revalidate every 3 hours
-    tags: ['garments']
+  if (clientId) {
+    query = query.eq('client_id', clientId)
   }
-)
 
-export const getGarmentById = unstable_cache(
-  async (userId, orderId, garmentId, token) => {
-    const supabase = await getSupabaseClient(token)
+  const { data: garments, error } = await query.range((page - 1) * pageSize, page * pageSize - 1)
 
-    const { data, error } = await supabase
-      .from('garments')
-      .select(
-        `
+  if (error) {
+    throw new Error('Failed to fetch garments: ' + error.message)
+  }
+
+  // Process the garments to calculate total price and format the data
+  const processedGarments = garments.map(garment => ({
+    id: garment.id,
+    name: garment.name,
+    stage_id: garment.stage_id,
+    stage_name: garment.garment_stages?.name || 'Unknown',
+    image_cloud_id: garment.image_cloud_id,
+    notes: garment.notes,
+    due_date: garment.due_date,
+    is_event: garment.is_event,
+    event_date: garment.event_date,
+    order_id: garment.order_id,
+    created_at: garment.created_at,
+    client: {
+      id: garment.clients.id,
+      full_name: garment.clients.full_name,
+      email: garment.clients.email,
+      phone_number: garment.clients.phone_number
+    },
+    services: garment.garment_services,
+    total_price: garment.garment_services.reduce((sum, service) => sum + service.qty * service.unit_price, 0)
+  }))
+
+  return processedGarments
+}
+
+export const getGarmentById = async (userId, orderId, garmentId) => {
+  const supabase = await getSupabaseClient()
+
+  const { data, error } = await supabase
+    .from('garments')
+    .select(
+      `
         id,
         name,
         stage_id,
@@ -109,44 +100,39 @@ export const getGarmentById = unstable_cache(
         garment_services(*),
         garment_orders(user_order_number)
       `
-      )
-      .eq('user_id', userId)
-      .eq('order_id', orderId)
-      .eq('id', garmentId)
-      .single()
+    )
+    .eq('user_id', userId)
+    .eq('order_id', orderId)
+    .eq('id', garmentId)
+    .single()
 
-    if (error) {
-      throw new Error(error.message)
-    }
-
-    // Construct the garment object without client_id
-    const garment = {
-      id: data.id,
-      name: data.name,
-      stage_id: data.stage_id,
-      stage_name: data.garment_stages.name,
-      image_cloud_id: data.image_cloud_id,
-      notes: data.notes,
-      due_date: data.due_date,
-      is_event: data.is_event,
-      event_date: data.event_date,
-      client: data.clients,
-      services: data.garment_services,
-      user_order_number: data.garment_orders.user_order_number
-    }
-
-    return garment
-  },
-  {
-    revalidate: 10800,
-    tags: [`garments`]
+  if (error) {
+    throw new Error('Failed to fetch garment: ' + error.message)
   }
-)
 
-export async function addGarmentsAndServicesFromContext(userId, selectedClient, garments, token) {
-  const supabase = await getSupabaseClient(token)
+  // Construct the garment object
+  const garment = {
+    id: data.id,
+    name: data.name,
+    stage_id: data.stage_id,
+    stage_name: data.garment_stages.name,
+    image_cloud_id: data.image_cloud_id,
+    notes: data.notes,
+    due_date: data.due_date,
+    is_event: data.is_event,
+    event_date: data.event_date,
+    client: data.clients,
+    services: data.garment_services,
+    user_order_number: data.garment_orders.user_order_number
+  }
 
-  // Fetch the stage at position 1
+  return garment
+}
+
+export async function addGarmentsAndServicesFromContext(userId, selectedClient, garments) {
+  const supabase = await getSupabaseClient()
+
+  // Get the default stage (position = 1)
   const { data: defaultStage, error: defaultStageError } = await supabase
     .from('garment_stages')
     .select('id')
@@ -236,8 +222,8 @@ export async function addGarmentsAndServicesFromContext(userId, selectedClient, 
   }
 }
 
-export async function updateGarment(userId, garmentId, updatedData, token) {
-  const supabase = await getSupabaseClient(token)
+export async function updateGarment(userId, garmentId, updatedData) {
+  const supabase = await getSupabaseClient()
 
   // Verify that the garment belongs to the user
   const { data: garment, error: garmentError } = await supabase
@@ -266,7 +252,4 @@ export async function updateGarment(userId, garmentId, updatedData, token) {
   if (updateError) {
     throw new Error('Failed to update garment: ' + updateError.message)
   }
-
-  // Revalidate caches if necessary
-  revalidateTag(`garment-${garmentId}`)
 }
