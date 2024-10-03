@@ -32,7 +32,7 @@ const NavbarContent = () => {
       </div>
       <div className='flex items-center'>
         <ModeDropdown />
-        <UserButton />
+        <UserButton afterSignOutUrl='/' />
         {/* <UserDropdown /> */}
       </div>
     </div>
