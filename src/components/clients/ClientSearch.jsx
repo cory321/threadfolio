@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useTransition } from 'react'
+import { useState, useMemo, useCallback, useTransition } from 'react'
 
 import throttle from 'lodash/throttle'
 import { TextField, CircularProgress, Autocomplete, Typography, Box } from '@mui/material'
