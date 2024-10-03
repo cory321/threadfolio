@@ -1,11 +1,14 @@
 // src/app/actions/users.js
 'use server'
 
+import { unstable_noStore } from 'next/cache'
+
 import { auth } from '@clerk/nextjs/server'
 
 import { getSupabaseClient } from './utils'
 
 export const dismissOnboarding = async () => {
+  unstable_noStore()
   const { userId } = auth()
   const supabase = await getSupabaseClient()
 

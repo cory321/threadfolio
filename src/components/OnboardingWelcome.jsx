@@ -1,11 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import { Button, Card, CardContent, Typography, Collapse, Grow } from '@mui/material'
 
 const OnboardingWelcome = ({ onDismiss, isLoading }) => {
-  const [isVisible, setIsVisible] = useState(true)
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    // Set isVisible to true after component mounts
+    setIsVisible(true)
+  }, [])
 
   const handleDismiss = () => {
     setIsVisible(false)

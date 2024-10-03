@@ -7,13 +7,17 @@ import dynamic from 'next/dynamic'
 import { useMediaQuery, Box, Grid, Card, CardContent, CardHeader } from '@mui/material'
 
 import { getOnboardingStatus, dismissOnboarding } from '@/app/actions/users'
-import OnboardingWelcome from '@/components/OnboardingWelcome'
 
 import Greeting from '@components/todo/Greeting'
 import { defaultBreakpoints } from '@menu/defaultConfigs'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import UpcomingAppointments from '@/components/home/UpcomingAppointments'
 import GarmentPriority from '@/components/home/GarmentPriority'
+
+const OnboardingWelcome = dynamic(() => import('@/components/OnboardingWelcome'), {
+  ssr: false,
+  loading: LoadingSpinner
+})
 
 const ActionsList = dynamic(() => import('@components/home/ActionsList'), {
   ssr: false,
@@ -30,7 +34,7 @@ const TodoList = dynamic(() => import('@components/todo/TodoList'), {
   loading: LoadingSpinner
 })
 
-export default function Home() {
+export default function Dashboard() {
   const [todos, setTodos] = useState(null)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -53,15 +57,11 @@ export default function Home() {
   }, [])
 
   const handleDismissOnboarding = async () => {
-    setIsLoading(true)
-
     try {
       await dismissOnboarding()
       setShowOnboarding(false)
     } catch (error) {
       console.error('Error dismissing onboarding:', error)
-    } finally {
-      setIsLoading(false)
     }
   }
 
