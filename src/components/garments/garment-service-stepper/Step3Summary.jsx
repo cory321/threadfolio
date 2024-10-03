@@ -1,14 +1,16 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 
 import { createRoot } from 'react-dom/client'
-import { Grid, Button, Typography } from '@mui/material'
+import { Grid, Button, Typography, CircularProgress } from '@mui/material'
 
 import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderContext'
 import OrderSummary from './OrderSummary'
 import PrintableInvoice from './PrintableInvoice'
 
-const Step3Summary = ({ steps, handleSummarySubmit, onSubmit, handleBack, isLoading }) => {
+const Step3Summary = ({ steps, handleSummarySubmit, onSubmit, handleBack }) => {
   const { orderId, selectedClient, garments } = useContext(GarmentServiceOrderContext)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   const handlePrint = () => {
     const printWindow = window.open('', '_blank')
@@ -51,6 +53,22 @@ const Step3Summary = ({ steps, handleSummarySubmit, onSubmit, handleBack, isLoad
     })
   }
 
+  const handleConfirmOrder = async () => {
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      await handleSummarySubmit()
+
+      // Additional success actions...
+    } catch (e) {
+      console.error('Error confirming order:', e)
+      setError(e.message || 'An error occurred while confirming the order.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <Grid container spacing={5}>
       <Grid item xs={12}>
@@ -59,9 +77,19 @@ const Step3Summary = ({ steps, handleSummarySubmit, onSubmit, handleBack, isLoad
         </Typography>
         <Typography variant='body2'>{steps[2].subtitle}</Typography>
       </Grid>
+
+      {error && (
+        <Grid item xs={12}>
+          <Typography variant='body2' color='error'>
+            {error}
+          </Typography>
+        </Grid>
+      )}
+
       <Grid item xs={12}>
         <OrderSummary orderId={orderId} selectedClient={selectedClient} garments={garments} />
       </Grid>
+
       <Grid item xs={6}>
         <Button variant='outlined' onClick={handleBack} color='secondary'>
           Back
@@ -71,8 +99,15 @@ const Step3Summary = ({ steps, handleSummarySubmit, onSubmit, handleBack, isLoad
         <Button variant='contained' onClick={handlePrint} sx={{ marginRight: 2 }}>
           Print Invoice
         </Button>
-        <Button variant='contained' onClick={handleSummarySubmit} disabled={isLoading}>
-          {isLoading ? 'Confirming...' : 'Confirm Order'}
+        <Button variant='contained' onClick={handleConfirmOrder} disabled={isLoading}>
+          {isLoading ? (
+            <>
+              <CircularProgress size={24} color='inherit' />
+              &nbsp;Confirming...
+            </>
+          ) : (
+            'Confirm Order'
+          )}
         </Button>
       </Grid>
     </Grid>
