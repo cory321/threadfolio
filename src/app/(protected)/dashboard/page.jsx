@@ -1,10 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import dynamic from 'next/dynamic'
 
 import { useMediaQuery, Box, Grid, Card, CardContent, CardHeader } from '@mui/material'
+
+import { getOnboardingStatus, dismissOnboarding } from '@/app/actions/users'
+import OnboardingWelcome from '@/components/OnboardingWelcome'
 
 import Greeting from '@components/todo/Greeting'
 import { defaultBreakpoints } from '@menu/defaultConfigs'
@@ -29,7 +32,42 @@ const TodoList = dynamic(() => import('@components/todo/TodoList'), {
 
 export default function Home() {
   const [todos, setTodos] = useState(null)
+  const [showOnboarding, setShowOnboarding] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const isMobile = useMediaQuery(`(max-width: ${defaultBreakpoints.sm})`)
+
+  useEffect(() => {
+    const fetchOnboardingStatus = async () => {
+      try {
+        const status = await getOnboardingStatus()
+
+        setShowOnboarding(!status)
+      } catch (error) {
+        console.error('Error fetching onboarding status:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchOnboardingStatus()
+  }, [])
+
+  const handleDismissOnboarding = async () => {
+    setIsLoading(true)
+
+    try {
+      await dismissOnboarding()
+      setShowOnboarding(false)
+    } catch (error) {
+      console.error('Error dismissing onboarding:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  if (isLoading) {
+    return <LoadingSpinner />
+  }
 
   if (isMobile) {
     return (
@@ -38,6 +76,11 @@ export default function Home() {
           <Grid item xs={12}>
             <Greeting />
           </Grid>
+          {showOnboarding && (
+            <Grid item xs={12}>
+              <OnboardingWelcome onDismiss={handleDismissOnboarding} isLoading={isLoading} />
+            </Grid>
+          )}
           <Grid item xs={12}>
             <ActionsList isMobile={isMobile} />
           </Grid>
@@ -74,6 +117,11 @@ export default function Home() {
           <Grid item xs={12}>
             <Greeting />
           </Grid>
+          {showOnboarding && (
+            <Grid item xs={12}>
+              <OnboardingWelcome onDismiss={handleDismissOnboarding} isLoading={isLoading} />
+            </Grid>
+          )}
           <Grid item xs={12}>
             <Grid container spacing={4}>
               <Grid item xs={12} md={4}>

@@ -1,7 +1,6 @@
 'use server'
 
 import { getSupabaseClient } from './utils'
-import { adjustEndTimeIfNeeded } from '@/utils/dateTimeUtils'
 
 const transformAppointment = appointment => {
   let appointmentTitle = 'Appointment'

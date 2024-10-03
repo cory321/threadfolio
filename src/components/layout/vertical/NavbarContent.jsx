@@ -21,7 +21,7 @@ const NavbarContent = () => {
         <ModeDropdown />
       </div>
       <div className='flex items-center'>
-        <UserButton />
+        <UserButton afterSignOutUrl='/' />
         {/* <UserDropdown />
          */}
       </div>
