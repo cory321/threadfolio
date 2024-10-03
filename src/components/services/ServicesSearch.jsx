@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 
 import throttle from 'lodash/throttle'
 import { useAuth } from '@clerk/nextjs'
@@ -50,7 +50,7 @@ const ServicesSearch = ({ onServiceSelect = () => {}, isGarmentSaving = false })
     [userId]
   )
 
-  const handleSearch = useCallback(() => throttle(fetchServices, 300), [fetchServices])
+  const handleSearch = useMemo(() => throttle(fetchServices, 300), [fetchServices])
 
   const handleQueryChange = (event, newValue) => {
     const newQuery = (event ? event.target.value : newValue) || ''
