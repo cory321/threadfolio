@@ -12,7 +12,7 @@ import { handleChange, calculateTotalPrice } from '@/utils/serviceUtils'
 import serviceUnitTypes from '@/utils/serviceUnitTypes'
 import { formatAsCurrency, parseFloatFromCurrency, formatUnitPrice } from '@/utils/currencyUtils'
 
-const AddServiceForm = ({ setServices = () => {}, onClose }) => {
+const AddServiceForm = ({ setServices, onClose }) => {
   const { userId } = useAuth()
 
   const [newService, setNewService] = useState({
@@ -57,9 +57,8 @@ const AddServiceForm = ({ setServices = () => {}, onClose }) => {
     try {
       const newServiceItem = await addService(userId, newService)
 
-      if (typeof setServices === 'function') {
-        setServices(prevServices => (prevServices ? [...prevServices, newServiceItem] : [newServiceItem]))
-      }
+      // Update the services state in ServicePage
+      setServices(prevServices => [...prevServices, newServiceItem])
 
       setNewService({ name: '', description: '', qty: 0, unit: serviceUnitTypes.ITEM, unit_price: 0 })
       setDisplayUnitPrice('0.00')
@@ -80,7 +79,8 @@ const AddServiceForm = ({ setServices = () => {}, onClose }) => {
         display: 'flex',
         flexDirection: 'column',
         gap: 2,
-        width: '100%'
+        width: '100%',
+        position: 'relative'
       }}
       noValidate
       autoComplete='off'
@@ -136,7 +136,10 @@ const AddServiceForm = ({ setServices = () => {}, onClose }) => {
         }}
       />
       <Typography variant='h6'>Total: {calculateTotalPrice(newService)}</Typography>
-      <Box mt={2} display='flex' justifyContent='flex-end'>
+      <Box mt={2} display='flex' justifyContent='flex-end' gap={2}>
+        <Button variant='outlined' onClick={onClose} disabled={isLoading}>
+          Cancel
+        </Button>
         <Button variant='contained' color='primary' type='submit' disabled={isLoading}>
           {isLoading ? 'Adding...' : 'Add Service'}
         </Button>

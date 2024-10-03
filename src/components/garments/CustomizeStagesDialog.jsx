@@ -106,7 +106,7 @@ export default function CustomizeStagesDialog({ open, onClose, onStagesUpdated, 
       name: '',
       position: stages.length + 1,
       touched: false,
-      color: '#000000' // Default color for new stages
+      color: '#D6C4F2' // Default color for new stages
     }
 
     setStages(prevStages => {

@@ -42,10 +42,6 @@ const GarmentServiceOrderStepper = ({ userId }) => {
 
   const onSubmit = () => {
     setActiveStep(prevActiveStep => prevActiveStep + 1)
-
-    if (activeStep === steps.length - 1) {
-      toast.success('Form Submitted')
-    }
   }
 
   const handleBack = () => setActiveStep(prevActiveStep => prevActiveStep - 1)
