@@ -19,7 +19,13 @@ const RootLayout = ({ children }) => {
   const direction = 'ltr'
 
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      signInUrl='/sign-in'
+      signUpUrl='/sign-up'
+      signInFallbackRedirectUrl='/dashboard'
+      signUpFallbackRedirectUrl='/onboarding'
+    >
       <html id='__next' lang='en' dir={direction}>
         <body className='flex is-full min-bs-full flex-auto flex-col'>{children}</body>
       </html>
