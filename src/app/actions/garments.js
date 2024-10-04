@@ -1,6 +1,9 @@
 'use server'
+import { auth } from '@clerk/nextjs/server'
 
 import { getSupabaseClient } from './utils'
+
+const { userId } = auth()
 
 export const getGarments = async (userId, { page = 1, pageSize = 10, clientId = null } = {}) => {
   const supabase = await getSupabaseClient()
@@ -129,7 +132,7 @@ export const getGarmentById = async (userId, orderId, garmentId) => {
   return garment
 }
 
-export async function addGarmentsAndServicesFromContext(userId, selectedClient, garments) {
+export async function addGarmentsAndServicesFromContext(selectedClient, garments) {
   const supabase = await getSupabaseClient()
 
   // Get the default stage (position = 1)

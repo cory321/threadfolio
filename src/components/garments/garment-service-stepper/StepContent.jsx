@@ -93,7 +93,7 @@ const StepContent = ({
     setIsLoading(true)
 
     try {
-      const result = await addGarmentsAndServicesFromContext(userId, selectedClient, garments)
+      const result = await addGarmentsAndServicesFromContext(selectedClient, garments)
 
       console.log('Saved successfully:', result)
       toast.success('Garments and services saved successfully!')
