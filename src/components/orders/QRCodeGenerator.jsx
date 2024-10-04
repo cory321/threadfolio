@@ -22,7 +22,7 @@ export default function QRCodeGenerator({ orderId }) {
 
   return (
     <>
-      <Button variant='outlined' onClick={() => setShowQRCode(true)}>
+      <Button variant='outlined' onClick={() => setShowQRCode(true)} sx={{ mt: 8 }}>
         Generate QR Code
       </Button>
 
