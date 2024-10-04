@@ -1,15 +1,34 @@
-import { clerkMiddleware } from '@clerk/nextjs/server'
+import { NextResponse } from 'next/server'
 
-export default clerkMiddleware({
-  // Specify public routes - these do not require authentication
-  publicRoutes: [
-    '/', // Public landing page
-    '/login(.*)', // Login routes
-    '/register(.*)' // Registration routes
-  ]
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+
+const isOrdersRoute = createRouteMatcher(['/orders/:path*'])
+
+export default clerkMiddleware((auth, req) => {
+  const { userId } = auth()
+  const requestUrl = req.nextUrl
+
+  if (!userId && isOrdersRoute(req)) {
+    // Store the requested URL
+    const redirectUrl = requestUrl.pathname + requestUrl.search
+
+    // Redirect to sign-in page with `redirect_url` parameter
+    const signInUrl = new URL('/login', requestUrl.origin)
+
+    signInUrl.searchParams.set('redirect_url', redirectUrl)
+
+    // Perform the redirect
+    return NextResponse.redirect(signInUrl)
+  }
 })
 
 export const config = {
-  // Apply middleware to all routes except for static files and Next.js internals
-  matcher: '/((?!.*\\..*|_next).*)'
+  matcher: [
+    /*
+     * Match all request paths except for:
+     * - Static files
+     * - _next (Next.js internals)
+     */
+    '/((?!_next/static|_next/image|favicon.ico).*)'
+  ]
 }

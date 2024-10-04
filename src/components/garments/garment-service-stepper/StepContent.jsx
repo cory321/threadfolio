@@ -1,7 +1,5 @@
 import React, { useContext, useState } from 'react'
 
-import { useRouter } from 'next/navigation'
-
 import { toast } from 'react-toastify'
 
 import Step1ClientSelection from './Step1ClientSelection'
@@ -34,7 +32,6 @@ const StepContent = ({
     setGarments
   } = useContext(GarmentServiceOrderContext)
 
-  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
 
@@ -96,7 +93,7 @@ const StepContent = ({
     setIsLoading(true)
 
     try {
-      const result = await addGarmentsAndServicesFromContext(userId, selectedClient, garments)
+      const result = await addGarmentsAndServicesFromContext(selectedClient, garments)
 
       console.log('Saved successfully:', result)
       toast.success('Garments and services saved successfully!')
@@ -104,13 +101,17 @@ const StepContent = ({
       // Clear the context or navigate to a new page
       setGarments([])
       setSelectedClient(null)
-      onSubmit() // This should move to the next step or finish the process
+      onSubmit() // Proceed to the next step or finish the process
+
+      // Remove or comment out this line to prevent redirect
+      // router.push('/orders')
     } catch (error) {
       console.error('Error saving garments:', error)
       toast.error('Error saving garments and services. Please try again.')
+
+      throw error // Rethrow the error to be caught by the caller
     } finally {
       setIsLoading(false)
-      router.push('/orders')
     }
   }
 

@@ -1,8 +1,12 @@
 'use client'
 import React, { useContext } from 'react'
 
+import Link from 'next/link'
+
 import { Box, Button, Card, CardContent, Divider, Stepper, Step, StepLabel, Typography } from '@mui/material'
-import { toast } from 'react-toastify'
+import ReceiptIcon from '@mui/icons-material/Receipt'
+import QrCode2Icon from '@mui/icons-material/QrCode2'
+
 import { useForm } from 'react-hook-form'
 
 import StepperWrapper from '@core/styles/stepper'
@@ -117,12 +121,30 @@ const GarmentServiceOrderStepper = ({ userId }) => {
       <CardContent>
         {activeStep === steps.length ? (
           <>
-            <Typography className='mlb-2 mli-1' color='text.primary'>
-              All steps are completed!
-            </Typography>
+            <Box display='flex' justifyContent='center' alignItems='center' flexDirection='column' mt={4}>
+              <Typography variant='h4' color='text.primary'>
+                Order created!
+              </Typography>
+              <Typography color='text.primary'>Order #0000 has been added to your list of orders.</Typography>
+              <Box display='flex' justifyContent='center' alignItems='center' flexDirection='row' mt={4} gap={2}>
+                <Button variant='outlined' sx={{ mt: 2, flexDirection: 'column', alignItems: 'center' }}>
+                  <ReceiptIcon sx={{ fontSize: 40, mb: 1 }} />
+                  View Invoice
+                </Button>
+                <Button variant='outlined' sx={{ mt: 2, flexDirection: 'column', alignItems: 'center' }}>
+                  <QrCode2Icon sx={{ fontSize: 40, mb: 1 }} />
+                  View QR Code
+                </Button>
+              </Box>
+            </Box>
             <Box display='flex' justifyContent='flex-end' mt={4}>
+              <Link href='/orders' passHref>
+                <Button variant='outlined' component='a' sx={{ mr: 2 }}>
+                  View Orders
+                </Button>
+              </Link>
               <Button variant='contained' onClick={handleReset}>
-                Reset
+                Create Order
               </Button>
             </Box>
           </>

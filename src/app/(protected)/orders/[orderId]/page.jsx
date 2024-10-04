@@ -1,22 +1,18 @@
 import dynamic from 'next/dynamic'
 
-const OrderDetails = dynamic(
-  () =>
-    import('@/components/orders/OrderDetails').catch(err => {
-      console.error('Failed to load OrderDetails component:', err)
-
-      return () => <p>Failed to load component</p>
-    }),
-  {
-    loading: () => <p>Loading...</p>
-  }
-)
-
 import { auth } from '@clerk/nextjs/server'
 
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import { formatOrderNumber } from '@/utils/formatOrderNumber'
 import { getOrderById } from '@/app/actions/orders'
+
+const OrderDetails = dynamic(() => import('@/components/orders/OrderDetails'), {
+  ssr: false
+})
+
+const QRCodeGenerator = dynamic(() => import('@/components/orders/QRCodeGenerator'), {
+  ssr: false
+})
 
 export default async function OrderViewPage({ params }) {
   const { userId } = auth()
@@ -41,10 +37,16 @@ export default async function OrderViewPage({ params }) {
       <Breadcrumb
         items={[
           { label: 'Orders', href: '/orders' },
-          { label: `Order #${formatOrderNumber(order.user_order_number)}`, href: `/orders/${order.id}` }
+          {
+            label: `Order #${formatOrderNumber(order.user_order_number)}`,
+            href: `/orders/${order.id}`
+          }
         ]}
       />
       <OrderDetails order={order} />
+
+      {/* Include the QRCodeGenerator client component */}
+      <QRCodeGenerator orderId={order.id} />
     </>
   )
 }
