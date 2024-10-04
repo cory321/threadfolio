@@ -9,7 +9,7 @@ import { format, isValid, parse } from 'date-fns'
 const dateInputFormat = 'MM/dd/yyyy'
 const timeInputFormat = 'h:mm aa'
 
-const DatePickerInput = forwardRef(({ label, value, onClick, dateFormat }, ref) => {
+const DatePickerInput = forwardRef(({ label, value, onClick, dateFormat, showAdornment = true }, ref) => {
   let dateValue
 
   if (typeof value === 'string') {
@@ -31,6 +31,17 @@ const DatePickerInput = forwardRef(({ label, value, onClick, dateFormat }, ref) 
   // Ensure value is a valid Date object before formatting
   const formattedDate = dateValue && isValid(dateValue) ? format(dateValue, dateFormat) : ''
 
+  const inputProps = {
+    readOnly: true,
+    ...(showAdornment && {
+      startAdornment: (
+        <InputAdornment position='start'>
+          <i className='ri-calendar-line text-[24px]' />
+        </InputAdornment>
+      )
+    })
+  }
+
   return (
     <TextField
       ref={ref}
@@ -39,14 +50,7 @@ const DatePickerInput = forwardRef(({ label, value, onClick, dateFormat }, ref) 
       onClick={onClick}
       fullWidth
       variant='outlined'
-      InputProps={{
-        readOnly: true,
-        startAdornment: (
-          <InputAdornment position='start'>
-            <i className='ri-calendar-line text-[24px]' />
-          </InputAdornment>
-        )
-      }}
+      InputProps={inputProps}
     />
   )
 })
