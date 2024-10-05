@@ -31,7 +31,7 @@ export default function UserList({ users }: UserListProps) {
                 <input type='hidden' value={user.id} name='id' />
                 <input type='hidden' value='admin' name='role' />
                 <Button type='submit' size='small' variant='contained' color='primary'>
-                  Make Admin
+                  Set Admin
                 </Button>
               </form>
 

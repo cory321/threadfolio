@@ -9,8 +9,9 @@ import demoConfigs from '@configs/demoConfigs'
 
 export const getDemoName = () => {
   const headersList = headers()
+  const demoName = headersList.get('X-server-header')
 
-  return headersList.get('X-server-header')
+  return demoName
 }
 
 export const getSettingsFromCookie = () => {
@@ -29,7 +30,8 @@ export const getMode = () => {
   const demoName = getDemoName()
 
   // Get mode from cookie or fallback to theme config
-  const _mode = settingsCookie.mode || (demoName && demoConfigs[demoName].mode) || themeConfig.mode
+  const _mode =
+    settingsCookie.mode || (demoName && demoConfigs[demoName] && demoConfigs[demoName].mode) || themeConfig.mode
 
   return _mode
 }

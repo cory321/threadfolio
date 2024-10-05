@@ -53,11 +53,11 @@ export default function LandingPage() {
       </AppBar>
       <Container sx={{ mt: 4 }}>
         <Box sx={{ textAlign: 'center' }}>
-          <Typography variant='h2' component='h1' gutterBottom>
+          <Typography variant='h5' component='h1' gutterBottom>
             Threadfolio
           </Typography>
-          <Typography variant='h5' gutterBottom>
-            This is the public landing page accessible by everyone. Page is currently under development.
+          <Typography variant='h4' gutterBottom>
+            The All-in-One Platform for Tailors, Seamstresses, and Clothing Alteration Specialists!
           </Typography>
           {userId ? (
             <Box sx={{ mt: 4 }}>
