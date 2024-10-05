@@ -1,13 +1,10 @@
 import React from 'react'
-
-import { Box, Checkbox, Typography, IconButton, Grid, Divider, useMediaQuery } from '@mui/material'
+import { Box, Checkbox, Typography, IconButton, Grid, Divider, useMediaQuery, TextField } from '@mui/material'
+import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { setHours, setMinutes, addHours } from 'date-fns'
 import AddIcon from '@mui/icons-material/Add'
 import CloseIcon from '@mui/icons-material/Close'
-
-import { setHours, setMinutes } from 'date-fns'
-
-import DatePickerInput from '@views/apps/calendar/DatePickerInput'
-import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 
 const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -39,9 +36,18 @@ const BusinessHours = ({ businessHours, setBusinessHours }) => {
   const handleAddInterval = dayIndex => {
     const updatedHours = businessHours.map((day, index) => {
       if (index === dayIndex) {
+        let newOpenTime, newCloseTime
+        if (day.intervals.length > 0) {
+          const lastInterval = day.intervals[day.intervals.length - 1]
+          newOpenTime = addHours(new Date(lastInterval.closeTime), 1)
+        } else {
+          newOpenTime = defaultOpenTime
+        }
+        newCloseTime = addHours(new Date(newOpenTime), 1)
+
         return {
           ...day,
-          intervals: [...day.intervals, { openTime: defaultOpenTime, closeTime: defaultCloseTime }]
+          intervals: [...day.intervals, { openTime: newOpenTime, closeTime: newCloseTime }]
         }
       }
 
@@ -92,79 +98,134 @@ const BusinessHours = ({ businessHours, setBusinessHours }) => {
     setBusinessHours(updatedHours)
   }
 
+  // Function to check for overlapping intervals
+  const getOverlappingIntervals = intervals => {
+    const overlaps = {}
+    for (let i = 0; i < intervals.length; i++) {
+      overlaps[i] = false
+      for (let j = 0; j < intervals.length; j++) {
+        if (i !== j) {
+          const aStart = intervals[i].openTime
+          const aEnd = intervals[i].closeTime
+          const bStart = intervals[j].openTime
+          const bEnd = intervals[j].closeTime
+          if (aStart < bEnd && bStart < aEnd) {
+            overlaps[i] = true
+            break
+          }
+        }
+      }
+    }
+    return overlaps
+  }
+
   // Responsive adjustments
   const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
 
   return (
-    <Box>
-      {daysOfWeek.map((day, index) => (
-        <Box key={day} sx={{ mb: 2 }}>
-          <Grid container alignItems='center' spacing={2}>
-            <Grid item>
-              <Checkbox
-                checked={businessHours[index].isOpen}
-                onChange={e => handleOpenChange(index, e.target.checked)}
-              />
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <Box>
+        {daysOfWeek.map((day, index) => (
+          <Box key={day} sx={{ mb: 2 }}>
+            <Grid container spacing={2} alignItems='flex-start'>
+              {/* Left Column: Checkbox and Day Name */}
+              <Grid item xs={isMobile ? 3 : 2} alignSelf='flex-start'>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Checkbox
+                    checked={businessHours[index].isOpen}
+                    onChange={e => handleOpenChange(index, e.target.checked)}
+                  />
+                  <Typography sx={{ fontWeight: 'bold' }}>{day.slice(0, 3)}</Typography>
+                </Box>
+              </Grid>
+
+              {/* Right Column: Intervals */}
+              <Grid item xs={isMobile ? 12 : 10}>
+                {businessHours[index].isOpen ? (
+                  (() => {
+                    const overlaps = getOverlappingIntervals(businessHours[index].intervals)
+                    return businessHours[index].intervals.map((interval, intervalIndex) => (
+                      <Grid container alignItems='center' spacing={1} key={intervalIndex} sx={{ mb: 1 }}>
+                        <Grid item>
+                          <TimePicker
+                            value={interval.openTime}
+                            onChange={date => handleTimeChange(index, intervalIndex, 'openTime', date)}
+                            renderInput={params => (
+                              <TextField
+                                {...params}
+                                variant='outlined'
+                                size='small'
+                                error={overlaps[intervalIndex]}
+                                sx={{
+                                  width: 100,
+                                  ...(overlaps[intervalIndex] && {
+                                    '& .MuiOutlinedInput-root fieldset': {
+                                      borderColor: 'error.main'
+                                    }
+                                  })
+                                }}
+                              />
+                            )}
+                          />
+                        </Grid>
+                        <Grid item>
+                          <Typography sx={{ mx: 1 }}>-</Typography>
+                        </Grid>
+                        <Grid item>
+                          <TimePicker
+                            value={interval.closeTime}
+                            onChange={date => handleTimeChange(index, intervalIndex, 'closeTime', date)}
+                            renderInput={params => (
+                              <TextField
+                                {...params}
+                                variant='outlined'
+                                size='small'
+                                error={overlaps[intervalIndex]}
+                                sx={{
+                                  width: 100,
+                                  ...(overlaps[intervalIndex] && {
+                                    '& .MuiOutlinedInput-root fieldset': {
+                                      borderColor: 'error.main'
+                                    }
+                                  })
+                                }}
+                              />
+                            )}
+                          />
+                        </Grid>
+                        <Grid item>
+                          <IconButton onClick={() => handleRemoveInterval(index, intervalIndex)} size='small'>
+                            <CloseIcon />
+                          </IconButton>
+                          {intervalIndex === businessHours[index].intervals.length - 1 && (
+                            <IconButton onClick={() => handleAddInterval(index)} size='small'>
+                              <AddIcon />
+                            </IconButton>
+                          )}
+                        </Grid>
+                        {overlaps[intervalIndex] && (
+                          <Grid item xs={12}>
+                            <Typography variant='body2' color='error'>
+                              Times overlap with another set of times.
+                            </Typography>
+                          </Grid>
+                        )}
+                      </Grid>
+                    ))
+                  })()
+                ) : (
+                  // Wrap "Closed" in a Box with flex properties to center it vertically
+                  <Box sx={{ pt: 1 }}>
+                    <Typography sx={{ color: 'grey.500' }}>Closed</Typography>
+                  </Box>
+                )}
+              </Grid>
             </Grid>
-            <Grid item xs={isMobile ? 3 : 2}>
-              <Typography sx={{ fontWeight: 'bold' }}>{day.slice(0, 3)}</Typography>
-            </Grid>
-            <Grid item xs={isMobile ? 12 : 9}>
-              {businessHours[index].isOpen ? (
-                businessHours[index].intervals.map((interval, intervalIndex) => (
-                  <Grid container alignItems='center' spacing={1} key={intervalIndex} sx={{ mb: 1 }}>
-                    <Grid item>
-                      <AppReactDatepicker
-                        selected={interval.openTime}
-                        onChange={date => handleTimeChange(index, intervalIndex, 'openTime', date)}
-                        showTimeSelect
-                        showTimeSelectOnly
-                        timeIntervals={15}
-                        dateFormat='h:mm aa'
-                        customInput={<DatePickerInput dateFormat='h:mm aa' showAdornment={false} />}
-                        minTime={setHours(setMinutes(new Date(), 0), 0)}
-                        maxTime={setHours(setMinutes(new Date(), 45), 23)}
-                        wrapperClassName='datepicker'
-                      />
-                    </Grid>
-                    <Grid item>
-                      <Typography sx={{ mx: 1 }}>-</Typography>
-                    </Grid>
-                    <Grid item>
-                      <AppReactDatepicker
-                        selected={interval.closeTime}
-                        onChange={date => handleTimeChange(index, intervalIndex, 'closeTime', date)}
-                        showTimeSelect
-                        showTimeSelectOnly
-                        timeIntervals={15}
-                        dateFormat='h:mm aa'
-                        customInput={<DatePickerInput dateFormat='h:mm aa' showAdornment={false} />}
-                        minTime={setHours(setMinutes(new Date(), 0), 0)}
-                        maxTime={setHours(setMinutes(new Date(), 45), 23)}
-                        wrapperClassName='datepicker'
-                      />
-                    </Grid>
-                    <Grid item>
-                      <IconButton onClick={() => handleRemoveInterval(index, intervalIndex)} size='small'>
-                        <CloseIcon />
-                      </IconButton>
-                      {intervalIndex === businessHours[index].intervals.length - 1 && (
-                        <IconButton onClick={() => handleAddInterval(index)} size='small'>
-                          <AddIcon />
-                        </IconButton>
-                      )}
-                    </Grid>
-                  </Grid>
-                ))
-              ) : (
-                <Typography sx={{ color: 'grey.500' }}>Closed</Typography>
-              )}
-            </Grid>
-          </Grid>
-          <Divider sx={{ mt: 1 }} />
-        </Box>
-      ))}
-    </Box>
+            <Divider sx={{ mt: 1 }} />
+          </Box>
+        ))}
+      </Box>
+    </LocalizationProvider>
   )
 }
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 import {
   Box,
@@ -22,6 +23,7 @@ const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Fri
 
 const OnboardingQuestions = ({ userData, onComplete }) => {
   const [activeStep, setActiveStep] = useState(0)
+  const router = useRouter()
 
   const [answers, setAnswers] = useState({
     shopName: '',
@@ -70,8 +72,9 @@ const OnboardingQuestions = ({ userData, onComplete }) => {
     setAnswers(prevAnswers => ({ ...prevAnswers, businessHours: updatedHours }))
   }
 
+  // Update the handleComplete function
   const handleComplete = () => {
-    onComplete(answers)
+    router.push('/dashboard')
   }
 
   const steps = [
