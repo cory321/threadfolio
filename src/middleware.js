@@ -2,23 +2,36 @@ import { NextResponse } from 'next/server'
 
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
+const isProtectedRoute = createRouteMatcher([
+  '/admin(.*)',
+  '/onboarding(.*)',
+  '/dashboard(.*)',
+  '/clients(.*)',
+  '/orders(.*)',
+  '/garments(.*)',
+  '/appointments(.*)',
+  '/services(.*)',
+  '/finance(.*)',
+  '/reports(.*)',
+  '/settings(.*)'
+])
+
 const isOrdersRoute = createRouteMatcher(['/orders/:path*'])
 
 export default clerkMiddleware((auth, req) => {
-  const { userId } = auth()
   const requestUrl = req.nextUrl
 
-  if (!userId && isOrdersRoute(req)) {
-    // Store the requested URL
+  if (!auth().userId && isOrdersRoute(req)) {
     const redirectUrl = requestUrl.pathname + requestUrl.search
-
-    // Redirect to sign-in page with `redirect_url` parameter
     const signInUrl = new URL('/login', requestUrl.origin)
 
     signInUrl.searchParams.set('redirect_url', redirectUrl)
 
-    // Perform the redirect
     return NextResponse.redirect(signInUrl)
+  }
+
+  if (!auth().userId && isProtectedRoute(req)) {
+    return auth().redirectToSignIn()
   }
 })
 
