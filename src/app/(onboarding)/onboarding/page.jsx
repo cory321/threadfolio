@@ -3,14 +3,14 @@ import { currentUser } from '@clerk/nextjs/server'
 import OnboardingView from '@views/OnboardingView'
 import { getMode } from '@core/utils/serverHelpers'
 
-const mode = getMode()
-
 export default async function OnboardingPage() {
   const user = await currentUser()
 
   if (!user) {
     return <div>Not signed in</div>
   }
+
+  const mode = getMode()
 
   const userData = {
     firstName: user.firstName,

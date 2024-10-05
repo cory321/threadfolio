@@ -15,14 +15,19 @@ export const getDemoName = () => {
 }
 
 export const getSettingsFromCookie = () => {
-  const cookieStore = cookies()
-  const demoName = getDemoName()
+  try {
+    const cookieStore = cookies()
+    const demoName = getDemoName()
 
-  const cookieName = demoName
-    ? themeConfig.settingsCookieName.replace('demo-1', demoName)
-    : themeConfig.settingsCookieName
+    const cookieName = demoName
+      ? themeConfig.settingsCookieName.replace('demo-1', demoName)
+      : themeConfig.settingsCookieName
 
-  return JSON.parse(cookieStore.get(cookieName)?.value || '{}')
+    return JSON.parse(cookieStore.get(cookieName)?.value || '{}')
+  } catch (error) {
+    // Return default settings if cookies() cannot be called
+    return {}
+  }
 }
 
 export const getMode = () => {
