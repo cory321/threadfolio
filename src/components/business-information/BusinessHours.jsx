@@ -1,10 +1,13 @@
 import React from 'react'
+
 import { Box, Checkbox, Typography, IconButton, Grid, Divider, useMediaQuery, TextField } from '@mui/material'
-import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { setHours, setMinutes, addHours } from 'date-fns'
 import AddIcon from '@mui/icons-material/Add'
 import CloseIcon from '@mui/icons-material/Close'
+
+import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+
+import { setHours, setMinutes, addHours } from 'date-fns'
 
 const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -37,12 +40,15 @@ const BusinessHours = ({ businessHours, setBusinessHours }) => {
     const updatedHours = businessHours.map((day, index) => {
       if (index === dayIndex) {
         let newOpenTime, newCloseTime
+
         if (day.intervals.length > 0) {
           const lastInterval = day.intervals[day.intervals.length - 1]
+
           newOpenTime = addHours(new Date(lastInterval.closeTime), 1)
         } else {
           newOpenTime = defaultOpenTime
         }
+
         newCloseTime = addHours(new Date(newOpenTime), 1)
 
         return {
@@ -101,14 +107,17 @@ const BusinessHours = ({ businessHours, setBusinessHours }) => {
   // Function to check for overlapping intervals
   const getOverlappingIntervals = intervals => {
     const overlaps = {}
+
     for (let i = 0; i < intervals.length; i++) {
       overlaps[i] = false
+
       for (let j = 0; j < intervals.length; j++) {
         if (i !== j) {
           const aStart = intervals[i].openTime
           const aEnd = intervals[i].closeTime
           const bStart = intervals[j].openTime
           const bEnd = intervals[j].closeTime
+
           if (aStart < bEnd && bStart < aEnd) {
             overlaps[i] = true
             break
@@ -116,6 +125,7 @@ const BusinessHours = ({ businessHours, setBusinessHours }) => {
         }
       }
     }
+
     return overlaps
   }
 
@@ -144,6 +154,7 @@ const BusinessHours = ({ businessHours, setBusinessHours }) => {
                 {businessHours[index].isOpen ? (
                   (() => {
                     const overlaps = getOverlappingIntervals(businessHours[index].intervals)
+
                     return businessHours[index].intervals.map((interval, intervalIndex) => (
                       <Grid container alignItems='center' spacing={1} key={intervalIndex} sx={{ mb: 1 }}>
                         <Grid item>
@@ -214,7 +225,6 @@ const BusinessHours = ({ businessHours, setBusinessHours }) => {
                     ))
                   })()
                 ) : (
-                  // Wrap "Closed" in a Box with flex properties to center it vertically
                   <Box sx={{ pt: 1 }}>
                     <Typography sx={{ color: 'grey.500' }}>Closed</Typography>
                   </Box>

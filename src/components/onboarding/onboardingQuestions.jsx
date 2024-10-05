@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+
 import { useRouter } from 'next/navigation'
 
 import {
@@ -83,7 +84,7 @@ const OnboardingQuestions = ({ userData, onComplete }) => {
       content: (
         <Box>
           <Typography variant='h6' gutterBottom>
-            What's the name of your business?
+            {"What's the name of your business?"}
           </Typography>
           <TextField
             fullWidth
@@ -94,7 +95,7 @@ const OnboardingQuestions = ({ userData, onComplete }) => {
             margin='normal'
           />
           <Typography variant='h6' gutterBottom sx={{ mt: 2 }}>
-            What's your business phone number?
+            {"What's your business phone number?"}
           </Typography>
           <TextField
             fullWidth
@@ -112,7 +113,7 @@ const OnboardingQuestions = ({ userData, onComplete }) => {
       content: (
         <Box>
           <Typography variant='h6' gutterBottom>
-            What's your business location?
+            {"What's your business location?"}
           </Typography>
           <TextField
             fullWidth
