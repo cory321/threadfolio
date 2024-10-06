@@ -1,3 +1,8 @@
-export default function FinancePage() {
-  return <h1>Finance</h1>
+import FinancePageClient from './FinancePageClient.jsx'
+import { getStripeAccountId } from '@/app/actions/users'
+
+export default async function FinancePage() {
+  const stripeAccountId = await getStripeAccountId()
+
+  return <FinancePageClient initialStripeAccountId={stripeAccountId} />
 }

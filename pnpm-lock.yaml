@@ -80,6 +80,12 @@ importers:
       '@mui/x-date-pickers':
         specifier: ^7.19.0
         version: 7.19.0(@emotion/react@11.11.3(@types/react@18.3.3)(react@18.2.0))(@emotion/styled@11.11.0(@emotion/react@11.11.3(@types/react@18.3.3)(react@18.2.0))(@types/react@18.3.3)(react@18.2.0))(@mui/material@5.16.7(@emotion/react@11.11.3(@types/react@18.3.3)(react@18.2.0))(@emotion/styled@11.11.0(@emotion/react@11.11.3(@types/react@18.3.3)(react@18.2.0))(@types/react@18.3.3)(react@18.2.0))(@types/react@18.3.3)(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(@mui/system@5.16.7(@emotion/react@11.11.3(@types/react@18.3.3)(react@18.2.0))(@emotion/styled@11.11.0(@emotion/react@11.11.3(@types/react@18.3.3)(react@18.2.0))(@types/react@18.3.3)(react@18.2.0))(@types/react@18.3.3)(react@18.2.0))(@types/react@18.3.3)(date-fns@2.30.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@stripe/connect-js':
+        specifier: ^3.3.14
+        version: 3.3.14
+      '@stripe/react-connect-js':
+        specifier: ^3.3.15
+        version: 3.3.15(@stripe/connect-js@3.3.14)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@supabase/supabase-js':
         specifier: ^2.43.1
         version: 2.43.4
@@ -185,6 +191,9 @@ importers:
       short-uuid:
         specifier: ^5.2.0
         version: 5.2.0
+      stripe:
+        specifier: 13.4.0
+        version: 13.4.0
       stylelint:
         specifier: 16.1.0
         version: 16.1.0(typescript@5.4.5)
@@ -1016,6 +1025,16 @@ packages:
 
   '@rushstack/eslint-patch@1.10.3':
     resolution: {integrity: sha512-qC/xYId4NMebE6w/V33Fh9gWxLgURiNYgVNObbJl2LZv0GUUItCcCqC5axQSwRaAgaxl2mELq1rMzlswaQ0Zxg==}
+
+  '@stripe/connect-js@3.3.14':
+    resolution: {integrity: sha512-jQ6ee5JVY4XMDL6PhAFv47om1/H0JjE6G4GpuEItRQkmVScAi3tTzx7g7/1/2LhvYW+4HejZJAIq51ymFIneLw==}
+
+  '@stripe/react-connect-js@3.3.15':
+    resolution: {integrity: sha512-B5M3Mw0JD7r2h0T7StHmsx7QUvRxHYH/S2aoI/XkC9IL667VzjBv6+TZIQlYKxXpN7A1pSCM3xpo1WHWh7jq+w==}
+    peerDependencies:
+      '@stripe/connect-js': '>=3.3.14'
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
 
   '@supabase/auth-js@2.64.2':
     resolution: {integrity: sha512-s+lkHEdGiczDrzXJ1YWt2y3bxRi+qIUnXcgkpLSrId7yjBeaXBFygNjTaoZLG02KNcYwbuZ9qkEIqmj2hF7svw==}
@@ -2797,6 +2816,10 @@ packages:
   qr.js@0.0.0:
     resolution: {integrity: sha512-c4iYnWb+k2E+vYpRimHqSu575b1/wKl4XFeJGpFmrJQz5I88v9aY2czh7s0w36srfCM1sXgC/xpoJz5dJfq+OQ==}
 
+  qs@6.13.0:
+    resolution: {integrity: sha512-+38qI9SOr8tfZ4QmJNplMUxqjbe7LKvvZgWdExBOmd+egZTtjLB67Gu0HRX3u/XOq7UU2Nx6nsjvS16Z9uwfpg==}
+    engines: {node: '>=0.6'}
+
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
@@ -3164,6 +3187,10 @@ packages:
   strip-json-comments@3.1.1:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
+
+  stripe@13.4.0:
+    resolution: {integrity: sha512-UxvRzu46AJALIueMH3/jn++qJlOoM5s+uoHXagr36xTFOj7Knrh28WFiI73dMDkngBElK68cG3WI+LgRulHw6g==}
+    engines: {node: '>=12.*'}
 
   styled-jsx@5.1.1:
     resolution: {integrity: sha512-pW7uC1l4mBZ8ugbiZrcIsiIvVx1UmTfw7UkC3Um2tmfUq9Bhk8IiyEIPl6F8agHgjzku6j0xQEZbfA5uSgSaCw==}
@@ -4308,6 +4335,14 @@ snapshots:
   '@popperjs/core@2.11.8': {}
 
   '@rushstack/eslint-patch@1.10.3': {}
+
+  '@stripe/connect-js@3.3.14': {}
+
+  '@stripe/react-connect-js@3.3.15(@stripe/connect-js@3.3.14)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+    dependencies:
+      '@stripe/connect-js': 3.3.14
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
 
   '@supabase/auth-js@2.64.2':
     dependencies:
@@ -6320,6 +6355,10 @@ snapshots:
 
   qr.js@0.0.0: {}
 
+  qs@6.13.0:
+    dependencies:
+      side-channel: 1.0.6
+
   queue-microtask@1.2.3: {}
 
   quick-lru@5.1.1: {}
@@ -6731,6 +6770,11 @@ snapshots:
   strip-final-newline@2.0.0: {}
 
   strip-json-comments@3.1.1: {}
+
+  stripe@13.4.0:
+    dependencies:
+      '@types/node': 20.14.2
+      qs: 6.13.0
 
   styled-jsx@5.1.1(react@18.2.0):
     dependencies:

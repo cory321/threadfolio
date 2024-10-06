@@ -39,3 +39,23 @@ export const getOnboardingStatus = async () => {
 
   return data.onboarding_completed
 }
+
+// New server action to fetch stripe_account_id
+export const getStripeAccountId = async () => {
+  const { userId } = auth()
+
+  if (!userId) {
+    throw new Error('User not authenticated')
+  }
+
+  const supabase = await getSupabaseClient()
+
+  const { data, error } = await supabase.from('users').select('stripe_account_id').eq('user_id', userId).single()
+
+  if (error) {
+    console.error('Error fetching stripe_account_id:', error)
+    throw new Error('Failed to retrieve stripe account ID')
+  }
+
+  return data?.stripe_account_id || null
+}
