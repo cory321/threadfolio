@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react'
 
 import Link from 'next/link'
 
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { DateCalendar } from '@mui/x-date-pickers/DateCalendar'
+
 import { List, ListItem, ListItemText, Typography, Box, Grid, Button, Chip, Avatar } from '@mui/material'
 import { useAuth } from '@clerk/nextjs'
 import { format, parse, getDay } from 'date-fns'
@@ -62,18 +66,25 @@ const UpcomingAppointments = () => {
 
   return (
     <Box>
-      <Box display='flex' justifyContent='space-between' alignItems='center' mb={2} pb={2}>
-        <Box display='flex' alignItems='center'>
-          <Avatar sx={{ mr: 1 }}>
-            <EventIcon />
-          </Avatar>
-          <Typography variant='h6'>Upcoming Appointments</Typography>
+      <Box display='flex' flexDirection='column'>
+        <Box display='flex' justifyContent='space-between' alignItems='center'>
+          <Box display='flex' alignItems='center'>
+            <Avatar sx={{ mr: 1 }}>
+              <EventIcon />
+            </Avatar>
+            <Typography variant='h6'>Upcoming Appointments</Typography>
+          </Box>
+          <Link href='/appointments' passHref>
+            <Button variant='outlined' color='primary'>
+              View All
+            </Button>
+          </Link>
         </Box>
-        <Link href='/appointments' passHref>
-          <Button variant='outlined' color='primary'>
-            View All
-          </Button>
-        </Link>
+        <Box mt={2}>
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <DateCalendar />
+          </LocalizationProvider>
+        </Box>
       </Box>
       {appointments.length === 0 ? (
         <Box display='flex' flexDirection='column' alignItems='center' mt={2}>
