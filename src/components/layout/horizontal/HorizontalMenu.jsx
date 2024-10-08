@@ -77,28 +77,48 @@ const HorizontalMenu = () => {
           menuSectionStyles: verticalMenuSectionStyles(verticalNavOptions, theme)
         }}
       >
-        <MenuItem href='/dashboard' icon={<i className='ri-home-smile-line' />} active={pathname === '/dashboard'}>
+        <MenuItem
+          href='/dashboard'
+          icon={<i className='ri-home-smile-line' />}
+          active={pathname.startsWith('/dashboard')}
+        >
           Home
         </MenuItem>
-        <MenuItem href='/clients' icon={<i className='ri-group-line' />}>
+        <MenuItem href='/clients' icon={<i className='ri-group-line' />} active={pathname.startsWith('/clients')}>
           Clients
         </MenuItem>
-        <MenuItem href='/orders' icon={<i className='ri-shopping-bag-3-line' />}>
+        <MenuItem
+          href='/orders'
+          icon={<i className='ri-shopping-bag-3-line' />}
+          active={pathname.startsWith('/orders')}
+        >
           Orders
         </MenuItem>
-        <MenuItem href='/garments' icon={<i className='ri-t-shirt-line' />}>
+        <MenuItem href='/garments' icon={<i className='ri-t-shirt-line' />} active={pathname.startsWith('/garments')}>
           Garments
         </MenuItem>
-        <MenuItem href='/appointments' icon={<i className='ri-calendar-2-line' />}>
+        <MenuItem
+          href='/appointments'
+          icon={<i className='ri-calendar-2-line' />}
+          active={pathname.startsWith('/appointments')}
+        >
           Appointments
         </MenuItem>
-        <MenuItem href='/services' icon={<i className='ri-pencil-ruler-line' />}>
+        <MenuItem
+          href='/services'
+          icon={<i className='ri-pencil-ruler-line' />}
+          active={pathname.startsWith('/services')}
+        >
           Services
         </MenuItem>
-        <MenuItem href='/finance' icon={<i className='ri-bar-chart-2-line' />}>
+        <MenuItem href='/finance' icon={<i className='ri-bar-chart-2-line' />} active={pathname.startsWith('/finance')}>
           Finance
         </MenuItem>
-        <MenuItem href='/reports' icon={<i className='ri-shopping-bag-3-line' />}>
+        <MenuItem
+          href='/reports'
+          icon={<i className='ri-shopping-bag-3-line' />}
+          active={pathname.startsWith('/reports')}
+        >
           Reports
         </MenuItem>
         <MenuItem
@@ -109,27 +129,6 @@ const HorizontalMenu = () => {
           Settings
         </MenuItem>
       </Menu>
-
-      {/* <Menu
-          rootStyles={menuRootStyles(theme)}
-          renderExpandIcon={({ level }) => <RenderExpandIcon level={level} />}
-          renderExpandedMenuItemIcon={{ icon: <i className='ri-circle-line' /> }}
-          menuItemStyles={menuItemStyles(settings, theme)}
-          popoutMenuOffset={{
-            mainAxis: ({ level }) => (level && level > 0 ? 4 : 16),
-            alignmentAxis: ({ level }) => (level && level > 0 ? -5 : 0)
-          }}
-          verticalMenuProps={{
-            menuItemStyles: verticalMenuItemStyles(verticalNavOptions, theme, settings),
-            renderExpandIcon: ({ open }) => (
-              <RenderVerticalExpandIcon open={open} transitionDuration={transitionDuration} />
-            ),
-            renderExpandedMenuItemIcon: { icon: <i className='ri-circle-line' /> },
-            menuSectionStyles: verticalMenuSectionStyles(verticalNavOptions, theme)
-          }}
-        >
-          <GenerateHorizontalMenu menuData={menuData(dictionary, params)} />
-        </Menu> */}
     </HorizontalNav>
   )
 }

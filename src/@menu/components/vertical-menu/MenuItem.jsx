@@ -40,11 +40,13 @@ const MenuItem = (props, ref) => {
     component,
     onActiveChange,
     rootStyles,
+    active: activeProp,
     ...rest
   } = props
 
   // States
-  const [active, setActive] = useState(false)
+  const [internalActive, setInternalActive] = useState(false)
+  const isActive = activeProp !== undefined ? activeProp : internalActive
 
   // Hooks
   const pathname = usePathname()
@@ -58,7 +60,7 @@ const MenuItem = (props, ref) => {
     // If the menuItemStyles prop is provided, get the styles for the specified element.
     if (menuItemStyles) {
       // Define the parameters that are passed to the style functions.
-      const params = { level, disabled, active, isSubmenu: false }
+      const params = { level, disabled, active: isActive, isSubmenu: false }
 
       // Get the style function for the specified element.
       const styleFunction = menuItemStyles[element]
@@ -80,23 +82,25 @@ const MenuItem = (props, ref) => {
 
   // Change active state when the url changes
   useEffect(() => {
-    const href = rest.href || (component && typeof component !== 'string' && component.props.href)
+    if (activeProp === undefined) {
+      const href = rest.href || (component && typeof component !== 'string' && component.props.href)
 
-    if (href) {
-      // Check if the current url matches any of the children urls
-      if (pathname === href) {
-        setActive(true)
-      } else {
-        setActive(false)
+      if (href) {
+        // Check if the current url matches any of the children urls
+        if (pathname === href) {
+          setInternalActive(true)
+        } else {
+          setInternalActive(false)
+        }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname])
+  }, [pathname, activeProp])
 
   // Call the onActiveChange callback when the active state changes.
   useUpdateEffect(() => {
-    onActiveChange?.(active)
-  }, [active])
+    onActiveChange?.(isActive)
+  }, [isActive])
 
   return (
     <StyledVerticalMenuItem
@@ -104,7 +108,7 @@ const MenuItem = (props, ref) => {
       className={classnames(
         menuClasses.menuItemRoot,
         { [menuClasses.disabled]: disabled },
-        { [menuClasses.active]: active },
+        { [menuClasses.active]: isActive },
         className
       )}
       level={level}
@@ -116,7 +120,7 @@ const MenuItem = (props, ref) => {
       rootStyles={rootStyles}
     >
       <MenuButton
-        className={classnames(menuClasses.button, { [menuClasses.active]: active })}
+        className={classnames(menuClasses.button, { [menuClasses.active]: isActive })}
         component={component}
         tabIndex={disabled ? -1 : 0}
         {...rest}
@@ -129,7 +133,7 @@ const MenuItem = (props, ref) => {
         {renderMenuIcon({
           icon,
           level,
-          active,
+          active: isActive,
           disabled,
           renderExpandedMenuItemIcon,
           styles: getMenuItemStyles('icon'),
