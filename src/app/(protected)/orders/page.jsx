@@ -3,6 +3,10 @@ import { auth } from '@clerk/nextjs/server'
 import { getOrders } from '@/app/actions/orders'
 import OrdersPage from '@/components/orders/OrdersPage'
 
+export const metadata = {
+  title: 'Orders - Threadfolio'
+}
+
 export default async function Orders() {
   const { userId } = auth()
 

@@ -19,7 +19,6 @@ const GarmentImage = ({ garment }) => {
         sx={{
           position: 'relative',
           width: '100%',
-          paddingTop: '100%', // Maintains aspect ratio
           overflow: 'hidden'
         }}
       >

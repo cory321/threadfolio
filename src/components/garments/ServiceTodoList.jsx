@@ -69,7 +69,7 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
 
         if (isMounted) {
           setTodos(fetchedTodos)
-          updateTaskCounts() // Update task counts after fetching
+          updateTaskCounts()
         }
       } catch (e) {
         setError('Failed to load tasks.')
@@ -85,7 +85,7 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
     return () => {
       isMounted = false
     }
-  }, [userId, serviceId, updateTaskCounts])
+  }, [userId, serviceId])
 
   // Update task counts whenever todos change
   useEffect(() => {

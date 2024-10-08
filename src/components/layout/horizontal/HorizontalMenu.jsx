@@ -2,6 +2,8 @@
 'use client'
 
 // MUI Imports
+import { usePathname } from 'next/navigation' // Import usePathname
+
 import { useTheme } from '@mui/material/styles'
 
 // Component Imports
@@ -40,6 +42,7 @@ const HorizontalMenu = () => {
   const verticalNavOptions = useVerticalNav()
   const theme = useTheme()
   const { settings } = useSettings()
+  const pathname = usePathname()
 
   // Vars
   const { skin } = settings
@@ -74,7 +77,7 @@ const HorizontalMenu = () => {
           menuSectionStyles: verticalMenuSectionStyles(verticalNavOptions, theme)
         }}
       >
-        <MenuItem href='/dashboard' icon={<i className='ri-home-smile-line' />}>
+        <MenuItem href='/dashboard' icon={<i className='ri-home-smile-line' />} active={pathname === '/dashboard'}>
           Home
         </MenuItem>
         <MenuItem href='/clients' icon={<i className='ri-group-line' />}>
@@ -98,7 +101,11 @@ const HorizontalMenu = () => {
         <MenuItem href='/reports' icon={<i className='ri-shopping-bag-3-line' />}>
           Reports
         </MenuItem>
-        <MenuItem href='/settings' icon={<i className='ri-settings-5-line' />}>
+        <MenuItem
+          href='/settings'
+          icon={<i className='ri-settings-5-line' />}
+          active={pathname.startsWith('/settings')}
+        >
           Settings
         </MenuItem>
       </Menu>
