@@ -14,9 +14,17 @@ export const metadata = {
   description: 'Threadfolio is an app for seamstresses and tailors to manage their clients, projects, and more!'
 }
 
+const primaryColor = '#8C57FF'
+
 const RootLayout = ({ children }) => {
   // Vars
   const direction = 'ltr'
+
+  const appearance = {
+    variables: {
+      colorPrimary: primaryColor
+    }
+  }
 
   return (
     <ClerkProvider
@@ -25,6 +33,7 @@ const RootLayout = ({ children }) => {
       signUpUrl='/register'
       signInFallbackRedirectUrl='/dashboard'
       signUpFallbackRedirectUrl='/onboarding'
+      appearance={appearance}
     >
       <html id='__next' lang='en' dir={direction}>
         <body className='flex is-full min-bs-full flex-auto flex-col'>{children}</body>
