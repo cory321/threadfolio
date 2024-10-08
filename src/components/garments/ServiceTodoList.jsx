@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import { useAuth } from '@clerk/nextjs'
 import {
@@ -16,7 +16,6 @@ import {
   Checkbox,
   CircularProgress,
   Button,
-  Divider,
   Alert,
   Dialog,
   DialogTitle,
@@ -28,7 +27,7 @@ import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import ChecklistIcon from '@mui/icons-material/Checklist'
 import { WarningAmberRounded } from '@mui/icons-material'
-import CloseIcon from '@mui/icons-material/Close' // Add this import
+import CloseIcon from '@mui/icons-material/Close'
 
 import {
   getServiceTodos,
@@ -50,16 +49,6 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
   const [todoToDelete, setTodoToDelete] = useState(null)
   const [isAddingTodo, setIsAddingTodo] = useState(false)
 
-  // Utility function to update task counts
-  const updateTaskCounts = useCallback(() => {
-    if (onTasksLoaded) {
-      const totalTasks = todos.length
-      const completedTasks = todos.filter(todo => todo.completed).length
-
-      onTasksLoaded(totalTasks, completedTasks)
-    }
-  }, [onTasksLoaded, todos])
-
   useEffect(() => {
     let isMounted = true
 
@@ -69,7 +58,6 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
 
         if (isMounted) {
           setTodos(fetchedTodos)
-          updateTaskCounts()
         }
       } catch (e) {
         setError('Failed to load tasks.')
@@ -89,22 +77,41 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
 
   // Update task counts whenever todos change
   useEffect(() => {
-    updateTaskCounts()
-  }, [todos, updateTaskCounts])
+    if (onTasksLoaded) {
+      const totalTasks = todos.length
+      const completedTasks = todos.filter(todo => todo.completed).length
+
+      onTasksLoaded(totalTasks, completedTasks)
+    }
+  }, [todos, onTasksLoaded])
 
   const handleAddTodo = async () => {
     if (newTodoTitle.trim() === '') return
 
     setIsAddingTodo(true)
 
+    // Optimistic update
+    const tempId = Date.now().toString()
+
+    const newTodo = {
+      id: tempId,
+      title: newTodoTitle.trim(),
+      completed: false
+    }
+
+    setTodos([...todos, newTodo])
+    setNewTodoTitle('')
+
     try {
       const todo = await addServiceTodo(userId, serviceId, newTodoTitle.trim())
 
-      setTodos([...todos, todo])
-      setNewTodoTitle('')
-      updateTaskCounts() // Update the task counts
+      // Replace the temporary todo with the one from the server
+      setTodos(prevTodos => prevTodos.map(t => (t.id === tempId ? todo : t)))
     } catch (e) {
       setError('Failed to add task.')
+
+      // Revert optimistic update
+      setTodos(prevTodos => prevTodos.filter(t => t.id !== tempId))
     } finally {
       setIsAddingTodo(false)
     }
@@ -118,14 +125,20 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
   const handleEditTodo = async id => {
     if (editingTodoTitle.trim() === '') return
 
-    try {
-      const updatedTodo = await editServiceTodo(userId, id, editingTodoTitle.trim())
+    // Optimistic update
+    const previousTodos = [...todos]
 
-      setTodos(todos.map(todo => (todo.id === id ? updatedTodo : todo)))
-      setEditingTodoId(null)
-      setEditingTodoTitle('')
+    setTodos(prevTodos => prevTodos.map(todo => (todo.id === id ? { ...todo, title: editingTodoTitle.trim() } : todo)))
+    setEditingTodoId(null)
+    setEditingTodoTitle('')
+
+    try {
+      await editServiceTodo(userId, id, editingTodoTitle.trim())
     } catch (e) {
       setError('Failed to edit task.')
+
+      // Revert optimistic update
+      setTodos(previousTodos)
     }
   }
 
@@ -135,37 +148,36 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
   }
 
   const handleDeleteConfirm = async () => {
+    // Optimistic update
+    const previousTodos = [...todos]
+
+    setTodos(todos.filter(todo => todo.id !== todoToDelete))
+    setConfirmOpen(false)
+    setTodoToDelete(null)
+
     try {
       await deleteServiceTodo(userId, todoToDelete)
-      setTodos(todos.filter(todo => todo.id !== todoToDelete))
-      setConfirmOpen(false)
-      setTodoToDelete(null)
-      updateTaskCounts() // Update the task counts
     } catch (e) {
       setError('Failed to delete task.')
+
+      // Revert optimistic update
+      setTodos(previousTodos)
     }
   }
 
   const handleToggleComplete = async id => {
     // Optimistic update
-    const todoIndex = todos.findIndex(todo => todo.id === id)
-    const updatedTodos = [...todos]
+    const previousTodos = [...todos]
 
-    updatedTodos[todoIndex] = {
-      ...updatedTodos[todoIndex],
-      completed: !updatedTodos[todoIndex].completed
-    }
-    const previousTodos = todos
+    const updatedTodos = todos.map(todo => (todo.id === id ? { ...todo, completed: !todo.completed } : todo))
 
     setTodos(updatedTodos)
-    updateTaskCounts() // Update the task counts
 
     try {
       await toggleCompleteServiceTodo(userId, id)
     } catch (e) {
       setError('Failed to update task status.')
       setTodos(previousTodos) // Revert the optimistic update
-      updateTaskCounts() // Update the task counts after reverting
     }
   }
 
@@ -219,6 +231,12 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
                   value={editingTodoTitle}
                   onChange={e => setEditingTodoTitle(e.target.value)}
                   onBlur={() => handleEditTodo(todo.id)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault() // Prevents the form submission or new line
+                      handleEditTodo(todo.id)
+                    }
+                  }}
                   autoFocus
                   fullWidth
                 />
@@ -277,7 +295,14 @@ export default function ServiceTodoList({ serviceId, onTasksLoaded }) {
             <CloseIcon />
           </IconButton>
         </DialogTitle>
-        <DialogContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+        <DialogContent
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center'
+          }}
+        >
           <WarningAmberRounded sx={{ fontSize: 64, color: 'warning.main', mb: 2 }} />
           <DialogContentText>Deleting this task cannot be undone.</DialogContentText>
         </DialogContent>

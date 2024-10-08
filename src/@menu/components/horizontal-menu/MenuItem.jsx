@@ -100,7 +100,7 @@ const MenuItem = (props, ref) => {
         }
       }
     }
-  }, [pathname, activeProp])
+  }, [pathname, activeProp, component, rest.href])
 
   // Call the onActiveChange callback when the active state changes.
   useUpdateEffect(() => {
