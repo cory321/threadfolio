@@ -1,9 +1,12 @@
 'use server'
 
+import { auth } from '@clerk/nextjs/server'
+
 import { getSupabaseClient, isValidEmail, isValidPhoneNumber } from './utils'
 
-export async function searchClients(query, userId) {
+export async function searchClients(query) {
   const supabase = await getSupabaseClient()
+  const { userId } = auth()
 
   const { data, error } = await supabase
     .from('clients')
@@ -24,8 +27,9 @@ export async function searchClients(query, userId) {
   return clients
 }
 
-export async function fetchClients(page = 1, pageSize = 10, userId, orderBy = 'full_name', order = 'asc') {
+export async function fetchClients(page = 1, pageSize = 10, orderBy = 'full_name', order = 'asc') {
   const supabase = await getSupabaseClient()
+  const { userId } = auth()
 
   const start = (page - 1) * pageSize
   const end = start + pageSize - 1
