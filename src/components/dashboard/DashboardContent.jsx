@@ -19,7 +19,6 @@ const GarmentPriority = dynamic(() => import('@/components/dashboard/GarmentPrio
 
 import OnboardingWelcome from '@/components/OnboardingWelcome'
 import ActionsList from '@components/dashboard/ActionsList'
-import AddTodoForm from '@components/todo/AddTodoForm'
 import TodoList from '@components/todo/TodoList'
 
 export default function DashboardContent({ showOnboarding: initialShowOnboarding }) {
@@ -55,8 +54,7 @@ export default function DashboardContent({ showOnboarding: initialShowOnboarding
             <Card>
               <CardHeader title='To do list' />
               <CardContent>
-                <AddTodoForm todos={todos} setTodos={setTodos} />
-                <TodoList todos={todos} setTodos={setTodos} />
+                <TodoList />
               </CardContent>
             </Card>
           </Grid>
@@ -97,8 +95,7 @@ export default function DashboardContent({ showOnboarding: initialShowOnboarding
                   <Card>
                     <CardHeader title='To do list' />
                     <CardContent>
-                      <AddTodoForm todos={todos} setTodos={setTodos} />
-                      <TodoList todos={todos} setTodos={setTodos} />
+                      <TodoList />
                     </CardContent>
                   </Card>
                 </Box>
