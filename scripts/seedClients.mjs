@@ -83,7 +83,7 @@ async function addClient(supabase, client) {
 
 async function seedClients() {
   const supabase = getSupabaseClient()
-  const userId = 'user_2gZ57JFRh7580dLxaYc0WoWlYuQ'
+  const userId = 'user_2n0KdKsdOXP6P72UmWaNxByxEDN'
 
   const clients = Array.from({ length: 100 }, () => ({
     user_id: userId,

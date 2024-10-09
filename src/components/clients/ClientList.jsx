@@ -19,7 +19,6 @@ import {
   TableSortLabel
 } from '@mui/material'
 import { visuallyHidden } from '@mui/utils'
-import { useAuth } from '@clerk/nextjs'
 import { styled } from '@mui/material/styles'
 
 import { fetchClients } from '@actions/clients'
@@ -48,7 +47,6 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 }))
 
 const ClientList = () => {
-  const { userId } = useAuth()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -60,32 +58,22 @@ const ClientList = () => {
   const [order, setOrder] = useState('asc')
   const [orderBy, setOrderBy] = useState('full_name')
 
-  const loadClients = useCallback(
-    async (newPage, newRowsPerPage, newOrderBy, newOrder) => {
-      if (!userId) return
-      setIsLoading(true)
-      setError(null)
+  const loadClients = useCallback(async (newPage, newRowsPerPage, newOrderBy, newOrder) => {
+    setIsLoading(true)
+    setError(null)
 
-      try {
-        const { clients: clientsData, totalCount } = await fetchClients(
-          newPage + 1,
-          newRowsPerPage,
-          userId,
-          newOrderBy,
-          newOrder
-        )
+    try {
+      const { clients: clientsData, totalCount } = await fetchClients(newPage + 1, newRowsPerPage, newOrderBy, newOrder)
 
-        setLocalClients(clientsData)
-        setTotalCount(totalCount)
-      } catch (err) {
-        console.error('Error fetching clients:', err)
-        setError(err.message)
-      } finally {
-        setIsLoading(false)
-      }
-    },
-    [userId]
-  )
+      setLocalClients(clientsData)
+      setTotalCount(totalCount)
+    } catch (err) {
+      console.error('Error fetching clients:', err)
+      setError(err.message)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
     // Fetch clients when component is mounted
@@ -131,7 +119,7 @@ const ClientList = () => {
       ) : (
         <>
           <Box mb={4}>
-            <ClientSearch userId={userId} onClientSelect={handleClientSelect} />
+            <ClientSearch onClientSelect={handleClientSelect} />
           </Box>
           <TableContainer component={Paper}>
             <Table>

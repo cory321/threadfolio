@@ -5,30 +5,25 @@ import throttle from 'lodash/throttle'
 
 import { searchClients } from '@/app/actions/clients'
 
-const ClientLookup = ({ onClientSelect, userId }) => {
+const ClientLookup = ({ onClientSelect }) => {
   const [query, setQuery] = useState('')
   const [options, setOptions] = useState([])
   const [loading, setLoading] = useState(false)
 
-  const fetchClients = useCallback(
-    async query => {
-      setLoading(true)
+  const fetchClients = useCallback(async query => {
+    setLoading(true)
 
-      try {
-        if (userId) {
-          const data = await searchClients(query, userId)
+    try {
+      const data = await searchClients(query)
 
-          setOptions(data.length > 0 ? data : [])
-        }
-      } catch (error) {
-        console.error('Error fetching clients:', error)
-        setOptions([])
-      } finally {
-        setLoading(false)
-      }
-    },
-    [userId]
-  )
+      setOptions(data.length > 0 ? data : [])
+    } catch (error) {
+      console.error('Error fetching clients:', error)
+      setOptions([])
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
   const handleSearch = useMemo(() => throttle(fetchClients, 300), [fetchClients])
 

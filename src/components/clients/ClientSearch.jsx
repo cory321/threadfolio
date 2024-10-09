@@ -20,32 +20,27 @@ const CustomTextField = styled(TextField)(({ theme }) => ({
   }
 }))
 
-const ClientSearch = ({ userId, onClientSelect = () => {}, onClose = () => {} }) => {
+const ClientSearch = ({ onClientSelect = () => {}, onClose = () => {} }) => {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [selectedClient, setSelectedClient] = useState(null)
   const [loading, setLoading] = useState(false)
   const [isPending, startTransition] = useTransition()
 
-  const fetchClients = useCallback(
-    async query => {
-      setLoading(true)
+  const fetchClients = useCallback(async query => {
+    setLoading(true)
 
-      try {
-        if (userId) {
-          const data = await searchClients(query, userId)
+    try {
+      const data = await searchClients(query)
 
-          setResults(data.length > 0 ? data : [])
-        }
-      } catch (error) {
-        console.error('Error fetching clients:', error)
-        setResults([])
-      } finally {
-        setLoading(false)
-      }
-    },
-    [userId]
-  )
+      setResults(data.length > 0 ? data : [])
+    } catch (error) {
+      console.error('Error fetching clients:', error)
+      setResults([])
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
   const handleSearch = useMemo(() => throttle(fetchClients, 300), [fetchClients])
 
