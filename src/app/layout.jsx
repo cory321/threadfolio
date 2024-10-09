@@ -1,5 +1,3 @@
-import { ClerkProvider } from '@clerk/nextjs'
-
 // Third-party Imports
 import 'react-perfect-scrollbar/dist/css/styles.css'
 
@@ -20,25 +18,10 @@ const RootLayout = ({ children }) => {
   // Vars
   const direction = 'ltr'
 
-  const appearance = {
-    variables: {
-      colorPrimary: primaryColor
-    }
-  }
-
   return (
-    <ClerkProvider
-      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-      signInUrl='/login'
-      signUpUrl='/register'
-      signInFallbackRedirectUrl='/dashboard'
-      signUpFallbackRedirectUrl='/onboarding'
-      appearance={appearance}
-    >
-      <html id='__next' lang='en' dir={direction}>
-        <body className='flex is-full min-bs-full flex-auto flex-col'>{children}</body>
-      </html>
-    </ClerkProvider>
+    <html id='__next' lang='en' dir={direction}>
+      <body className='flex is-full min-bs-full flex-auto flex-col'>{children}</body>
+    </html>
   )
 }
 
