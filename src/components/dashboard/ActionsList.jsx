@@ -4,24 +4,21 @@ import React, { useState, useCallback } from 'react'
 
 import dynamic from 'next/dynamic'
 
-import { Typography, Card, CardContent, List, CircularProgress, Grid } from '@mui/material'
+import { Typography, Card, CardContent, List, Grid } from '@mui/material'
 
 import ActionItem from './ActionItem'
 
 // Dynamically Imported Modals
 const AddClientModal = dynamic(() => import('@/components/clients/AddClientModal'), {
-  ssr: false,
-  loading: () => <CircularProgress />
+  ssr: true
 })
 
 const AddAppointmentModal = dynamic(() => import('@/views/apps/calendar/AddAppointmentModal'), {
-  ssr: false,
-  loading: () => <CircularProgress />
+  ssr: true
 })
 
 const AddServiceModal = dynamic(() => import('@/components/services/AddServiceModal'), {
-  ssr: false,
-  loading: () => <CircularProgress />
+  ssr: true
 })
 
 // Actions Array with Remix Icon class names

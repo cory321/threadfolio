@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react'
 
-import { Box, CircularProgress, IconButton, List, ListItem, TextField, Typography } from '@mui/material'
+import { Box, CircularProgress, IconButton, List, ListItem, TextField, Typography, Skeleton } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SaveIcon from '@mui/icons-material/Save'
@@ -50,7 +50,21 @@ const TodoListContent = ({ todos, setTodos }) => {
   }
 
   if (loading) {
-    return <CircularProgress />
+    return (
+      <List>
+        {[1, 2].map(item => (
+          <ListItem key={item} sx={{ mb: 1 }}>
+            <Box display='flex' alignItems='center' justifyContent='space-between' width='100%'>
+              <Skeleton variant='text' width='70%' height={40} />
+              <Box display='flex' alignItems='center'>
+                <Skeleton variant='circular' width={40} height={40} sx={{ mr: 1 }} />
+                <Skeleton variant='circular' width={40} height={40} />
+              </Box>
+            </Box>
+          </ListItem>
+        ))}
+      </List>
+    )
   }
 
   return (

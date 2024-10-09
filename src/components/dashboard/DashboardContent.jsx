@@ -9,33 +9,18 @@ import { useMediaQuery, Box, Grid, Card, CardContent, CardHeader } from '@mui/ma
 import { defaultBreakpoints } from '@menu/defaultConfigs'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import Greeting from '@components/todo/Greeting'
-import UpcomingAppointments from '@/components/home/UpcomingAppointments'
+import UpcomingAppointments from '@/components/dashboard/UpcomingAppointments'
 import { dismissOnboarding } from '@/app/actions/users'
 
-const GarmentPriority = dynamic(() => import('@/components/home/GarmentPriority'), {
+const GarmentPriority = dynamic(() => import('@/components/dashboard/GarmentPriority'), {
   ssr: false,
   loading: LoadingSpinner
 })
 
-const OnboardingWelcome = dynamic(() => import('@/components/OnboardingWelcome'), {
-  ssr: false,
-  loading: LoadingSpinner
-})
-
-const ActionsList = dynamic(() => import('@components/home/ActionsList'), {
-  ssr: false,
-  loading: LoadingSpinner
-})
-
-const AddTodoForm = dynamic(() => import('@components/todo/AddTodoForm'), {
-  ssr: false,
-  loading: LoadingSpinner
-})
-
-const TodoList = dynamic(() => import('@components/todo/TodoList'), {
-  ssr: false,
-  loading: LoadingSpinner
-})
+import OnboardingWelcome from '@/components/OnboardingWelcome'
+import ActionsList from '@components/dashboard/ActionsList'
+import AddTodoForm from '@components/todo/AddTodoForm'
+import TodoList from '@components/todo/TodoList'
 
 export default function DashboardContent({ showOnboarding: initialShowOnboarding }) {
   const [todos, setTodos] = useState(null)
