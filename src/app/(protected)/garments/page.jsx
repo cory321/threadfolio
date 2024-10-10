@@ -161,7 +161,6 @@ export default function GarmentsPage() {
     <Box sx={{ p: 3 }}>
       {/* Stage Selection */}
       {!isMobile ? (
-        // Stage Pipeline for larger screens
         <Box
           sx={{
             display: 'flex',
@@ -190,7 +189,6 @@ export default function GarmentsPage() {
           ))}
         </Box>
       ) : (
-        // Dropdown menu for mobile screens
         <FormControl fullWidth sx={{ mb: 3 }}>
           <InputLabel id='stage-select-label'>Select Stage</InputLabel>
           <Select

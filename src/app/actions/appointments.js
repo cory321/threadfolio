@@ -8,13 +8,13 @@ const transformAppointment = appointment => {
   let appointmentTitle = 'Appointment'
 
   switch (appointment.type) {
-    case 'order pickup':
+    case 'order_pickup':
       appointmentTitle = 'Order Pickup'
       break
     case 'general':
       appointmentTitle = 'General Appointment'
       break
-    case 'initial consultation':
+    case 'initial':
       appointmentTitle = 'Initial Consultation'
       break
   }

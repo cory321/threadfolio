@@ -1,23 +1,19 @@
+// src/views/apps/calendar/ViewAppointmentModal.jsx
 import React, { useState } from 'react'
 
 import Link from 'next/link'
 
+import { Dialog, DialogContent, DialogTitle, DialogActions, Button, Typography, Box, IconButton } from '@mui/material'
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Typography,
-  Grid,
-  Divider,
-  Box,
-  Chip,
-  IconButton
-} from '@mui/material'
+  Close as CloseIcon,
+  Person as PersonIcon,
+  Event as EventIcon,
+  AccessTime as AccessTimeIcon,
+  LocationOn as LocationOnIcon,
+  Notes as NotesIcon,
+  Cancel as CancelIcon
+} from '@mui/icons-material'
 import { toast } from 'react-toastify'
-
-import { Event, LocationOn, Person, Notes, Cancel } from '@mui/icons-material'
 
 import { cancelAppointment } from '@/app/actions/appointments'
 
@@ -35,7 +31,6 @@ const ViewAppointmentModal = ({ open, handleClose, selectedEvent, onAppointmentC
       toast.success('Appointment successfully cancelled')
       handleClose()
 
-      // Check if refreshEvents is provided before calling it
       if (refreshEvents) {
         refreshEvents()
       }
@@ -49,11 +44,18 @@ const ViewAppointmentModal = ({ open, handleClose, selectedEvent, onAppointmentC
 
   const formatDate = date => {
     return date
-      ? new Date(date).toLocaleString(undefined, {
+      ? new Date(date).toLocaleDateString(undefined, {
           weekday: 'long',
           year: 'numeric',
           month: 'long',
-          day: 'numeric',
+          day: 'numeric'
+        })
+      : 'Not set'
+  }
+
+  const formatTime = date => {
+    return date
+      ? new Date(date).toLocaleTimeString(undefined, {
           hour: '2-digit',
           minute: '2-digit'
         })
@@ -62,86 +64,97 @@ const ViewAppointmentModal = ({ open, handleClose, selectedEvent, onAppointmentC
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth='sm' fullWidth>
-      <DialogTitle>
-        <Typography variant='h5' component='div' sx={{ fontWeight: 'bold' }}>
-          {selectedEvent.title || 'Untitled Appointment'}
+      {/* Dialog Title with Close Button */}
+      <DialogTitle sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', position: 'relative', pl: 3, py: 2 }}>
+        <Typography variant='h5' component='h2' sx={{ fontWeight: 'bold', color: 'primary.contrastText' }}>
+          {(selectedEvent.title && selectedEvent.title.split('-')[0].trim()) || 'Untitled Appointment'}
         </Typography>
-        <IconButton aria-label='close' onClick={handleClose} sx={{ position: 'absolute', right: 8, top: 8 }}>
-          <Cancel />
+        <IconButton
+          aria-label='close'
+          onClick={handleClose}
+          sx={{ position: 'absolute', top: 8, right: 8, color: 'grey.500' }}
+        >
+          <CloseIcon />
         </IconButton>
       </DialogTitle>
-      <DialogContent dividers>
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <Box display='flex' alignItems='center' mb={2}>
-              <Event color='primary' sx={{ mr: 1 }} />
-              <Typography variant='subtitle1' component='div'>
-                {formatDate(selectedEvent.start)} - {formatDate(selectedEvent.end)}
+
+      {/* Dialog Content */}
+      <DialogContent dividers sx={{ p: 4, mb: 4 }}>
+        {/* Client Name */}
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+          <PersonIcon sx={{ mr: 2, color: 'primary.main', fontSize: 28 }} />
+          {selectedEvent.extendedProps?.clientId ? (
+            <Link href={`/clients/${selectedEvent.extendedProps.clientId}`} passHref>
+              <Typography
+                component='a'
+                variant='h6'
+                sx={{
+                  fontWeight: 'bold',
+                  color: 'primary.main',
+                  textDecoration: 'none',
+                  '&:hover': { textDecoration: 'underline' }
+                }}
+              >
+                {selectedEvent.extendedProps?.clientName || 'Not set'}
               </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12}>
-            <Box display='flex' alignItems='center' mb={2}>
-              <Person color='primary' sx={{ mr: 1 }} />
-              <Typography variant='subtitle1' component='div'>
-                Client:{' '}
-                {selectedEvent.extendedProps?.clientId ? (
-                  <Link href={`/clients/${selectedEvent.extendedProps.clientId}`} passHref>
-                    <Typography
-                      component='a'
-                      variant='subtitle1'
-                      color='primary'
-                      sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
-                    >
-                      {selectedEvent.extendedProps?.clientName || 'Not set'}
-                    </Typography>
-                  </Link>
-                ) : (
-                  selectedEvent.extendedProps?.clientName || 'Not set'
-                )}
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12}>
-            <Box display='flex' alignItems='center' mb={2}>
-              <LocationOn color='primary' sx={{ mr: 1 }} />
-              <Typography variant='subtitle1' component='div'>
-                Location: {selectedEvent.extendedProps?.location || 'Not set'}
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12}>
-            <Chip
-              label={selectedEvent.extendedProps?.type || 'Not set'}
-              color='primary'
-              variant='outlined'
-              sx={{ mb: 2 }}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Divider sx={{ my: 2 }} />
-            <Box display='flex' alignItems='flex-start'>
-              <Notes color='primary' sx={{ mr: 1, mt: 0.5 }} />
-              <Typography variant='body1' component='div'>
-                <Box fontWeight='fontWeightMedium' display='inline'>
-                  Notes:
-                </Box>{' '}
-                {selectedEvent.extendedProps?.notes || 'Not set'}
-              </Typography>
-            </Box>
-          </Grid>
-        </Grid>
+            </Link>
+          ) : (
+            <Typography variant='h6' sx={{ fontWeight: 'bold' }}>
+              {selectedEvent.extendedProps?.clientName || 'Not set'}
+            </Typography>
+          )}
+        </Box>
+
+        {/* Date */}
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <EventIcon sx={{ mr: 2, color: 'primary.main', fontSize: 28 }} />
+          <Typography variant='body1'>{formatDate(selectedEvent.start)}</Typography>
+        </Box>
+
+        {/* Time */}
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <AccessTimeIcon sx={{ mr: 2, color: 'primary.main', fontSize: 28 }} />
+          <Typography variant='body1'>
+            {formatTime(selectedEvent.start)} - {formatTime(selectedEvent.end)}
+          </Typography>
+        </Box>
+
+        {/* Location */}
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+          <LocationOnIcon sx={{ mr: 2, color: 'primary.main', fontSize: 28 }} />
+          <Typography variant='body1'>{selectedEvent.extendedProps?.location || 'Not set'}</Typography>
+        </Box>
+
+        {/* Notes */}
+        <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+          <NotesIcon sx={{ mr: 2, color: 'primary.main', fontSize: 28, mt: 0.5 }} />
+          <Box>
+            <Typography variant='body1' sx={{ fontWeight: 'medium', mb: 0.5 }}>
+              Notes:
+            </Typography>
+            <Typography variant='body1'>{selectedEvent.extendedProps?.notes || 'Not set'}</Typography>
+          </Box>
+        </Box>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose} color='primary'>
-          Close
+
+      {/* Dialog Actions */}
+      <DialogActions sx={{ justifyContent: 'space-between' }}>
+        <Button
+          variant='outlined'
+          color='primary'
+          sx={{ mx: 1 }}
+
+          // Add onClick handler for rescheduling as needed
+        >
+          Reschedule
         </Button>
         <Button
-          onClick={handleCancel}
+          variant='outlined'
           color='error'
-          variant='contained'
+          onClick={handleCancel}
           disabled={isCancelling || selectedEvent.extendedProps?.status === 'cancelled'}
-          startIcon={<Cancel />}
+          startIcon={<CancelIcon />}
+          sx={{ mx: 1 }}
         >
           {isCancelling ? 'Cancelling...' : 'Cancel Appointment'}
         </Button>

@@ -20,7 +20,6 @@ import {
 import { format, parse, getDay } from 'date-fns'
 import { useTheme } from '@mui/material/styles'
 import { alpha } from '@mui/system'
-import EventIcon from '@mui/icons-material/Event'
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
 
 const ViewAppointmentModal = dynamic(() => import('@/views/apps/calendar/ViewAppointmentModal'), {
