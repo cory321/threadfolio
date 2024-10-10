@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 
+import Link from 'next/link'
+
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Grid } from '@mui/material'
 
 import { toast } from 'react-toastify'
@@ -49,7 +51,23 @@ const ViewAppointmentModal = ({ open, handleClose, selectedEvent, onAppointmentC
             </Typography>
           </Grid>
           <Grid item xs={12}>
-            <Typography variant='body1'>Client: {selectedEvent.extendedProps?.clientName || 'Not set'}</Typography>
+            <Typography variant='body1'>
+              Client:{' '}
+              {selectedEvent.extendedProps?.clientId ? (
+                <Link href={`/clients/${selectedEvent.extendedProps.clientId}`} passHref>
+                  <Typography
+                    component='a'
+                    variant='body1'
+                    color='primary'
+                    sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                  >
+                    {selectedEvent.extendedProps?.clientName || 'Not set'}
+                  </Typography>
+                </Link>
+              ) : (
+                selectedEvent.extendedProps?.clientName || 'Not set'
+              )}
+            </Typography>
           </Grid>
           <Grid item xs={12}>
             <Typography variant='body1'>Location: {selectedEvent.extendedProps?.location || 'Not set'}</Typography>

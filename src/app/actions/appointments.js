@@ -1,5 +1,7 @@
 'use server'
 
+import { auth } from '@clerk/nextjs/server'
+
 import { getSupabaseClient } from './utils'
 
 const transformAppointment = appointment => {
@@ -32,7 +34,8 @@ const transformAppointment = appointment => {
       sendEmail: appointment.send_email,
       sendSms: appointment.send_sms,
       notes: appointment.notes,
-      clientName: clientName
+      clientName: clientName,
+      clientId: appointment.client_id
     }
   }
 }
@@ -81,8 +84,9 @@ export async function addAppointment(
   }
 }
 
-export async function getAppointments(userId, start, end) {
+export async function getAppointments(start, end) {
   const supabase = await getSupabaseClient()
+  const { userId } = auth()
 
   let query = supabase
     .from('appointments')

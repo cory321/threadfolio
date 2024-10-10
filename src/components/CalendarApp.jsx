@@ -16,32 +16,28 @@ import { getAppointments } from '@/app/actions/appointments'
 import CalendarWrapper from '@views/apps/calendar/CalendarWrapper'
 
 const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
-  const { userId } = useAuth()
   const [events, setEvents] = useState([])
   const [visibleDateRange, setVisibleDateRange] = useState({ start: null, end: null })
 
-  const fetchEvents = useCallback(
-    async currentDate => {
-      try {
-        const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
-        const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
+  const fetchEvents = useCallback(async currentDate => {
+    try {
+      const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
+      const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
 
-        const startDate = prevMonth.toISOString()
-        const endDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0).toISOString()
+      const startDate = prevMonth.toISOString()
+      const endDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0).toISOString()
 
-        const appointmentEvents = await getAppointments(userId, startDate, endDate)
+      const appointmentEvents = await getAppointments(startDate, endDate)
 
-        setEvents(appointmentEvents)
+      setEvents(appointmentEvents)
 
-        return appointmentEvents
-      } catch (error) {
-        console.error('Error fetching events:', error)
+      return appointmentEvents
+    } catch (error) {
+      console.error('Error fetching events:', error)
 
-        return []
-      }
-    },
-    [userId]
-  )
+      return []
+    }
+  }, [])
 
   const handleDatesSet = useCallback(
     dateInfo => {
@@ -57,10 +53,8 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
   )
 
   useEffect(() => {
-    if (userId) {
-      fetchEvents(new Date())
-    }
-  }, [userId, fetchEvents])
+    fetchEvents(new Date())
+  }, [fetchEvents])
 
   const handleAddAppointment = useCallback(newAppointment => {
     console.log('Adding new appointment:', newAppointment)
