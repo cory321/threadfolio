@@ -1,41 +1,71 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, Suspense } from 'react'
 
-import { Box, CircularProgress, IconButton, List, ListItem, TextField, Typography } from '@mui/material'
+import useSWR from 'swr'
+import { useAuth } from '@clerk/nextjs'
+import {
+  Box,
+  CircularProgress,
+  IconButton,
+  List,
+  ListItem,
+  TextField,
+  Typography,
+  Skeleton,
+  Button
+} from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Cancel'
 
-import { deleteTodo, editTodo, loadTodosAction } from '@/app/actions/todos'
+import { deleteTodo, editTodo, loadTodosAction, addTodo } from '@/app/actions/todos'
 
-const TodoListContent = ({ todos, setTodos }) => {
-  const [loading, setLoading] = useState(true)
+const TodoListContent = () => {
+  const { userId } = useAuth()
+  const { data: todos, error, isLoading, mutate } = useSWR('todos', loadTodosAction)
+  const [newTodo, setNewTodo] = useState('')
+  const [isAddingTodo, setIsAddingTodo] = useState(false)
 
-  useEffect(() => {
-    const loadTodos = async () => {
-      try {
-        setLoading(true)
-        const todos = await loadTodosAction()
+  const handleAddTodo = async e => {
+    e.preventDefault()
+    if (newTodo === '') return
 
-        setTodos(todos)
-      } catch (e) {
-        console.error(e)
-      } finally {
-        setLoading(false)
-      }
+    setIsAddingTodo(true)
+
+    try {
+      // Optimistic update
+      const optimisticTodo = { id: Date.now(), title: newTodo, user_id: userId }
+
+      mutate([...todos, optimisticTodo], false)
+
+      const addedTodo = await addTodo(userId, newTodo)
+
+      // Update with the actual todo from the server
+      mutate(currentTodos => currentTodos.map(todo => (todo.id === optimisticTodo.id ? addedTodo : todo)), false)
+
+      setNewTodo('')
+    } catch (error) {
+      console.error('Error adding todo:', error)
+
+      // Revert the optimistic update
+      mutate()
+    } finally {
+      setIsAddingTodo(false)
     }
-
-    loadTodos()
-  }, [setTodos])
+  }
 
   const handleDelete = async id => {
     try {
       await deleteTodo(id)
-      setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id))
+      mutate(
+        todos.filter(todo => todo.id !== id),
+        false
+      )
     } catch (error) {
       console.error('Error deleting todo:', error)
+      mutate()
     }
   }
 
@@ -43,18 +73,52 @@ const TodoListContent = ({ todos, setTodos }) => {
     try {
       const updatedTodo = await editTodo(id, newTitle)
 
-      setTodos(prevTodos => prevTodos.map(todo => (todo.id === id ? updatedTodo : todo)))
+      mutate(
+        todos.map(todo => (todo.id === id ? updatedTodo : todo)),
+        false
+      )
     } catch (error) {
       console.error('Error editing todo:', error)
+      mutate()
     }
   }
 
-  if (loading) {
-    return <CircularProgress />
+  if (error) return <Typography color='error'>Error loading todos</Typography>
+
+  if (isLoading) {
+    return (
+      <List>
+        {[1, 2].map(item => (
+          <ListItem key={item} sx={{ mb: 1 }}>
+            <Box display='flex' alignItems='center' justifyContent='space-between' width='100%'>
+              <Skeleton variant='text' width='70%' height={40} />
+              <Box display='flex' alignItems='center'>
+                <Skeleton variant='circular' width={40} height={40} sx={{ mr: 1 }} />
+                <Skeleton variant='circular' width={40} height={40} />
+              </Box>
+            </Box>
+          </ListItem>
+        ))}
+      </List>
+    )
   }
 
   return (
     <Box>
+      <Box component='form' onSubmit={handleAddTodo} display='flex' alignItems='center' mb={2}>
+        <TextField
+          onChange={e => setNewTodo(e.target.value)}
+          value={newTodo}
+          disabled={isAddingTodo}
+          fullWidth
+          placeholder='Add a new task...'
+          size='small'
+          sx={{ mr: 2 }}
+        />
+        <Button type='submit' variant='contained' color='primary' disabled={isAddingTodo} sx={{ whiteSpace: 'nowrap' }}>
+          Add Todo
+        </Button>
+      </Box>
       {todos && todos.length > 0 ? (
         <List>
           {todos.map(todo => (
@@ -140,10 +204,10 @@ const TodoItem = ({ todo, onDelete, onEdit }) => {
   )
 }
 
-const TodoList = ({ todos, setTodos }) => {
+const TodoList = () => {
   return (
     <Suspense fallback={<CircularProgress />}>
-      <TodoListContent todos={todos} setTodos={setTodos} />
+      <TodoListContent />
     </Suspense>
   )
 }

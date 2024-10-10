@@ -10,7 +10,7 @@ import AddAppointmentModal from '@/views/apps/calendar/AddAppointmentModal'
 
 import AppointmentList from './AppointmentList'
 
-const UpcomingClientAppointments = ({ appointments, clientName, clientId, showCancelled, onAddAppointment }) => {
+const UpcomingClientAppointments = ({ appointments, clientName, clientId, showCancelled, mutateAppointments }) => {
   const [isAddAppointmentModalOpen, setIsAddAppointmentModalOpen] = useState(false)
 
   const handleOpenAddAppointmentModal = () => {
@@ -56,7 +56,7 @@ const UpcomingClientAppointments = ({ appointments, clientName, clientId, showCa
         addEventModalOpen={isAddAppointmentModalOpen}
         handleAddEventModalToggle={handleCloseAddAppointmentModal}
         client={{ id: clientId, full_name: clientName }}
-        onAddAppointment={onAddAppointment} // Pass the handler down
+        mutateAppointments={mutateAppointments}
       />
     </>
   )

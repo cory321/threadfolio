@@ -1,10 +1,10 @@
 'use client'
 
 // MUI Imports
-import { useEffect, useState, useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
 import Card from '@mui/material/Card'
-import { useAuth } from '@clerk/nextjs'
+import useSWR from 'swr'
 
 // Styled Component Imports
 import AppFullCalendar from '@/libs/styles/AppFullCalendar'
@@ -15,32 +15,26 @@ import { getAppointments } from '@/app/actions/appointments'
 // Calendar Wrapper Import
 import CalendarWrapper from '@views/apps/calendar/CalendarWrapper'
 
+const fetchAppointments = async (startDate, endDate) => {
+  try {
+    const appointmentEvents = await getAppointments(startDate, endDate)
+
+    return appointmentEvents
+  } catch (error) {
+    console.error('Error fetching events:', error)
+
+    return []
+  }
+}
+
 const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
-  const { userId } = useAuth()
-  const [events, setEvents] = useState([])
   const [visibleDateRange, setVisibleDateRange] = useState({ start: null, end: null })
 
-  const fetchEvents = useCallback(
-    async currentDate => {
-      try {
-        const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
-        const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
-
-        const startDate = prevMonth.toISOString()
-        const endDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0).toISOString()
-
-        const appointmentEvents = await getAppointments(userId, startDate, endDate)
-
-        setEvents(appointmentEvents)
-
-        return appointmentEvents
-      } catch (error) {
-        console.error('Error fetching events:', error)
-
-        return []
-      }
-    },
-    [userId]
+  const { data: events = [], mutate: mutateAppointments } = useSWR(
+    visibleDateRange.start && visibleDateRange.end
+      ? ['appointments', visibleDateRange.start, visibleDateRange.end]
+      : null,
+    () => fetchAppointments(visibleDateRange.start, visibleDateRange.end)
   )
 
   const handleDatesSet = useCallback(
@@ -50,32 +44,14 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
 
       if (newStart !== visibleDateRange.start || newEnd !== visibleDateRange.end) {
         setVisibleDateRange({ start: newStart, end: newEnd })
-        fetchEvents(dateInfo.start)
       }
     },
-    [visibleDateRange, fetchEvents]
+    [visibleDateRange]
   )
 
-  useEffect(() => {
-    if (userId) {
-      fetchEvents(new Date())
-    }
-  }, [userId, fetchEvents])
-
-  const handleAddAppointment = useCallback(newAppointment => {
-    console.log('Adding new appointment:', newAppointment)
-    setEvents(prevEvents => {
-      const updatedEvents = [...prevEvents, newAppointment]
-
-      console.log('Updated events:', updatedEvents)
-
-      return updatedEvents
-    })
-  }, [])
-
-  const handleCancelAppointment = useCallback(cancelledAppointmentId => {
-    setEvents(prevEvents => prevEvents.filter(event => event.id !== cancelledAppointmentId))
-  }, [])
+  const handleCancelAppointment = useCallback(() => {
+    mutateAppointments() // Re-fetch appointments after cancellation
+  }, [mutateAppointments])
 
   return (
     <Card className='overflow-visible'>
@@ -85,8 +61,7 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
           onDatesSet={handleDatesSet}
           addEventModalOpen={addEventModalOpen}
           handleAddEventModalToggle={handleAddEventModalToggle}
-          refreshEvents={fetchEvents}
-          onAddAppointment={handleAddAppointment}
+          mutateAppointments={mutateAppointments}
           onCancelAppointment={handleCancelAppointment}
         />
       </AppFullCalendar>

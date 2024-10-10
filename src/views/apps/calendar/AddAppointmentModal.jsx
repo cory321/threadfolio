@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 
+import { mutate } from 'swr'
+import { format, setHours, setMinutes } from 'date-fns'
 import {
   Dialog,
   DialogTitle,
@@ -19,32 +21,19 @@ import {
 } from '@mui/material'
 import { useForm } from 'react-hook-form'
 import { useAuth } from '@clerk/nextjs'
-
-import { setHours, setMinutes } from 'date-fns'
-
 import { toast } from 'react-toastify'
-
 import CloseIcon from '@mui/icons-material/Close'
 
 import InitialsAvatar from '@/components/InitialsAvatar'
-
 import { addAppointment } from '@/app/actions/appointments'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 import DatePickerInput from './DatePickerInput'
 import AppointmentTypeRadioIcons from './AppointmentTypeRadioIcons'
 import ClientSearch from '@/components/clients/ClientSearch'
-
 import { adjustEndTimeIfNeeded } from '@/utils/dateTimeUtils'
 
 const AddAppointmentModal = props => {
-  const {
-    addEventModalOpen,
-    handleAddEventModalToggle,
-    selectedDate,
-    dispatch,
-    onAddAppointment = () => {},
-    client
-  } = props
+  const { addEventModalOpen, handleAddEventModalToggle, selectedDate, mutateAppointments = () => {}, client } = props
 
   const { userId } = useAuth()
   const theme = useTheme()
@@ -101,18 +90,6 @@ const AddAppointmentModal = props => {
       appointmentDate: selectedDate || new Date()
     })
     handleAddEventModalToggle()
-  }
-
-  const formatDateToLocalMidnight = date => {
-    const localDate = new Date(date)
-
-    localDate.setHours(0, 0, 0, 0)
-
-    return localDate.toISOString().split('T')[0]
-  }
-
-  const formatTimeToHHMMSS = date => {
-    return date.toTimeString().split(' ')[0]
   }
 
   const combineDateAndTime = (date, time) => {
@@ -187,7 +164,11 @@ const AddAppointmentModal = props => {
         }
       }
 
-      onAddAppointment(transformedAppointment) // Update the appointments in parent
+      // Trigger SWR revalidation by calling mutate without data
+      const today = format(new Date(), 'yyyy-MM-dd')
+
+      mutate(['appointments', today])
+      mutateAppointments()
       handleAddEventModalToggle()
       toast.success('Appointment added successfully')
     } catch (error) {

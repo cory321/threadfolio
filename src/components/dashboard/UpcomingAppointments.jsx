@@ -1,41 +1,52 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 import Link from 'next/link'
 
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar'
-
-import { List, ListItem, ListItemText, Typography, Box, Grid, Button, Chip, Avatar } from '@mui/material'
-import { useAuth } from '@clerk/nextjs'
+import useSWR from 'swr'
+import {
+  List,
+  ListItemButton,
+  ListItemText,
+  Typography,
+  Box,
+  Grid,
+  Button,
+  Chip,
+  Avatar,
+  CircularProgress
+} from '@mui/material'
 import { format, parse, getDay } from 'date-fns'
 import { useTheme } from '@mui/material/styles'
 import { alpha } from '@mui/system'
 import EventIcon from '@mui/icons-material/Event'
 
+import ViewAppointmentModal from '@/views/apps/calendar/ViewAppointmentModal'
 import { getAppointments } from '@/app/actions/appointments'
 
 const UpcomingAppointments = () => {
-  const { userId } = useAuth()
-  const [appointments, setAppointments] = useState([])
   const theme = useTheme()
+  const [viewEventModalOpen, setViewEventModalOpen] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState(null)
 
-  useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        const today = new Date().toISOString()
-        const appointmentEvents = await getAppointments(userId, today)
+  const handleViewEventModalToggle = () => {
+    setViewEventModalOpen(!viewEventModalOpen)
+  }
 
-        setAppointments(appointmentEvents)
-      } catch (error) {
-        console.error('Error fetching appointments:', error)
-      }
-    }
+  const handleAppointmentClick = appointment => {
+    setSelectedEvent(appointment)
+    handleViewEventModalToggle()
+  }
 
-    if (userId) {
-      fetchAppointments()
-    }
-  }, [userId])
+  // Format today's date to 'yyyy-MM-dd'
+  const today = format(new Date(), 'yyyy-MM-dd')
+
+  // Use SWR to fetch appointments starting from today
+  const {
+    data: appointments = [],
+    error,
+    isLoading,
+    mutate
+  } = useSWR(['appointments', today], (_, date) => getAppointments(date))
 
   const appointmentTypeMap = {
     initial: 'Initial Consultation',
@@ -43,6 +54,23 @@ const UpcomingAppointments = () => {
     order_pickup: 'Order Pickup'
   }
 
+  if (error) {
+    return (
+      <Box>
+        <Typography color='error'>Failed to load appointments</Typography>
+      </Box>
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <Box display='flex' justifyContent='center' alignItems='center'>
+        <CircularProgress />
+      </Box>
+    )
+  }
+
+  // Group appointments by date
   const groupedAppointments = appointments.reduce((acc, appointment) => {
     const date = format(new Date(appointment.start), 'MMMM d, yyyy')
 
@@ -55,6 +83,7 @@ const UpcomingAppointments = () => {
     return acc
   }, {})
 
+  // Sort dates
   const sortedDates = Object.keys(groupedAppointments).sort(
     (a, b) => parse(a, 'MMMM d, yyyy', new Date()) - parse(b, 'MMMM d, yyyy', new Date())
   )
@@ -62,7 +91,18 @@ const UpcomingAppointments = () => {
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
   // Get the next 5 appointment dates
-  const nextFiveDates = sortedDates.slice(0, 4)
+  const nextFiveDates = sortedDates.slice(0, 5)
+
+  // Function to handle appointment cancellation
+  const handleAppointmentCancelled = async cancelledAppointmentId => {
+    // Optimistically update the cached data
+    mutate(
+      appointments => {
+        return appointments.filter(appointment => appointment.id !== cancelledAppointmentId)
+      },
+      false // Set to false to prevent revalidation
+    )
+  }
 
   return (
     <Box>
@@ -79,11 +119,6 @@ const UpcomingAppointments = () => {
               View All
             </Button>
           </Link>
-        </Box>
-        <Box mt={2}>
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <DateCalendar />
-          </LocalizationProvider>
         </Box>
       </Box>
       {appointments.length === 0 ? (
@@ -120,7 +155,12 @@ const UpcomingAppointments = () => {
                 </Typography>
               </Box>
               {groupedAppointments[date].map(appointment => (
-                <ListItem key={appointment.id} alignItems='flex-start' sx={{ paddingLeft: 2, paddingRight: 2 }}>
+                <ListItemButton
+                  key={appointment.id}
+                  alignItems='flex-start'
+                  sx={{ paddingLeft: 2, paddingRight: 2 }}
+                  onClick={() => handleAppointmentClick(appointment)}
+                >
                   <Grid container alignItems='center'>
                     <Grid item xs={9}>
                       <ListItemText
@@ -171,11 +211,20 @@ const UpcomingAppointments = () => {
                       </Typography>
                     </Grid>
                   </Grid>
-                </ListItem>
+                </ListItemButton>
               ))}
             </Box>
           ))}
         </List>
+      )}
+      {/* ViewAppointmentModal */}
+      {selectedEvent && (
+        <ViewAppointmentModal
+          open={viewEventModalOpen}
+          handleClose={handleViewEventModalToggle}
+          selectedEvent={selectedEvent}
+          onAppointmentCancelled={handleAppointmentCancelled}
+        />
       )}
     </Box>
   )
