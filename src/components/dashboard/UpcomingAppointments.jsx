@@ -100,7 +100,7 @@ const UpcomingAppointments = () => {
       appointments => {
         return appointments.filter(appointment => appointment.id !== cancelledAppointmentId)
       },
-      false // Do not revalidate immediately
+      false // Set to false to prevent revalidation
     )
   }
 
@@ -224,7 +224,6 @@ const UpcomingAppointments = () => {
           handleClose={handleViewEventModalToggle}
           selectedEvent={selectedEvent}
           onAppointmentCancelled={handleAppointmentCancelled}
-          refreshEvents={mutate}
         />
       )}
     </Box>

@@ -4,7 +4,7 @@
 import { useReducer, useState, useEffect, useCallback } from 'react'
 
 // MUI Imports
-import { useMediaQuery, Button } from '@mui/material'
+import { useMediaQuery } from '@mui/material'
 
 // Reducer Imports
 import AddAppointmentModal from '@views/apps/calendar/AddAppointmentModal'
@@ -14,7 +14,7 @@ import calendarReducer from '@reducers/calendarReducer'
 import Calendar from '@views/apps/calendar/Calendar'
 import ViewAppointmentModal from '@views/apps/calendar/ViewAppointmentModal'
 
-// CalendarColors Object
+// Calendar Colors Object
 const calendarsColor = {
   Personal: 'error',
   Business: 'primary',
@@ -28,8 +28,7 @@ const AppCalendar = ({
   addEventModalOpen,
   handleAddEventModalToggle,
   onDatesSet,
-  refreshEvents,
-  onAddAppointment,
+  mutateAppointments,
   onCancelAppointment
 }) => {
   // States
@@ -49,100 +48,36 @@ const AppCalendar = ({
     dispatch({ type: 'init', events })
   }, [events])
 
-  // useEffect(() => {
-  //   console.log('Events state updated:', calendars.events)
-  // }, [calendars.events])
-
   // Hooks
   const [calendars, dispatch] = useReducer(calendarReducer, initialState)
   const mdAbove = useMediaQuery(theme => theme.breakpoints.up('md'))
 
-  // Add event handler
-  const handleAddEvent = async appointmentData => {
-    console.log('New appointment added:', appointmentData)
-    dispatch({ type: 'added', event: appointmentData })
-    onAddAppointment(appointmentData)
-  }
+  // Remove handleAddEvent function since it's no longer needed
 
-  // Update event handler
+  // Update event handler (if needed)
   const handleUpdateEvent = async event => {
-    // Update event API
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/apps/calendar-events`, {
-      method: 'PUT',
-      body: JSON.stringify(event),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-      .then(res => res.json())
-      .then(() => {
-        // Dispatch Update Event Action
-        dispatch({ type: 'updated', event })
-      })
+    // Implement event update logic here
   }
 
-  // Delete event handler
+  // Delete event handler (if needed)
   const handleDeleteEvent = async eventId => {
-    // Delete event API
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/apps/calendar-events`, {
-      method: 'DELETE',
-      body: JSON.stringify({ id: eventId }),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-      .then(res => res.json())
-      .then(() => {
-        // Dispatch Delete Event Action
-        dispatch({ type: 'deleted', eventId })
-      })
+    // Implement event deletion logic here
   }
 
-  // Add this function
+  // Toggle view event modal
   const handleViewEventModalToggle = () => {
     setViewEventModalOpen(!viewEventModalOpen)
   }
 
-  // Dispatch Select Event Action
+  // Select event handler
   const handleSelectEvent = info => {
     setSelectedDate(info.start)
-    setSelectedEvent(info) // Set the selected event
+    setSelectedEvent(info)
     dispatch({ type: 'selected_event', event: info })
-    handleViewEventModalToggle() // Open the view modal when an event is selected
+    handleViewEventModalToggle()
   }
 
-  // Dispatch Select Calendar Action
-  const handleCalendarsUpdate = calendar => {
-    dispatch({ type: 'selected_calendars', calendar })
-  }
-
-  const handleAllCalendars = view_all => {
-    dispatch({ type: 'selected_all_calendars', view_all })
-  }
-
-  // Handle button click to add a default appointment
-  const handleAddAppointmentClick = async () => {
-    try {
-      const data = await addAppointment(
-        defaultAppointment.clientId,
-        defaultAppointment.userId,
-        defaultAppointment.appointmentDate,
-        defaultAppointment.startTime,
-        defaultAppointment.endTime,
-        defaultAppointment.location,
-        defaultAppointment.status,
-        defaultAppointment.type,
-        defaultAppointment.sendEmail,
-        defaultAppointment.sendSms,
-        defaultAppointment.notes
-      )
-
-      handleAddEvent(data)
-    } catch (error) {
-      console.error('Failed to add appointment:', error)
-    }
-  }
-
+  // Appointment cancelled handler
   const handleAppointmentCancelled = useCallback(
     cancelledAppointmentId => {
       dispatch({ type: 'deleted', eventId: cancelledAppointmentId })
@@ -155,7 +90,7 @@ const AppCalendar = ({
     <>
       <div className='p-5 pbe-0 flex-grow overflow-visible bg-backgroundPaper'>
         <Calendar
-          events={events} // Make sure this prop is passed correctly
+          events={events}
           mdAbove={mdAbove}
           calendars={calendars}
           calendarApi={calendarApi}
@@ -173,15 +108,14 @@ const AppCalendar = ({
         addEventModalOpen={addEventModalOpen}
         handleAddEventModalToggle={handleAddEventModalToggle}
         selectedDate={selectedDate}
-        dispatch={dispatch}
-        onAddAppointment={handleAddEvent}
+        mutateAppointments={mutateAppointments}
       />
       <ViewAppointmentModal
         open={viewEventModalOpen}
         handleClose={handleViewEventModalToggle}
         selectedEvent={selectedEvent}
         onAppointmentCancelled={handleAppointmentCancelled}
-        refreshEvents={refreshEvents}
+        refreshEvents={mutateAppointments}
       />
     </>
   )

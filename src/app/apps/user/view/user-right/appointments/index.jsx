@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
+import useSWR from 'swr'
+
 import { useAuth } from '@clerk/nextjs'
 import { Box, Typography, Card, CardContent, Switch, FormControlLabel } from '@mui/material'
 
@@ -10,67 +12,35 @@ import AppointmentHistory from './AppointmentHistory'
 
 const ClientAppointments = ({ clientId, clientName }) => {
   const { userId } = useAuth()
-  const [upcomingAppointments, setUpcomingAppointments] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState(null)
   const [showCancelled, setShowCancelled] = useState(false)
 
-  useEffect(() => {
-    const fetchUpcomingAppointments = async () => {
-      try {
-        setIsLoading(true)
-        const { appointments } = await getClientAppointments(userId, clientId, 1, 10, false)
+  const fetchClientAppointments = async () => {
+    try {
+      const { appointments } = await getClientAppointments(userId, clientId, 1, 10, false)
 
-        setUpcomingAppointments(appointments)
-        setError(null)
-      } catch (error) {
-        console.error('Error fetching upcoming appointments:', error)
-        setError('Failed to load upcoming appointments. Please try again later.')
-      } finally {
-        setIsLoading(false)
-      }
+      return appointments
+    } catch (error) {
+      console.error('Error fetching upcoming appointments:', error)
+      throw error
     }
+  }
 
-    if (userId && clientId) {
-      fetchUpcomingAppointments()
-    } else {
-      console.log('Missing userId or clientId')
-      setIsLoading(false)
-    }
-  }, [userId, clientId])
+  const {
+    data: upcomingAppointments = [],
+    error,
+    mutate: mutateClientAppointments
+  } = useSWR(userId && clientId ? ['clientAppointments', userId, clientId] : null, fetchClientAppointments)
 
   const handleToggleShowCancelled = () => {
     setShowCancelled(!showCancelled)
   }
 
-  // Add this function to handle new appointments
-  const handleAddAppointment = newAppointment => {
-    setUpcomingAppointments(prevAppointments => {
-      const updatedAppointments = [...prevAppointments, newAppointment]
-
-      // Sort appointments by start time to maintain order
-      return updatedAppointments.sort((a, b) => new Date(a.start) - new Date(b.start))
-    })
-  }
-
-  if (isLoading) {
-    return (
-      <Card>
-        <CardContent>
-          <LoadingSpinner />
-        </CardContent>
-      </Card>
-    )
+  if (!upcomingAppointments) {
+    return <LoadingSpinner />
   }
 
   if (error) {
-    return (
-      <Card>
-        <CardContent>
-          <Typography color='error'>{error}</Typography>
-        </CardContent>
-      </Card>
-    )
+    return <Typography color='error'>Failed to load appointments</Typography>
   }
 
   return (
@@ -85,7 +55,7 @@ const ClientAppointments = ({ clientId, clientName }) => {
         clientName={clientName}
         clientId={clientId}
         showCancelled={showCancelled}
-        onAddAppointment={handleAddAppointment} // Pass the handler down
+        mutateAppointments={mutateClientAppointments} // Pass mutate function
       />
       <AppointmentHistory clientId={clientId} userId={userId} showCancelled={showCancelled} />
     </Box>
