@@ -124,3 +124,13 @@ code {
   background-color: rgb(var(--mui-palette-info-mainChannel) / 0.08);
   border: 0;
 }
+
+input,
+textarea,
+select {
+  font-size: 16px;
+}
+
+.MuiInputBase-input {
+  font-size: 16px;
+}

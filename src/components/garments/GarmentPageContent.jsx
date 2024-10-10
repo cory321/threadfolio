@@ -57,7 +57,7 @@ export default function GarmentPageContent({ initialGarment, initialStages }) {
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         {showBackButton && (
           <>
-            <Link href={fromPage === 'home' ? '/' : '/garments'} passHref>
+            <Link href={fromPage === 'dashboard' ? '/dashboard' : '/garments'} passHref>
               <Button variant='text' component='a'>
                 &lt; Back to {fromPage === 'dashboard' ? 'Home' : 'Garments'}
               </Button>

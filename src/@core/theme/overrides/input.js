@@ -14,6 +14,9 @@ const input = {
         '&.Mui-disabled .MuiInputAdornment-root, &.Mui-disabled .MuiInputAdornment-root > *': {
           color: 'var(--mui-palette-action-disabled)'
         }
+      },
+      input: {
+        fontSize: '16px'
       }
     }
   },
