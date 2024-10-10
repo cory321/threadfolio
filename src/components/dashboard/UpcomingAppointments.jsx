@@ -13,12 +13,13 @@ import {
   Button,
   Chip,
   Avatar,
-  CircularProgress
+  Skeleton
 } from '@mui/material'
 import { format, parse, getDay } from 'date-fns'
 import { useTheme } from '@mui/material/styles'
 import { alpha } from '@mui/system'
 import EventIcon from '@mui/icons-material/Event'
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
 
 import ViewAppointmentModal from '@/views/apps/calendar/ViewAppointmentModal'
 import { getAppointments } from '@/app/actions/appointments'
@@ -64,8 +65,58 @@ const UpcomingAppointments = () => {
 
   if (isLoading) {
     return (
-      <Box display='flex' justifyContent='center' alignItems='center'>
-        <CircularProgress />
+      <Box>
+        <Box display='flex' flexDirection='column'>
+          <Box display='flex' justifyContent='space-between' alignItems='center'>
+            <Box display='flex' alignItems='center'>
+              <Avatar sx={{ mr: 1 }}>
+                <EventIcon />
+              </Avatar>
+              <Typography variant='h6'>Upcoming Appointments</Typography>
+            </Box>
+            <Link href='/appointments' passHref>
+              <Button variant='outlined' color='primary'>
+                View All
+              </Button>
+            </Link>
+          </Box>
+        </Box>
+        <List sx={{ padding: 0 }}>
+          {[...Array(3)].map((_, index) => (
+            <Box key={index}>
+              {/* Date header skeleton */}
+              <Box
+                sx={{
+                  backgroundColor: alpha(theme.palette.grey[200], 0.5),
+                  padding: '8px',
+                  borderRadius: '4px',
+                  mt: 2,
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: 'space-between'
+                }}
+              >
+                <Skeleton variant='text' width='30%' />
+                <Skeleton variant='text' width='20%' />
+              </Box>
+              {/* Appointment skeleton */}
+              <ListItemButton sx={{ paddingLeft: 2, paddingRight: 2 }}>
+                <Grid container alignItems='center'>
+                  <Grid item xs={9}>
+                    <ListItemText
+                      primary={<Skeleton variant='text' width='80%' />}
+                      secondary={<Skeleton variant='text' width='60%' />}
+                    />
+                  </Grid>
+
+                  <Grid item xs={3}>
+                    <Skeleton variant='text' width='80%' />
+                  </Grid>
+                </Grid>
+              </ListItemButton>
+            </Box>
+          ))}
+        </List>
       </Box>
     )
   }
@@ -123,9 +174,15 @@ const UpcomingAppointments = () => {
       </Box>
       {appointments.length === 0 ? (
         <Box display='flex' flexDirection='column' alignItems='center' mt={2}>
-          <Typography variant='body1' color='textSecondary'>
-            You have no upcoming appointments scheduled
-          </Typography>
+          <Box textAlign='center' py={5}>
+            <CalendarMonthIcon fontSize='large' color='action' />
+            <Typography variant='h6' color='textSecondary'>
+              No appointments scheduled
+            </Typography>
+            <Typography variant='body2' color='textSecondary'>
+              Upcoming appointments will display here
+            </Typography>
+          </Box>
           <Link href='/appointments' passHref>
             <Button variant='text' color='primary'>
               View Calendar

@@ -1,8 +1,6 @@
-import React from 'react'
-
 import useSWR from 'swr'
 
-import { Typography, Box, CircularProgress, Avatar } from '@mui/material'
+import { Card, Typography, Box, Avatar, Skeleton, Grid } from '@mui/material'
 import CheckroomIcon from '@mui/icons-material/Checkroom'
 
 import GarmentCard from '@/components/garments/GarmentCard'
@@ -19,14 +17,61 @@ export default function GarmentPriority() {
 
   if (!garments) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-        <CircularProgress />
+      <Box>
+        <Box display='flex' alignItems='center' mb={2}>
+          <Avatar sx={{ mr: 1 }}>
+            <CheckroomIcon />
+          </Avatar>
+          <Typography variant='h6'>High Priority Garments</Typography>
+        </Box>
+        <Box>
+          {[...Array(3)].map((_, index) => (
+            <Box key={index} mb={2}>
+              <Card
+                sx={{
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  padding: 2,
+                  borderRadius: 2,
+                  boxShadow: 1
+                }}
+              >
+                <Grid container spacing={2}>
+                  <Grid item xs={4}>
+                    <Skeleton variant='rectangular' width='100%' height={0} sx={{ paddingBottom: '100%' }} />
+                  </Grid>
+                  <Grid item xs={8}>
+                    <Skeleton variant='text' width='80%' />
+                    <Skeleton variant='text' width='60%' />
+                    <Skeleton variant='text' width='40%' />
+                  </Grid>
+                </Grid>
+              </Card>
+            </Box>
+          ))}
+        </Box>
       </Box>
     )
   }
 
   if (garments.length === 0) {
-    return <Typography>No garments to display.</Typography>
+    return (
+      <Box>
+        <Box display='flex' alignItems='center' mb={2}>
+          <Typography variant='h6'>High Priority Garments</Typography>
+        </Box>
+        <Box textAlign='center' py={5}>
+          <CheckroomIcon fontSize='large' color='action' />
+          <Typography variant='h6' color='textSecondary'>
+            No garments are in the queue
+          </Typography>
+          <Typography variant='body2' color='textSecondary'>
+            Start by creating a new order
+          </Typography>
+        </Box>
+      </Box>
+    )
   }
 
   return (

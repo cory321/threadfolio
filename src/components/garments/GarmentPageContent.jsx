@@ -57,7 +57,7 @@ export default function GarmentPageContent({ initialGarment, initialStages }) {
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         {showBackButton && (
           <>
-            <Link href={fromPage === 'dashboard' ? '/dashboard' : '/garments'} passHref>
+            <Link href={fromPage === 'dashboard' ? '/dashboard' : '/garments'} passHref legacyBehavior>
               <Button variant='text' component='a'>
                 &lt; Back to {fromPage === 'dashboard' ? 'Home' : 'Garments'}
               </Button>
@@ -91,30 +91,34 @@ export default function GarmentPageContent({ initialGarment, initialStages }) {
             </CardContent>
           </Card>
           {isMobile && <StageSelector garment={garment} setGarment={setGarment} stages={stages} marginTop={3} />}
-          <ClientInformation client={garment.client} />
-          {isMobile && <Finances sx={{ mt: 2 }} />}
+          {!isMobile && <ClientInformation client={garment.client} />}
         </Grid>
 
         {/* Middle Column */}
         <Grid item xs={12} md={6}>
           <ServicesSection garment={garment} setGarment={setGarment} />
+          {isMobile && <Finances sx={{ mt: 2 }} />}
           {isMobile && (
-            <Box sx={{ mt: 2 }}>
-              <TimeTracker garmentId={garment.id} services={garment.services} garmentName={garment.name} />
-            </Box>
+            <>
+              <ClientInformation client={garment.client} />
+              <Box sx={{ mt: 2 }}>
+                <TimeTracker garmentId={garment.id} services={garment.services} garmentName={garment.name} />
+              </Box>
+            </>
           )}
+
           <GarmentNotes garment={garment} setGarment={setGarment} marginTop={3} />
         </Grid>
 
         {/* Right Column */}
         <Grid item xs={12} md={3}>
           {!isMobile && <StageSelector garment={garment} setGarment={setGarment} stages={stages} />}
+          {!isMobile && <Finances sx={{ mt: 2 }} />}
           {!isMobile && (
             <Box sx={{ mt: 2 }}>
               <TimeTracker garmentId={garment.id} services={garment.services} garmentName={garment.name} />
             </Box>
           )}
-          {!isMobile && <Finances sx={{ mt: 2 }} />}
         </Grid>
       </Grid>
     </>

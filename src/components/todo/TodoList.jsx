@@ -19,6 +19,7 @@ import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Cancel'
+import ChecklistIcon from '@mui/icons-material/Checklist'
 
 import { deleteTodo, editTodo, loadTodosAction, addTodo } from '@/app/actions/todos'
 
@@ -131,7 +132,15 @@ const TodoListContent = () => {
           ))}
         </List>
       ) : (
-        <Typography>No todos available!</Typography>
+        <Box textAlign='center' py={5}>
+          <ChecklistIcon fontSize='large' color='action' />
+          <Typography variant='h6' color='textSecondary'>
+            No todos yet
+          </Typography>
+          <Typography variant='body2' color='textSecondary'>
+            Start by adding some todos
+          </Typography>
+        </Box>
       )}
     </Box>
   )

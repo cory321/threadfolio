@@ -2,27 +2,20 @@
 
 import { useState } from 'react'
 
-import dynamic from 'next/dynamic'
-
 import { useMediaQuery, Box, Grid, Card, CardContent, CardHeader } from '@mui/material'
 
 import { defaultBreakpoints } from '@menu/defaultConfigs'
-import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import Greeting from '@components/todo/Greeting'
 import UpcomingAppointments from '@/components/dashboard/UpcomingAppointments'
 import { dismissOnboarding } from '@/app/actions/users'
 
-const GarmentPriority = dynamic(() => import('@/components/dashboard/GarmentPriority'), {
-  ssr: false,
-  loading: LoadingSpinner
-})
+import GarmentPriority from '@/components/dashboard/GarmentPriority'
 
 import OnboardingWelcome from '@/components/OnboardingWelcome'
 import ActionsList from '@components/dashboard/ActionsList'
 import TodoList from '@components/todo/TodoList'
 
 export default function DashboardContent({ showOnboarding: initialShowOnboarding }) {
-  const [todos, setTodos] = useState(null)
   const [showOnboarding, setShowOnboarding] = useState(initialShowOnboarding)
   const isMobile = useMediaQuery(`(max-width: ${defaultBreakpoints.sm})`)
 
@@ -52,9 +45,8 @@ export default function DashboardContent({ showOnboarding: initialShowOnboarding
           </Grid>
           <Grid item xs={12}>
             <Card>
-              <CardHeader title='To do list' />
               <CardContent>
-                <TodoList />
+                <UpcomingAppointments />
               </CardContent>
             </Card>
           </Grid>
@@ -65,10 +57,12 @@ export default function DashboardContent({ showOnboarding: initialShowOnboarding
               </CardContent>
             </Card>
           </Grid>
+
           <Grid item xs={12}>
             <Card>
+              <CardHeader title='Todo List' />
               <CardContent>
-                <UpcomingAppointments />
+                <TodoList />
               </CardContent>
             </Card>
           </Grid>
@@ -93,7 +87,7 @@ export default function DashboardContent({ showOnboarding: initialShowOnboarding
                 <ActionsList isMobile={isMobile} />
                 <Box mt={4}>
                   <Card>
-                    <CardHeader title='To do list' />
+                    <CardHeader title='Todo List' />
                     <CardContent>
                       <TodoList />
                     </CardContent>
