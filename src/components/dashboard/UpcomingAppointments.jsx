@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 
 import Link from 'next/link'
 
+import dynamic from 'next/dynamic'
+
 import useSWR from 'swr'
 import {
   List,
@@ -21,16 +23,28 @@ import { alpha } from '@mui/system'
 import EventIcon from '@mui/icons-material/Event'
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
 
-import ViewAppointmentModal from '@/views/apps/calendar/ViewAppointmentModal'
+const ViewAppointmentModal = dynamic(() => import('@/views/apps/calendar/ViewAppointmentModal'), {
+  ssr: false
+})
+
+const AddAppointmentModal = dynamic(() => import('@/views/apps/calendar/AddAppointmentModal'), {
+  ssr: false
+})
+
 import { getAppointments } from '@/app/actions/appointments'
 
 const UpcomingAppointments = () => {
   const theme = useTheme()
   const [viewEventModalOpen, setViewEventModalOpen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState(null)
+  const [addEventModalOpen, setAddEventModalOpen] = useState(false) // State for AddAppointmentModal
 
   const handleViewEventModalToggle = () => {
     setViewEventModalOpen(!viewEventModalOpen)
+  }
+
+  const handleAddEventModalToggle = () => {
+    setAddEventModalOpen(!addEventModalOpen)
   }
 
   const handleAppointmentClick = appointment => {
@@ -69,9 +83,6 @@ const UpcomingAppointments = () => {
         <Box display='flex' flexDirection='column'>
           <Box display='flex' justifyContent='space-between' alignItems='center'>
             <Box display='flex' alignItems='center'>
-              <Avatar sx={{ mr: 1 }}>
-                <EventIcon />
-              </Avatar>
               <Typography variant='h6'>Upcoming Appointments</Typography>
             </Box>
             <Link href='/appointments' passHref>
@@ -160,9 +171,6 @@ const UpcomingAppointments = () => {
       <Box display='flex' flexDirection='column'>
         <Box display='flex' justifyContent='space-between' alignItems='center'>
           <Box display='flex' alignItems='center'>
-            <Avatar sx={{ mr: 1 }}>
-              <EventIcon />
-            </Avatar>
             <Typography variant='h6'>Upcoming Appointments</Typography>
           </Box>
           <Link href='/appointments' passHref>
@@ -183,11 +191,9 @@ const UpcomingAppointments = () => {
               Upcoming appointments will display here
             </Typography>
           </Box>
-          <Link href='/appointments' passHref>
-            <Button variant='text' color='primary'>
-              View Calendar
-            </Button>
-          </Link>
+          <Button variant='text' color='primary' onClick={handleAddEventModalToggle}>
+            Add Appointment
+          </Button>
         </Box>
       ) : (
         <List sx={{ padding: 0 }}>
@@ -283,6 +289,11 @@ const UpcomingAppointments = () => {
           onAppointmentCancelled={handleAppointmentCancelled}
         />
       )}
+      {/* AddAppointmentModal */}
+      <AddAppointmentModal
+        addEventModalOpen={addEventModalOpen}
+        handleAddEventModalToggle={handleAddEventModalToggle}
+      />
     </Box>
   )
 }

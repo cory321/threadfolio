@@ -1,6 +1,8 @@
+import Link from 'next/link'
+
 import useSWR from 'swr'
 
-import { Card, Typography, Box, Avatar, Skeleton, Grid } from '@mui/material'
+import { Button, Card, Typography, Box, Avatar, Skeleton, Grid } from '@mui/material'
 import CheckroomIcon from '@mui/icons-material/Checkroom'
 
 import GarmentCard from '@/components/garments/GarmentCard'
@@ -61,14 +63,19 @@ export default function GarmentPriority() {
         <Box display='flex' alignItems='center' mb={2}>
           <Typography variant='h6'>High Priority Garments</Typography>
         </Box>
-        <Box textAlign='center' py={5}>
+        <Box textAlign='center' py={4}>
           <CheckroomIcon fontSize='large' color='action' />
           <Typography variant='h6' color='textSecondary'>
             No garments are in the queue
           </Typography>
-          <Typography variant='body2' color='textSecondary'>
+          <Typography variant='body2' color='textSecondary' sx={{ mb: 5 }}>
             Start by creating a new order
           </Typography>
+          <Link href='/orders/create' passHref>
+            <Button variant='text' color='primary'>
+              Create New Order
+            </Button>
+          </Link>
         </Box>
       </Box>
     )
