@@ -16,7 +16,9 @@ import {
   IconButton,
   Tooltip,
   Paper,
-  Divider
+  Divider,
+  useTheme,
+  useMediaQuery
 } from '@mui/material'
 import SettingsIcon from '@mui/icons-material/Settings'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
@@ -152,36 +154,67 @@ export default function GarmentsPage() {
     return { groups, sortedClientNames } // Return both groups and the sorted client names
   }, [filteredGarments, sortOrder, sortField])
 
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+
   return (
     <Box sx={{ p: 3 }}>
-      {/* Stage Pipeline */}
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          mb: 3,
-          overflowX: 'scroll',
-          overflowY: 'hidden',
-          pb: 4
-        }}
-      >
-        {/* "View All" Stage */}
-        <StageBox
-          stage={{ name: 'View All', count: totalGarments }}
-          isSelected={!selectedStage}
-          onClick={() => setSelectedStage(null)}
-          isLast={false}
-        />
-        {stages.map((stage, index) => (
+      {/* Stage Selection */}
+      {!isMobile ? (
+        // Stage Pipeline for larger screens
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            mb: 3,
+            overflowX: 'scroll',
+            overflowY: 'hidden',
+            pb: 4
+          }}
+        >
+          {/* "View All" Stage */}
           <StageBox
-            key={stage.id}
-            stage={{ ...stage, count: garmentCounts[stage.id] || 0 }}
-            isSelected={selectedStage?.id === stage.id}
-            onClick={() => setSelectedStage(stage)}
-            isLast={index === stages.length - 1}
+            stage={{ name: 'View All', count: totalGarments }}
+            isSelected={!selectedStage}
+            onClick={() => setSelectedStage(null)}
+            isLast={false}
           />
-        ))}
-      </Box>
+          {stages.map((stage, index) => (
+            <StageBox
+              key={stage.id}
+              stage={{ ...stage, count: garmentCounts[stage.id] || 0 }}
+              isSelected={selectedStage?.id === stage.id}
+              onClick={() => setSelectedStage(stage)}
+              isLast={index === stages.length - 1}
+            />
+          ))}
+        </Box>
+      ) : (
+        // Dropdown menu for mobile screens
+        <FormControl fullWidth sx={{ mb: 3 }}>
+          <InputLabel id='stage-select-label'>Select Stage</InputLabel>
+          <Select
+            labelId='stage-select-label'
+            value={selectedStage?.id || ''}
+            label='Select Stage'
+            onChange={e => {
+              const stageId = e.target.value
+              const stage = stages.find(s => s.id === stageId) || null
+
+              setSelectedStage(stage)
+            }}
+          >
+            <MenuItem value=''>
+              <em>View All ({totalGarments})</em>
+            </MenuItem>
+            {stages.map(stage => (
+              <MenuItem key={stage.id} value={stage.id}>
+                {stage.name} ({garmentCounts[stage.id] || 0})
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )}
 
       {/* Sorting Options */}
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -205,9 +238,11 @@ export default function GarmentsPage() {
         </Box>
 
         {/* Customize Stages Button */}
-        <Button variant='outlined' onClick={() => setCustomizeDialogOpen(true)} startIcon={<SettingsIcon />}>
-          Customize Stages
-        </Button>
+        {!isMobile && (
+          <Button variant='outlined' onClick={() => setCustomizeDialogOpen(true)} startIcon={<SettingsIcon />}>
+            Customize Stages
+          </Button>
+        )}
       </Box>
 
       {/* Garments Grid */}
