@@ -14,6 +14,8 @@ import {
   Notifications as NotificationsIcon
 } from '@mui/icons-material'
 
+import Logo from '@/components/layout/shared/Logo'
+
 const features = [
   {
     title: 'Effortless Appointment Management',
@@ -52,9 +54,9 @@ function HomePage({ userId, token }) {
     <>
       <AppBar position='static' color='transparent' elevation={0}>
         <Toolbar>
-          <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
-            Threadfolio
-          </Typography>
+          <Box sx={{ flexGrow: 1 }}>
+            <Logo />
+          </Box>
           {userId ? (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <UserButton />
@@ -74,10 +76,10 @@ function HomePage({ userId, token }) {
       <Container maxWidth='lg'>
         <Box sx={{ my: 8, textAlign: 'center' }}>
           <Typography variant='h2' component='h1' gutterBottom>
-            Simplify Your Seamstress Business with Threadfolio
+            The All-in-One Platform for Clothing Alteration Specialists
           </Typography>
           <Typography variant='h5' component='h2' color='text.secondary' paragraph>
-            Manage appointments, track orders, and streamline services—all in one place.
+            Manage appointments, track garments, and collect payments—all in one place.
           </Typography>
           {userId ? (
             <Button variant='contained' color='primary' size='large' sx={{ mt: 4 }} href='/dashboard'>
