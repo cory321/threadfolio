@@ -19,10 +19,11 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
   const [events, setEvents] = useState([])
   const [visibleDateRange, setVisibleDateRange] = useState({ start: null, end: null })
 
-  const fetchEvents = useCallback(async currentDate => {
+  const fetchEvents = useCallback(async (currentDate = new Date()) => {
     try {
       const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
-      const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
+
+      const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 2, 0)
 
       const startDate = prevMonth.toISOString()
       const endDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0).toISOString()

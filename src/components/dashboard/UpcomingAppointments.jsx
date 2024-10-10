@@ -44,7 +44,8 @@ const UpcomingAppointments = () => {
   const {
     data: appointments = [],
     error,
-    isLoading
+    isLoading,
+    mutate
   } = useSWR(['appointments', today], (_, date) => getAppointments(date))
 
   const appointmentTypeMap = {
@@ -90,7 +91,18 @@ const UpcomingAppointments = () => {
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
   // Get the next 5 appointment dates
-  const nextFiveDates = sortedDates.slice(0, 4)
+  const nextFiveDates = sortedDates.slice(0, 5)
+
+  // Function to handle appointment cancellation
+  const handleAppointmentCancelled = async cancelledAppointmentId => {
+    // Optimistically update the cached data
+    mutate(
+      appointments => {
+        return appointments.filter(appointment => appointment.id !== cancelledAppointmentId)
+      },
+      false // Do not revalidate immediately
+    )
+  }
 
   return (
     <Box>
@@ -211,8 +223,8 @@ const UpcomingAppointments = () => {
           open={viewEventModalOpen}
           handleClose={handleViewEventModalToggle}
           selectedEvent={selectedEvent}
-
-          // Add other required props as needed
+          onAppointmentCancelled={handleAppointmentCancelled}
+          refreshEvents={mutate}
         />
       )}
     </Box>
