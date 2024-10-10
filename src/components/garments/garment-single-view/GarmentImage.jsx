@@ -19,7 +19,8 @@ const GarmentImage = ({ garment }) => {
         sx={{
           position: 'relative',
           width: '100%',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          paddingTop: garment.image_cloud_id ? '100%' : 0
         }}
       >
         {garment.image_cloud_id ? (

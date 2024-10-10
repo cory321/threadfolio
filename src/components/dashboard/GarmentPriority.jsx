@@ -1,34 +1,23 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
-import { useAuth } from '@clerk/nextjs'
+import useSWR from 'swr'
+
 import { Typography, Box, CircularProgress, Avatar } from '@mui/material'
 import CheckroomIcon from '@mui/icons-material/Checkroom'
 
 import GarmentCard from '@/components/garments/GarmentCard'
 import { getPrioritizedGarments } from '@/app/actions/garmentServices'
 
+const fetcher = () => getPrioritizedGarments()
+
 export default function GarmentPriority() {
-  const [garments, setGarments] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const { userId } = useAuth()
+  const { data: garments, error } = useSWR('getPrioritizedGarments', fetcher)
 
-  useEffect(() => {
-    const fetchGarments = async () => {
-      try {
-        const fetchedGarments = await getPrioritizedGarments(userId)
+  if (error) {
+    return <Typography>Failed to load garments.</Typography>
+  }
 
-        setGarments(fetchedGarments)
-      } catch (error) {
-        console.error('Failed to fetch prioritized garments:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchGarments()
-  }, [userId])
-
-  if (isLoading) {
+  if (!garments) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
         <CircularProgress />

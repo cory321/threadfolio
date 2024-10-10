@@ -1,5 +1,7 @@
 'use server'
 
+import { auth } from '@clerk/nextjs/server'
+
 import { getSupabaseClient } from './utils'
 
 export async function updateServiceDoneStatus(userId, serviceId, isDone) {
@@ -73,8 +75,9 @@ export async function addGarmentService(userId, serviceData) {
   return newService
 }
 
-export async function getPrioritizedGarments(userId) {
+export async function getPrioritizedGarments() {
   const supabase = await getSupabaseClient()
+  const { userId } = auth()
 
   const { data: garments, error } = await supabase
     .from('garments')
