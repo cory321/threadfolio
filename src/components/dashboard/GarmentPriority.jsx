@@ -84,9 +84,6 @@ export default function GarmentPriority() {
   return (
     <Box>
       <Box display='flex' alignItems='center' mb={2}>
-        <Avatar sx={{ mr: 1 }}>
-          <CheckroomIcon />
-        </Avatar>
         <Typography variant='h6'>High Priority Garments</Typography>
       </Box>
       <Box>
