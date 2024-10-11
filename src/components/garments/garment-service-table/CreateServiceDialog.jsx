@@ -80,9 +80,13 @@ const CreateServiceDialog = ({ open, onClose, onServiceSelect }) => {
         unit_price: 0
       })
       onClose()
-      toast.success(`${newServiceItem.name} has been added to your service catalog.`)
+      toast.success(`${newServiceItem.name} has been added to your service catalog.`, {
+        hideProgressBar: false
+      })
     } catch (error) {
-      toast.error(`Error adding service: ${error.message}`)
+      toast.error(`Error adding service: ${error.message}`, {
+        hideProgressBar: false
+      })
       console.error('Error adding service:', error)
     } finally {
       setIsLoading(false)

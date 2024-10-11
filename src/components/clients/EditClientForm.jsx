@@ -41,11 +41,15 @@ const EditClientForm = ({ client, onUpdate, onCancel }) => {
         })
 
         onUpdate(updatedClient)
-        toast.success('Client information updated successfully.')
+        toast.success('Client information updated successfully.', {
+          hideProgressBar: false
+        })
       } catch (err) {
         console.error('Error updating client:', err)
         setFieldError('general', err.message)
-        toast.error(`Error updating client: ${err.message}`)
+        toast.error(`Error updating client: ${err.message}`, {
+          hideProgressBar: false
+        })
       } finally {
         setIsSubmitting(false)
         setSubmitting(false)

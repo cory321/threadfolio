@@ -39,10 +39,14 @@ const ServicesSection = ({ garment, setGarment }) => {
         services: [...prevGarment.services, addedService]
       }))
       setServiceDialogOpen(false)
-      toast.success(`${addedService.name} was added to the garment.`)
+      toast.success(`${addedService.name} was added to the garment.`, {
+        hideProgressBar: false
+      })
     } catch (error) {
       console.error('Error adding service to garment:', error)
-      toast.error('Failed to add service. Please try again.')
+      toast.error('Failed to add service. Please try again.', {
+        hideProgressBar: false
+      })
     } finally {
       setIsAddingService(false)
     }
@@ -67,10 +71,14 @@ const ServicesSection = ({ garment, setGarment }) => {
 
     try {
       await updateServiceDoneStatus(userId, serviceId, newStatus)
-      toast.success(`Service marked as ${newStatus ? 'completed' : 'incomplete'}.`)
+      toast.success(`Service marked as ${newStatus ? 'completed' : 'incomplete'}.`, {
+        hideProgressBar: false
+      })
     } catch (error) {
       console.error('Error updating service status:', error)
-      toast.error('Failed to update service status. Please try again.')
+      toast.error('Failed to update service status. Please try again.', {
+        hideProgressBar: false
+      })
 
       // Revert optimistic update
       setGarment(prevGarment => ({

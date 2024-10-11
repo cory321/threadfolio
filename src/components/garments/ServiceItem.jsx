@@ -122,9 +122,13 @@ export default function ServiceItem({
     try {
       await removeService(service.id)
       setIsConfirmDialogOpen(false)
-      toast.success(`${service.name} has been removed from ${garmentName}`)
+      toast.success(`${service.name} has been removed from ${garmentName}`, {
+        hideProgressBar: false
+      })
     } catch (error) {
-      toast.error(`Failed to delete service: ${error.message}`)
+      toast.error(`Failed to delete service: ${error.message}`, {
+        hideProgressBar: false
+      })
     } finally {
       setIsDeleting(false)
     }
@@ -156,10 +160,14 @@ export default function ServiceItem({
       }
 
       setIsEditDialogOpen(false)
-      toast.success(`${service.name} has been updated`)
+      toast.success(`${service.name} has been updated`, {
+        hideProgressBar: false
+      })
     } catch (error) {
       console.error('Error updating service:', error)
-      toast.error(`Failed to update service: ${error.message}`)
+      toast.error(`Failed to update service: ${error.message}`, {
+        hideProgressBar: false
+      })
 
       // Do not update state because the operation failed
     }

@@ -36,9 +36,13 @@ const AddServiceFormModal = ({ setResults, onClose }) => {
       setResults(prevResults => [...prevResults, newServiceItem])
       setNewService({ name: '', description: '', qty: 0, unit: serviceUnitTypes.ITEM, unit_price: 0 })
       onClose()
-      toast.success(`${newServiceItem.name} has been added to your service catalog.`)
+      toast.success(`${newServiceItem.name} has been added to your service catalog.`, {
+        hideProgressBar: false
+      })
     } catch (error) {
-      toast.error(`Error adding service: ${error}`)
+      toast.error(`Error adding service: ${error}`, {
+        hideProgressBar: false
+      })
       console.error('Error adding service:', error)
     } finally {
       setIsLoading(false)

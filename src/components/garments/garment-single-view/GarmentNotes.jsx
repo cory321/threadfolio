@@ -109,10 +109,14 @@ const GarmentNotes = ({ garment, setGarment, marginTop = 0 }) => {
       }))
 
       setIsEditing(false)
-      toast.success('Notes updated successfully.')
+      toast.success('Notes updated successfully.', {
+        hideProgressBar: false
+      })
     } catch (error) {
       console.error('Failed to update notes:', error)
-      toast.error('Failed to update notes. Please try again.')
+      toast.error('Failed to update notes. Please try again.', {
+        hideProgressBar: false
+      })
     } finally {
       setIsSaving(false)
     }

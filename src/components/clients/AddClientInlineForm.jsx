@@ -48,7 +48,9 @@ const AddClientInlineForm = ({ onClose, onClientSelect }) => {
         }
 
         onClose()
-        toast.success(`${newClient.full_name} has been added!`)
+        toast.success(`${newClient.full_name} has been added!`, {
+          hideProgressBar: false
+        })
       } catch (err) {
         console.error('Error adding client:', err)
 
@@ -60,7 +62,9 @@ const AddClientInlineForm = ({ onClose, onClientSelect }) => {
           setFieldError('general', err.message)
         }
 
-        toast.error(`Error adding client: ${err.message}`)
+        toast.error(`Error adding client: ${err.message}`, {
+          hideProgressBar: false
+        })
       } finally {
         setIsSubmitting(false)
         setSubmitting(false)

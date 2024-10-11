@@ -58,12 +58,16 @@ const TimeEntryDialog = ({ open, handleClose, services }) => {
       const totalMinutes = parseInt(hours || '0') * 60 + parseInt(minutes || '0')
 
       await addTimeEntry(userId, selectedServiceId, totalMinutes)
-      toast.success('Time entry added successfully!')
+      toast.success('Time entry added successfully!', {
+        hideProgressBar: false
+      })
       handleClose(true)
     } catch (error) {
       console.error('Failed to log time:', error)
       setErrors({ submit: 'Failed to log time. Please try again.' })
-      toast.error('Failed to add time entry. Please try again.')
+      toast.error('Failed to add time entry. Please try again.', {
+        hideProgressBar: false
+      })
     } finally {
       setIsSubmitting(false)
     }

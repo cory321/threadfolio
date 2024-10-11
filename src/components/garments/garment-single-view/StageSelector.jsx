@@ -44,7 +44,9 @@ const StageSelector = ({ garment, setGarment, stages, marginTop = 0 }) => {
       await updateGarmentStage(userId, garment.id, newStageId)
 
       // If successful, show a success message
-      toast.success(`Garment stage set to ${newStageName}`)
+      toast.success(`Garment stage set to ${newStageName}`, {
+        hideProgressBar: false
+      })
     } catch (error) {
       console.error('Failed to update garment stage:', error)
 
@@ -55,7 +57,9 @@ const StageSelector = ({ garment, setGarment, stages, marginTop = 0 }) => {
         stage_name: oldStageName
       }))
 
-      toast.error('Failed to update garment stage. Please try again later.')
+      toast.error('Failed to update garment stage. Please try again later.', {
+        hideProgressBar: false
+      })
     } finally {
       setIsStageChanging(false)
     }

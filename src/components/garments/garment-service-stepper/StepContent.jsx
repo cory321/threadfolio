@@ -96,7 +96,9 @@ const StepContent = ({
       const result = await addGarmentsAndServicesFromContext(selectedClient, garments)
 
       console.log('Saved successfully:', result)
-      toast.success('Garments and services saved successfully!')
+      toast.success('Garments and services saved successfully!', {
+        hideProgressBar: false
+      })
 
       // Clear the context or navigate to a new page
       setGarments([])
@@ -107,7 +109,9 @@ const StepContent = ({
       // router.push('/orders')
     } catch (error) {
       console.error('Error saving garments:', error)
-      toast.error('Error saving garments and services. Please try again.')
+      toast.error('Error saving garments and services. Please try again.', {
+        hideProgressBar: false
+      })
 
       throw error // Rethrow the error to be caught by the caller
     } finally {

@@ -88,7 +88,9 @@ const TimeLogsDialog = ({ open, handleClose, garmentId, onChange }) => {
       const totalMinutes = parseInt(editHours || '0') * 60 + parseInt(editMinutes || '0')
 
       if (totalMinutes <= 0) {
-        toast.error('Please enter valid hours or minutes.')
+        toast.error('Please enter valid hours or minutes.', {
+          hideProgressBar: false
+        })
         setIsSubmitting(false)
 
         return
@@ -102,12 +104,16 @@ const TimeLogsDialog = ({ open, handleClose, garmentId, onChange }) => {
       )
 
       handleCloseEditDialog()
-      toast.success('Time entry updated successfully!')
+      toast.success('Time entry updated successfully!', {
+        hideProgressBar: false
+      })
 
       if (onChange) onChange() // Notify parent component
     } catch (error) {
       console.error('Failed to update time entry:', error)
-      toast.error('Failed to update time entry. Please try again.')
+      toast.error('Failed to update time entry. Please try again.', {
+        hideProgressBar: false
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -136,12 +142,16 @@ const TimeLogsDialog = ({ open, handleClose, garmentId, onChange }) => {
       setTimeEntries(prevEntries => prevEntries.filter(entry => entry.id !== selectedEntry.id))
 
       handleCloseDeleteDialog()
-      toast.success('Time entry deleted successfully!')
+      toast.success('Time entry deleted successfully!', {
+        hideProgressBar: false
+      })
 
       if (onChange) onChange() // Notify parent component
     } catch (error) {
       console.error('Failed to delete time entry:', error)
-      toast.error('Failed to delete time entry. Please try again.')
+      toast.error('Failed to delete time entry. Please try again.', {
+        hideProgressBar: false
+      })
     } finally {
       setIsSubmitting(false)
     }
