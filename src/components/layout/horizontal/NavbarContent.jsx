@@ -20,14 +20,12 @@ const NavbarContent = () => {
   // Hooks
   const { isBreakpointReached } = useHorizontalNav()
 
-  return (
+  return isBreakpointReached ? (
     <div
       className={classnames(horizontalLayoutClasses.navbarContent, 'flex items-center justify-between gap-4 is-full')}
     >
       <div className='flex items-center gap-4'>
         <NavToggle />
-        {/* Hide Logo on Smaller screens */}
-        {!isBreakpointReached && <Logo />}
       </div>
       {isBreakpointReached && (
         <div className='flex flex-grow justify-center'>
@@ -41,7 +39,7 @@ const NavbarContent = () => {
         <UserButton />
       </div>
     </div>
-  )
+  ) : null
 }
 
 export default NavbarContent

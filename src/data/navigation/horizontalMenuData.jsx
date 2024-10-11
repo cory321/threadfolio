@@ -30,11 +30,6 @@ const horizontalMenuData = () => [
     icon: 'ri-information-line'
   },
   {
-    label: 'Reports',
-    href: '/reports',
-    icon: 'ri-information-line'
-  },
-  {
     label: 'Settings',
     href: '/settings',
     icon: 'ri-information-line'

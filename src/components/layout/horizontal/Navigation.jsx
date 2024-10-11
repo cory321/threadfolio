@@ -5,6 +5,10 @@ import styled from '@emotion/styled'
 import classnames from 'classnames'
 
 // Component Imports
+import { UserButton } from '@clerk/nextjs'
+
+import ModeDropdown from '@components/layout/shared/ModeDropdown'
+
 import HorizontalMenu from './HorizontalMenu'
 
 // Config Imports
@@ -16,6 +20,9 @@ import useHorizontalNav from '@menu/hooks/useHorizontalNav'
 
 // Util Imports
 import { horizontalLayoutClasses } from '@layouts/utils/layoutClasses'
+
+// Import statements
+import Logo from '@components/layout/shared/Logo'
 
 const StyledDiv = styled.div`
   ${({ isContentCompact, isBreakpointReached }) =>
@@ -51,10 +58,23 @@ const Navigation = () => {
         isContentCompact={headerContentCompact}
         isBreakpointReached={isBreakpointReached}
         {...(!isBreakpointReached && {
-          className: classnames(horizontalLayoutClasses.navigationContentWrapper, 'flex items-center is-full plb-2.5')
+          className: classnames(
+            horizontalLayoutClasses.navigationContentWrapper,
+            'flex items-center justify-between w-full plb-2.5'
+          )
         })}
       >
-        <HorizontalMenu />
+        {/* Left Section: Logo */}
+        {!isBreakpointReached && <Logo />}
+
+        {/* Middle Section: Horizontal Menu */}
+        <div className='flex-grow mx-4'>
+          <HorizontalMenu />
+        </div>
+
+        {/* Right Section: User Button */}
+        {!isBreakpointReached && <ModeDropdown />}
+        {!isBreakpointReached && <UserButton />}
       </StyledDiv>
     </div>
   )
