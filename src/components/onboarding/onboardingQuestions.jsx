@@ -39,8 +39,7 @@ const OnboardingQuestions = ({ userData, onComplete }) => {
       day,
       isOpen: false,
       intervals: [] // Start with empty intervals
-    })),
-    acceptOnlinePayments: ''
+    }))
   })
 
   const handleNext = () => {
@@ -175,22 +174,6 @@ const OnboardingQuestions = ({ userData, onComplete }) => {
             What are your business hours?
           </Typography>
           <BusinessHours businessHours={answers.businessHours} setBusinessHours={setBusinessHours} />
-        </Box>
-      )
-    },
-    {
-      label: 'Accept Online Payments',
-      content: (
-        <Box>
-          <Typography variant='h6' gutterBottom>
-            Would you like to accept online payments from your customers?
-          </Typography>
-          <FormControl component='fieldset'>
-            <RadioGroup name='acceptOnlinePayments' value={answers.acceptOnlinePayments} onChange={handleRadioChange}>
-              <FormControlLabel value='yes' control={<Radio />} label='Yes' />
-              <FormControlLabel value='no' control={<Radio />} label='No' />
-            </RadioGroup>
-          </FormControl>
         </Box>
       )
     }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 
 import { mutate } from 'swr'
-import { format, setHours, setMinutes } from 'date-fns'
+import { format } from 'date-fns'
 import {
   Dialog,
   DialogTitle,
@@ -24,20 +24,31 @@ import { useAuth } from '@clerk/nextjs'
 import { toast } from 'react-toastify'
 import CloseIcon from '@mui/icons-material/Close'
 
+import { LocalizationProvider, TimePicker, MobileTimePicker } from '@mui/x-date-pickers'
+
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+
 import InitialsAvatar from '@/components/InitialsAvatar'
 import { addAppointment } from '@/app/actions/appointments'
+
+// Import TimePicker components
+
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 import DatePickerInput from './DatePickerInput'
 import AppointmentTypeRadioIcons from './AppointmentTypeRadioIcons'
 import ClientSearch from '@/components/clients/ClientSearch'
 import { adjustEndTimeIfNeeded } from '@/utils/dateTimeUtils'
 
-const AddAppointmentModal = props => {
+function AddAppointmentModal(props) {
   const { addEventModalOpen, handleAddEventModalToggle, selectedDate, mutateAppointments = () => {}, client } = props
 
   const { userId } = useAuth()
   const theme = useTheme()
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'))
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+
+  // Define TimePickerComponent based on screen size
+  const TimePickerComponent = isMobile ? MobileTimePicker : TimePicker
 
   // Function to get the next nearest hour
   const getNextNearestHour = () => {
@@ -65,6 +76,7 @@ const AddAppointmentModal = props => {
   const [values, setValues] = useState(defaultState)
   const [isLoading, setIsLoading] = useState(false)
   const [clientError, setClientError] = useState('')
+  const [timeError, setTimeError] = useState('') // New state for time validation
 
   const { handleSubmit } = useForm()
 
@@ -89,6 +101,7 @@ const AddAppointmentModal = props => {
       ...defaultState,
       appointmentDate: selectedDate || new Date()
     })
+    setTimeError('') // Reset time error on modal close
     handleAddEventModalToggle()
   }
 
@@ -104,6 +117,16 @@ const AddAppointmentModal = props => {
   }
 
   const onSubmit = async () => {
+    // Reset time error before validation
+    setTimeError('')
+
+    // Validate that startTime and endTime are not equal
+    if (values.startTime.getTime() === values.endTime.getTime()) {
+      setTimeError('Start time cannot be equal to end time.')
+
+      return
+    }
+
     if (!values.clientId) {
       setClientError('Please select a client before scheduling the appointment.')
 
@@ -148,22 +171,6 @@ const AddAppointmentModal = props => {
         newAppointment.sendSms
       )
 
-      const transformedAppointment = {
-        id: data.id,
-        title: `${data.type} - ${values.clientName}`,
-        start: new Date(data.start_time),
-        end: new Date(data.end_time),
-        extendedProps: {
-          location: data.location,
-          status: data.status,
-          type: data.type,
-          sendEmail: data.send_email,
-          sendSms: data.send_sms,
-          notes: data.notes,
-          clientName: values.clientName
-        }
-      }
-
       // Trigger SWR revalidation by calling mutate without data
       const today = format(new Date(), 'yyyy-MM-dd')
 
@@ -205,6 +212,11 @@ const AddAppointmentModal = props => {
       startTime: newStartTime,
       endTime: newEndTime
     })
+
+    // Reset time error if previously set
+    if (timeError && newStartTime.getTime() !== values.endTime.getTime()) {
+      setTimeError('')
+    }
   }
 
   const handleEndTimeChange = date => {
@@ -214,6 +226,11 @@ const AddAppointmentModal = props => {
       ...values,
       endTime: newEndTime
     })
+
+    // Reset time error if previously set
+    if (timeError && values.startTime.getTime() !== newEndTime.getTime()) {
+      setTimeError('')
+    }
   }
 
   return (
@@ -260,9 +277,23 @@ const AddAppointmentModal = props => {
               >
                 <InitialsAvatar
                   fullName={values.clientName}
-                  sx={{ mr: 1, bgcolor: 'primary.main', color: 'white', width: 40, height: 40, fontSize: 16 }}
+                  sx={{
+                    mr: 1,
+                    bgcolor: 'primary.main',
+                    color: 'white',
+                    width: 40,
+                    height: 40,
+                    fontSize: 16
+                  }}
                 />
-                <span style={{ color: theme.palette.primary.main, fontWeight: 'bold' }}>{values.clientName}</span>
+                <span
+                  style={{
+                    color: theme.palette.primary.main,
+                    fontWeight: 'bold'
+                  }}
+                >
+                  {values.clientName}
+                </span>
               </Typography>
             </Box>
           ) : (
@@ -289,38 +320,41 @@ const AddAppointmentModal = props => {
           <Grid container spacing={2} style={{ marginTop: '0' }}>
             <Grid item xs={6}>
               <FormControl fullWidth>
-                <AppReactDatepicker
-                  selected={values.startTime}
-                  onChange={handleStartTimeChange}
-                  showTimeSelect
-                  showTimeSelectOnly
-                  timeIntervals={15}
-                  dateFormat='h:mm aa'
-                  timeCaption='Start Time'
-                  customInput={<DatePickerInput label='Start Time' dateFormat='h:mm aa' />}
-                  minTime={setHours(setMinutes(new Date(), 0), 0)}
-                  maxTime={setHours(setMinutes(new Date(), 45), 23)}
-                />
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <TimePickerComponent
+                    label='Start Time'
+                    value={values.startTime}
+                    onChange={handleStartTimeChange}
+                    minutesStep={5} // Restrict minutes to 5-minute intervals
+                    renderInput={params => <TextField {...params} />}
+                  />
+                </LocalizationProvider>
               </FormControl>
             </Grid>
 
             <Grid item xs={6}>
               <FormControl fullWidth>
-                <AppReactDatepicker
-                  selected={values.endTime}
-                  onChange={handleEndTimeChange}
-                  showTimeSelect
-                  showTimeSelectOnly
-                  timeIntervals={15}
-                  dateFormat='h:mm aa'
-                  timeCaption='End Time'
-                  customInput={<DatePickerInput label='End Time' dateFormat='h:mm aa' />}
-                  minTime={setHours(setMinutes(new Date(), 0), 0)}
-                  maxTime={setHours(setMinutes(new Date(), 45), 23)}
-                />
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <TimePickerComponent
+                    label='End Time'
+                    value={values.endTime}
+                    onChange={handleEndTimeChange}
+                    minutesStep={5} // Restrict minutes to 5-minute intervals
+                    renderInput={params => <TextField {...params} />}
+                  />
+                </LocalizationProvider>
               </FormControl>
             </Grid>
           </Grid>
+
+          {/* Display Time Validation Error */}
+          {timeError && (
+            <Box sx={{ mt: 1 }}>
+              <Typography variant='body2' color='error'>
+                {timeError}
+              </Typography>
+            </Box>
+          )}
 
           <FormControl fullWidth margin='normal'>
             <TextField

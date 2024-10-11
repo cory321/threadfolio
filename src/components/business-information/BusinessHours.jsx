@@ -4,14 +4,14 @@ import { Box, Checkbox, Typography, IconButton, Grid, Divider, useMediaQuery, Te
 import AddIcon from '@mui/icons-material/Add'
 import CloseIcon from '@mui/icons-material/Close'
 
-import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers'
+import { LocalizationProvider, TimePicker, MobileTimePicker } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 
 import { setHours, setMinutes, addHours } from 'date-fns'
 
 const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
-const BusinessHours = ({ businessHours, setBusinessHours }) => {
+function BusinessHours({ businessHours, setBusinessHours }) {
   // Default open and close times: 9:00 AM and 5:00 PM
   const defaultOpenTime = setHours(setMinutes(new Date(), 0), 9)
   const defaultCloseTime = setHours(setMinutes(new Date(), 0), 17)
@@ -27,34 +27,6 @@ const BusinessHours = ({ businessHours, setBusinessHours }) => {
           : []
 
         return { ...day, isOpen, intervals }
-      }
-
-      return day
-    })
-
-    setBusinessHours(updatedHours)
-  }
-
-  // Add a new interval to a day
-  const handleAddInterval = dayIndex => {
-    const updatedHours = businessHours.map((day, index) => {
-      if (index === dayIndex) {
-        let newOpenTime, newCloseTime
-
-        if (day.intervals.length > 0) {
-          const lastInterval = day.intervals[day.intervals.length - 1]
-
-          newOpenTime = addHours(new Date(lastInterval.closeTime), 1)
-        } else {
-          newOpenTime = defaultOpenTime
-        }
-
-        newCloseTime = addHours(new Date(newOpenTime), 1)
-
-        return {
-          ...day,
-          intervals: [...day.intervals, { openTime: newOpenTime, closeTime: newCloseTime }]
-        }
       }
 
       return day
@@ -132,6 +104,38 @@ const BusinessHours = ({ businessHours, setBusinessHours }) => {
   // Responsive adjustments
   const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
 
+  // Choose TimePicker component based on screen size
+  const TimePickerComponent = isMobile ? MobileTimePicker : TimePicker
+
+  // Commented out the handleAddInterval function
+  // // Add a new interval to a day
+  // const handleAddInterval = dayIndex => {
+  //   const updatedHours = businessHours.map((day, index) => {
+  //     if (index === dayIndex) {
+  //       let newOpenTime, newCloseTime
+
+  //       if (day.intervals.length > 0) {
+  //         const lastInterval = day.intervals[day.intervals.length - 1]
+
+  //         newOpenTime = addHours(new Date(lastInterval.closeTime), 1)
+  //       } else {
+  //         newOpenTime = defaultOpenTime
+  //       }
+
+  //       newCloseTime = addHours(new Date(newOpenTime), 1)
+
+  //       return {
+  //         ...day,
+  //         intervals: [...day.intervals, { openTime: newOpenTime, closeTime: newCloseTime }]
+  //       }
+  //     }
+
+  //     return day
+  //   })
+
+  //   setBusinessHours(updatedHours)
+  // }
+
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Box>
@@ -158,9 +162,10 @@ const BusinessHours = ({ businessHours, setBusinessHours }) => {
                     return businessHours[index].intervals.map((interval, intervalIndex) => (
                       <Grid container alignItems='center' spacing={1} key={intervalIndex} sx={{ mb: 1 }}>
                         <Grid item>
-                          <TimePicker
+                          <TimePickerComponent
                             value={interval.openTime}
                             onChange={date => handleTimeChange(index, intervalIndex, 'openTime', date)}
+                            minutesStep={5} // Restrict minutes to 5-minute intervals
                             renderInput={params => (
                               <TextField
                                 {...params}
@@ -183,9 +188,10 @@ const BusinessHours = ({ businessHours, setBusinessHours }) => {
                           <Typography sx={{ mx: 1 }}>-</Typography>
                         </Grid>
                         <Grid item>
-                          <TimePicker
+                          <TimePickerComponent
                             value={interval.closeTime}
                             onChange={date => handleTimeChange(index, intervalIndex, 'closeTime', date)}
+                            minutesStep={5} // Restrict minutes to 5-minute intervals
                             renderInput={params => (
                               <TextField
                                 {...params}
@@ -208,11 +214,16 @@ const BusinessHours = ({ businessHours, setBusinessHours }) => {
                           <IconButton onClick={() => handleRemoveInterval(index, intervalIndex)} size='small'>
                             <CloseIcon />
                           </IconButton>
-                          {intervalIndex === businessHours[index].intervals.length - 1 && (
-                            <IconButton onClick={() => handleAddInterval(index)} size='small'>
-                              <AddIcon />
-                            </IconButton>
-                          )}
+                          {/* Commented out the Add Interval button */}
+                          {/* {intervalIndex ===
+                              businessHours[index].intervals.length - 1 && (
+                              <IconButton
+                                onClick={() => handleAddInterval(index)}
+                                size='small'
+                              >
+                                <AddIcon />
+                              </IconButton>
+                            )} */}
                         </Grid>
                         {overlaps[intervalIndex] && (
                           <Grid item xs={12}>
