@@ -7,7 +7,7 @@ import { useEffect, useRef } from 'react'
 import { styled, useColorScheme, useTheme } from '@mui/material/styles'
 
 // Component Imports
-import VerticalNav, { NavHeader, NavCollapseIcons } from '@menu/vertical-menu'
+import VerticalNav, { NavHeader } from '@menu/vertical-menu'
 import VerticalMenu from './VerticalMenu'
 import Logo from '@components/layout/shared/Logo'
 
@@ -104,15 +104,6 @@ const Navigation = props => {
       {/* Nav Header including Logo & nav toggle icons  */}
       <NavHeader>
         <Logo />
-        {!(isCollapsed && !isHovered) && (
-          <NavCollapseIcons
-            lockedIcon={<i className='ri-radio-button-line text-xl' />}
-            unlockedIcon={<i className='ri-checkbox-blank-circle-line text-xl' />}
-            closeIcon={<i className='ri-close-line text-xl' />}
-            className='text-textSecondary'
-            onClick={() => updateSettings({ layout: !isCollapsed ? 'collapsed' : 'vertical' })}
-          />
-        )}
       </NavHeader>
       <StyledBoxForShadow ref={shadowRef} />
       <VerticalMenu scrollMenu={scrollMenu} />

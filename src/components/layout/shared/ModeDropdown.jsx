@@ -13,6 +13,9 @@ import ClickAwayListener from '@mui/material/ClickAwayListener'
 import MenuList from '@mui/material/MenuList'
 import MenuItem from '@mui/material/MenuItem'
 
+// Component Imports
+import Logo from '@components/layout/shared/Logo'
+
 // Hook Imports
 import { useSettings } from '@core/hooks/useSettings'
 
@@ -55,7 +58,8 @@ const ModeDropdown = () => {
   }
 
   return (
-    <>
+    <div className='flex items-center'>
+      {/* Mode Icon */}
       <Tooltip
         title={settings.mode + ' Mode'}
         onOpen={() => setTooltipOpen(true)}
@@ -67,6 +71,8 @@ const ModeDropdown = () => {
           <i className={getModeIcon()} />
         </IconButton>
       </Tooltip>
+
+      {/* Mode Selection Menu */}
       <Popper
         open={open}
         transition
@@ -113,7 +119,7 @@ const ModeDropdown = () => {
           </Fade>
         )}
       </Popper>
-    </>
+    </div>
   )
 }
 

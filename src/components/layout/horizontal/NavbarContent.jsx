@@ -9,7 +9,6 @@ import { UserButton } from '@clerk/nextjs'
 import NavToggle from './NavToggle'
 import Logo from '@components/layout/shared/Logo'
 import ModeDropdown from '@components/layout/shared/ModeDropdown'
-import UserDropdown from '@components/layout/shared/UserDropdown'
 
 // Hook Imports
 import useHorizontalNav from '@menu/hooks/useHorizontalNav'
@@ -30,10 +29,16 @@ const NavbarContent = () => {
         {/* Hide Logo on Smaller screens */}
         {!isBreakpointReached && <Logo />}
       </div>
+      {isBreakpointReached && (
+        <div className='flex flex-grow justify-center'>
+          <Logo />
+        </div>
+      )}
+
+      {/* Right Section */}
       <div className='flex items-center'>
         <ModeDropdown />
-        <UserButton afterSignOutUrl='/' />
-        {/* <UserDropdown /> */}
+        <UserButton />
       </div>
     </div>
   )
