@@ -78,7 +78,6 @@ const Step2GarmentDetails = ({
                   </Grid>
                 </>
               ) : (
-                /* When there are no garments, center the Add Garment Button */
                 <Grid item xs={12}>
                   <Box display='flex' justifyContent='center'>
                     <AddGarmentButton
