@@ -18,6 +18,8 @@ import {
 import { useTheme } from '@mui/material/styles'
 import CloseIcon from '@mui/icons-material/Close'
 
+import { v4 as uuidv4 } from 'uuid' // Importing UUID for unique IDs
+
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 import DatePickerInput from '@views/apps/calendar/DatePickerInput'
 import ServiceLookup from '@components/garments/garment-service-table/ServiceLookup'
@@ -26,17 +28,19 @@ import { getFirstName } from '@components/garments/utils/garmentUtils'
 import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderContext'
 
 const GarmentDetailsDialog = ({ open, handleClose, userId, selectedClient, handleInputChange, isLoading }) => {
-  const { garmentDetails, setGarmentDetails, services, setServices, garments, setGarments } =
+  const { garmentDetails, setGarmentDetails, services, setServices, garments, setGarments, addOrUpdateGarment } =
     useContext(GarmentServiceOrderContext)
 
   const [isEditMode, setIsEditMode] = useState(false)
   const theme = useTheme()
   const fullScreen = useMediaQuery(theme.breakpoints.down('lg'))
 
-  useEffect(() => {
-    setIsEditMode(garmentDetails.index !== undefined)
+  const notesRef = useRef(null)
 
-    if (garmentDetails.index !== undefined) {
+  useEffect(() => {
+    setIsEditMode(garmentDetails.id !== null)
+
+    if (garmentDetails.id !== null) {
       setServices(garmentDetails.services || [])
     } else {
       setServices([])
@@ -53,42 +57,44 @@ const GarmentDetailsDialog = ({ open, handleClose, userId, selectedClient, handl
     setGarmentDetails(prev => ({ ...prev, [name]: checked }))
   }
 
-  const notesRef = useRef(null)
-
   const handleSave = () => {
     const newGarment = {
       user_id: userId,
       client_id: selectedClient.id,
       name: garmentDetails.name,
       image_cloud_id: garmentDetails.image_cloud_id,
-      stage: 'not started',
+      stage: 'not started', // Modify as needed
       notes: notesRef.current ? notesRef.current.value : '',
       due_date: garmentDetails.due_date,
       is_event: garmentDetails.is_event,
       event_date: garmentDetails.event_date,
-      services: services
+      services: services,
+      id: garmentDetails.id || uuidv4() // Assign unique ID if new
     }
 
-    if (isEditMode) {
-      // Update existing garment
-      const updatedGarments = [...garments]
+    addOrUpdateGarment(newGarment)
 
-      updatedGarments[garmentDetails.index] = newGarment
-      setGarments(updatedGarments)
-    } else {
-      // Add new garment
-      setGarments([...garments, newGarment])
-    }
+    // Clear garment details and services
+    setGarmentDetails({
+      id: null,
+      name: '',
+      instructions: '',
+      due_date: null,
+      is_event: false,
+      event_date: null,
+      image_cloud_id: '',
+      image_metadata: { width: 0, height: 0 },
+      services: []
+    })
+    setServices([])
 
-    setGarmentDetails({}) // Clear garment details
-    setServices([]) // Clear services
     handleClose()
   }
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth='lg' fullWidth fullScreen={fullScreen}>
       <DialogTitle>
-        {isEditMode ? 'Edit' : 'Add a new'} garment{' '}
+        {isEditMode ? 'Edit' : 'Add a New'} Garment{' '}
         {selectedClient.full_name && `for ${getFirstName(selectedClient.full_name)}`}
         <IconButton
           aria-label='close'
@@ -120,6 +126,7 @@ const GarmentDetailsDialog = ({ open, handleClose, userId, selectedClient, handl
                     variant='outlined'
                     fullWidth
                     disabled={isLoading}
+                    required
                   />
                 </Grid>
 
@@ -161,6 +168,13 @@ const GarmentDetailsDialog = ({ open, handleClose, userId, selectedClient, handl
                   clientId={selectedClient.id}
                   btnText={isEditMode ? 'Change Garment Photo' : 'Upload Garment Photo'}
                   initialImage={garmentDetails.image_cloud_id}
+                  onUploadSuccess={imageId =>
+                    setGarmentDetails(prev => ({
+                      ...prev,
+                      image_cloud_id: imageId
+                    }))
+                  }
+                  disabled={isLoading}
                 />
               </Grid>
             </Grid>
@@ -191,8 +205,8 @@ const GarmentDetailsDialog = ({ open, handleClose, userId, selectedClient, handl
         <Button variant='text' onClick={handleClose} disabled={isLoading}>
           Cancel
         </Button>
-        <Button variant='contained' onClick={handleSave} disabled={isLoading}>
-          {isLoading ? 'Saving...' : (isEditMode ? 'Update' : 'Save') + ' Garment'}
+        <Button variant='contained' onClick={handleSave} disabled={isLoading || !garmentDetails.name}>
+          {isLoading ? 'Saving...' : isEditMode ? 'Update Garment' : 'Save Garment'}
         </Button>
       </DialogActions>
     </Dialog>

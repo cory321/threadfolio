@@ -57,11 +57,6 @@ const OrderGarmentCard = ({ garment }) => (
           <Typography variant='subtitle1' sx={{ mb: 0.5 }}>
             {garment.name}
           </Typography>
-          {garment.due_date && (
-            <Typography variant='caption' color='text.secondary' sx={{ mb: 0.5 }}>
-              Due: {format(new Date(garment.due_date), 'MMM d, yyyy')}
-            </Typography>
-          )}
           <Chip label={garment.stage_name} size='small' sx={{ alignSelf: 'flex-start', mt: 'auto' }} />
         </Box>
       </Grid>
