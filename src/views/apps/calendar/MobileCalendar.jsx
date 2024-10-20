@@ -16,6 +16,7 @@ const MobileCalendar = ({ events, selectedDate, setSelectedDate, handleSelectEve
   useEffect(() => {
     if (selectedDate) {
       const eventsForSelectedDate = events.filter(event => isSameDay(new Date(event.start), selectedDate))
+
       setSelectedEvents(eventsForSelectedDate)
     } else {
       setSelectedEvents([])
