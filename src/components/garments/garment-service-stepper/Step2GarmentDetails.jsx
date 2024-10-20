@@ -46,34 +46,47 @@ const Step2GarmentDetails = ({
     handleDialogOpen()
   }
 
-  // Determine if the AddGarmentButton should be full width
-  const shouldFullWidth = isMobile
-
   return (
     <>
       <form key={1} onSubmit={handleGarmentSubmit(onSubmit)}>
         <Typography variant='h5' gutterBottom>
           Add Garments {selectedClient.full_name && `for ${getFirstName(selectedClient.full_name)}`}
         </Typography>
-        <Grid container spacing={2}>
+        <Grid container spacing={2} sx={{ pt: 3 }}>
           <Grid item xs={12}>
-            <Grid container spacing={2} justifyContent={'center'}>
-              <Grid item xs={shouldFullWidth ? 12 : 'auto'}>
-                <AddGarmentButton
-                  btnText='Add Garment'
-                  handleClickOpen={handleAddNewGarment}
-                  fullWidth={shouldFullWidth}
-                />
-              </Grid>
-              {garments.length > 0 && (
-                <Grid item xs={12}>
-                  <Grid container spacing={2}>
-                    {garments.map((garment, index) => (
-                      <Grid item xs={12} key={garment.id || index}>
-                        <OrderFlowGarmentCard garment={garment} onEdit={() => handleGarmentEdit(garment)} />
-                      </Grid>
-                    ))}
+            <Grid container spacing={2} justifyContent={'center'} direction={isMobile ? 'column' : 'row'}>
+              {garments.length > 0 ? (
+                <>
+                  {/* Add Garment Button Column */}
+                  <Grid item xs={12} sm={5} md={3} lg={2}>
+                    <AddGarmentButton
+                      btnText='Add Garment'
+                      handleClickOpen={handleAddNewGarment}
+                      fullWidth={isMobile}
+                    />
                   </Grid>
+
+                  {/* OrderFlowGarmentCards Column */}
+                  <Grid item xs={12} sm={7} md={9} lg={10}>
+                    <Grid container spacing={2}>
+                      {garments.map((garment, index) => (
+                        <Grid item xs={12} key={garment.id || index}>
+                          <OrderFlowGarmentCard garment={garment} onEdit={() => handleGarmentEdit(garment)} />
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Grid>
+                </>
+              ) : (
+                /* When there are no garments, center the Add Garment Button */
+                <Grid item xs={12}>
+                  <Box display='flex' justifyContent='center'>
+                    <AddGarmentButton
+                      btnText='Add Garment'
+                      handleClickOpen={handleAddNewGarment}
+                      fullWidth={isMobile}
+                    />
+                  </Box>
                 </Grid>
               )}
             </Grid>

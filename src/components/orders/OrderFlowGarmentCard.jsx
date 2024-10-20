@@ -83,7 +83,7 @@ const OrderFlowGarmentCard = ({ garment, onEdit }) => {
         {/* Image and Details */}
         <Grid container spacing={2} sx={{ mt: 2 }}>
           {/* Image Column */}
-          <Grid item xs={5}>
+          <Grid item xs={12} sm={7} md={3} lg={2}>
             <Box
               sx={{
                 width: '100%',
@@ -102,10 +102,10 @@ const OrderFlowGarmentCard = ({ garment, onEdit }) => {
                   alt={garment.name}
                   width={150}
                   height={150}
-                  crop='fill'
+                  crop='fit'
                   quality='auto'
                   fetchformat='auto'
-                  style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                  style={{ objectFit: 'contain', width: '100%', height: '100%' }}
                 />
               ) : (
                 <Box
@@ -125,7 +125,7 @@ const OrderFlowGarmentCard = ({ garment, onEdit }) => {
           </Grid>
 
           {/* Details Column */}
-          <Grid item xs={7}>
+          <Grid item xs={12} sm={5} md={9} lg={10}>
             <Box
               sx={{
                 display: 'flex',
