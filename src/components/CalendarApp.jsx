@@ -1,10 +1,18 @@
 'use client'
 
+// React Imports
+import { useCallback, useState, useEffect } from 'react'
+
 // MUI Imports
-import { useCallback, useState } from 'react'
+import { useMediaQuery, useTheme } from '@mui/material'
 
 import Card from '@mui/material/Card'
+
+// SWR Import
 import useSWR from 'swr'
+
+// Date Functions
+import { startOfMonth, endOfMonth } from 'date-fns'
 
 // Styled Component Imports
 import AppFullCalendar from '@/libs/styles/AppFullCalendar'
@@ -29,16 +37,31 @@ const fetchAppointments = async (startDate, endDate) => {
 
 const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
   const [visibleDateRange, setVisibleDateRange] = useState({ start: null, end: null })
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+
+  // Initialize visible date range for mobile users
+  useEffect(() => {
+    if (isMobile) {
+      const currentDate = new Date()
+      const start = startOfMonth(currentDate).toISOString()
+      const end = endOfMonth(currentDate).toISOString()
+
+      setVisibleDateRange({ start, end })
+    }
+  }, [isMobile])
 
   const { data: events = [], mutate: mutateAppointments } = useSWR(
     visibleDateRange.start && visibleDateRange.end
       ? ['appointments', visibleDateRange.start, visibleDateRange.end]
       : null,
-    () => fetchAppointments(visibleDateRange.start, visibleDateRange.end)
+    () => fetchAppointments(visibleDateRange.start, visibleDateRange.end),
+    { revalidateOnFocus: false }
   )
 
   const handleDatesSet = useCallback(
     dateInfo => {
+      if (isMobile) return // Do nothing on mobile
       const newStart = dateInfo.start.toISOString()
       const newEnd = dateInfo.end.toISOString()
 
@@ -46,12 +69,24 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
         setVisibleDateRange({ start: newStart, end: newEnd })
       }
     },
-    [visibleDateRange]
+    [visibleDateRange, isMobile]
   )
 
+  // Reintroduce handleCancelAppointment function
   const handleCancelAppointment = useCallback(() => {
     mutateAppointments() // Re-fetch appointments after cancellation
   }, [mutateAppointments])
+
+  // Update visibleDateRange when month changes on mobile
+  const handleMobileMonthChange = useCallback(
+    date => {
+      const start = startOfMonth(date).toISOString()
+      const end = endOfMonth(date).toISOString()
+
+      setVisibleDateRange({ start, end })
+    },
+    [setVisibleDateRange]
+  )
 
   return (
     <Card className='overflow-visible'>
@@ -63,6 +98,7 @@ const CalendarApp = ({ addEventModalOpen, handleAddEventModalToggle }) => {
           handleAddEventModalToggle={handleAddEventModalToggle}
           mutateAppointments={mutateAppointments}
           onCancelAppointment={handleCancelAppointment}
+          onMobileMonthChange={handleMobileMonthChange} // Pass the handler
         />
       </AppFullCalendar>
     </Card>
