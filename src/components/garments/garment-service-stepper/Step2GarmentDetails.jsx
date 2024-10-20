@@ -69,7 +69,7 @@ const Step2GarmentDetails = ({
                 <Grid item xs={12}>
                   <Grid container spacing={2}>
                     {garments.map((garment, index) => (
-                      <Grid item xs={12} sm={6} md={4} key={garment.id || index}>
+                      <Grid item xs={12} key={garment.id || index}>
                         <OrderFlowGarmentCard garment={garment} onEdit={() => handleGarmentEdit(garment)} />
                       </Grid>
                     ))}

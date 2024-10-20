@@ -16,7 +16,7 @@ const OrderSummary = ({ orderId, selectedClient, garments }) => {
   return (
     <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
       <Typography variant='h5' gutterBottom>
-        Order Summary
+        Does everything look correct?
       </Typography>
       <Typography variant='body1'>Order ID: {orderId}</Typography>
       <Typography variant='body1'>Client: {selectedClient.full_name}</Typography>

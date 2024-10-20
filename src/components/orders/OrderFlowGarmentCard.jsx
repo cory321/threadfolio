@@ -83,7 +83,7 @@ const OrderFlowGarmentCard = ({ garment, onEdit }) => {
         {/* Image and Details */}
         <Grid container spacing={2} sx={{ mt: 2 }}>
           {/* Image Column */}
-          <Grid item xs={12} md={4}>
+          <Grid item xs={5}>
             <Box
               sx={{
                 width: '100%',
@@ -125,7 +125,7 @@ const OrderFlowGarmentCard = ({ garment, onEdit }) => {
           </Grid>
 
           {/* Details Column */}
-          <Grid item xs={12} md={8}>
+          <Grid item xs={7}>
             <Box
               sx={{
                 display: 'flex',
@@ -179,14 +179,19 @@ const OrderFlowGarmentCard = ({ garment, onEdit }) => {
                   </Box>
                 </Box>
               )}
+              {garment.services.length === 0 && (
+                <Typography variant='body1' color='error' sx={{ p: 2 }}>
+                  Please add services to this garment
+                </Typography>
+              )}
 
               {/* Action Buttons: Edit and Remove */}
               <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
                 <Button variant='text' size='small' color='primary' onClick={handleRemove}>
-                  Remove Garment
+                  Remove
                 </Button>
                 <Button variant='contained' size='small' onClick={() => onEdit(garment)}>
-                  Edit Garment
+                  Edit
                 </Button>
               </Box>
             </Box>

@@ -17,7 +17,7 @@ import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderCo
 const steps = [
   { title: 'Client Details', subtitle: 'Add or search for client' },
   { title: 'Add Garments and Services', subtitle: 'Add garment details and append services' },
-  { title: 'Order Summary', subtitle: 'Generate invoice and send to client' }
+  { title: 'Order Summary', subtitle: 'Review details and confirm order' }
 ]
 
 const GarmentServiceOrderStepper = ({ userId }) => {
