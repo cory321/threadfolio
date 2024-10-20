@@ -42,6 +42,11 @@ export const GarmentServiceOrderProvider = ({ children }) => {
     })
   }, [])
 
+  // Function to remove a garment
+  const removeGarment = useCallback(garmentId => {
+    setGarments(prevGarments => prevGarments.filter(g => g.id !== garmentId))
+  }, [])
+
   useEffect(() => {
     const storedClient = localStorage.getItem('selectedClient')
     const storedGarments = localStorage.getItem('garments')
@@ -81,9 +86,10 @@ export const GarmentServiceOrderProvider = ({ children }) => {
       setOrderId,
       garments,
       setGarments,
-      addOrUpdateGarment
+      addOrUpdateGarment,
+      removeGarment // Add removeGarment to context value
     }),
-    [activeStep, selectedClient, garmentDetails, services, orderId, garments, addOrUpdateGarment]
+    [activeStep, selectedClient, garmentDetails, services, orderId, garments, addOrUpdateGarment, removeGarment]
   )
 
   return <GarmentServiceOrderContext.Provider value={value}>{children}</GarmentServiceOrderContext.Provider>

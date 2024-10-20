@@ -1,11 +1,46 @@
-import React from 'react'
+import React, { useContext, useState } from 'react'
 
-import { Card, CardContent, Typography, Box, Grid, Button, Divider, Chip } from '@mui/material'
+import {
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  Grid,
+  Button,
+  Divider,
+  Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  IconButton
+} from '@mui/material'
 import { CldImage } from 'next-cloudinary'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import EventIcon from '@mui/icons-material/Event'
+import CloseIcon from '@mui/icons-material/Close'
+import { WarningAmberRounded } from '@mui/icons-material'
+
+import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderContext'
 
 const OrderFlowGarmentCard = ({ garment, onEdit }) => {
+  const { removeGarment } = useContext(GarmentServiceOrderContext)
+  const [isConfirmDialogOpen, setConfirmDialogOpen] = useState(false)
+
+  const handleRemove = () => {
+    setConfirmDialogOpen(true)
+  }
+
+  const handleConfirmRemove = () => {
+    removeGarment(garment.id)
+    setConfirmDialogOpen(false)
+  }
+
+  const handleCancelRemove = () => {
+    setConfirmDialogOpen(false)
+  }
+
   return (
     <Card
       sx={{
@@ -14,12 +49,30 @@ const OrderFlowGarmentCard = ({ garment, onEdit }) => {
         borderColor: 'grey.300',
         borderRadius: 2,
         boxShadow: 1,
+        position: 'relative', // Make the card position relative for absolute positioning of the close icon
         transition: '0.3s',
         '&:hover': {
           boxShadow: 3
         }
       }}
     >
+      {/* Close Icon Button */}
+      <IconButton
+        aria-label='remove garment'
+        onClick={handleRemove}
+        sx={{
+          position: 'absolute',
+          top: 8,
+          right: 8,
+          color: 'grey.500',
+          '&:hover': {
+            color: 'grey.800'
+          }
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
+
       <CardContent>
         {/* Garment Name */}
         <Typography variant='h6' gutterBottom>
@@ -127,18 +180,11 @@ const OrderFlowGarmentCard = ({ garment, onEdit }) => {
                 </Box>
               )}
 
-              {/* Instructions and Notes */}
-              {garment.notes && (
-                <Box sx={{ mt: 1 }}>
-                  <Typography variant='subtitle2' sx={{ mb: 0.5 }}>
-                    Instructions:
-                  </Typography>
-                  <Typography variant='body2'>{garment.notes}</Typography>
-                </Box>
-              )}
-
-              {/* Edit Button */}
-              <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
+              {/* Action Buttons: Edit and Remove */}
+              <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                <Button variant='text' size='small' color='primary' onClick={handleRemove}>
+                  Remove Garment
+                </Button>
                 <Button variant='contained' size='small' onClick={() => onEdit(garment)}>
                   Edit Garment
                 </Button>
@@ -147,6 +193,50 @@ const OrderFlowGarmentCard = ({ garment, onEdit }) => {
           </Grid>
         </Grid>
       </CardContent>
+
+      {/* Confirmation Dialog */}
+      <Dialog
+        open={isConfirmDialogOpen}
+        onClose={handleCancelRemove}
+        aria-labelledby='confirm-remove-title'
+        aria-describedby='confirm-remove-description'
+      >
+        <DialogTitle id='confirm-remove-title'>
+          Remove Garment
+          {/* Close Icon in Dialog Title */}
+          <IconButton
+            aria-label='close'
+            onClick={handleCancelRemove}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: 'grey.500',
+              '&:hover': {
+                color: 'grey.800'
+              }
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <WarningAmberRounded sx={{ fontSize: 64, color: 'warning.main', mb: 2 }} />
+            <DialogContentText id='confirm-remove-description'>
+              Are you sure you want to remove this garment? This action cannot be undone.
+            </DialogContentText>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelRemove} color='primary'>
+            Cancel
+          </Button>
+          <Button variant='contained' onClick={handleConfirmRemove} color='error' autoFocus>
+            Remove Garment
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   )
 }
