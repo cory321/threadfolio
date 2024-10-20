@@ -28,7 +28,7 @@ import { getFirstName } from '@components/garments/utils/garmentUtils'
 import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderContext'
 
 const GarmentDetailsDialog = ({ open, handleClose, userId, selectedClient, handleInputChange, isLoading }) => {
-  const { garmentDetails, setGarmentDetails, services, setServices, garments, setGarments, addOrUpdateGarment } =
+  const { garmentDetails, setGarmentDetails, services, setServices, addOrUpdateGarment } =
     useContext(GarmentServiceOrderContext)
 
   const [isEditMode, setIsEditMode] = useState(false)
@@ -47,6 +47,23 @@ const GarmentDetailsDialog = ({ open, handleClose, userId, selectedClient, handl
     }
   }, [garmentDetails, setServices])
 
+  // *** New useEffect to Clear Event Date if Due Date > Event Date ***
+  useEffect(() => {
+    if (
+      garmentDetails.is_event &&
+      garmentDetails.due_date &&
+      garmentDetails.event_date &&
+      new Date(garmentDetails.event_date) < new Date(garmentDetails.due_date)
+    ) {
+      setGarmentDetails(prev => ({
+        ...prev,
+        event_date: null
+      }))
+    }
+  }, [garmentDetails.due_date, garmentDetails.event_date, garmentDetails.is_event, setGarmentDetails])
+
+  // *** End of new useEffect ***
+
   const handleDateChange = field => date => {
     setGarmentDetails(prev => ({ ...prev, [field]: date }))
   }
@@ -58,6 +75,19 @@ const GarmentDetailsDialog = ({ open, handleClose, userId, selectedClient, handl
   }
 
   const handleSave = () => {
+    // Additional validation to ensure Event Date is not before Due Date
+    if (
+      garmentDetails.is_event &&
+      garmentDetails.event_date &&
+      garmentDetails.due_date &&
+      new Date(garmentDetails.event_date) < new Date(garmentDetails.due_date)
+    ) {
+      // Optionally, show an error message to the user
+      alert('Event Date cannot be before Due Date.')
+
+      return
+    }
+
     const newGarment = {
       user_id: userId,
       client_id: selectedClient.id,
@@ -157,7 +187,7 @@ const GarmentDetailsDialog = ({ open, handleClose, userId, selectedClient, handl
                       onChange={handleDateChange('event_date')}
                       customInput={<DatePickerInput label='Event Date' dateFormat='EEEE, MMMM d, yyyy' />}
                       disabled={isLoading}
-                      minDate={new Date()}
+                      minDate={garmentDetails.due_date ? new Date(garmentDetails.due_date) : new Date()}
                     />
                   )}
                 </Grid>

@@ -138,14 +138,14 @@ const GarmentServiceOrderStepper = ({ userId }) => {
               </Box>
             </Box>
             <Box display='flex' justifyContent='flex-end' mt={4}>
-              <Link href='/orders' passHref>
-                <Button variant='outlined' component='a' sx={{ mr: 2 }}>
-                  View Orders
-                </Button>
-              </Link>
-              <Button variant='contained' onClick={handleReset}>
+              <Button variant='outlined' onClick={handleReset} sx={{ mr: 2 }}>
                 Create Order
               </Button>
+              <Link href='/orders'>
+                <Button variant='contained' component='a'>
+                  View All Orders
+                </Button>
+              </Link>
             </Box>
           </>
         ) : (
