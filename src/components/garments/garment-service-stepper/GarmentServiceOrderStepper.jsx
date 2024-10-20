@@ -17,7 +17,7 @@ import { GarmentServiceOrderContext } from '@/app/contexts/GarmentServiceOrderCo
 const steps = [
   { title: 'Client Details', subtitle: 'Add or search for client' },
   { title: 'Add Garments and Services', subtitle: 'Add garment details and append services' },
-  { title: 'Order Summary', subtitle: 'Generate invoice and send to client' }
+  { title: 'Order Summary', subtitle: 'Review details and confirm order' }
 ]
 
 const GarmentServiceOrderStepper = ({ userId }) => {
@@ -138,14 +138,14 @@ const GarmentServiceOrderStepper = ({ userId }) => {
               </Box>
             </Box>
             <Box display='flex' justifyContent='flex-end' mt={4}>
-              <Link href='/orders' passHref>
-                <Button variant='outlined' component='a' sx={{ mr: 2 }}>
-                  View Orders
-                </Button>
-              </Link>
-              <Button variant='contained' onClick={handleReset}>
+              <Button variant='outlined' onClick={handleReset} sx={{ mr: 2 }}>
                 Create Order
               </Button>
+              <Link href='/orders'>
+                <Button variant='contained' component='a'>
+                  View All Orders
+                </Button>
+              </Link>
             </Box>
           </>
         ) : (

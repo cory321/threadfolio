@@ -50,18 +50,28 @@ const GarmentClientLookup = ({ userId, onClientSelect, selectedClient, setClient
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
 
-  const handleClientSelect = client => {
+  const handleClientSelectInternal = client => {
     onClientSelect(client)
     handleClose()
   }
 
   const handleClientTypeChange = event => setClientType(event.target.value)
 
+  // New function to remove client
+  const handleRemoveClient = () => {
+    onClientSelect(null) // Clear selected client in context
+    localStorage.removeItem('selectedClient') // Remove from localStorage
+  }
+
   return (
     <Grid container spacing={12}>
       <Grid item xs={12} container justifyContent='center' alignItems='center'>
         {selectedClient ? (
-          <SelectedClientCard client={selectedClient} onChangeClient={handleOpen} />
+          <SelectedClientCard
+            client={selectedClient}
+            onChangeClient={handleOpen}
+            onRemoveClient={handleRemoveClient} // Pass the remove handler
+          />
         ) : (
           <AddClientButton onClick={handleOpen} />
         )}
@@ -109,11 +119,15 @@ const GarmentClientLookup = ({ userId, onClientSelect, selectedClient, setClient
             </RadioGroup>
           </FormControl>
           {clientType === 'new' ? (
-            <AddClientInlineForm onClose={handleClose} onClientSelect={handleClientSelect} setClients={setClients} />
+            <AddClientInlineForm
+              onClose={handleClose}
+              onClientSelect={handleClientSelectInternal}
+              setClients={setClients}
+            />
           ) : (
             <ClientSearch
               userId={userId}
-              onClientSelect={handleClientSelect}
+              onClientSelect={handleClientSelectInternal}
               onClose={handleClose}
               isClientListPage={false}
             />
