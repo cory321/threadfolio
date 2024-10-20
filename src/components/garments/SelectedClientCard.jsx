@@ -7,13 +7,15 @@ import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
+import IconButton from '@mui/material/IconButton'
+import CloseIcon from '@mui/icons-material/Close'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
 import InitialsAvatar from '@/components/InitialsAvatar'
 import { formatPhoneNumber } from '@/utils/formatPhoneNumber'
 
-const SelectedClientCard = ({ client, onChangeClient }) => {
+const SelectedClientCard = ({ client, onChangeClient, onRemoveClient }) => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
@@ -23,9 +25,24 @@ const SelectedClientCard = ({ client, onChangeClient }) => {
         border: '2px solid',
         borderColor: 'primary.main',
         borderRadius: '10px',
-        width: isMobile ? '100%' : 'auto'
+        width: isMobile ? '100%' : 'auto',
+        position: 'relative' // Position relative to place the remove button
       }}
     >
+      {/* Remove Client Button */}
+      <IconButton
+        aria-label='remove client'
+        onClick={onRemoveClient}
+        sx={{
+          position: 'absolute',
+          top: 8,
+          right: 8,
+          color: theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
+
       <CardContent className={isMobile ? 'flex flex-col gap-4' : 'flex flex-row gap-6'}>
         <Box display='flex' flexDirection='column' alignItems='center' justifyContent='center' p={2}>
           {client.full_name && (
@@ -42,7 +59,7 @@ const SelectedClientCard = ({ client, onChangeClient }) => {
         <Box flex={1} p={2} display='flex' flexDirection='column' justifyContent='space-between'>
           <Box>
             {client.email && (
-              <Box display='flex' alignItems='center' mb={1}>
+              <Box display='flex' alignItems='center' mb={1} pt={isMobile ? 0 : 2}>
                 <CustomAvatar variant='rounded' color='primary' skin='light'>
                   <i className='ri-mail-line' />
                 </CustomAvatar>
@@ -52,7 +69,7 @@ const SelectedClientCard = ({ client, onChangeClient }) => {
               </Box>
             )}
             {client.phone_number && (
-              <Box display='flex' alignItems='center' mb={1}>
+              <Box display='flex' alignItems='center' mb={1} pb={isMobile ? 0 : 2}>
                 <CustomAvatar variant='rounded' color='primary' skin='light'>
                   <i className='ri-phone-fill' />
                 </CustomAvatar>
