@@ -12,8 +12,11 @@ import {
   StepLabel,
   FormControlLabel,
   Checkbox,
-  Paper
+  Paper,
+  CircularProgress
 } from '@mui/material'
+
+import { toast } from 'react-toastify' // Import toast
 
 import { saveBusinessInfo } from '@/app/actions/users'
 import BusinessHours from '@components/business-information/BusinessHours'
@@ -40,6 +43,8 @@ const OnboardingQuestions = () => {
       intervals: [] // Start with empty intervals
     }))
   })
+
+  const [isLoading, setIsLoading] = useState(false) // Loading state
 
   /**
    * Handles changes for non-address fields.
@@ -75,8 +80,6 @@ const OnboardingQuestions = () => {
     setAnswers(prevAnswers => ({
       ...prevAnswers,
       [field]: value,
-
-      // Reset state/province when country changes
       ...(field === 'country' ? { state: 'none' } : {})
     }))
   }
@@ -109,13 +112,24 @@ const OnboardingQuestions = () => {
    * Handles the completion of the onboarding process.
    */
   const handleComplete = async () => {
+    setIsLoading(true) // Start loading
+
     try {
-      await saveBusinessInfo(answers)
+      const result = await saveBusinessInfo(answers)
+
+      if (result.error) {
+        toast.error(result.error)
+        setIsLoading(false) // Stop loading on error
+
+        return
+      }
+
       router.push('/dashboard')
     } catch (error) {
       console.error('Error saving business info:', error)
-
-      // Handle error (e.g., show a notification)
+      toast.error('An unexpected error occurred. Please try again.') // Display generic error
+    } finally {
+      setIsLoading(false) // Ensure loading stops after operation
     }
   }
 
@@ -164,15 +178,13 @@ const OnboardingQuestions = () => {
               addressLine2: answers.addressLine2,
               city: answers.city,
               state: answers.state,
-              zip: answers.postalCode
+              postalCode: answers.postalCode
             }}
             handleChange={handleAddressChange}
           />
           <FormControlLabel
-            control={
-              <Checkbox checked={answers.isPickupAddress} onChange={handleCheckboxChange} name='isPickupAddress' />
-            }
-            label='Yes, this is the order pickup address'
+            control={<Checkbox onChange={handleCheckboxChange} name='isPickupAddress' defaultChecked={true} />}
+            label='Clients meet for appointments at this address'
           />
         </Box>
       )
@@ -203,11 +215,17 @@ const OnboardingQuestions = () => {
         ))}
       </Stepper>
       <Box sx={{ mt: 4 }}>{steps[activeStep].content}</Box>
+
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-        <Button disabled={activeStep === 0} onClick={handleBack}>
+        <Button disabled={activeStep === 0 || isLoading} onClick={handleBack}>
           Back
         </Button>
-        <Button variant='contained' onClick={activeStep === steps.length - 1 ? handleComplete : handleNext}>
+        <Button
+          variant='contained'
+          onClick={activeStep === steps.length - 1 ? handleComplete : handleNext}
+          disabled={isLoading}
+          startIcon={isLoading && <CircularProgress size={20} sx={{ color: 'white' }} />}
+        >
           {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
         </Button>
       </Box>

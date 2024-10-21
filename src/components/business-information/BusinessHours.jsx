@@ -11,7 +11,7 @@ import { setHours, setMinutes, addHours } from 'date-fns'
 
 import { daysOfWeek } from '@/utils/dateTimeUtils'
 
-function BusinessHours({ businessHours, setBusinessHours }) {
+function BusinessHours({ businessHours, setBusinessHours, errors }) {
   // Default open and close times: 9:00 AM and 5:00 PM
   const defaultOpenTime = setHours(setMinutes(new Date(), 0), 9)
   const defaultCloseTime = setHours(setMinutes(new Date(), 0), 17)
@@ -168,26 +168,7 @@ function BusinessHours({ businessHours, setBusinessHours }) {
                             value={interval.openTime}
                             onChange={date => handleTimeChange(index, intervalIndex, 'openTime', date)}
                             minutesStep={5} // Restrict minutes to 5-minute intervals
-                            renderInput={params => (
-                              <TextField
-                                {...params}
-                                variant='outlined'
-                                size='small'
-                                error={overlaps[intervalIndex]}
-                                sx={{
-                                  width: 100,
-                                  ...(overlaps[intervalIndex] && {
-                                    '& .MuiOutlinedInput-root fieldset': {
-                                      borderColor: 'error.main'
-                                    }
-                                  })
-                                }}
-                              />
-                            )}
                           />
-                        </Grid>
-                        <Grid item>
-                          <Typography sx={{ mx: 1 }}>-</Typography>
                         </Grid>
                         <Grid item>
                           <TimePickerComponent
@@ -244,6 +225,11 @@ function BusinessHours({ businessHours, setBusinessHours }) {
             <Divider sx={{ mt: 1 }} />
           </Box>
         ))}
+        {errors && errors.businessHours && (
+          <Typography color='error' variant='body2'>
+            {errors.businessHours}
+          </Typography>
+        )}
       </Box>
     </LocalizationProvider>
   )

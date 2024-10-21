@@ -2,11 +2,13 @@
 'use server'
 
 import { auth } from '@clerk/nextjs/server'
-
-import { format } from 'date-fns' // Ensure format is imported
+import { format } from 'date-fns'
 
 import { getSupabaseClient } from './utils'
 
+/**
+ * Dismisses the onboarding process for the authenticated user.
+ */
 export const dismissOnboarding = async () => {
   const { userId } = auth()
   const supabase = await getSupabaseClient()
@@ -23,7 +25,11 @@ export const dismissOnboarding = async () => {
   }
 }
 
-// New server action to fetch onboarding status
+/**
+ * Fetches the onboarding status of the authenticated user.
+ *
+ * @returns {boolean} - true if onboarding is completed, false otherwise.
+ */
 export const getOnboardingStatus = async () => {
   const { userId } = auth()
   const supabase = await getSupabaseClient()
@@ -42,12 +48,18 @@ export const getOnboardingStatus = async () => {
   return data.onboarding_completed
 }
 
+/**
+ * Saves the business information of the authenticated user.
+ *
+ * @param {Object} businessInfo - The business information to save.
+ * @returns {Object} - { success: true } on success or { error: string } on failure.
+ */
 export const saveBusinessInfo = async businessInfo => {
   const { userId } = auth()
   const supabase = await getSupabaseClient()
 
   if (!userId) {
-    throw new Error('User not authenticated')
+    return { error: 'User not authenticated' }
   }
 
   const { shopName, businessPhone, addressLine1, addressLine2, city, state, postalCode, country, businessHours } =
@@ -70,10 +82,56 @@ export const saveBusinessInfo = async businessInfo => {
 
   if (error) {
     console.error('Error saving business info:', error)
-    throw error
+
+    return { error: error.message }
+  }
+
+  return { success: true }
+}
+
+/**
+ * Checks if the authenticated user exists in the users_business table.
+ *
+ * @returns {Object} - { exists: boolean } on success or { error: string } on failure.
+ */
+export const checkUserBusinessExists = async () => {
+  try {
+    const { userId } = auth()
+    const supabase = await getSupabaseClient()
+
+    if (!userId) {
+      return { error: 'User not authenticated' }
+    }
+
+    // Query the users_business table for the user_id
+    const { data, error } = await supabase.from('users_business').select('user_id').eq('user_id', userId).single()
+
+    if (error && error.code !== 'PGRST116') {
+      // 'PGRST116' is Supabase's code for no rows found
+      console.error('Error checking user business existence:', error)
+
+      return { error: error.message }
+    }
+
+    // If data exists, the user has a business entry
+    if (data && data.user_id) {
+      return { exists: true }
+    } else {
+      return { exists: false }
+    }
+  } catch (err) {
+    console.error('Unexpected error in checkUserBusinessExists:', err)
+
+    return { error: 'An unexpected error occurred while checking business information.' }
   }
 }
 
+/**
+ * Formats business hours for insertion into the database.
+ *
+ * @param {Array} businessHours - Array of business hours objects.
+ * @returns {Object} - Formatted business hours.
+ */
 const formatBusinessHours = businessHours => {
   const result = {}
 

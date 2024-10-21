@@ -1,16 +1,6 @@
 import React from 'react'
 
-import {
-  TextField,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
-  Typography,
-  FormHelperText,
-  Box,
-  Grid
-} from '@mui/material'
+import { TextField, Select, MenuItem, InputLabel, FormControl, Typography, Box, Grid } from '@mui/material'
 
 import { STATES_USA, PROVINCES_CANADA, UK_COUNTIES } from '@/utils/addressUtils'
 
@@ -70,7 +60,7 @@ export default function AddressForm({ formData, handleChange }) {
   return (
     <Box sx={{ p: 2, maxWidth: 600, margin: 'auto' }}>
       <Typography variant='h6' gutterBottom sx={{ mb: 3 }}>
-        Business Address
+        What is your primary business address?
       </Typography>
       <Grid container spacing={3}>
         {/* Country Selection */}
@@ -92,28 +82,10 @@ export default function AddressForm({ formData, handleChange }) {
           </FormControl>
         </Grid>
 
-        {/* ZIP/Postal Code */}
-        {formData.country !== 'none' && (
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              required
-              size='small'
-              id='postalCode'
-              label={getZipLabel()}
-              value={formData.postalCode}
-              onChange={e => handleChange('postalCode', e.target.value)}
-              placeholder={getZipPlaceholder()}
-              helperText={getZipPlaceholder()}
-            />
-          </Grid>
-        )}
-
         {/* Address Line 1 */}
         <Grid item xs={12}>
           <TextField
             fullWidth
-            required
             size='small'
             id='addressLine1'
             label='Address Line 1'
@@ -128,7 +100,7 @@ export default function AddressForm({ formData, handleChange }) {
             fullWidth
             size='small'
             id='addressLine2'
-            label='Address Line 2 (Optional)'
+            label='Address Line 2'
             value={formData.addressLine2}
             onChange={e => handleChange('addressLine2', e.target.value)}
           />
@@ -138,7 +110,6 @@ export default function AddressForm({ formData, handleChange }) {
         <Grid item xs={12} sm={6}>
           <TextField
             fullWidth
-            required
             size='small'
             id='city'
             label='City'
@@ -150,7 +121,7 @@ export default function AddressForm({ formData, handleChange }) {
         {/* State/Province/County Selection */}
         {formData.country !== 'none' && (
           <Grid item xs={12} sm={6}>
-            <FormControl fullWidth required={formData.country !== 'GB'} size='small'>
+            <FormControl fullWidth size='small'>
               <InputLabel id='state-label'>{getStateLabel()}</InputLabel>
               <Select
                 labelId='state-label'
@@ -166,8 +137,23 @@ export default function AddressForm({ formData, handleChange }) {
                   </MenuItem>
                 ))}
               </Select>
-              {formData.country === 'GB' && <FormHelperText>Optional for UK addresses</FormHelperText>}
             </FormControl>
+          </Grid>
+        )}
+
+        {/* ZIP/Postal Code */}
+        {formData.country !== 'none' && (
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              size='small'
+              id='postalCode'
+              label={getZipLabel()}
+              value={formData.postalCode}
+              onChange={e => handleChange('postalCode', e.target.value)}
+              placeholder={getZipPlaceholder()}
+              helperText={getZipPlaceholder()}
+            />
           </Grid>
         )}
       </Grid>
