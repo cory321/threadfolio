@@ -224,7 +224,7 @@ const UpcomingAppointments = () => {
                   onClick={() => handleAppointmentClick(appointment)}
                 >
                   <Grid container alignItems='center'>
-                    <Grid item xs={9}>
+                    <Grid item xs={7}>
                       <ListItemText
                         primary={
                           <Box display='flex' alignItems='center'>
@@ -261,7 +261,7 @@ const UpcomingAppointments = () => {
                         }
                       />
                     </Grid>
-                    <Grid item xs={3}>
+                    <Grid item xs={5} textAlign='right'>
                       <Typography
                         variant='body2'
                         color='textSecondary'

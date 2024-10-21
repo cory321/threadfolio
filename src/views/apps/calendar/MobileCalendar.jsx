@@ -4,14 +4,22 @@
 import React, { useState, useEffect } from 'react'
 
 // MUI Imports
-import { Box, Typography, List, ListItem, ListItemText } from '@mui/material'
+import { Box, Typography, List, ListItemButton, ListItemText, Grid, Chip, alpha, useTheme } from '@mui/material'
 import { LocalizationProvider, DateCalendar, PickersDay } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { format, isSameDay } from 'date-fns'
+import { format, isSameDay, getDay } from 'date-fns'
+
+// Appointment Type Map
+const appointmentTypeMap = {
+  initial: 'Initial Consultation',
+  general: 'General Appointment',
+  order_pickup: 'Order Pickup'
+}
 
 // MobileCalendar Component
 const MobileCalendar = ({ events, selectedDate, setSelectedDate, handleSelectEvent, onMonthChange }) => {
   const [selectedEvents, setSelectedEvents] = useState([])
+  const theme = useTheme()
 
   useEffect(() => {
     if (selectedDate) {
@@ -60,12 +68,16 @@ const MobileCalendar = ({ events, selectedDate, setSelectedDate, handleSelectEve
     )
   }
 
+  // Days of the week array
+  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <DateCalendar
         value={selectedDate}
         onChange={newDate => setSelectedDate(newDate)}
         onMonthChange={handleMonthChange}
+        views={['month', 'day']}
         slots={{
           day: EventDay
         }}
@@ -75,22 +87,100 @@ const MobileCalendar = ({ events, selectedDate, setSelectedDate, handleSelectEve
           }
         }}
       />
-      <Box mt={2}>
+      <Box pb={6}>
         {selectedEvents.length > 0 ? (
-          <List>
-            {selectedEvents.map(event => (
-              <ListItem key={event.id} button onClick={() => handleSelectEvent(event)} divider>
-                <ListItemText
-                  primary={event.title}
-                  secondary={`${format(new Date(event.start), 'p')} - ${format(new Date(event.end), 'p')}`}
-                />
-              </ListItem>
-            ))}
-          </List>
+          <>
+            {/* Date header */}
+            <Box
+              sx={{
+                backgroundColor: alpha(theme.palette.grey[200], 0.5),
+                padding: '8px',
+                borderRadius: '4px',
+                mt: 2,
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'space-between'
+              }}
+            >
+              <Typography variant='subtitle1' color='textSecondary'>
+                {format(selectedDate, 'MMMM d, yyyy')}
+              </Typography>
+              <Typography variant='subtitle1' color='textSecondary'>
+                {daysOfWeek[getDay(selectedDate)]}
+              </Typography>
+            </Box>
+            {/* Appointments List */}
+            <List sx={{ padding: 0 }}>
+              {selectedEvents.map(appointment => (
+                <ListItemButton
+                  key={appointment.id}
+                  alignItems='flex-start'
+                  sx={{ paddingLeft: 2, paddingRight: 2 }}
+                  onClick={() => handleSelectEvent(appointment)}
+                >
+                  <Grid container alignItems='center'>
+                    <Grid item xs={7}>
+                      <ListItemText
+                        primary={
+                          <Box display='flex' alignItems='center'>
+                            <Typography
+                              variant='body1'
+                              color='textPrimary'
+                              fontWeight='bold'
+                              sx={{
+                                textDecoration:
+                                  appointment.extendedProps?.status === 'cancelled' ? 'line-through' : 'none'
+                              }}
+                            >
+                              {appointment.extendedProps?.clientName}
+                            </Typography>
+                            {appointment.extendedProps?.status === 'cancelled' && (
+                              <Chip label='Cancelled' color='error' size='small' sx={{ ml: 1 }} />
+                            )}
+                          </Box>
+                        }
+                        secondary={
+                          <Typography
+                            component='span'
+                            variant='body2'
+                            color='primary'
+                            sx={{
+                              textDecoration:
+                                appointment.extendedProps?.status === 'cancelled' ? 'line-through' : 'none'
+                            }}
+                          >
+                            {appointmentTypeMap[appointment.extendedProps?.type]}
+                          </Typography>
+                        }
+                      />
+                    </Grid>
+                    <Grid item xs={5} textAlign='right'>
+                      <Typography
+                        variant='body2'
+                        color='textSecondary'
+                        sx={{
+                          textDecoration: appointment.extendedProps?.status === 'cancelled' ? 'line-through' : 'none'
+                        }}
+                      >
+                        {`${format(new Date(appointment.start), 'p')} - ${format(new Date(appointment.end), 'p')}`}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </ListItemButton>
+              ))}
+            </List>
+          </>
         ) : (
-          <Typography variant='body1' color='textSecondary'>
-            No events for this day.
-          </Typography>
+          <Box display='flex' flexDirection='column' alignItems='center' mt={2}>
+            <Box textAlign='center' py={5}>
+              <Typography variant='h6' color='textSecondary'>
+                No appointments scheduled for this date
+              </Typography>
+              <Typography variant='body2' color='textSecondary'>
+                Scheduled appointments will display here
+              </Typography>
+            </Box>
+          </Box>
         )}
       </Box>
     </LocalizationProvider>

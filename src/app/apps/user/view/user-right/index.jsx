@@ -35,18 +35,23 @@ const UserRight = ({ tabContentList, clientId, clientName }) => {
             <CustomTabList onChange={handleChange} variant='scrollable' pill='true'>
               <Tab icon={<i className='ri-shopping-bag-line' />} value='orders' label='Orders' iconPosition='start' />
               <Tab
-                icon={<i className='ri-bookmark-line' />}
+                icon={<i className='ri-calendar-event-line' />}
                 value='appointments'
                 label='Appointments'
                 iconPosition='start'
               />
               <Tab
-                icon={<i className='ri-notification-2-line' />}
+                icon={<i className='ri-money-dollar-circle-line' />}
                 value='invoices'
                 label='Invoices'
                 iconPosition='start'
               />
-              <Tab icon={<i className='ri-link-m' />} value='overview' label='Overview' iconPosition='start' />
+              <Tab
+                icon={<i className='ri-account-circle-line' />}
+                value='preferences'
+                label='User Settings'
+                iconPosition='start'
+              />
             </CustomTabList>
           </Grid>
           <Grid item xs={12}>
