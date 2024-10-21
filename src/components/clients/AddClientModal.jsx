@@ -13,7 +13,11 @@ import {
   DialogTitle,
   DialogContent,
   IconButton,
-  useMediaQuery
+  useMediaQuery,
+  FormControlLabel,
+  Checkbox,
+  FormGroup,
+  Grid
 } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import { useAuth } from '@clerk/nextjs'
@@ -36,7 +40,9 @@ const AddClientModal = ({ open, onClose = () => {}, setClients = () => {}, onCli
       'Phone number is not valid'
     ),
     mailingAddress: Yup.string(),
-    notes: Yup.string().max(1000, 'Notes must be less than 1000 characters')
+    notes: Yup.string().max(1000, 'Notes must be less than 1000 characters'),
+    agreesToEmailNotifications: Yup.boolean(),
+    agreesToSmsNotifications: Yup.boolean()
   })
 
   const formik = useFormik({
@@ -45,7 +51,9 @@ const AddClientModal = ({ open, onClose = () => {}, setClients = () => {}, onCli
       email: '',
       phoneNumber: '',
       mailingAddress: '',
-      notes: ''
+      notes: '',
+      agreesToEmailNotifications: true,
+      agreesToSmsNotifications: true
     },
     validationSchema,
     onSubmit: async (values, { setSubmitting, resetForm, setFieldError }) => {
@@ -187,8 +195,50 @@ const AddClientModal = ({ open, onClose = () => {}, setClients = () => {}, onCli
             error={formik.touched.notes && Boolean(formik.errors.notes)}
             helperText={formik.touched.notes && formik.errors.notes}
           />
+          {/* Updated Notification Consent Section */}
+          <Box mt={2}>
+            <Typography variant='body1'>Client agrees to receive notifications by*</Typography>
+            <FormGroup>
+              <Box display='flex' justifyContent='flex-start'>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      id='agreesToEmailNotifications'
+                      name='agreesToEmailNotifications'
+                      color='primary'
+                      checked={formik.values.agreesToEmailNotifications}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                    />
+                  }
+                  label='Email'
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      id='agreesToSmsNotifications'
+                      name='agreesToSmsNotifications'
+                      color='primary'
+                      checked={formik.values.agreesToSmsNotifications}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                    />
+                  }
+                  label='SMS'
+                />
+              </Box>
+            </FormGroup>
+          </Box>
+          {/* Disclaimer */}
+          <Typography variant='caption' color='textSecondary' sx={{ fontSize: '10px' }}>
+            *By checking the Email and SMS boxes I confirm that the client has agreed to receive SMS or email
+            notifications regarding appointment reminders and other notifications. Message and data rates may apply. The
+            client can reply STOP to opt-out from SMS at any time.
+          </Typography>
+
+          {/* Add Client Button */}
           <Box mt={2} display='flex' justifyContent='flex-end'>
-            <Button variant='contained' color='primary' sx={{ mt: 2 }} type='submit' disabled={formik.isSubmitting}>
+            <Button variant='contained' color='primary' type='submit' disabled={formik.isSubmitting}>
               {formik.isSubmitting ? 'Adding...' : 'Add Client'}
             </Button>
           </Box>

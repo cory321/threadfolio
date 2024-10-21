@@ -1,3 +1,10 @@
+import SmsForm from './_components/SmsForm'
+
 export default function FinancePage() {
-  return <h1>Finance</h1>
+  return (
+    <div>
+      <h1>Send an SMS Message</h1>
+      <SmsForm />
+    </div>
+  )
 }
