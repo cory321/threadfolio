@@ -9,7 +9,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 
 import { setHours, setMinutes, addHours } from 'date-fns'
 
-const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+import { daysOfWeek } from '@/utils/dateTimeUtils'
 
 function BusinessHours({ businessHours, setBusinessHours }) {
   // Default open and close times: 9:00 AM and 5:00 PM

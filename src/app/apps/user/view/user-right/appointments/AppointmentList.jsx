@@ -1,9 +1,9 @@
 import React from 'react'
 
-import Link from 'next/link'
-
 import { List, ListItem, ListItemText, Typography, Box, Button, Chip } from '@mui/material'
 import { format, parse, getDay } from 'date-fns'
+
+import { daysOfWeek } from '@/utils/dateTimeUtils'
 
 const AppointmentList = ({ appointments, isHistory = false }) => {
   const groupedAppointments = appointments.reduce((acc, appointment) => {
@@ -23,8 +23,6 @@ const AppointmentList = ({ appointments, isHistory = false }) => {
       ? parse(b, 'MMMM d, yyyy', new Date()) - parse(a, 'MMMM d, yyyy', new Date())
       : parse(a, 'MMMM d, yyyy', new Date()) - parse(b, 'MMMM d, yyyy', new Date())
   )
-
-  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
   return (
     <Box>

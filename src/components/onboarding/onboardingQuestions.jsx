@@ -20,7 +20,7 @@ import {
 
 import BusinessHours from '@components/business-information/BusinessHours'
 
-const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+import { daysOfWeek } from '@/utils/dateTimeUtils'
 
 const OnboardingQuestions = ({ userData, onComplete }) => {
   const [activeStep, setActiveStep] = useState(0)

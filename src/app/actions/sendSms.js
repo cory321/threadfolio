@@ -3,8 +3,8 @@
 import twilio from 'twilio'
 
 export async function sendSms(to, body) {
-  const accountSid = process.env.TWILIO_ACCOUNT_SID
-  const authToken = process.env.TWILIO_AUTH_TOKEN
+  const accountSid = process.env.TWILIO_ACCOUNT_SID_TEST
+  const authToken = process.env.TWILIO_AUTH_TOKEN_TEST
   const from = process.env.TWILIO_PHONE_NUMBER
 
   const client = twilio(accountSid, authToken)
