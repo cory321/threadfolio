@@ -39,9 +39,13 @@ import AppointmentTypeRadioIcons from './AppointmentTypeRadioIcons'
 import ClientSearch from '@/components/clients/ClientSearch'
 import { adjustEndTimeIfNeeded } from '@/utils/dateTimeUtils'
 
-function AddAppointmentModal(props) {
-  const { addEventModalOpen, handleAddEventModalToggle, selectedDate, mutateAppointments = () => {}, client } = props
-
+function AddAppointmentModal({
+  addEventModalOpen,
+  handleAddEventModalToggle,
+  selectedDate,
+  mutateAppointments = () => {},
+  client
+}) {
   const { userId } = useAuth()
   const theme = useTheme()
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'))
@@ -81,9 +85,21 @@ function AddAppointmentModal(props) {
   const { handleSubmit } = useForm()
 
   useEffect(() => {
+    const today = new Date()
+
+    // Remove the time part from today's date for accurate comparison
+    today.setHours(0, 0, 0, 0)
+
+    const selected = selectedDate || new Date()
+
+    selected.setHours(0, 0, 0, 0)
+
+    // Check if selectedDate is before today
+    const appointmentDate = selected < today ? today : selected
+
     setValues(prevValues => ({
       ...prevValues,
-      appointmentDate: selectedDate || new Date()
+      appointmentDate
     }))
   }, [selectedDate])
 
@@ -172,9 +188,9 @@ function AddAppointmentModal(props) {
       )
 
       // Trigger SWR revalidation by calling mutate without data
-      const today = format(new Date(), 'yyyy-MM-dd')
+      const todayFormatted = format(new Date(), 'yyyy-MM-dd')
 
-      mutate(['appointments', today])
+      mutate(['appointments', todayFormatted])
       mutateAppointments()
       handleAddEventModalToggle()
       toast.success('Appointment added successfully')

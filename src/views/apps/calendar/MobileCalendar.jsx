@@ -77,6 +77,7 @@ const MobileCalendar = ({ events, selectedDate, setSelectedDate, handleSelectEve
         value={selectedDate}
         onChange={newDate => setSelectedDate(newDate)}
         onMonthChange={handleMonthChange}
+        views={['month', 'day']}
         slots={{
           day: EventDay
         }}
