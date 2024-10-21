@@ -4,7 +4,7 @@ import Illustrations from '@components/Illustrations'
 
 import { useImageVariant } from '@core/hooks/useImageVariant'
 
-import OnboardingQuestions from '@components/onboarding/onboardingQuestions'
+import OnboardingQuestions from './OnboardingQuestions'
 
 const OnboardingView = ({ mode, userData }) => {
   const darkImg = '/images/pages/auth-v1-mask-dark.png'

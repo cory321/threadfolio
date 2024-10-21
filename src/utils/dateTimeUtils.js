@@ -1,3 +1,5 @@
+export const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
 export function adjustEndTimeIfNeeded(startDate, endDate) {
   const start = new Date(startDate)
   const end = new Date(endDate)

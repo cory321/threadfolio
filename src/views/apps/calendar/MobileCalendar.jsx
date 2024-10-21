@@ -9,6 +9,8 @@ import { LocalizationProvider, DateCalendar, PickersDay } from '@mui/x-date-pick
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { format, isSameDay, getDay } from 'date-fns'
 
+import { daysOfWeek } from '@/utils/dateTimeUtils'
+
 // Appointment Type Map
 const appointmentTypeMap = {
   initial: 'Initial Consultation',
@@ -67,9 +69,6 @@ const MobileCalendar = ({ events, selectedDate, setSelectedDate, handleSelectEve
       />
     )
   }
-
-  // Days of the week array
-  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>

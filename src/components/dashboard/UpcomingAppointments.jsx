@@ -22,6 +22,8 @@ import { useTheme } from '@mui/material/styles'
 import { alpha } from '@mui/system'
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
 
+import { daysOfWeek } from '@/utils/dateTimeUtils'
+
 const ViewAppointmentModal = dynamic(() => import('@/views/apps/calendar/ViewAppointmentModal'), {
   ssr: false
 })
@@ -148,8 +150,6 @@ const UpcomingAppointments = () => {
   const sortedDates = Object.keys(groupedAppointments).sort(
     (a, b) => parse(a, 'MMMM d, yyyy', new Date()) - parse(b, 'MMMM d, yyyy', new Date())
   )
-
-  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
   // Get the next 5 appointment dates
   const nextFiveDates = sortedDates.slice(0, 5)
