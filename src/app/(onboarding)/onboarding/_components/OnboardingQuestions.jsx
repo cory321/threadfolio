@@ -20,7 +20,7 @@ import { toast } from 'react-toastify' // Import toast
 
 import { saveBusinessInfo } from '@/app/actions/users'
 import BusinessHours from '@components/business-information/BusinessHours'
-import AddressForm from './_components/AddressForm'
+import AddressForm from './AddressForm'
 import { daysOfWeek } from '@/utils/dateTimeUtils'
 
 const OnboardingQuestions = () => {

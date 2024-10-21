@@ -1,6 +1,6 @@
 import { currentUser } from '@clerk/nextjs/server'
 
-import OnboardingView from '@views/OnboardingView'
+import OnboardingView from './_components/OnboardingView'
 import { getMode } from '@core/utils/serverHelpers'
 
 export default async function OnboardingPage() {
