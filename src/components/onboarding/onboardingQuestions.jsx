@@ -10,30 +10,29 @@ import {
   Stepper,
   Step,
   StepLabel,
-  Radio,
-  RadioGroup,
   FormControlLabel,
-  FormControl,
   Checkbox,
   Paper
 } from '@mui/material'
 
+import { saveBusinessInfo } from '@/app/actions/users'
 import BusinessHours from '@components/business-information/BusinessHours'
-
+import AddressForm from './_components/AddressForm'
 import { daysOfWeek } from '@/utils/dateTimeUtils'
 
-const OnboardingQuestions = ({ userData, onComplete }) => {
+const OnboardingQuestions = () => {
   const [activeStep, setActiveStep] = useState(0)
   const router = useRouter()
 
   const [answers, setAnswers] = useState({
     shopName: '',
     businessPhone: '',
-    streetAddress: '',
+    addressLine1: '',
+    addressLine2: '',
     city: '',
-    state: '',
+    state: 'none',
     postalCode: '',
-    country: '',
+    country: 'none',
     isPickupAddress: false,
     businessHours: daysOfWeek.map(day => ({
       day,
@@ -42,67 +41,114 @@ const OnboardingQuestions = ({ userData, onComplete }) => {
     }))
   })
 
+  /**
+   * Handles changes for non-address fields.
+   */
+  const handleInputChange = event => {
+    const { name, value } = event.target
+
+    setAnswers(prevAnswers => ({
+      ...prevAnswers,
+      [name]: value
+    }))
+  }
+
+  /**
+   * Handles checkbox changes.
+   */
+  const handleCheckboxChange = event => {
+    const { name, checked } = event.target
+
+    setAnswers(prevAnswers => ({
+      ...prevAnswers,
+      [name]: checked
+    }))
+  }
+
+  /**
+   * Handles changes from AddressForm.
+   *
+   * @param {string} field - The field name.
+   * @param {string} value - The new value.
+   */
+  const handleAddressChange = (field, value) => {
+    setAnswers(prevAnswers => ({
+      ...prevAnswers,
+      [field]: value,
+
+      // Reset state/province when country changes
+      ...(field === 'country' ? { state: 'none' } : {})
+    }))
+  }
+
+  /**
+   * Updates business hours.
+   */
+  const setBusinessHours = updatedHours => {
+    setAnswers(prevAnswers => ({
+      ...prevAnswers,
+      businessHours: updatedHours
+    }))
+  }
+
+  /**
+   * Moves to the next step.
+   */
   const handleNext = () => {
     setActiveStep(prevActiveStep => prevActiveStep + 1)
   }
 
+  /**
+   * Moves to the previous step.
+   */
   const handleBack = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
   }
 
-  const handleInputChange = event => {
-    const { name, value } = event.target
+  /**
+   * Handles the completion of the onboarding process.
+   */
+  const handleComplete = async () => {
+    try {
+      await saveBusinessInfo(answers)
+      router.push('/dashboard')
+    } catch (error) {
+      console.error('Error saving business info:', error)
 
-    setAnswers(prevAnswers => ({ ...prevAnswers, [name]: value }))
-  }
-
-  const handleCheckboxChange = event => {
-    const { name, checked } = event.target
-
-    setAnswers(prevAnswers => ({ ...prevAnswers, [name]: checked }))
-  }
-
-  const handleRadioChange = event => {
-    const { name, value } = event.target
-
-    setAnswers(prevAnswers => ({ ...prevAnswers, [name]: value }))
-  }
-
-  const setBusinessHours = updatedHours => {
-    setAnswers(prevAnswers => ({ ...prevAnswers, businessHours: updatedHours }))
-  }
-
-  // Update the handleComplete function
-  const handleComplete = () => {
-    router.push('/dashboard')
+      // Handle error (e.g., show a notification)
+    }
   }
 
   const steps = [
     {
       label: 'Business Information',
       content: (
-        <Box>
+        <Box sx={{ p: 2, maxWidth: 600, margin: 'auto' }}>
           <Typography variant='h6' gutterBottom>
             {"What's the name of your business?"}
           </Typography>
           <TextField
             fullWidth
+            required
+            size='small'
             label='Shop Name'
             name='shopName'
             value={answers.shopName}
             onChange={handleInputChange}
-            margin='normal'
+            variant='outlined'
           />
           <Typography variant='h6' gutterBottom sx={{ mt: 2 }}>
             {"What's your business phone number?"}
           </Typography>
           <TextField
             fullWidth
+            required
+            size='small'
             label='Business Phone'
             name='businessPhone'
             value={answers.businessPhone}
             onChange={handleInputChange}
-            margin='normal'
+            variant='outlined'
           />
         </Box>
       )
@@ -110,53 +156,18 @@ const OnboardingQuestions = ({ userData, onComplete }) => {
     {
       label: 'Business Location',
       content: (
-        <Box>
-          <Typography variant='h6' gutterBottom>
-            {"What's your business location?"}
-          </Typography>
-          <TextField
-            fullWidth
-            label='Street Address'
-            name='streetAddress'
-            value={answers.streetAddress}
-            onChange={handleInputChange}
-            margin='normal'
+        <Box sx={{ p: 2, maxWidth: 600, margin: 'auto' }}>
+          <AddressForm
+            formData={{
+              country: answers.country,
+              addressLine1: answers.addressLine1,
+              addressLine2: answers.addressLine2,
+              city: answers.city,
+              state: answers.state,
+              zip: answers.postalCode
+            }}
+            handleChange={handleAddressChange}
           />
-          <TextField
-            fullWidth
-            label='City'
-            name='city'
-            value={answers.city}
-            onChange={handleInputChange}
-            margin='normal'
-          />
-          <TextField
-            fullWidth
-            label='State/Province'
-            name='state'
-            value={answers.state}
-            onChange={handleInputChange}
-            margin='normal'
-          />
-          <TextField
-            fullWidth
-            label='Postal Code'
-            name='postalCode'
-            value={answers.postalCode}
-            onChange={handleInputChange}
-            margin='normal'
-          />
-          <TextField
-            fullWidth
-            label='Country'
-            name='country'
-            value={answers.country}
-            onChange={handleInputChange}
-            margin='normal'
-          />
-          <Typography variant='h6' gutterBottom sx={{ mt: 2 }}>
-            Is this address where in-person fittings and order pickups will happen?
-          </Typography>
           <FormControlLabel
             control={
               <Checkbox checked={answers.isPickupAddress} onChange={handleCheckboxChange} name='isPickupAddress' />
@@ -180,9 +191,9 @@ const OnboardingQuestions = ({ userData, onComplete }) => {
   ]
 
   return (
-    <Paper elevation={3} sx={{ maxWidth: 800, margin: 'auto', mt: 4, p: 4, gap: 4 }}>
-      <Typography variant='h4' gutterBottom>
-        Welcome to Threadfolio!
+    <Paper elevation={3} sx={{ maxWidth: 800, margin: 'auto', mt: 4, p: 4 }}>
+      <Typography variant='h4' align='center' sx={{ mb: 8 }}>
+        A few questions to get you started
       </Typography>
       <Stepper activeStep={activeStep} alternativeLabel>
         {steps.map(step => (

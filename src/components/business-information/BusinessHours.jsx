@@ -107,8 +107,9 @@ function BusinessHours({ businessHours, setBusinessHours }) {
   // Choose TimePicker component based on screen size
   const TimePickerComponent = isMobile ? MobileTimePicker : TimePicker
 
-  // Commented out the handleAddInterval function
-  // // Add a new interval to a day
+  /**
+   * Uncomment and use this function if you want to allow multiple intervals per day
+   */
   // const handleAddInterval = dayIndex => {
   //   const updatedHours = businessHours.map((day, index) => {
   //     if (index === dayIndex) {
@@ -163,6 +164,7 @@ function BusinessHours({ businessHours, setBusinessHours }) {
                       <Grid container alignItems='center' spacing={1} key={intervalIndex} sx={{ mb: 1 }}>
                         <Grid item>
                           <TimePickerComponent
+                            label='Open'
                             value={interval.openTime}
                             onChange={date => handleTimeChange(index, intervalIndex, 'openTime', date)}
                             minutesStep={5} // Restrict minutes to 5-minute intervals
@@ -189,6 +191,7 @@ function BusinessHours({ businessHours, setBusinessHours }) {
                         </Grid>
                         <Grid item>
                           <TimePickerComponent
+                            label='Close'
                             value={interval.closeTime}
                             onChange={date => handleTimeChange(index, intervalIndex, 'closeTime', date)}
                             minutesStep={5} // Restrict minutes to 5-minute intervals
@@ -214,16 +217,12 @@ function BusinessHours({ businessHours, setBusinessHours }) {
                           <IconButton onClick={() => handleRemoveInterval(index, intervalIndex)} size='small'>
                             <CloseIcon />
                           </IconButton>
-                          {/* Commented out the Add Interval button */}
-                          {/* {intervalIndex ===
-                              businessHours[index].intervals.length - 1 && (
-                              <IconButton
-                                onClick={() => handleAddInterval(index)}
-                                size='small'
-                              >
-                                <AddIcon />
-                              </IconButton>
-                            )} */}
+                          {/* Uncomment the following block to enable adding intervals */}
+                          {/* {intervalIndex === businessHours[index].intervals.length - 1 && (
+                            <IconButton onClick={() => handleAddInterval(index)} size='small'>
+                              <AddIcon />
+                            </IconButton>
+                          )} */}
                         </Grid>
                         {overlaps[intervalIndex] && (
                           <Grid item xs={12}>

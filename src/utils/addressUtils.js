@@ -1,4 +1,4 @@
-const PROVINCES_CANADA = [
+export const PROVINCES_CANADA = [
   'Alberta',
   'British Columbia',
   'Manitoba',
@@ -14,7 +14,7 @@ const PROVINCES_CANADA = [
   'Yukon'
 ]
 
-const UK_COUNTIES = [
+export const UK_COUNTIES = [
   'Bedfordshire',
   'Berkshire',
   'Bristol',
@@ -65,7 +65,7 @@ const UK_COUNTIES = [
   'Worcestershire'
 ]
 
-const STATES_USA = [
+export const STATES_USA = [
   'Alabama',
   'Alaska',
   'Arizona',
