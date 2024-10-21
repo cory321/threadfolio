@@ -79,7 +79,7 @@ const MobileCalendar = ({ events, selectedDate, setSelectedDate, handleSelectEve
         {selectedEvents.length > 0 ? (
           <List>
             {selectedEvents.map(event => (
-              <ListItem key={event.id} button onClick={() => handleSelectEvent(event)} divider>
+              <ListItem key={event.id} onClick={() => handleSelectEvent(event)} divider>
                 <ListItemText
                   primary={event.title}
                   secondary={`${format(new Date(event.start), 'p')} - ${format(new Date(event.end), 'p')}`}
