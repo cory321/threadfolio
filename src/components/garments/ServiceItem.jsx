@@ -94,7 +94,8 @@ export default function ServiceItem({
     setIsDeleting(true)
 
     try {
-      await deleteGarmentService(service.id)
+      // Add userId as the first parameter
+      await deleteGarmentService(userId, service.id)
       setIsConfirmDialogOpen(false)
       toast.success(`${service.name} has been removed from ${garmentName}`, {
         hideProgressBar: false
@@ -136,7 +137,8 @@ export default function ServiceItem({
   // Function to handle saving the edited service
   const handleSaveEditedService = async updatedServiceData => {
     try {
-      await updateGarmentService(service.id, updatedServiceData)
+      // Add userId as the first parameter
+      await updateGarmentService(userId, service.id, updatedServiceData)
 
       // Update parent state after successful edit
       if (onServiceUpdated) {
