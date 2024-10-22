@@ -60,7 +60,7 @@ export default function DashboardContent({ showOnboarding: initialShowOnboarding
 
           <Grid item xs={12}>
             <Card>
-              <CardHeader title='Todo List' />
+              <CardHeader title='Task List' />
               <CardContent>
                 <TodoList />
               </CardContent>
@@ -87,7 +87,7 @@ export default function DashboardContent({ showOnboarding: initialShowOnboarding
                 <ActionsList isMobile={isMobile} />
                 <Box mt={4}>
                   <Card>
-                    <CardHeader title='Todo List' />
+                    <CardHeader title='Task List' />
                     <CardContent>
                       <TodoList />
                     </CardContent>

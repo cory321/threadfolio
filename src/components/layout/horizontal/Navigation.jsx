@@ -65,7 +65,7 @@ const Navigation = () => {
         })}
       >
         {/* Left Section: Logo */}
-        {!isBreakpointReached && <Logo />}
+        {!isBreakpointReached && <Logo isNavLink={true} />}
 
         {/* Middle Section: Horizontal Menu */}
         <div className='flex-grow mx-4'>

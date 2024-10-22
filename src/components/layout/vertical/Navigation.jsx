@@ -103,7 +103,7 @@ const Navigation = props => {
     >
       {/* Nav Header including Logo & nav toggle icons  */}
       <NavHeader>
-        <Logo />
+        <Logo isNavLink={true} />
       </NavHeader>
       <StyledBoxForShadow ref={shadowRef} />
       <VerticalMenu scrollMenu={scrollMenu} />

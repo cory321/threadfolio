@@ -14,8 +14,12 @@ import {
   Button,
   Dialog,
   DialogTitle,
-  DialogContent
+  DialogContent,
+  useMediaQuery
 } from '@mui/material'
+
+import IconButton from '@mui/material/IconButton'
+import CloseIcon from '@mui/icons-material/Close'
 
 import UserLeftOverview from '@/app/apps/user/view/user-left-overview'
 import UserRight from '@/app/apps/user/view/user-right'
@@ -38,6 +42,7 @@ const tabContentList = () => ({
 })
 
 const ClientProfile = () => {
+  const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
   const { id } = useParams()
 
   const [client, setClient] = useState(null)
@@ -120,8 +125,22 @@ const ClientProfile = () => {
         </Grid>
       </Grid>
 
-      <Dialog open={isEditModalOpen} onClose={handleCloseModal} maxWidth='sm' fullWidth>
-        <DialogTitle>Edit Client Information</DialogTitle>
+      <Dialog open={isEditModalOpen} onClose={handleCloseModal} maxWidth='sm' fullWidth fullScreen={isMobile}>
+        <DialogTitle>
+          Edit Client Information
+          <IconButton
+            aria-label='close'
+            onClick={handleCloseModal}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: theme => theme.palette.grey[500]
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
         <DialogContent>
           <EditClientForm client={client} onUpdate={handleClientUpdate} onCancel={handleCloseModal} />
         </DialogContent>

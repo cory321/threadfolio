@@ -2,12 +2,14 @@
 
 import React, { useState } from 'react'
 
-import { Button, Dialog, DialogTitle, DialogContent, IconButton, Box } from '@mui/material'
+import { Button, Dialog, DialogTitle, DialogContent, IconButton, Box, useTheme, useMediaQuery } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 
 import AddServiceForm from '@/components/services/AddServiceForm'
 
 const AddServiceDialog = ({ setServices }) => {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
   const [open, setOpen] = useState(false)
 
   const handleOpen = () => setOpen(true)
@@ -18,7 +20,14 @@ const AddServiceDialog = ({ setServices }) => {
       <Button variant='contained' color='primary' onClick={handleOpen}>
         Add Service
       </Button>
-      <Dialog open={open} onClose={handleClose} aria-labelledby='add-service-dialog-title' maxWidth='xs' fullWidth>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby='add-service-dialog-title'
+        maxWidth='xs'
+        fullWidth
+        fullScreen={isMobile}
+      >
         <DialogTitle id='add-service-dialog-title'>
           Add Service
           <IconButton

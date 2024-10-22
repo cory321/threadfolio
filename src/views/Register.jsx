@@ -55,7 +55,7 @@ const LoginV1 = ({ mode }) => {
       {/* <Card className='flex flex-col sm:is-[450px]'>
         <CardContent className='!p-12'>
           <div className='flex justify-center items-center gap-3 mbe-6'>
-            <Logo className='text-primary' height={28} width={35} />
+            <Logo isNavLink={true} className='text-primary' height={28} width={35} />
             <Typography variant='h4' className='font-semibold tracking-[0.15px]'>
               {themeConfig.templateName}
             </Typography>

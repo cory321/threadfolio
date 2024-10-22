@@ -7,10 +7,10 @@ import AddServiceForm from './AddServiceForm'
 
 const AddServiceModal = ({ open, onClose }) => {
   const theme = useTheme()
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'))
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth='sm' fullWidth fullScreen={isSmallScreen}>
+    <Dialog open={open} onClose={onClose} maxWidth='sm' fullWidth fullScreen={isMobile}>
       <DialogTitle>
         Add Service
         <IconButton

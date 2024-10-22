@@ -18,6 +18,8 @@ import {
 
 import { toast } from 'react-toastify' // Import toast
 
+import Logo from '@/components/layout/shared/Logo'
+
 import { saveBusinessInfo } from '@/app/actions/users'
 import BusinessHours from '@components/business-information/BusinessHours'
 import AddressForm from './AddressForm'
@@ -148,7 +150,7 @@ const OnboardingQuestions = () => {
     {
       label: 'Business Information',
       content: (
-        <Box sx={{ p: 2, maxWidth: 600, margin: 'auto' }}>
+        <Box sx={{ p: 2, maxWidth: 300, margin: 'auto' }}>
           <Typography variant='h6' gutterBottom>
             {"What's the name of your business?"}
           </Typography>
@@ -161,6 +163,7 @@ const OnboardingQuestions = () => {
             value={answers.shopName}
             onChange={handleInputChange}
             variant='outlined'
+            sx={{ mb: 4 }}
           />
           <Typography variant='h6' gutterBottom sx={{ mt: 2 }}>
             {"What's your business phone number?"}
@@ -174,6 +177,7 @@ const OnboardingQuestions = () => {
             value={answers.businessPhone}
             onChange={handleInputChange}
             variant='outlined'
+            sx={{ mb: 4 }}
           />
         </Box>
       )
@@ -195,7 +199,7 @@ const OnboardingQuestions = () => {
           />
           <FormControlLabel
             control={<Checkbox onChange={handleCheckboxChange} name='isPickupAddress' defaultChecked={true} />}
-            label='Clients meet for appointments at this address'
+            label='Clients schedule appointments at this address'
           />
         </Box>
       )
@@ -215,8 +219,11 @@ const OnboardingQuestions = () => {
 
   return (
     <Paper elevation={3} sx={{ maxWidth: 800, margin: 'auto', mt: 4, p: 4 }}>
-      <Typography variant='h4' align='center' sx={{ mb: 8 }}>
-        A few questions to get you started
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, mb: 4 }}>
+        <Logo />
+      </Box>
+      <Typography variant='h1' align='center' sx={{ mb: 8, fontSize: 20 }}>
+        Welcome to Threadfolio! Please answer a few questions to get started.
       </Typography>
       <Stepper activeStep={activeStep} alternativeLabel>
         {steps.map(step => (

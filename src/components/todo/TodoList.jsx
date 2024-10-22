@@ -117,7 +117,7 @@ const TodoListContent = () => {
           sx={{ mr: 2 }}
         />
         <Button type='submit' variant='contained' color='primary' disabled={isAddingTodo} sx={{ whiteSpace: 'nowrap' }}>
-          Add Todo
+          Add Task
         </Button>
       </Box>
       {todos && todos.length > 0 ? (
@@ -135,10 +135,10 @@ const TodoListContent = () => {
         <Box textAlign='center' py={5}>
           <ChecklistIcon fontSize='large' color='action' />
           <Typography variant='h6' color='textSecondary'>
-            No todos yet
+            No tasks yet
           </Typography>
           <Typography variant='body2' color='textSecondary'>
-            Start by adding some todos
+            Start by adding some tasks
           </Typography>
         </Box>
       )}

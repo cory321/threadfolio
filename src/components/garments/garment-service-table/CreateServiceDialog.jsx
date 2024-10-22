@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 import {
   TextField,
@@ -13,20 +13,23 @@ import {
   IconButton,
   InputAdornment,
   Typography,
-  Tooltip
+  Tooltip,
+  useMediaQuery
 } from '@mui/material'
 
 import InfoIcon from '@mui/icons-material/Info'
+import CloseIcon from '@mui/icons-material/Close'
 
 import { useAuth } from '@clerk/nextjs'
 import { toast } from 'react-toastify'
 
-import { handleUnitPriceBlur, calculateTotalPrice, handleChange } from '@/utils/serviceUtils'
+import { calculateTotalPrice, handleChange } from '@/utils/serviceUtils'
 import { addService } from '@/app/actions/services'
 import serviceUnitTypes from '@/utils/serviceUnitTypes'
 import { formatAsCurrency, parseFloatFromCurrency, formatUnitPrice } from '@/utils/currencyUtils'
 
 const CreateServiceDialog = ({ open, onClose, onServiceSelect }) => {
+  const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
   const { userId } = useAuth()
 
   const [newService, setNewService] = useState({
@@ -71,7 +74,7 @@ const CreateServiceDialog = ({ open, onClose, onServiceSelect }) => {
     try {
       const newServiceItem = await addService(userId, newService)
 
-      onServiceSelect(newServiceItem) // Add the new service to the table
+      onServiceSelect(newServiceItem)
       setNewService({
         name: '',
         description: '',
@@ -94,7 +97,7 @@ const CreateServiceDialog = ({ open, onClose, onServiceSelect }) => {
   }
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={open} onClose={onClose} fullScreen={isMobile}>
       <DialogTitle>
         Create New Service
         <Tooltip title='Service will be added to the service catalog' placement='right'>
@@ -102,6 +105,18 @@ const CreateServiceDialog = ({ open, onClose, onServiceSelect }) => {
             <InfoIcon />
           </IconButton>
         </Tooltip>
+        <IconButton
+          aria-label='close'
+          onClick={onClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: theme => theme.palette.grey[500]
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
       </DialogTitle>
       <DialogContent>
         <TextField

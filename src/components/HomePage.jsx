@@ -55,7 +55,7 @@ function HomePage({ userId, token }) {
       <AppBar position='static' color='transparent' elevation={0}>
         <Toolbar>
           <Box sx={{ flexGrow: 1 }}>
-            <Logo />
+            <Logo isNavLink={true} />
           </Box>
           {userId ? (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
