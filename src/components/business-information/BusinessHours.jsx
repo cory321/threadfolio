@@ -136,7 +136,6 @@ function BusinessHours({ businessHours, setBusinessHours, errors }) {
 
   //   setBusinessHours(updatedHours)
   // }
-
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Box>
@@ -144,7 +143,7 @@ function BusinessHours({ businessHours, setBusinessHours, errors }) {
           <Box key={day} sx={{ mb: 2 }}>
             <Grid container spacing={2} alignItems='flex-start'>
               {/* Left Column: Checkbox and Day Name */}
-              <Grid item xs={isMobile ? 3 : 2} alignSelf='flex-start'>
+              <Grid item xs={3} alignSelf='flex-start'>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <Checkbox
                     checked={businessHours[index].isOpen}
@@ -155,35 +154,43 @@ function BusinessHours({ businessHours, setBusinessHours, errors }) {
               </Grid>
 
               {/* Right Column: Intervals */}
-              <Grid item xs={isMobile ? 12 : 10}>
+              <Grid item xs={9}>
                 {businessHours[index].isOpen ? (
                   (() => {
                     const overlaps = getOverlappingIntervals(businessHours[index].intervals)
 
                     return businessHours[index].intervals.map((interval, intervalIndex) => (
-                      <Grid container alignItems='center' spacing={1} key={intervalIndex} sx={{ mb: 1 }}>
-                        <Grid item>
+                      <Grid
+                        container
+                        alignItems='center'
+                        spacing={1}
+                        key={intervalIndex}
+                        sx={{ mb: 1 }}
+                        direction='row'
+                      >
+                        <Grid item xs={5}>
                           <TimePickerComponent
                             label='Open'
                             value={interval.openTime}
                             onChange={date => handleTimeChange(index, intervalIndex, 'openTime', date)}
-                            minutesStep={5} // Restrict minutes to 5-minute intervals
+                            minutesStep={5}
+                            renderInput={params => <TextField {...params} variant='outlined' size='small' fullWidth />}
                           />
                         </Grid>
-                        <Grid item>
+                        <Grid item xs={5}>
                           <TimePickerComponent
                             label='Close'
                             value={interval.closeTime}
                             onChange={date => handleTimeChange(index, intervalIndex, 'closeTime', date)}
-                            minutesStep={5} // Restrict minutes to 5-minute intervals
+                            minutesStep={5}
                             renderInput={params => (
                               <TextField
                                 {...params}
                                 variant='outlined'
                                 size='small'
+                                fullWidth
                                 error={overlaps[intervalIndex]}
                                 sx={{
-                                  width: 100,
                                   ...(overlaps[intervalIndex] && {
                                     '& .MuiOutlinedInput-root fieldset': {
                                       borderColor: 'error.main'
@@ -194,16 +201,18 @@ function BusinessHours({ businessHours, setBusinessHours, errors }) {
                             )}
                           />
                         </Grid>
-                        <Grid item>
-                          <IconButton onClick={() => handleRemoveInterval(index, intervalIndex)} size='small'>
-                            <CloseIcon />
-                          </IconButton>
-                          {/* Uncomment the following block to enable adding intervals */}
-                          {/* {intervalIndex === businessHours[index].intervals.length - 1 && (
-                            <IconButton onClick={() => handleAddInterval(index)} size='small'>
-                              <AddIcon />
+                        <Grid item xs={2}>
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <IconButton onClick={() => handleRemoveInterval(index, intervalIndex)} size='small'>
+                              <CloseIcon />
                             </IconButton>
-                          )} */}
+                            {/* Uncomment to enable adding intervals */}
+                            {/* {intervalIndex === businessHours[index].intervals.length - 1 && (
+                              <IconButton onClick={() => handleAddInterval(index)} size='small'>
+                                <AddIcon />
+                              </IconButton>
+                            )} */}
+                          </Box>
                         </Grid>
                         {overlaps[intervalIndex] && (
                           <Grid item xs={12}>

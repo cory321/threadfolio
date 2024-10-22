@@ -73,7 +73,8 @@ export const saveBusinessInfo = async businessInfo => {
     postalCode,
     country,
     businessHours,
-    timezone
+    timezone,
+    isMeetingLocation
   } = businessInfo
 
   const formattedBusinessHours = formatBusinessHours(businessHours, timezone)
@@ -88,7 +89,8 @@ export const saveBusinessInfo = async businessInfo => {
     state_province_region: state,
     postal_code: postalCode,
     country: country,
-    business_hours: formattedBusinessHours
+    business_hours: formattedBusinessHours,
+    is_meeting_location: isMeetingLocation
   })
 
   if (error) {
@@ -168,4 +170,33 @@ const formatBusinessHours = (businessHours, timezone) => {
   })
 
   return result
+}
+
+/**
+ * Fetches the business information of the authenticated user.
+ *
+ * @returns {Object} - The business information or an error message.
+ */
+export const getBusinessInfo = async () => {
+  const { userId } = auth()
+  const supabase = await getSupabaseClient()
+
+  if (!userId) {
+    throw new Error('User not authenticated')
+  }
+
+  const { data, error } = await supabase
+    .from('users_business')
+    .select(
+      'business_name, business_phone, address_line_1, address_line_2, city, state_province_region, postal_code, country, business_hours, is_meeting_location'
+    )
+    .eq('user_id', userId)
+    .single()
+
+  if (error) {
+    console.error('Error fetching business info:', error)
+    throw error
+  }
+
+  return data
 }

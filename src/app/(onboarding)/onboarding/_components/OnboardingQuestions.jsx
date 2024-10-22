@@ -18,6 +18,8 @@ import {
 
 import { toast } from 'react-toastify' // Import toast
 
+import { setHours, setMinutes } from 'date-fns'
+
 import Logo from '@/components/layout/shared/Logo'
 
 import { saveBusinessInfo } from '@/app/actions/users'
@@ -29,6 +31,10 @@ const OnboardingQuestions = () => {
   const [activeStep, setActiveStep] = useState(0)
   const router = useRouter()
 
+  // Default open and close times
+  const defaultOpenTime = setHours(setMinutes(new Date(), 0), 9)
+  const defaultCloseTime = setHours(setMinutes(new Date(), 0), 17)
+
   const [answers, setAnswers] = useState({
     shopName: '',
     businessPhone: '',
@@ -38,12 +44,16 @@ const OnboardingQuestions = () => {
     state: 'none',
     postalCode: '',
     country: 'none',
-    isPickupAddress: false,
-    businessHours: daysOfWeek.map(day => ({
-      day,
-      isOpen: false,
-      intervals: [] // Start with empty intervals
-    })),
+    isMeetingLocation: true,
+    businessHours: daysOfWeek.map(day => {
+      const isOpenDay = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].includes(day)
+
+      return {
+        day,
+        isOpen: isOpenDay,
+        intervals: isOpenDay ? [{ openTime: defaultOpenTime, closeTime: defaultCloseTime }] : []
+      }
+    }),
     timezone: ''
   })
 
@@ -185,7 +195,7 @@ const OnboardingQuestions = () => {
     {
       label: 'Business Location',
       content: (
-        <Box sx={{ p: 2, maxWidth: 600, margin: 'auto' }}>
+        <Box sx={{ p: 2, maxWidth: 680, margin: 'auto' }}>
           <AddressForm
             formData={{
               country: answers.country,
@@ -198,8 +208,15 @@ const OnboardingQuestions = () => {
             handleChange={handleAddressChange}
           />
           <FormControlLabel
-            control={<Checkbox onChange={handleCheckboxChange} name='isPickupAddress' defaultChecked={true} />}
-            label='Clients schedule appointments at this address'
+            control={
+              <Checkbox
+                onChange={handleCheckboxChange}
+                name='isMeetingLocation'
+                defaultChecked={answers.isMeetingLocation}
+              />
+            }
+            label='Use this address for client appointments'
+            sx={{ mt: 6 }}
           />
         </Box>
       )
@@ -207,8 +224,8 @@ const OnboardingQuestions = () => {
     {
       label: 'Business Hours',
       content: (
-        <Box>
-          <Typography variant='h6' gutterBottom>
+        <Box sx={{ p: 2, maxWidth: 680, margin: 'auto' }}>
+          <Typography variant='h6' sx={{ mb: 6 }}>
             What are your business hours?
           </Typography>
           <BusinessHours businessHours={answers.businessHours} setBusinessHours={setBusinessHours} />
