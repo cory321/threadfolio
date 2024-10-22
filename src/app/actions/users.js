@@ -3,6 +3,7 @@
 
 import { auth } from '@clerk/nextjs/server'
 import { format } from 'date-fns'
+import { utcToZonedTime } from 'date-fns-tz'
 
 import { getSupabaseClient } from './utils'
 
@@ -62,10 +63,20 @@ export const saveBusinessInfo = async businessInfo => {
     return { error: 'User not authenticated' }
   }
 
-  const { shopName, businessPhone, addressLine1, addressLine2, city, state, postalCode, country, businessHours } =
-    businessInfo
+  const {
+    shopName,
+    businessPhone,
+    addressLine1,
+    addressLine2,
+    city,
+    state,
+    postalCode,
+    country,
+    businessHours,
+    timezone
+  } = businessInfo
 
-  const formattedBusinessHours = formatBusinessHours(businessHours)
+  const formattedBusinessHours = formatBusinessHours(businessHours, timezone)
 
   const { error } = await supabase.from('users_business').insert({
     user_id: userId,
@@ -130,22 +141,25 @@ export const checkUserBusinessExists = async () => {
  * Formats business hours for insertion into the database.
  *
  * @param {Array} businessHours - Array of business hours objects.
+ * @param {string} timezone - The user's timezone.
  * @returns {Object} - Formatted business hours.
  */
-const formatBusinessHours = businessHours => {
-  const result = {}
+const formatBusinessHours = (businessHours, timezone) => {
+  const result = { timezone }
 
   businessHours.forEach(day => {
     if (day.isOpen) {
       result[day.day.toLowerCase()] = day.intervals.map(interval => {
-        // Parse ISO strings back into Date objects
-        const openTime = new Date(interval.openTime)
-        const closeTime = new Date(interval.closeTime)
+        const openTimeUTC = new Date(interval.openTime)
+        const closeTimeUTC = new Date(interval.closeTime)
 
-        // Format the Date objects into the desired string format
+        // Convert times to the user's timezone
+        const openTimeZoned = utcToZonedTime(openTimeUTC, timezone)
+        const closeTimeZoned = utcToZonedTime(closeTimeUTC, timezone)
+
         return {
-          open: format(openTime, 'h:mm a'), // e.g., "9:00 AM"
-          close: format(closeTime, 'h:mm a') // e.g., "5:00 PM"
+          open: format(openTimeZoned, 'HH:mm'), // e.g., "16:00"
+          close: format(closeTimeZoned, 'HH:mm') // e.g., "00:00"
         }
       })
     } else {

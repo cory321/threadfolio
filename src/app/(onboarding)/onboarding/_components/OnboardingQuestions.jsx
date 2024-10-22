@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import { useRouter } from 'next/navigation'
 
@@ -41,7 +41,8 @@ const OnboardingQuestions = () => {
       day,
       isOpen: false,
       intervals: [] // Start with empty intervals
-    }))
+    })),
+    timezone: ''
   })
 
   const [isLoading, setIsLoading] = useState(false) // Loading state
@@ -132,6 +133,16 @@ const OnboardingQuestions = () => {
       setIsLoading(false) // Ensure loading stops after operation
     }
   }
+
+  // Capture user's timezone on component mount
+  useEffect(() => {
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+
+    setAnswers(prevAnswers => ({
+      ...prevAnswers,
+      timezone: userTimezone
+    }))
+  }, [])
 
   const steps = [
     {
