@@ -37,6 +37,8 @@ import DatePickerInput from './DatePickerInput'
 import AppointmentTypeRadioIcons from './AppointmentTypeRadioIcons'
 import ClientSearch from '@/components/clients/ClientSearch'
 
+import { combineDateAndTime, getNextNearestHour } from '@/utils/dateTimeUtils'
+
 function AddAppointmentModal({
   addEventModalOpen,
   handleAddEventModalToggle,
@@ -51,16 +53,6 @@ function AddAppointmentModal({
 
   // Define TimePickerComponent based on screen size
   const TimePickerComponent = isMobile ? MobileTimePicker : TimePicker
-
-  // Function to get the next nearest hour
-  const getNextNearestHour = () => {
-    const now = new Date()
-
-    now.setMinutes(0, 0, 0)
-    now.setHours(now.getHours() + 1)
-
-    return now
-  }
 
   const [businessLocation, setBusinessLocation] = useState('')
   const [businessHours, setBusinessHours] = useState({})
@@ -154,17 +146,6 @@ function AddAppointmentModal({
     setTimeError('')
     setTimeWarning('')
     handleAddEventModalToggle()
-  }
-
-  const combineDateAndTime = (date, time) => {
-    const combined = new Date(date)
-
-    combined.setHours(time.getHours())
-    combined.setMinutes(time.getMinutes())
-    combined.setSeconds(0)
-    combined.setMilliseconds(0)
-
-    return combined
   }
 
   const onSubmit = async () => {
