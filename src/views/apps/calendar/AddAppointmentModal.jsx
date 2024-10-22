@@ -87,10 +87,10 @@ function AddAppointmentModal({
   useEffect(() => {
     const today = new Date()
 
-    // Remove the time part from today's date for accurate comparison
     today.setHours(0, 0, 0, 0)
 
-    const selected = selectedDate || new Date()
+    // Create a new Date instance to avoid mutating selectedDate
+    const selected = new Date(selectedDate || new Date())
 
     selected.setHours(0, 0, 0, 0)
 
