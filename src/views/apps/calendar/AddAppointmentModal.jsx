@@ -17,13 +17,13 @@ import {
   useTheme,
   useMediaQuery,
   IconButton,
-  Box
+  Box,
+  Alert
 } from '@mui/material'
 import { useForm } from 'react-hook-form'
 import { useAuth } from '@clerk/nextjs'
 import { toast } from 'react-toastify'
 import CloseIcon from '@mui/icons-material/Close'
-
 import { LocalizationProvider, TimePicker, MobileTimePicker } from '@mui/x-date-pickers'
 
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -173,7 +173,7 @@ function AddAppointmentModal({
 
     // Validate that startTime and endTime are not equal
     if (values.startTime.getTime() === values.endTime.getTime()) {
-      setTimeError('Start time cannot be equal to end time.')
+      setTimeError('Start time cannot equal end time.')
 
       return
     }
@@ -272,7 +272,7 @@ function AddAppointmentModal({
   useEffect(() => {
     if (values.startTime && values.endTime) {
       if (values.endTime.getTime() === values.startTime.getTime()) {
-        setTimeError('Start time cannot be equal to end time.')
+        setTimeError('Start time cannot equal end time.')
         setTimeWarning('')
       } else {
         setTimeError('')
@@ -483,27 +483,37 @@ function AddAppointmentModal({
           {/* Display Time Validation Error */}
           {timeError && (
             <Box sx={{ mt: 1 }}>
-              <Typography variant='body2' color='error'>
-                {timeError}
-              </Typography>
+              <Alert severity='error'>{timeError}</Alert>
             </Box>
           )}
 
           {/* Display Time Warning */}
           {timeWarning && (
             <Box sx={{ mt: 1 }}>
-              <Typography variant='body2' color='warning.main'>
+              <Alert
+                severity='warning'
+                sx={{
+                  backgroundColor: 'var(--mui-palette-warning-lightOpacity)',
+                  color: '#6b5329'
+                }}
+              >
                 {timeWarning}
-              </Typography>
+              </Alert>
             </Box>
           )}
 
           {/* Display Outside Business Hours Notification */}
           {isOutsideBusinessHours && (
             <Box sx={{ mt: 1 }}>
-              <Typography variant='body2' color='warning.main'>
-                Appointment is outside of shop hours
-              </Typography>
+              <Alert
+                severity='warning'
+                sx={{
+                  backgroundColor: 'var(--mui-palette-warning-lightOpacity)',
+                  color: '#6b5329'
+                }}
+              >
+                You are scheduling an appointment outside of business hours
+              </Alert>
             </Box>
           )}
 
@@ -545,7 +555,12 @@ function AddAppointmentModal({
             label='Send Confirmation SMS'
           />
           <DialogActions>
-            <Button type='submit' variant='contained' onClick={handleSubmit(onSubmit)} disabled={isLoading}>
+            <Button
+              type='submit'
+              variant='contained'
+              onClick={handleSubmit(onSubmit)}
+              disabled={isLoading || values.startTime.getTime() === values.endTime.getTime()}
+            >
               {isLoading ? 'Scheduling...' : 'Schedule'}
             </Button>
             <Button variant='outlined' color='secondary' onClick={handleModalClose} disabled={isLoading}>
