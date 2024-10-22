@@ -30,6 +30,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 
 import InitialsAvatar from '@/components/InitialsAvatar'
 import { addAppointment } from '@/app/actions/appointments'
+import { getBusinessInfo } from '@/app/actions/users'
 
 // Import TimePicker components
 
@@ -64,17 +65,19 @@ function AddAppointmentModal({
     return now
   }
 
-  // Set default state with client info if provided
+  const [businessLocation, setBusinessLocation] = useState('')
+
   const defaultState = {
     clientId: client ? client.id : null,
     clientName: client ? client.full_name : '',
     startTime: getNextNearestHour(),
     endTime: new Date(getNextNearestHour().getTime() + 60 * 60 * 1000), // 1 hour later
-    location: '1234 Seamstress Shop Ave. Paso Robles, CA 93446',
+    location: businessLocation,
     appointmentType: 'general',
     notes: '',
     sendEmail: false,
-    sendSms: false
+    sendSms: false,
+    appointmentDate: selectedDate || new Date()
   }
 
   const [values, setValues] = useState(defaultState)
@@ -111,6 +114,40 @@ function AddAppointmentModal({
       }))
     }
   }, [values.startTime, values.endTime])
+
+  useEffect(() => {
+    async function fetchBusinessInfo() {
+      try {
+        const data = await getBusinessInfo()
+
+        if (data.is_meeting_location) {
+          const addressParts = [
+            data.address_line_1,
+            data.address_line_2,
+            data.city,
+            data.state_province_region,
+            data.postal_code,
+            data.country
+          ].filter(part => part)
+
+          const fullAddress = addressParts.join(', ')
+
+          setBusinessLocation(fullAddress)
+
+          // Update the location in values if it's empty or matches previous businessLocation
+          setValues(prevValues => ({
+            ...prevValues,
+            location:
+              prevValues.location === '' || prevValues.location === businessLocation ? fullAddress : prevValues.location
+          }))
+        }
+      } catch (error) {
+        console.error('Error fetching business info:', error)
+      }
+    }
+
+    fetchBusinessInfo()
+  }, [businessLocation])
 
   const handleModalClose = () => {
     setValues({
@@ -374,7 +411,7 @@ function AddAppointmentModal({
 
           <FormControl fullWidth margin='normal'>
             <TextField
-              label='Location'
+              label='Appointment Address'
               value={values.location}
               onChange={e => setValues({ ...values, location: e.target.value })}
             />
