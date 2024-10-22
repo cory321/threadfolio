@@ -73,7 +73,8 @@ export const saveBusinessInfo = async businessInfo => {
     postalCode,
     country,
     businessHours,
-    timezone
+    timezone,
+    isMeetingLocation
   } = businessInfo
 
   const formattedBusinessHours = formatBusinessHours(businessHours, timezone)
@@ -88,7 +89,8 @@ export const saveBusinessInfo = async businessInfo => {
     state_province_region: state,
     postal_code: postalCode,
     country: country,
-    business_hours: formattedBusinessHours
+    business_hours: formattedBusinessHours,
+    is_meeting_location: isMeetingLocation
   })
 
   if (error) {
