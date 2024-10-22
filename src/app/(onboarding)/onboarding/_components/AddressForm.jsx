@@ -58,8 +58,8 @@ export default function AddressForm({ formData, handleChange }) {
   }
 
   return (
-    <Box sx={{ p: 2, maxWidth: 600, margin: 'auto' }}>
-      <Typography variant='h6' gutterBottom sx={{ mb: 3 }}>
+    <Box>
+      <Typography variant='h6' sx={{ mb: 6 }}>
         What is your primary business address?
       </Typography>
       <Grid container spacing={3}>

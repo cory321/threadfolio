@@ -185,7 +185,7 @@ const OnboardingQuestions = () => {
     {
       label: 'Business Location',
       content: (
-        <Box sx={{ p: 2, maxWidth: 600, margin: 'auto' }}>
+        <Box sx={{ p: 2, maxWidth: 680, margin: 'auto' }}>
           <AddressForm
             formData={{
               country: answers.country,
@@ -200,6 +200,7 @@ const OnboardingQuestions = () => {
           <FormControlLabel
             control={<Checkbox onChange={handleCheckboxChange} name='isPickupAddress' defaultChecked={true} />}
             label='Clients schedule appointments at this address'
+            sx={{ mt: 6 }}
           />
         </Box>
       )
@@ -207,8 +208,8 @@ const OnboardingQuestions = () => {
     {
       label: 'Business Hours',
       content: (
-        <Box>
-          <Typography variant='h6' gutterBottom>
+        <Box sx={{ p: 2, maxWidth: 680, margin: 'auto' }}>
+          <Typography variant='h6' sx={{ mb: 6 }}>
             What are your business hours?
           </Typography>
           <BusinessHours businessHours={answers.businessHours} setBusinessHours={setBusinessHours} />
