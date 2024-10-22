@@ -32,13 +32,10 @@ import InitialsAvatar from '@/components/InitialsAvatar'
 import { addAppointment } from '@/app/actions/appointments'
 import { getBusinessInfo } from '@/app/actions/users'
 
-// Import TimePicker components
-
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 import DatePickerInput from './DatePickerInput'
 import AppointmentTypeRadioIcons from './AppointmentTypeRadioIcons'
 import ClientSearch from '@/components/clients/ClientSearch'
-import { adjustEndTimeIfNeeded } from '@/utils/dateTimeUtils'
 
 function AddAppointmentModal({
   addEventModalOpen,
@@ -66,6 +63,7 @@ function AddAppointmentModal({
   }
 
   const [businessLocation, setBusinessLocation] = useState('')
+  const [businessHours, setBusinessHours] = useState({})
 
   const defaultState = {
     clientId: client ? client.id : null,
@@ -83,7 +81,9 @@ function AddAppointmentModal({
   const [values, setValues] = useState(defaultState)
   const [isLoading, setIsLoading] = useState(false)
   const [clientError, setClientError] = useState('')
-  const [timeError, setTimeError] = useState('') // New state for time validation
+  const [timeError, setTimeError] = useState('')
+  const [timeWarning, setTimeWarning] = useState('')
+  const [isOutsideBusinessHours, setIsOutsideBusinessHours] = useState(false)
 
   const { handleSubmit } = useForm()
 
@@ -107,15 +107,6 @@ function AddAppointmentModal({
   }, [selectedDate])
 
   useEffect(() => {
-    if (values.startTime >= values.endTime) {
-      setValues(prevValues => ({
-        ...prevValues,
-        endTime: new Date(new Date(values.startTime).getTime() + 60 * 60 * 1000) // 1 hour later
-      }))
-    }
-  }, [values.startTime, values.endTime])
-
-  useEffect(() => {
     async function fetchBusinessInfo() {
       try {
         const data = await getBusinessInfo()
@@ -132,29 +123,36 @@ function AddAppointmentModal({
 
           const fullAddress = addressParts.join(', ')
 
-          setBusinessLocation(fullAddress)
+          // Only update if the address has changed
+          setBusinessLocation(prevLocation => (prevLocation !== fullAddress ? fullAddress : prevLocation))
 
           // Update the location in values if it's empty or matches previous businessLocation
           setValues(prevValues => ({
             ...prevValues,
             location:
-              prevValues.location === '' || prevValues.location === businessLocation ? fullAddress : prevValues.location
+              prevValues.location === '' || prevValues.location === prevValues.businessLocation
+                ? fullAddress
+                : prevValues.location
           }))
         }
+
+        // Set business hours in state
+        setBusinessHours(data.business_hours)
       } catch (error) {
         console.error('Error fetching business info:', error)
       }
     }
 
     fetchBusinessInfo()
-  }, [businessLocation])
+  }, [])
 
   const handleModalClose = () => {
     setValues({
       ...defaultState,
       appointmentDate: selectedDate || new Date()
     })
-    setTimeError('') // Reset time error on modal close
+    setTimeError('')
+    setTimeWarning('')
     handleAddEventModalToggle()
   }
 
@@ -211,7 +209,7 @@ function AddAppointmentModal({
         notes: values.notes
       }
 
-      const data = await addAppointment(
+      await addAppointment(
         newAppointment.clientId,
         newAppointment.userId,
         newAppointment.startTime,
@@ -254,37 +252,123 @@ function AddAppointmentModal({
 
   const handleStartTimeChange = date => {
     const newStartTime = new Date(date)
-    let newEndTime = new Date(values.endTime)
 
-    if (newStartTime >= newEndTime) {
-      newEndTime = new Date(newStartTime.getTime() + 60 * 60 * 1000) // 1 hour later
-    }
-
-    setValues({
-      ...values,
-      startTime: newStartTime,
-      endTime: newEndTime
-    })
-
-    // Reset time error if previously set
-    if (timeError && newStartTime.getTime() !== values.endTime.getTime()) {
-      setTimeError('')
-    }
+    setValues(prevValues => ({
+      ...prevValues,
+      startTime: newStartTime
+    }))
   }
 
   const handleEndTimeChange = date => {
-    const newEndTime = adjustEndTimeIfNeeded(values.startTime, date)
+    const newEndTime = new Date(date)
 
-    setValues({
-      ...values,
+    setValues(prevValues => ({
+      ...prevValues,
       endTime: newEndTime
-    })
-
-    // Reset time error if previously set
-    if (timeError && values.startTime.getTime() !== newEndTime.getTime()) {
-      setTimeError('')
-    }
+    }))
   }
+
+  // UseEffect to handle time validation and warnings
+  useEffect(() => {
+    if (values.startTime && values.endTime) {
+      if (values.endTime.getTime() === values.startTime.getTime()) {
+        setTimeError('Start time cannot be equal to end time.')
+        setTimeWarning('')
+      } else {
+        setTimeError('')
+
+        if (values.endTime.getTime() < values.startTime.getTime()) {
+          setTimeWarning('End time spans across midnight. Did you mean to do this?')
+        } else {
+          setTimeWarning('')
+        }
+      }
+    }
+  }, [values.startTime, values.endTime])
+
+  // Function to check if appointment is outside business hours
+  function isAppointmentOutsideBusinessHours(appointmentDate, startTime, endTime, businessHours) {
+    // Get the day of the week as a lowercase string, e.g., 'monday'
+    let dayOfWeek = appointmentDate.toLocaleString('en-US', { weekday: 'long' }).toLowerCase()
+
+    let appointmentStartDateTime = combineDateAndTime(appointmentDate, startTime)
+    let appointmentEndDateTime = combineDateAndTime(appointmentDate, endTime)
+
+    // If end time is before start time, assume it's for the next day
+    if (appointmentEndDateTime < appointmentStartDateTime) {
+      appointmentEndDateTime.setDate(appointmentEndDateTime.getDate() + 1)
+    }
+
+    let isWithinBusinessHours = false
+
+    // Function to check if time range is within business hours of a day
+    const isWithinDayBusinessHours = (date, startDateTime, endDateTime) => {
+      const dayOfWeek = date.toLocaleString('en-US', { weekday: 'long' }).toLowerCase()
+      const dayHours = businessHours[dayOfWeek]
+
+      if (!dayHours || dayHours === 'Closed' || dayHours.length === 0) {
+        return false
+      }
+
+      for (const interval of dayHours) {
+        const [openHour, openMinute] = interval.open.split(':').map(Number)
+        const [closeHour, closeMinute] = interval.close.split(':').map(Number)
+        const openDateTime = new Date(date)
+
+        openDateTime.setHours(openHour, openMinute, 0, 0)
+        const closeDateTime = new Date(date)
+
+        closeDateTime.setHours(closeHour, closeMinute, 0, 0)
+
+        if (startDateTime >= openDateTime && endDateTime <= closeDateTime) {
+          return true
+        }
+      }
+
+      return false
+    }
+
+    if (appointmentStartDateTime.toDateString() === appointmentEndDateTime.toDateString()) {
+      // Appointment is on the same day
+      isWithinBusinessHours = isWithinDayBusinessHours(
+        appointmentDate,
+        appointmentStartDateTime,
+        appointmentEndDateTime
+      )
+    } else {
+      // Appointment spans multiple days
+      const isWithinStartDay = isWithinDayBusinessHours(
+        appointmentStartDateTime,
+        appointmentStartDateTime,
+        new Date(appointmentStartDateTime).setHours(23, 59, 59, 999)
+      )
+
+      const isWithinEndDay = isWithinDayBusinessHours(
+        appointmentEndDateTime,
+        new Date(appointmentEndDateTime).setHours(0, 0, 0, 0),
+        appointmentEndDateTime
+      )
+
+      isWithinBusinessHours = isWithinStartDay && isWithinEndDay
+    }
+
+    return !isWithinBusinessHours
+  }
+
+  useEffect(() => {
+    if (businessHours && values.appointmentDate && values.startTime && values.endTime) {
+      const outsideBusinessHours = isAppointmentOutsideBusinessHours(
+        values.appointmentDate,
+        values.startTime,
+        values.endTime,
+        businessHours
+      )
+
+      setIsOutsideBusinessHours(outsideBusinessHours)
+    } else {
+      setIsOutsideBusinessHours(false)
+    }
+  }, [values.appointmentDate, values.startTime, values.endTime, businessHours])
 
   return (
     <Dialog
@@ -314,18 +398,14 @@ function AddAppointmentModal({
         <form onSubmit={handleSubmit(onSubmit)} autoComplete='off'>
           {/* Conditional Rendering: Show Typography with Avatar if client is passed, else show ClientSearch */}
           {client ? (
-            <Box
-              sx={{
-                mb: 2,
-                textAlign: 'center'
-              }}
-            >
+            <Box sx={{ mb: 2, textAlign: 'center' }}>
               <Typography
                 variant='h6'
                 component='div'
                 sx={{
                   display: 'flex',
-                  alignItems: 'center'
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}
               >
                 <InitialsAvatar
@@ -378,7 +458,7 @@ function AddAppointmentModal({
                     label='Start Time'
                     value={values.startTime}
                     onChange={handleStartTimeChange}
-                    minutesStep={5} // Restrict minutes to 5-minute intervals
+                    minutesStep={5}
                     renderInput={params => <TextField {...params} />}
                   />
                 </LocalizationProvider>
@@ -392,7 +472,7 @@ function AddAppointmentModal({
                     label='End Time'
                     value={values.endTime}
                     onChange={handleEndTimeChange}
-                    minutesStep={5} // Restrict minutes to 5-minute intervals
+                    minutesStep={5}
                     renderInput={params => <TextField {...params} />}
                   />
                 </LocalizationProvider>
@@ -405,6 +485,24 @@ function AddAppointmentModal({
             <Box sx={{ mt: 1 }}>
               <Typography variant='body2' color='error'>
                 {timeError}
+              </Typography>
+            </Box>
+          )}
+
+          {/* Display Time Warning */}
+          {timeWarning && (
+            <Box sx={{ mt: 1 }}>
+              <Typography variant='body2' color='warning.main'>
+                {timeWarning}
+              </Typography>
+            </Box>
+          )}
+
+          {/* Display Outside Business Hours Notification */}
+          {isOutsideBusinessHours && (
+            <Box sx={{ mt: 1 }}>
+              <Typography variant='body2' color='warning.main'>
+                Appointment is outside of shop hours
               </Typography>
             </Box>
           )}
