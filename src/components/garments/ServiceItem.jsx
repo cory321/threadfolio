@@ -197,10 +197,14 @@ export default function ServiceItem({
               {isDone && (
                 <Chip
                   icon={<CheckCircleIcon />}
-                  label='Completed'
+                  label='Done'
                   sx={{
-                    bgcolor: '#E8F5E9', // Light green background
-                    color: '#1B5E20', // Dark green text
+                    bgcolor: '#C5F799', // Light green background
+                    // Start of Selection
+                    color: '#3e700f', // Dark green text
+                    '& .MuiChip-icon': {
+                      color: '#3e700f' // Dark green icon
+                    },
                     fontWeight: 'bold',
                     borderRadius: '4px'
                   }}
