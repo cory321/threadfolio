@@ -6,9 +6,7 @@ import {
   Grid,
   Card,
   CardContent,
-  Checkbox,
   Typography,
-  FormControlLabel,
   Stack,
   ButtonBase,
   Chip,
@@ -26,13 +24,13 @@ import {
   CircularProgress
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
-import TaskAltIcon from '@mui/icons-material/TaskAlt'
 import CancelIcon from '@mui/icons-material/Cancel'
 import EditIcon from '@mui/icons-material/Edit'
 import CloseIcon from '@mui/icons-material/Close'
 import EventIcon from '@mui/icons-material/Event'
 import WarningAmberRounded from '@mui/icons-material/WarningAmberRounded'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import UndoIcon from '@mui/icons-material/Undo'
 import { format } from 'date-fns'
 import { toast } from 'react-toastify'
 
@@ -91,41 +89,22 @@ export default function ServiceItem({
   const unpaidColor = '#FDDF92'
   const unpaidTextColor = '#66593b'
 
-  // Function to open the confirmation dialog
-  const handleRemoveService = () => {
-    setIsConfirmDialogOpen(true)
-  }
-
-  // Function to remove the service
-  const removeService = async serviceId => {
-    try {
-      await deleteGarmentService(userId, serviceId)
-
-      // Update parent state after successful deletion
-      if (onServiceDeleted) {
-        onServiceDeleted(serviceId)
-      }
-
-      // Remove toast notifications from here
-    } catch (error) {
-      console.error('Error deleting service:', error)
-    } finally {
-      setIsDeleting(false)
-      setIsConfirmDialogOpen(false)
-    }
-  }
-
   // Function to handle confirmation
   const handleConfirmRemove = async () => {
     setIsDeleting(true)
 
     try {
-      await removeService(service.id)
+      await deleteGarmentService(service.id)
       setIsConfirmDialogOpen(false)
       toast.success(`${service.name} has been removed from ${garmentName}`, {
         hideProgressBar: false
       })
+
+      if (onServiceDeleted) {
+        onServiceDeleted(service.id)
+      }
     } catch (error) {
+      console.error('Error deleting service:', error)
       toast.error(`Failed to delete service: ${error.message}`, {
         hideProgressBar: false
       })
@@ -134,12 +113,17 @@ export default function ServiceItem({
     }
   }
 
-  // Function to handle cancellation
+  // Function to handle canceling the confirmation dialog
   const handleCancelRemove = () => {
     setIsConfirmDialogOpen(false)
   }
 
-  // Function to open the edit dialog
+  // Function to handle removing the service
+  const handleRemoveService = () => {
+    setIsConfirmDialogOpen(true)
+  }
+
+  // Function to handle service editing
   const handleEditService = () => {
     setIsEditDialogOpen(true)
   }
@@ -152,7 +136,7 @@ export default function ServiceItem({
   // Function to handle saving the edited service
   const handleSaveEditedService = async updatedServiceData => {
     try {
-      await updateGarmentService(userId, service.id, updatedServiceData)
+      await updateGarmentService(service.id, updatedServiceData)
 
       // Update parent state after successful edit
       if (onServiceUpdated) {
@@ -168,9 +152,12 @@ export default function ServiceItem({
       toast.error(`Failed to update service: ${error.message}`, {
         hideProgressBar: false
       })
-
-      // Do not update state because the operation failed
     }
+  }
+
+  // Function to handle toggling service completion
+  const handleToggleComplete = () => {
+    handleStatusChange(service.id)
   }
 
   return (
@@ -181,183 +168,177 @@ export default function ServiceItem({
           position: 'relative',
           border: '2px solid',
           borderColor: isDone ? 'success.main' : 'inherit',
-          transition: 'border-color 0.3s'
+          transition: 'border-color 0.3s',
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: 200 // Adjust as needed
         }}
       >
-        {isDone && (
-          <Chip
-            label='Service Complete'
-            sx={{
-              position: 'absolute',
-              top: 16,
-              right: 16,
-              backgroundColor: '#c5f799',
-              color: 'black'
-            }}
-          />
-        )}
+        <CardContent sx={{ pb: 1 }}>
+          {/* Top Section: Service Name and Chips */}
+          <Box display='flex' justifyContent='space-between' alignItems='center' sx={{ mb: 2 }}>
+            <Typography variant='h5' className='service-name'>
+              {service.name}
+            </Typography>
 
-        <CardContent>
-          <FormControlLabel
-            control={
-              <Checkbox
-                icon={<RadioButtonUncheckedIcon />}
-                checkedIcon={<TaskAltIcon />}
-                checked={isDone}
-                onChange={() => handleStatusChange(service.id)}
+            {/* Paid/Not Paid Chip and Completion Status Chip */}
+            <Box display='flex' alignItems='center' gap={1}>
+              <Chip
+                label={service.is_paid ? 'PAID' : 'NOT PAID'}
                 sx={{
-                  color: 'primary.main',
-                  '&.Mui-checked': {
-                    color: 'success.main'
-                  }
+                  bgcolor: service.is_paid ? paidColor : unpaidColor,
+                  color: service.is_paid ? paidTextColor : unpaidTextColor,
+                  fontWeight: 'bold',
+                  borderRadius: '4px'
                 }}
+                size='medium'
               />
-            }
-            label={<Typography variant='h5'>{service.name}</Typography>}
-            sx={{
-              mb: 1,
-              display: 'inline-flex',
-              padding: '8px',
-              borderRadius: '4px',
-              '& .MuiTypography-root': {
-                color: isDone ? 'text.primary' : 'primary.main',
-                transition: 'text-decoration 0.3s'
-              },
-              '&:hover .MuiTypography-root': {
-                textDecoration: 'underline'
-              }
-            }}
-          />
 
-          <Grid container spacing={2}>
-            {/* Left Column: Edit and Remove Buttons */}
-            <Grid item xs={12} sm={3}>
-              {/* Edit and Remove Service Buttons */}
-              <Stack direction='column' spacing={1}>
-                {/* Conditionally Render Edit Service Button */}
-                {!isDone && !service.is_paid && (
-                  <ButtonBase
-                    sx={{
-                      justifyContent: 'flex-start',
-                      p: 1,
-                      borderRadius: 1,
-                      '&:hover': {
-                        bgcolor: 'action.hover',
-                        '& .MuiSvgIcon-root': {
-                          color: theme.palette.primary.main
-                        },
-                        '& .MuiTypography-root': {
-                          color: theme.palette.primary.main
-                        }
-                      }
-                    }}
-                    onClick={handleEditService}
-                  >
-                    <EditIcon
-                      sx={{
-                        mr: 1,
-                        fontSize: '1.25rem',
-                        color: theme.palette.text.secondary
-                      }}
-                    />
-                    <Typography variant='body2' color='text.secondary'>
-                      Edit Service
-                    </Typography>
-                  </ButtonBase>
-                )}
-                {/* Conditionally Render Remove Service Button */}
-                {!isDone && !service.is_paid && (
-                  <ButtonBase
-                    sx={{
-                      justifyContent: 'flex-start',
-                      p: 1,
-                      borderRadius: 1,
-                      '&:hover': {
-                        bgcolor: 'action.hover',
-                        '& .MuiSvgIcon-root': {
-                          color: theme.palette.error.main
-                        },
-                        '& .MuiTypography-root': {
-                          color: theme.palette.error.main
-                        }
-                      }
-                    }}
-                    onClick={handleRemoveService}
-                  >
-                    <CancelIcon
-                      sx={{
-                        mr: 1,
-                        fontSize: '1.25rem',
-                        color: theme.palette.text.secondary
-                      }}
-                    />
-                    <Typography variant='body2' color='text.secondary'>
-                      Remove Service
-                    </Typography>
-                  </ButtonBase>
-                )}
-              </Stack>
-            </Grid>
-
-            {/* Right Column: Service Subtotal */}
-            <Grid item xs={12} sm={9}>
-              <Box textAlign={{ xs: 'left', sm: 'right' }}>
-                <Typography variant='subtitle2' gutterBottom>
-                  Service Subtotal
-                </Typography>
-                <Typography variant='h6' component='div' sx={{ display: 'inline-flex', alignItems: 'center' }}>
-                  {service.qty} {pluralizeUnit(service.unit, service.qty)} x ${formattedUnitPrice} ={' '}
-                  <Box
-                    component='span'
-                    sx={{
-                      border: '1px solid',
-                      borderColor: service.is_paid ? paidColor : unpaidColor,
-                      borderRadius: '4px',
-                      padding: '2px 6px',
-                      display: 'inline-block',
-                      ml: 1
-                    }}
-                  >
-                    <strong>${formattedTotalPrice}</strong>
-                  </Box>
-                  {/* Display the PAID/UNPAID chip */}
-                  <Chip
-                    label={service.is_paid ? 'PAID' : 'NOT PAID'}
-                    sx={{
-                      ml: 1,
-                      bgcolor: service.is_paid ? paidColor : unpaidColor,
-                      color: service.is_paid ? paidTextColor : unpaidTextColor,
-                      fontWeight: 'bold'
-                    }}
-                    size='small'
-                  />
-                </Typography>
-              </Box>
-            </Grid>
-          </Grid>
+              {isDone && (
+                <Chip
+                  icon={<CheckCircleIcon />}
+                  label='Completed'
+                  sx={{
+                    bgcolor: '#E8F5E9', // Light green background
+                    color: '#1B5E20', // Dark green text
+                    fontWeight: 'bold',
+                    borderRadius: '4px'
+                  }}
+                  size='medium'
+                />
+              )}
+            </Box>
+          </Box>
         </CardContent>
 
-        {/* Combined Accordion */}
-        <Accordion
-          expanded={expandedPanel === 'tasks'}
-          onChange={handleChange('tasks')}
-          disableGutters
-          elevation={0}
+        {/* Spacer to push content to the top */}
+        <Box sx={{ flexGrow: 1 }} />
+
+        {/* Action Buttons at the Bottom Right */}
+        <Box
           sx={{
-            '&:before': { display: 'none' },
-            borderTop: '1px solid rgba(0, 0, 0, .125)'
+            display: 'flex',
+            justifyContent: 'flex-end',
+            p: 2
           }}
         >
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant='subtitle1'>
-              Tasks
-              {totalTasks > 0 ? ` (${completedTasks}/${totalTasks})` : ''}
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <ServiceTodoList serviceId={service.id} onTasksLoaded={handleTasksLoaded} />
-          </AccordionDetails>
-        </Accordion>
+          <Stack direction='row' spacing={2}>
+            {/* Edit Service Button */}
+            {!isDone && !service.is_paid && (
+              <ButtonBase
+                sx={{
+                  width: 80,
+                  flexDirection: 'column',
+                  border: '1px solid',
+                  borderColor: 'grey.400',
+                  borderRadius: 1,
+                  p: 1,
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                    borderColor: 'primary.main',
+                    '& .MuiSvgIcon-root': {
+                      color: theme.palette.primary.main
+                    },
+                    '& .MuiTypography-root': {
+                      color: theme.palette.primary.main
+                    }
+                  }
+                }}
+                onClick={handleEditService}
+              >
+                <EditIcon
+                  sx={{
+                    fontSize: '2rem',
+                    color: theme.palette.text.secondary
+                  }}
+                />
+                <Typography variant='caption' color='text.secondary' sx={{ mt: 0.5 }}>
+                  Edit Service
+                </Typography>
+              </ButtonBase>
+            )}
+
+            {/* Remove Service Button */}
+            {!isDone && !service.is_paid && (
+              <ButtonBase
+                sx={{
+                  width: 80,
+                  flexDirection: 'column',
+                  border: '1px solid',
+                  borderColor: 'grey.400',
+                  borderRadius: 1,
+                  p: 1,
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                    borderColor: 'error.main',
+                    '& .MuiSvgIcon-root': {
+                      color: theme.palette.error.main
+                    },
+                    '& .MuiTypography-root': {
+                      color: theme.palette.error.main
+                    }
+                  }
+                }}
+                onClick={handleRemoveService}
+              >
+                <CancelIcon
+                  sx={{
+                    fontSize: '2rem',
+                    color: theme.palette.text.secondary
+                  }}
+                />
+                <Typography variant='caption' color='text.secondary' sx={{ mt: 0.5 }}>
+                  Remove Service
+                </Typography>
+              </ButtonBase>
+            )}
+
+            {/* Mark Complete / Mark Incomplete Button */}
+            <ButtonBase
+              sx={{
+                width: 80,
+                flexDirection: 'column',
+                border: '1px solid',
+                borderColor: 'grey.400',
+                borderRadius: 1,
+                p: 1,
+                '&:hover': {
+                  bgcolor: 'action.hover',
+                  borderColor: isDone ? 'warning.main' : 'success.main',
+                  '& .MuiSvgIcon-root': {
+                    color: isDone ? 'warning.main' : 'success.main'
+                  },
+                  '& .MuiTypography-root': {
+                    color: isDone ? 'warning.main' : 'success.main'
+                  }
+                }
+              }}
+              onClick={handleToggleComplete}
+            >
+              {isDone ? (
+                <UndoIcon
+                  sx={{
+                    fontSize: '2rem',
+                    color: theme.palette.text.secondary
+                  }}
+                />
+              ) : (
+                <CheckCircleIcon
+                  sx={{
+                    fontSize: '2rem',
+                    color: theme.palette.text.secondary
+                  }}
+                />
+              )}
+              <Typography variant='caption' color='text.secondary' sx={{ mt: 0.5 }}>
+                {isDone ? 'Mark Incomplete' : 'Mark Complete'}
+              </Typography>
+            </ButtonBase>
+          </Stack>
+        </Box>
+
+        {/* Description and Tasks Accordions Without Padding */}
+        {/* Description Accordion */}
         <Accordion
           expanded={expandedPanel === 'description'}
           onChange={handleChange('description')}
@@ -383,6 +364,51 @@ export default function ServiceItem({
                 This service was requested on {formattedDate}
               </Typography>
             )}
+
+            {/* Service Subtotal in Description Area */}
+            <Box mt={2}>
+              <Typography variant='subtitle2' gutterBottom>
+                Service Subtotal
+              </Typography>
+              <Typography variant='h6' component='div' sx={{ display: 'inline-flex', alignItems: 'center' }}>
+                {service.qty} {pluralizeUnit(service.unit, service.qty)} x ${formattedUnitPrice} ={' '}
+                <Box
+                  component='span'
+                  sx={{
+                    border: '1px solid',
+                    borderColor: service.is_paid ? paidColor : unpaidColor,
+                    borderRadius: '4px',
+                    padding: '2px 6px',
+                    display: 'inline-block',
+                    ml: 1
+                  }}
+                >
+                  <strong>${formattedTotalPrice}</strong>
+                </Box>
+              </Typography>
+            </Box>
+          </AccordionDetails>
+        </Accordion>
+
+        {/* Tasks Accordion */}
+        <Accordion
+          expanded={expandedPanel === 'tasks'}
+          onChange={handleChange('tasks')}
+          disableGutters
+          elevation={0}
+          sx={{
+            '&:before': { display: 'none' },
+            borderTop: '1px solid rgba(0, 0, 0, .125)'
+          }}
+        >
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant='subtitle1'>
+              Tasks
+              {totalTasks > 0 ? ` (${completedTasks}/${totalTasks})` : ''}
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <ServiceTodoList serviceId={service.id} onTasksLoaded={handleTasksLoaded} />
           </AccordionDetails>
         </Accordion>
 
