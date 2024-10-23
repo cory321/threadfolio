@@ -2,8 +2,8 @@
 
 import React from 'react'
 
-import { UserButton } from '@clerk/nextjs'
-import { AppBar, Toolbar, Typography, Button, Container, Grid, Card, CardContent, Box } from '@mui/material'
+// import { UserButton } from '@clerk/nextjs'
+import { AppBar, Toolbar, Typography, Button, Container, Grid, Card, CardContent, Box, Alert } from '@mui/material'
 
 import {
   CalendarToday as CalendarTodayIcon,
@@ -57,7 +57,7 @@ function HomePage({ userId, token }) {
           <Box sx={{ flexGrow: 1 }}>
             <Logo isNavLink={true} />
           </Box>
-          {userId ? (
+          {/* {userId ? (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <UserButton />
             </Box>
@@ -70,7 +70,7 @@ function HomePage({ userId, token }) {
                 Sign Up
               </Button>
             </>
-          )}
+          )} */}
         </Toolbar>
       </AppBar>
       <Container maxWidth='lg'>
@@ -81,7 +81,7 @@ function HomePage({ userId, token }) {
           <Typography variant='h5' component='h2' color='text.secondary' paragraph>
             Manage appointments, track garments, and collect payments—all in one place.
           </Typography>
-          {userId ? (
+          {/* {userId ? (
             <Button variant='contained' color='primary' size='large' sx={{ mt: 4 }} href='/dashboard'>
               Go to Dashboard
             </Button>
@@ -89,7 +89,23 @@ function HomePage({ userId, token }) {
             <Button variant='contained' color='primary' size='large' sx={{ mt: 4 }} href='/register'>
               Get Started
             </Button>
-          )}
+          )} */}
+          <Alert
+            severity='info'
+            sx={{
+              backgroundColor: 'var(--mui-palette-info-lightOpacity)',
+              color: '#000'
+            }}
+          >
+            Threadfolio is currently in private beta mode. If you would like to join the waitlist, please send an email
+            to
+            <a
+              href='mailto:cory@bytelogic.agency'
+              style={{ color: 'var(--mui-palette-primary-main)', fontWeight: 'bold', padding: '10px' }}
+            >
+              cory@bytelogic.agency
+            </a>
+          </Alert>
         </Box>
 
         <Grid container spacing={4} justifyContent='center'>
@@ -130,9 +146,6 @@ function HomePage({ userId, token }) {
           <Typography variant='body1' paragraph>
             Streamline operations, enhance client satisfaction, and grow your business with data-driven insights.
           </Typography>
-          <Button variant='outlined' color='primary' size='large'>
-            Learn More
-          </Button>
         </Box>
       </Container>
     </>
