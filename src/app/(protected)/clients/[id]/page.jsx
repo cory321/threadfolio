@@ -116,9 +116,11 @@ const ClientProfile = () => {
       <Grid container spacing={6} sx={{ mt: 2 }}>
         <Grid item xs={12} lg={4} md={5}>
           <UserLeftOverview userData={client} />
-          <Button variant='contained' color='primary' onClick={handleEditButtonClick} sx={{ mt: 2 }} fullWidth>
-            Edit Client Information
-          </Button>
+          <Box display='flex' justifyContent='flex-end' sx={{ mt: 2 }}>
+            <Button variant='outlined' color='primary' onClick={handleEditButtonClick}>
+              Edit Client Information
+            </Button>
+          </Box>
         </Grid>
         <Grid item xs={12} lg={8} md={7}>
           <UserRight tabContentList={tabContentList()} clientId={id} clientName={client.full_name} />

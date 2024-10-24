@@ -9,8 +9,9 @@ import LinearProgress from '@mui/material/LinearProgress'
 import TextField from '@mui/material/TextField'
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
+import Chip from '@mui/material/Chip'
 
-// THird-party Imports
+// Third-party Imports
 import classnames from 'classnames'
 import { rankItem } from '@tanstack/match-sorter-utils'
 import {
@@ -26,83 +27,73 @@ import {
   getSortedRowModel
 } from '@tanstack/react-table'
 
-// Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
-
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
 
 // Vars
-const projectTable = [
+const garmentTable = [
   {
     id: 1,
-    hours: '18:42',
     progressValue: 78,
-    totalTask: '122/240',
+    dueDate: 'Nov 15, 2024',
     progressColor: 'success',
-    projectType: 'React Project',
-    projectTitle: 'BGC eCommerce App',
-    img: '/images/logos/react-bg.png'
+    orderNumber: '#1234',
+    garmentTitle: 'Classic Sweater',
+    serviceTotal: '$120.50'
   },
   {
     id: 2,
-    hours: '20:42',
     progressValue: 18,
-    totalTask: '9/56',
+    dueDate: 'Jan 12, 2024',
     progressColor: 'error',
-    projectType: 'Figma Project',
-    projectTitle: 'Falcon Logo Design',
-    img: '/images/logos/figma-bg.png'
+    orderNumber: '#5678',
+    garmentTitle: 'Leather Jacket',
+    serviceTotal: '$85.00'
   },
   {
     id: 3,
-    hours: '120:87',
     progressValue: 62,
-    totalTask: '290/320',
+    dueDate: 'Feb 10, 2024',
     progressColor: 'primary',
-    projectType: 'VueJs Project',
-    projectTitle: 'Dashboard Design',
-    img: '/images/logos/vue-bg.png'
+    orderNumber: '#9101',
+    garmentTitle: 'Denim Jeans',
+    serviceTotal: '$45.75'
   },
   {
     id: 4,
-    hours: '89:19',
     progressValue: 8,
-    totalTask: '7/63',
+    dueDate: 'Oct 25, 2024',
     progressColor: 'error',
-    projectType: 'Xamarin Project',
-    projectTitle: 'Foodista Mobile App',
-    img: '/images/icons/mobile-bg.png'
+    orderNumber: '#1121',
+    garmentTitle: 'Silk Shirt',
+    serviceTotal: '$200.00'
   },
   {
     id: 5,
-    hours: '230:10',
     progressValue: 49,
-    totalTask: '120/186',
+    dueDate: 'Mar 8, 2024',
     progressColor: 'warning',
-    projectType: 'Python Project',
-    projectTitle: 'Dojo React Project',
-    img: '/images/logos/python-bg.png'
+    orderNumber: '#3141',
+    garmentTitle: 'Running Shorts',
+    serviceTotal: '$60.25'
   },
   {
     id: 6,
-    hours: '342:41',
     progressValue: 92,
-    totalTask: '99/109',
+    dueDate: 'Jul 8, 2024',
     progressColor: 'success',
-    projectType: 'Sketch Project',
-    projectTitle: 'Blockchain Website',
-    img: '/images/logos/sketch-bg.png'
+    orderNumber: '#5161',
+    garmentTitle: 'Board Shorts',
+    serviceTotal: '$150.00'
   },
   {
     id: 7,
-    hours: '12:45',
     progressValue: 88,
-    totalTask: '98/110',
+    dueDate: 'Dec 20, 2024',
     progressColor: 'success',
-    projectType: 'HTML Project',
-    projectTitle: 'Hoffman Website',
-    img: '/images/logos/html-bg.png'
+    orderNumber: '#7181',
+    garmentTitle: 'Baseball Cap',
+    serviceTotal: '$30.00'
   }
 ]
 
@@ -126,6 +117,7 @@ const DebouncedInput = ({ value: initialValue, onChange, debounce = 500, ...prop
   useEffect(() => {
     setValue(initialValue)
   }, [initialValue])
+
   useEffect(() => {
     const timeout = setTimeout(() => {
       onChange(value)
@@ -145,29 +137,32 @@ const GarmentListTable = () => {
   // States
   const [rowSelection, setRowSelection] = useState({})
 
-  const [data, setData] = useState(...[projectTable])
+  const [data, setData] = useState([...garmentTable])
   const [globalFilter, setGlobalFilter] = useState('')
 
   // Hooks
   const columns = useMemo(
     () => [
-      columnHelper.accessor('projectTitle', {
-        header: 'Project',
+      columnHelper.accessor('orderNumber', {
+        header: 'Order',
         cell: ({ row }) => (
-          <div className='flex items-center gap-4'>
-            <CustomAvatar src={row.original.img} size={34} />
-            <div className='flex flex-col'>
-              <Typography className='font-medium' color='text.primary'>
-                {row.original.projectTitle}
-              </Typography>
-              <Typography variant='body2'>{row.original.projectType}</Typography>
-            </div>
-          </div>
+          <Typography variant='body2' style={{ fontWeight: 'bold' }}>
+            {row.original.orderNumber}
+          </Typography>
         )
       }),
-      columnHelper.accessor('totalTask', {
-        header: 'Total Task',
-        cell: ({ row }) => <Typography color='text.primary'>{row.original.totalTask}</Typography>
+      columnHelper.accessor('garmentTitle', {
+        header: 'Garment',
+        cell: ({ row }) => (
+          <Typography className='font-medium' color='text.primary'>
+            {row.original.garmentTitle}
+          </Typography>
+        )
+      }),
+      columnHelper.display({
+        id: 'stage',
+        header: 'Stage',
+        cell: () => <Chip label='In Progress' color='primary' size='small' />
       }),
       columnHelper.accessor('progressValue', {
         header: 'Progress',
@@ -183,12 +178,20 @@ const GarmentListTable = () => {
           </>
         )
       }),
-      columnHelper.accessor('hours', {
-        header: 'Hours',
-        cell: ({ row }) => <Typography>{row.original.hours}</Typography>
+      columnHelper.accessor('dueDate', {
+        header: 'Due Date',
+        cell: ({ row }) => <Typography color='text.primary'>{row.original.dueDate}</Typography>
+      }),
+      columnHelper.accessor('serviceTotal', {
+        // Updated column name and accessor
+        header: 'Service Total',
+        cell: ({ row }) => (
+          <Typography variant='body2' style={{ fontWeight: 'bold' }}>
+            {row.original.serviceTotal}
+          </Typography>
+        )
       })
     ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   )
 
@@ -208,8 +211,6 @@ const GarmentListTable = () => {
       }
     },
     enableRowSelection: true,
-
-    // enableRowSelection: row => row.original.age > 18, // or enable row selection conditionally per row
     globalFilterFn: fuzzyFilter,
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
@@ -225,13 +226,13 @@ const GarmentListTable = () => {
   return (
     <Card>
       <CardHeader
-        title='Project List'
+        title='Order History'
         className='flex flex-wrap gap-4'
         action={
           <DebouncedInput
             value={globalFilter ?? ''}
             onChange={value => setGlobalFilter(String(value))}
-            placeholder='Search Project'
+            placeholder='Search Garment'
           />
         }
       />

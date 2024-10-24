@@ -2,18 +2,13 @@
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
-import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
-import Button from '@mui/material/Button'
-import { Box } from '@mui/material'
+import { List, ListItem, ListItemIcon, ListItemText } from '@mui/material'
 
 // Component Imports
 import { formatPhoneNumber } from '@/utils/formatPhoneNumber'
 
 // Custom Components
-import EditUserInfo from '@components/dialogs/edit-user-info'
-import ConfirmationDialog from '@components/dialogs/confirmation-dialog'
-import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 import CustomAvatar from '@core/components/mui/Avatar'
 import InitialsAvatar from '@/components/InitialsAvatar'
 
@@ -38,63 +33,81 @@ const UserDetails = ({ userData }) => {
                 <Typography variant='h3'>{userData.full_name}</Typography>
               </div>
             </div>
-            <Box mt={4} px={2}>
-              {userData.phone_number && (
-                <Box display='flex' alignItems='center' mb={2}>
-                  <CustomAvatar variant='rounded' color='primary' skin='light'>
-                    <i className='ri-phone-fill' />
-                  </CustomAvatar>
-                  <Typography variant='h5' ml={2}>
-                    {formatPhoneNumber(userData.phone_number)}
-                  </Typography>
-                </Box>
-              )}
-              {userData.email && (
-                <Box display='flex' alignItems='center' mb={2}>
-                  <CustomAvatar variant='rounded' color='primary' skin='light'>
-                    <i className='ri-mail-line' />
-                  </CustomAvatar>
-                  <Typography variant='h5' ml={2}>
-                    {userData.email}
-                  </Typography>
-                </Box>
-              )}
-            </Box>
+            <div className='grid grid-cols-2 gap-4'>
+              <div className='flex items-center gap-4'>
+                <CustomAvatar variant='rounded' color='primary' skin='light'>
+                  <i className='ri-t-shirt-line' />
+                </CustomAvatar>
+                <div>
+                  <Typography variant='h5'>25</Typography>
+                  <Typography>Garments Serviced</Typography>
+                </div>
+              </div>
+              <div className='flex items-center gap-4'>
+                <CustomAvatar variant='rounded' color='primary' skin='light'>
+                  <i className='ri-file-list-line' />
+                </CustomAvatar>
+                <div>
+                  <Typography variant='h5'>3</Typography>
+                  <Typography>Invoices Completed</Typography>
+                </div>
+              </div>
+              <div className='flex items-center gap-4'>
+                <CustomAvatar variant='rounded' color='primary' skin='light'>
+                  <i className='ri-shopping-bag-3-line' />
+                </CustomAvatar>
+                <div>
+                  <Typography variant='h5'>10</Typography>
+                  <Typography>Orders Completed</Typography>
+                </div>
+              </div>
+              <div className='flex items-center gap-4'>
+                <CustomAvatar variant='rounded' color='primary' skin='light'>
+                  <i className='ri-money-dollar-circle-line' />
+                </CustomAvatar>
+                <div>
+                  <Typography variant='h5'>$500</Typography>
+                  <Typography>Total</Typography>
+                </div>
+              </div>
+            </div>
           </div>
           <div>
             <Divider className='mlb-4' />
-            <div className='flex flex-col gap-2'>
+            <List>
+              {userData.email && (
+                <ListItem>
+                  <ListItemIcon>
+                    <i className='ri-mail-line' />
+                  </ListItemIcon>
+                  <ListItemText primary={userData.email} />
+                </ListItem>
+              )}
+              {userData.phone_number && (
+                <ListItem>
+                  <ListItemIcon>
+                    <i className='ri-phone-line' />
+                  </ListItemIcon>
+                  <ListItemText primary={formatPhoneNumber(userData.phone_number)} />
+                </ListItem>
+              )}
               {userData.mailing_address && (
-                <div className='flex items-center flex-wrap gap-x-1.5'>
-                  <Typography className='font-medium' color='text.primary'>
-                    Mailing Address:
-                  </Typography>
-                  <Typography>{userData.mailing_address}</Typography>
-                </div>
+                <ListItem>
+                  <ListItemIcon>
+                    <i className='ri-map-pin-line' />
+                  </ListItemIcon>
+                  <ListItemText primary={userData.mailing_address} />
+                </ListItem>
               )}
               {userData.notes && (
-                <div className='flex items-center flex-wrap gap-x-1.5'>
-                  <Typography className='font-medium' color='text.primary'>
-                    Private Notes:
-                  </Typography>
-                  <Typography>{userData.notes}</Typography>
-                </div>
+                <ListItem>
+                  <ListItemIcon>
+                    <i className='ri-sticky-note-line' />
+                  </ListItemIcon>
+                  <ListItemText primary='Private Notes' secondary={userData.notes} />
+                </ListItem>
               )}
-            </div>
-          </div>
-          <div className='flex gap-4 justify-center'>
-            {/* <OpenDialogOnElementClick
-              element={Button}
-              elementProps={buttonProps('Edit', 'primary', 'contained')}
-              dialog={EditUserInfo}
-              dialogProps={{ data: userData }}
-            /> */}
-            {/* <OpenDialogOnElementClick
-              element={Button}
-              elementProps={buttonProps('Suspend', 'error', 'outlined')}
-              dialog={ConfirmationDialog}
-              dialogProps={{ type: 'suspend-account' }}
-            /> */}
+            </List>
           </div>
         </CardContent>
       </Card>
