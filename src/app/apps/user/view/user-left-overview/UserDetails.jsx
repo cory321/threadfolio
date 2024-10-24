@@ -1,24 +1,50 @@
+// React Imports
+import { useState } from 'react'
+
 // MUI Imports
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Typography from '@mui/material/Typography'
-import Divider from '@mui/material/Divider'
-import { List, ListItem, ListItemIcon, ListItemText } from '@mui/material'
+import {
+  Card,
+  CardContent,
+  Typography,
+  Divider,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Box,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  IconButton,
+  useMediaQuery
+} from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
 
 // Component Imports
 import { formatPhoneNumber } from '@/utils/formatPhoneNumber'
+import EditClientForm from '@/components/clients/EditClientForm'
 
 // Custom Components
 import CustomAvatar from '@core/components/mui/Avatar'
 import InitialsAvatar from '@/components/InitialsAvatar'
 
-// Component definition
-const UserDetails = ({ userData }) => {
-  const buttonProps = (children, color, variant) => ({
-    children,
-    color,
-    variant
-  })
+const UserDetails = ({ userData, onClientUpdate }) => {
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
+
+  const handleEditButtonClick = () => {
+    setIsEditModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsEditModalOpen(false)
+  }
+
+  const handleClientUpdate = updatedClient => {
+    onClientUpdate(updatedClient)
+    setIsEditModalOpen(false)
+  }
 
   return (
     <>
@@ -34,6 +60,7 @@ const UserDetails = ({ userData }) => {
               </div>
             </div>
             <div className='grid grid-cols-2 gap-4'>
+              {/* Stats Cards */}
               <div className='flex items-center gap-4'>
                 <CustomAvatar variant='rounded' color='primary' skin='light'>
                   <i className='ri-t-shirt-line' />
@@ -109,8 +136,35 @@ const UserDetails = ({ userData }) => {
               )}
             </List>
           </div>
+          <Box display='flex' justifyContent='center'>
+            <Button variant='outlined' color='primary' onClick={handleEditButtonClick}>
+              Edit Client Information
+            </Button>
+          </Box>
         </CardContent>
       </Card>
+
+      {/* Edit Client Information Dialog */}
+      <Dialog open={isEditModalOpen} onClose={handleCloseModal} maxWidth='sm' fullWidth fullScreen={isMobile}>
+        <DialogTitle>
+          Edit Client Information
+          <IconButton
+            aria-label='close'
+            onClick={handleCloseModal}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: theme => theme.palette.grey[500]
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <EditClientForm client={userData} onUpdate={handleClientUpdate} onCancel={handleCloseModal} />
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
