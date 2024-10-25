@@ -1,19 +1,8 @@
-import { auth } from '@clerk/nextjs/server'
-
-import HomePage from '@components/HomePage'
+import LandingPageWrapper from '@views/front-pages/landing-page'
+import { getServerMode } from '@core/utils/serverHelpers'
 
 export default async function HomePageWrapper() {
-  const { userId, getToken } = auth()
-  let token = null
+  const mode = getServerMode()
 
-  if (userId) {
-    try {
-      token = await getToken({ template: 'supabase' })
-      if (!token) throw new Error('Failed to retrieve token')
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  return <HomePage userId={userId} token={token} />
+  return <LandingPageWrapper mode={mode} />
 }

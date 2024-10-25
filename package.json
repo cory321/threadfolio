@@ -55,6 +55,7 @@
     "eslint-plugin-import": "2.29.1",
     "formik": "^2.4.6",
     "isomorphic-dompurify": "^2.16.0",
+    "keen-slider": "^6.8.6",
     "libphonenumber-js": "^1.11.1",
     "next": "^14.2.14",
     "next-cloudinary": "^6.6.2",
