@@ -31,6 +31,8 @@ import { useSettings } from '@core/hooks/useSettings'
 // import defaultCoreTheme from '@core/theme'
 import mergedTheme from './mergedTheme'
 
+const defaultPrimaryColor = '#8C57FF' // Replace with your default color
+
 const ThemeProvider = props => {
   // Props
   const { children, direction, systemMode } = props
@@ -55,23 +57,25 @@ const ThemeProvider = props => {
 
   // Merge the primary color scheme override with the core theme
   const theme = useMemo(() => {
+    const primaryColor = settings.primaryColor || defaultPrimaryColor
+
     const newColorScheme = {
       colorSchemes: {
         light: {
           palette: {
             primary: {
-              main: settings.primaryColor,
-              light: lighten(settings.primaryColor, 0.2),
-              dark: darken(settings.primaryColor, 0.1)
+              main: primaryColor,
+              light: lighten(primaryColor, 0.2),
+              dark: darken(primaryColor, 0.1)
             }
           }
         },
         dark: {
           palette: {
             primary: {
-              main: settings.primaryColor,
-              light: lighten(settings.primaryColor, 0.2),
-              dark: darken(settings.primaryColor, 0.1)
+              main: primaryColor,
+              light: lighten(primaryColor, 0.2),
+              dark: darken(primaryColor, 0.1)
             }
           }
         }
