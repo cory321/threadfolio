@@ -77,13 +77,7 @@ const HeroSection = ({ mode, userId, token }) => {
             Manage appointments, track garments, and collect payments—all in one place.
           </Typography>
           <div className='mbs-8'>
-            <Button
-              component={Link}
-              href='/front-pages/landing-page#pricing-plans'
-              variant='contained'
-              color='primary'
-              size='large'
-            >
+            <Button component={Link} href='/' variant='contained' color='primary' size='large'>
               Get Early Access
             </Button>
           </div>

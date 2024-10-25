@@ -69,14 +69,14 @@ const FrontMenu = props => {
     <Wrapper isBelowLgScreen={isBelowLgScreen} isDrawerOpen={isDrawerOpen} setIsDrawerOpen={setIsDrawerOpen}>
       <Typography
         component={Link}
-        href='/front-pages/landing-page'
+        href='/'
         className={classnames('font-medium plb-3 pli-1.5 hover:text-primary', {
           'text-primary':
             !intersections.features &&
             !intersections.team &&
             !intersections.faq &&
             !intersections['contact-us'] &&
-            pathname === '/front-pages/landing-page'
+            pathname === '/'
         })}
         color='text.primary'
       >
@@ -84,7 +84,7 @@ const FrontMenu = props => {
       </Typography>
       <Typography
         component={Link}
-        href='/front-pages/landing-page#features'
+        href='/#features'
         className={classnames('font-medium plb-3 pli-1.5 hover:text-primary', {
           'text-primary': intersections.features
         })}
@@ -94,7 +94,7 @@ const FrontMenu = props => {
       </Typography>
       <Typography
         component={Link}
-        href='/front-pages/landing-page#team'
+        href='/#team'
         className={classnames('font-medium plb-3 pli-1.5 hover:text-primary', {
           'text-primary': intersections.team
         })}
@@ -104,7 +104,7 @@ const FrontMenu = props => {
       </Typography>
       <Typography
         component={Link}
-        href='/front-pages/landing-page#faq'
+        href='/#faq'
         className={classnames('font-medium plb-3 pli-1.5 hover:text-primary', {
           'text-primary': intersections.faq
         })}
@@ -114,22 +114,13 @@ const FrontMenu = props => {
       </Typography>
       <Typography
         component={Link}
-        href='/front-pages/landing-page#contact-us'
+        href='/#contact-us'
         className={classnames('font-medium plb-3 pli-1.5 hover:text-primary', {
           'text-primary': intersections['contact-us']
         })}
         color='text.primary'
       >
         Contact us
-      </Typography>
-      <Typography
-        component={Link}
-        href='/'
-        target='_blank'
-        className='font-medium plb-3 pli-1.5 hover:text-primary'
-        color='text.primary'
-      >
-        Admin
       </Typography>
     </Wrapper>
   )
