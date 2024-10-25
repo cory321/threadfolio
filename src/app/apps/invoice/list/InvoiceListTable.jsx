@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useState, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 
 // Next Imports
 import Link from 'next/link'
@@ -9,11 +9,16 @@ import { useParams } from 'next/navigation'
 
 // MUI Imports
 import Card from '@mui/material/Card'
-import CardHeader from '@mui/material/CardHeader'
+import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
+import Checkbox from '@mui/material/Checkbox'
+import Chip from '@mui/material/Chip'
 import IconButton from '@mui/material/IconButton'
-import Menu from '@mui/material/Menu'
+import TextField from '@mui/material/TextField'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
+import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 import Tooltip from '@mui/material/Tooltip'
 import TablePagination from '@mui/material/TablePagination'
@@ -38,6 +43,9 @@ import {
 import OptionMenu from '@core/components/option-menu'
 import CustomAvatar from '@core/components/mui/Avatar'
 
+// Util Imports
+import { getInitials } from '@/utils/getInitials'
+
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
 
@@ -52,6 +60,25 @@ const fuzzyFilter = (row, columnId, value, addMeta) => {
 
   // Return if the item should be filtered in/out
   return itemRank.passed
+}
+
+const DebouncedInput = ({ value: initialValue, onChange, debounce = 500, ...props }) => {
+  // States
+  const [value, setValue] = useState(initialValue)
+
+  useEffect(() => {
+    setValue(initialValue)
+  }, [initialValue])
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      onChange(value)
+    }, debounce)
+
+    return () => clearTimeout(timeout)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value])
+
+  return <TextField {...props} value={value} onChange={e => setValue(e.target.value)} size='small' />
 }
 
 // Vars
@@ -69,26 +96,45 @@ const columnHelper = createColumnHelper()
 
 const InvoiceListTable = ({ invoiceData }) => {
   // States
+  const [status, setStatus] = useState('')
   const [rowSelection, setRowSelection] = useState({})
-
   const [data, setData] = useState(...[invoiceData])
+  const [filteredData, setFilteredData] = useState(data)
   const [globalFilter, setGlobalFilter] = useState('')
-  const [anchorEl, setAnchorEl] = useState(null)
-
-  // Vars
-  const open = Boolean(anchorEl)
 
   // Hooks
   const { lang: locale } = useParams()
 
   const columns = useMemo(
     () => [
+      {
+        id: 'select',
+        header: ({ table }) => (
+          <Checkbox
+            {...{
+              checked: table.getIsAllRowsSelected(),
+              indeterminate: table.getIsSomeRowsSelected(),
+              onChange: table.getToggleAllRowsSelectedHandler()
+            }}
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            {...{
+              checked: row.getIsSelected(),
+              disabled: !row.getCanSelect(),
+              indeterminate: row.getIsSomeSelected(),
+              onChange: row.getToggleSelectedHandler()
+            }}
+          />
+        )
+      },
       columnHelper.accessor('id', {
         header: '#',
         cell: ({ row }) => (
           <Typography
             component={Link}
-            href={`invoice/preview/${row.original.id}`}
+            href={`/invoice/preview/${row.original.id}`}
             color='primary'
           >{`#${row.original.id}`}</Typography>
         )
@@ -116,9 +162,23 @@ const InvoiceListTable = ({ invoiceData }) => {
             }
           >
             <CustomAvatar skin='light' color={invoiceStatusObj[row.original.invoiceStatus].color} size={28}>
-              <i className={classnames('text-base', invoiceStatusObj[row.original.invoiceStatus].icon)} />
+              <i className={classnames('bs-4 is-4', invoiceStatusObj[row.original.invoiceStatus].icon)} />
             </CustomAvatar>
           </Tooltip>
+        )
+      }),
+      columnHelper.accessor('name', {
+        header: 'Client',
+        cell: ({ row }) => (
+          <div className='flex items-center gap-3'>
+            {getAvatar({ avatar: row.original.avatar, name: row.original.name })}
+            <div className='flex flex-col'>
+              <Typography className='font-medium' color='text.primary'>
+                {row.original.name}
+              </Typography>
+              <Typography variant='body2'>{row.original.companyEmail}</Typography>
+            </div>
+          </div>
         )
       }),
       columnHelper.accessor('total', {
@@ -129,37 +189,48 @@ const InvoiceListTable = ({ invoiceData }) => {
         header: 'Issued Date',
         cell: ({ row }) => <Typography>{row.original.issuedDate}</Typography>
       }),
+      columnHelper.accessor('balance', {
+        header: 'Balance',
+        cell: ({ row }) => {
+          return row.original.balance === 0 ? (
+            <Chip variant='tonal' label='Paid' color='success' size='small' />
+          ) : (
+            <Typography color='text.primary'>{row.original.balance}</Typography>
+          )
+        }
+      }),
       columnHelper.accessor('action', {
         header: 'Action',
         cell: ({ row }) => (
           <div className='flex items-center'>
-            <IconButton>
-              <i className='ri-delete-bin-7-line text-[22px] text-textSecondary' />
+            <IconButton onClick={() => setData(data?.filter(invoice => invoice.id !== row.original.id))}>
+              <i className='ri-delete-bin-7-line text-textSecondary' />
             </IconButton>
             <IconButton>
-              <Link href={`apps/invoice/preview/${row.original.id}`} className='flex'>
-                <i className='ri-eye-line text-[22px] text-textSecondary' />
+              <Link href={`/invoice/preview/${row.original.id}`} className='flex'>
+                <i className='ri-eye-line text-textSecondary' />
               </Link>
             </IconButton>
             <OptionMenu
-              iconClassName='text-[22px] text-textSecondary'
+              iconButtonProps={{ size: 'medium' }}
+              iconClassName='text-textSecondary'
               options={[
                 {
                   text: 'Download',
-                  icon: 'ri-download-line text-[22px]',
+                  icon: 'ri-download-line',
                   menuItemProps: { className: 'flex items-center gap-2 text-textSecondary' }
                 },
                 {
                   text: 'Edit',
-                  icon: 'ri-pencil-line text-[22px]',
-                  href: `invoice/edit/${row.original.id}`,
+                  icon: 'ri-pencil-line',
+                  href: `/invoice/edit/${row.original.id}`,
                   linkProps: {
-                    className: classnames('flex items-center bs-[40px] plb-2 pli-4 is-full gap-2 text-textSecondary')
+                    className: 'flex items-center is-full plb-2 pli-4 gap-2 text-textSecondary'
                   }
                 },
                 {
                   text: 'Duplicate',
-                  icon: 'ri-file-copy-line text-[22px]',
+                  icon: 'ri-file-copy-line',
                   menuItemProps: { className: 'flex items-center gap-2 text-textSecondary' }
                 }
               ]}
@@ -170,11 +241,11 @@ const InvoiceListTable = ({ invoiceData }) => {
       })
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [data, filteredData]
   )
 
   const table = useReactTable({
-    data: data,
+    data: filteredData,
     columns,
     filterFns: {
       fuzzy: fuzzyFilter
@@ -188,8 +259,7 @@ const InvoiceListTable = ({ invoiceData }) => {
         pageSize: 10
       }
     },
-    enableRowSelection: true,
-
+    enableRowSelection: true, //enable row selection for all rows
     // enableRowSelection: row => row.original.age > 18, // or enable row selection conditionally per row
     globalFilterFn: fuzzyFilter,
     onRowSelectionChange: setRowSelection,
@@ -203,52 +273,77 @@ const InvoiceListTable = ({ invoiceData }) => {
     getFacetedMinMaxValues: getFacetedMinMaxValues()
   })
 
-  const handleClick = event => {
-    setAnchorEl(event.currentTarget)
+  const getAvatar = params => {
+    const { avatar, name } = params
+
+    if (avatar) {
+      return <CustomAvatar src={avatar} skin='light' size={34} />
+    } else {
+      return (
+        <CustomAvatar skin='light' size={34}>
+          {getInitials(name)}
+        </CustomAvatar>
+      )
+    }
   }
 
-  const handleClose = () => {
-    setAnchorEl(null)
-  }
+  useEffect(() => {
+    const filteredData = data?.filter(invoice => {
+      if (status && invoice.invoiceStatus.toLowerCase().replace(/\s+/g, '-') !== status) return false
+
+      return true
+    })
+
+    setFilteredData(filteredData)
+  }, [status, data, setFilteredData])
 
   return (
     <Card>
-      <CardHeader
-        title='Invoice List'
-        sx={{ '& .MuiCardHeader-action': { m: 0 } }}
-        action={
-          <>
-            <Button
-              variant='contained'
-              aria-haspopup='true'
-              onClick={handleClick}
-              aria-expanded={open ? 'true' : undefined}
-              endIcon={<i className='ri-arrow-down-s-line' />}
-              aria-controls={open ? 'user-view-overview-export' : undefined}
+      <CardContent className='flex justify-between gap-4 flex-wrap flex-col sm:flex-row items-center'>
+        <Button
+          variant='contained'
+          component={Link}
+          startIcon={<i className='ri-add-line' />}
+          href={'invoice/add'}
+          className='max-sm:is-full'
+        >
+          Create Invoice
+        </Button>
+        <div className='flex flex-col sm:flex-row max-sm:is-full items-center gap-4'>
+          <DebouncedInput
+            value={globalFilter ?? ''}
+            onChange={value => setGlobalFilter(String(value))}
+            placeholder='Search Invoice'
+            className='max-sm:is-full min-is-[200px]'
+          />
+          <FormControl fullWidth size='small' className='min-is-[175px]'>
+            <InputLabel id='status-select'>Invoice Status</InputLabel>
+            <Select
+              fullWidth
+              id='select-status'
+              value={status}
+              onChange={e => setStatus(e.target.value)}
+              label='Invoice Status'
+              labelId='status-select'
             >
-              Export
-            </Button>
-            <Menu open={open} anchorEl={anchorEl} onClose={handleClose} id='user-view-overview-export'>
-              <MenuItem onClick={handleClose} className='uppercase'>
-                pdf
-              </MenuItem>
-              <MenuItem onClick={handleClose} className='uppercase'>
-                xlsx
-              </MenuItem>
-              <MenuItem onClick={handleClose} className='uppercase'>
-                csv
-              </MenuItem>
-            </Menu>
-          </>
-        }
-      />
+              <MenuItem value=''>none</MenuItem>
+              <MenuItem value='downloaded'>Downloaded</MenuItem>
+              <MenuItem value='draft'>Draft</MenuItem>
+              <MenuItem value='paid'>Paid</MenuItem>
+              <MenuItem value='partial-payment'>Partial Payment</MenuItem>
+              <MenuItem value='past-due'>Past Due</MenuItem>
+              <MenuItem value='sent'>Sent</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+      </CardContent>
       <div className='overflow-x-auto'>
         <table className={tableStyles.table}>
           <thead>
             {table.getHeaderGroups().map(headerGroup => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map(header => (
-                  <th key={header.id} {...(header.id === 'action' && { className: 'max-is-24' })}>
+                  <th key={header.id}>
                     {header.isPlaceholder ? null : (
                       <>
                         <div
@@ -271,22 +366,30 @@ const InvoiceListTable = ({ invoiceData }) => {
               </tr>
             ))}
           </thead>
-          <tbody>
-            {table
-              .getRowModel()
-              .rows.slice(0, table.getState().pagination.pageSize)
-              .map(row => {
-                return (
-                  <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
-                    {row.getVisibleCells().map(cell => (
-                      <td key={cell.id} {...(cell.id.includes('action') && { className: 'max-is-24' })}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
-                  </tr>
-                )
-              })}
-          </tbody>
+          {table.getFilteredRowModel().rows.length === 0 ? (
+            <tbody>
+              <tr>
+                <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
+                  No data available
+                </td>
+              </tr>
+            </tbody>
+          ) : (
+            <tbody>
+              {table
+                .getRowModel()
+                .rows.slice(0, table.getState().pagination.pageSize)
+                .map(row => {
+                  return (
+                    <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
+                      {row.getVisibleCells().map(cell => (
+                        <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                      ))}
+                    </tr>
+                  )
+                })}
+            </tbody>
+          )}
         </table>
       </div>
       <TablePagination

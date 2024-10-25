@@ -74,7 +74,6 @@ const ClientProfile = () => {
 
   const handleClientUpdate = updatedClient => {
     setClient(updatedClient)
-    setIsEditModalOpen(false)
   }
 
   const handleEditButtonClick = () => {
@@ -110,15 +109,15 @@ const ClientProfile = () => {
       <Breadcrumb
         items={[
           { label: 'Clients', href: '/clients' },
-          { label: client.full_name || `Client #${client.id}`, href: `/clients/${client.id}` }
+          {
+            label: client.full_name || `Client #${client.id}`,
+            href: `/clients/${client.id}`
+          }
         ]}
       />
       <Grid container spacing={6} sx={{ mt: 2 }}>
         <Grid item xs={12} lg={4} md={5}>
-          <UserLeftOverview userData={client} />
-          <Button variant='contained' color='primary' onClick={handleEditButtonClick} sx={{ mt: 2 }} fullWidth>
-            Edit Client Information
-          </Button>
+          <UserLeftOverview userData={client} onClientUpdate={handleClientUpdate} />
         </Grid>
         <Grid item xs={12} lg={8} md={7}>
           <UserRight tabContentList={tabContentList()} clientId={id} clientName={client.full_name} />

@@ -112,9 +112,9 @@ const HorizontalMenu = () => {
           Services
         </MenuItem>
         <MenuItem
-          href='/finance'
+          href='/invoice'
           icon={<i className='ri-money-dollar-circle-line' />}
-          active={pathname.startsWith('/finance')}
+          active={pathname.startsWith('/invoice')}
         >
           Invoices
         </MenuItem>

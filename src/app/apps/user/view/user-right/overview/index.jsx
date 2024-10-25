@@ -2,7 +2,7 @@
 import Grid from '@mui/material/Grid'
 
 // Component Imports
-import ProjectListTable from './ProjectListTable'
+import GarmentListTable from './GarmentListTable'
 import UserActivityTimeLine from './UserActivityTimeline'
 import InvoiceListTable from './InvoiceListTable'
 
@@ -23,7 +23,7 @@ const OverViewTab = async () => {
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
-        <ProjectListTable />
+        <GarmentListTable />
       </Grid>
       <Grid item xs={12}>
         <UserActivityTimeLine />
