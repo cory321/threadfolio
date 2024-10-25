@@ -33,7 +33,7 @@ const actions = [
     modal: 'appointment'
   },
   { id: 'new-service', icon: 'ri-service-line', text: 'New Service', link: '/services', modal: 'service' },
-  { id: 'new-invoice', icon: 'ri-file-list-line', text: 'New Invoice', link: '/finance', modal: null }
+  { id: 'new-invoice', icon: 'ri-file-list-line', text: 'New Invoice', link: '/invoice', modal: null }
 ]
 
 // Modal Components Mapping
