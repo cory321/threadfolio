@@ -20,7 +20,6 @@ import classnames from 'classnames'
 import { UserButton, useUser } from '@clerk/nextjs'
 
 import Logo from '@components/layout/shared/Logo'
-import ModeDropdown from '@components/layout/shared/ModeDropdown'
 import FrontMenu from './FrontMenu'
 
 // Util Imports
@@ -48,59 +47,60 @@ const Header = ({ mode }) => {
       <div className={classnames(frontLayoutClasses.navbar, styles.navbar, { [styles.headerScrolled]: trigger })}>
         <div className={classnames(frontLayoutClasses.navbarContent, styles.navbarContent)}>
           {isBelowLgScreen ? (
-            // For small screens
-            <div className='flex items-center gap-2 sm:gap-4'>
-              <IconButton onClick={() => setIsDrawerOpen(true)} className='-mis-2'>
-                <i className='ri-menu-line text-textPrimary' />
-              </IconButton>
-              <Link href='/'>
-                <Logo />
-              </Link>
-              <FrontMenu mode={mode} isDrawerOpen={isDrawerOpen} setIsDrawerOpen={setIsDrawerOpen} />
+            <>
+              <div className='flex items-center gap-2 sm:gap-4'>
+                <IconButton onClick={() => setIsDrawerOpen(true)} className='-mis-2'>
+                  <i className='ri-menu-line text-textPrimary' />
+                </IconButton>
+                <Link href='/'>
+                  <Logo />
+                </Link>
+                <FrontMenu mode={mode} isDrawerOpen={isDrawerOpen} setIsDrawerOpen={setIsDrawerOpen} />
+              </div>
               {user ? (
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <UserButton />
-                  <Button variant='contained' color='primary' size='large' sx={{ mt: 4 }} href='/dashboard'>
+                <div className='flex items-center gap-2 justify-end'>
+                  <Button variant='contained' color='primary' size='large' href='/dashboard'>
                     Go to Dashboard
                   </Button>
-                </Box>
+                  <UserButton />
+                </div>
               ) : (
-                <>
+                <div className='flex items-center gap-2 justify-end'>
                   <Button color='inherit' href='/login'>
                     Login
                   </Button>
-                  <Button variant='contained' color='primary' sx={{ ml: 2 }} href='/register'>
+                  <Button variant='contained' color='primary' href='/register'>
                     Sign Up
                   </Button>
-                </>
+                </div>
               )}
-            </div>
+            </>
           ) : (
-            // For large screens
-            <div className='flex items-center gap-10'>
-              <Link href='/'>
-                <Logo />
-              </Link>
-              <FrontMenu mode={mode} isDrawerOpen={isDrawerOpen} setIsDrawerOpen={setIsDrawerOpen} />
-              <div className='flex-grow' />
+            <>
+              <div className='flex items-center gap-10'>
+                <Link href='/'>
+                  <Logo />
+                </Link>
+                <FrontMenu mode={mode} isDrawerOpen={isDrawerOpen} setIsDrawerOpen={setIsDrawerOpen} />
+              </div>
               {user ? (
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <UserButton />
-                  <Button variant='contained' color='primary' size='large' sx={{ mt: 4 }} href='/dashboard'>
+                <div className='flex items-center gap-2 justify-end'>
+                  <Button variant='contained' color='primary' size='large' href='/dashboard'>
                     Go to Dashboard
                   </Button>
-                </Box>
+                  <UserButton />
+                </div>
               ) : (
-                <>
+                <div className='flex items-center gap-2 justify-end'>
                   <Button color='inherit' href='/login'>
                     Login
                   </Button>
-                  <Button variant='contained' color='primary' sx={{ ml: 2 }} href='/register'>
+                  <Button variant='contained' color='primary' href='/register'>
                     Sign Up
                   </Button>
-                </>
+                </div>
               )}
-            </div>
+            </>
           )}
         </div>
       </div>
