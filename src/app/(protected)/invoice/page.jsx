@@ -8,7 +8,7 @@ export default async function FinancePage() {
   return (
     <div>
       <h1>Invoices</h1>
-      return <InvoiceList invoiceData={data} />
+      <InvoiceList invoiceData={data} />
       {/* <SmsForm /> */}
     </div>
   )
